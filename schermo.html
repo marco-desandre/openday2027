@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schermo Sala d'Attesa - OpenDay 2027</title>
+    <style>
+        body { 
+            font-family: sans-serif; 
+            background: #1a1a2e; 
+            color: #ffffff; 
+            text-align: center; 
+            padding: 40px 20px; 
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .container { 
+            max-width: 800px; 
+            margin: auto; 
+            background: #16213e; 
+            padding: 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5); 
+        }
+        h1 { 
+            color: #e94560; 
+            margin-top: 0; 
+            font-size: 36px; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+        }
+        .istruzioni { 
+            font-size: 20px; 
+            color: #a0aab2; 
+            margin-bottom: 30px; 
+        }
+        
+        /* Box dei numeri chiamati */
+        #listaChiamati {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .biglietto-chiamato {
+            background: #ffc107;
+            color: #000;
+            font-size: 60px;
+            font-weight: bold;
+            padding: 20px 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+            animation: lampcheggio 1.2s infinite alternate;
+        }
+
+        .nessun-turno {
+            font-size: 24px;
+            color: #6c757d;
+            font-style: italic;
+            background: #0f3460;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        /* Effetto lampeggiante per attirare l'attenzione */
+        @keyframes lampcheggio {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.05); opacity: 0.85; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>OpenDay 2027</h1>
+        <div class="istruzioni">Prossimi numeri chiamati al banco iscrizioni:</div>
+        
+        <div id="listaChiamati">
+            <div class="nessun-turno">In attesa di chiamate...</div>
+        </div>
+    </div>
+
+    <!-- Script Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAXtD-62C2rWpsZoEhW85HN1pxTe8a5jL4",
+            authDomain: "opendayiscrizioni.firebaseapp.com",
+            databaseURL: "https://opendayiscrizioni-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "opendayiscrizioni",
+            storageBucket: "opendayiscrizioni.firebasestorage.app",
+            messagingSenderId: "448538612897",
+            appId: "1:448538612897:web:437a8b17991687fc0a8ce0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const codaRef = ref(db, 'coda');
+
+        onValue(codaRef, (snapshot) => {
+            const data = snapshot.val();
+            const container = document.getElementById('listaChiamati');
+            container.innerHTML = '';
+
+            if (!data) {
+                container.innerHTML = '<div class="nessun-turno">Nessun turno in corso.</div>';
+                return;
+            }
+
+            // Trasformiamo l'oggetto in array e ordiniamo cronologicamente per ricavare i numeri esatti dei biglietti
+            const arrayCoda = Object.keys(data).map(id => ({ id, ...data[id] }))
+                .sort((a, b) => a.timestamp - b.timestamp);
+
+            // Filtriamo solo quelli con stato 'chiamato'
+            const chiamati = arrayCoda.filter(item => item.stato === 'chiamato');
+
+            if (chiamati.length === 0) {
+                container.innerHTML = '<div class="nessun-turno">Nessun numero chiamato al momento. Attendi il tuo turno.</div>';
+                return;
+            }
+
+            // Mostriamo i numeri dei biglietti chiamati
+            chiamati.forEach(persona => {
+                // Calcoliamo il numero progressivo del biglietto basandoci sulla posizione cronologica generale
+                const numeroBiglietto = arrayCoda.findIndex(p => p.id === persona.id) + 1;
+
+                const div = document.createElement('div');
+                div.className = 'biglietto-chiamato';
+                div.innerText = `N° ${numeroBiglietto}`;
+                container.appendChild(div);
+            });
+        });
+    </script>
+</body>
+</html>

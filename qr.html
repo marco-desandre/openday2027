@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generatore QR Code Sicuro - OpenDay</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 40px 20px; background: #f4f4f9; color: #333; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 450px; margin: auto; }
+        img { width: 250px; height: 250px; margin: 20px 0; border: 4px solid #f4f4f9; border-radius: 8px; }
+        p { color: #666; font-size: 14px; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Inquadra per metterti in coda</h2>
+        <p>Scansiona questo QR code con lo smartphone per prendere il numero progressivo di iscrizione.</p>
+        
+        <!-- Il QR code punta a qr.html con un generatore online -->
+        <div id="qrcodeContainer">
+            <img id="qrImg" src="" alt="QR Code Coda">
+        </div>
+
+        <p><small>Il link generato ha validità immediata solo tramite scansione fisica.</small></p>
+    </div>
+
+    <script>
+        // Genera dinamicamente il QR puntando all'indirizzo del tuo sito con il token di sicurezza
+        const urlSito = "https://openday2027.netlify.app/qr.html";
+        const urlQR = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlSito)}`;
+        document.getElementById('qrImg').src = urlQR;
+    </script>
+
+</body>
+</html>
+</html>

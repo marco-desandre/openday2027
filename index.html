@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coda Iscrizioni</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 30px 20px; background: #f4f4f9; color: #333; }
+        .card { background: white; padding: 30px 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 400px; margin: auto; }
+        
+        .logo-aziendale { max-width: 150px; height: auto; margin-bottom: 15px; }
+
+        input[type="text"], button { width: 100%; padding: 14px; margin-top: 15px; font-size: 16px; box-sizing: border-box; border-radius: 8px; }
+        input[type="text"] { border: 1px solid #ccc; }
+        
+        .delega-container { text-align: left; margin-top: 15px; font-size: 15px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .delega-container input { width: 20px; height: 20px; margin: 0; cursor: pointer; }
+
+        button { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; }
+        button:active { background: #0056b3; }
+        
+        #schermataForm { display: none; }
+        #schermataAttesa { display: none; background: #fff3cd; border: 2px solid #ffeeba; padding: 20px; border-radius: 8px; margin-top: 15px; }
+        #schermataChiamata { display: none; background: #d4edda; border: 2px solid #c3e6cb; padding: 25px; border-radius: 8px; margin-top: 15px; }
+        #schermataIscritto { display: none; background: #d4edda; border: 2px solid #c3e6cb; padding: 25px; border-radius: 8px; margin-top: 15px; color: #155724; }
+        #schermataPiena { display: none; background: #f8d7da; border: 2px solid #f5c6cb; padding: 20px; border-radius: 8px; margin-top: 15px; color: #721c24; }
+        
+        .numero-evidenza { font-size: 28px; font-weight: bold; color: #007bff; margin: 10px 0; line-height: 1.3; }
+        .turno-chiamata { font-size: 28px; font-weight: bold; color: #155724; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <img src="logotuchini.png" alt="Logo" class="logo-aziendale">
+        
+        <h2>OpenDay 2027 - Banco Iscrizioni</h2>
+
+        <!-- FASE 1: Inserimento Nome e Delega -->
+        <div id="schermataForm">
+            <p>Inserisci i tuoi dati per metterti in coda!<br>
+            <small style="color: #666;">Se intendi iscrivere una seconda persona tramite delega, prendi il numero anche per lui spuntando la voce sottostante.</small></p>
+            <input type="text" id="nomeUtente" placeholder="Cognome e nome" autocomplete="off">
+            
+            <label class="delega-container">
+                <input type="checkbox" id="checkDelega">
+                <span>Iscrizione con delega</span>
+            </label>
+
+            <button onclick="registraInCoda()">Prendi il Numero</button>
+        </div>
+
+        <!-- MESSAGGIO CODA PIENA -->
+        <div id="schermataPiena">
+            <h3 style="margin-top:0;">Coda Al Completo</h3>
+            <p>Abbiamo raggiunto il limite massimo di capienza in questo momento. Riprova più tardi quando si libererà un posto.</p>
+        </div>
+
+        <!-- FASE 2: In Attesa -->
+        <div id="schermataAttesa">
+            <p style="margin:0;"><span id="marioNome" style="font-weight:bold;"></span>, sei in coda!</p>
+            <div id="mioNumeroBiglietto" style="font-size: 20px; font-weight: bold; color: #007bff; margin: 5px 0;"></div>
+            <div class="numero-evidenza" id="personeDavanti">Calcolo...</div>
+            <p style="font-size: 14px; color: #856404; margin-bottom:0;">Tieni questa pagina aperta. Ti avviseremo non appena sarà il tuo turno.</p>
+        </div>
+
+        <!-- FASE 3: Turno Arrivato -->
+        <div id="schermataChiamata">
+            <h3 style="margin-top:0; color: #155724;">📢 È IL TUO TURNO!</h3>
+            <p>Presentati subito al banco iscrizioni.</p>
+            <div class="turno-chiamata">CORRI!</div>
+        </div>
+
+        <!-- FASE 4: Iscrizione Effettuata -->
+        <div id="schermataIscritto">
+            <h3 style="margin-top:0; color: #155724;">🔴🟢 ISCRIZIONE EFFETTUATA 🔴🟢</h3>
+            <p style="font-size: 16px; line-height: 1.5;">Complimenti <span id="nomeUtenteIscritto" style="font-weight: bold;"></span>!<br>
+            Sei iscritto al Canevale 2027.<br><br>
+            Ricordati di passare al banco iscrizioni per inserire i tuoi dati in anagrafica e ritirare la busta.</p>
+        </div>
+    </div>
+
+    <!-- Script Firebase e Sicurezza QR Code con Bypass Debug -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const tokenUrl = urlParams.get('t');
+        const timestampUrl = parseInt(urlParams.get('ts') || '0');
+        const debugUrl = urlParams.get('debug');
+        
+        const giaRegistrato = localStorage.getItem('coda_id_utente');
+        const tokenSessioneLocale = sessionStorage.getItem('qr_verificato');
+
+        const oraCorrente = Date.now();
+        const TEMPO_VALIDITA_MS = 30000;
+
+        let accessoConsentito = false;
+
+        if (debugUrl === '1') {
+            accessoConsentito = true;
+        }
+        else if (giaRegistrato) {
+            accessoConsentito = true;
+        } 
+        else if (tokenSessioneLocale === 'true') {
+            accessoConsentito = true;
+        }
+        else if (tokenUrl === 'tuchini2027' && !isNaN(timestampUrl) && (oraCorrente - timestampUrl < TEMPO_VALIDITA_MS)) {
+            sessionStorage.setItem('qr_verificato', 'true');
+            accessoConsentito = true;
+        }
+
+        if (!accessoConsentito) {
+            document.body.innerHTML = `
+                <div style="font-family: sans-serif; text-align: center; padding: 40px 20px; background: #f4f4f9; color: #333; max-width: 400px; margin: 50px auto; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                    <h2 style="color: #dc3545; margin-top: 0;">⚠️ Accesso non consentito</h2>
+                    <p>Per metterti in coda devi effettuare la scansione fisica del <strong>QR code ufficiale</strong> esposto al banco dell'Open Day.</p>
+                    <p style="font-size: 14px; color: #666;">I link condivisi tramite chat o scaduti non sono validi.</p>
+                </div>
+            `;
+            throw new Error("Accesso bloccato: QR code fisico richiesto.");
+        }
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAXtD-62C2rWpsZoEhW85HN1pxTe8a5jL4",
+            authDomain: "opendayiscrizioni.firebaseapp.com",
+            databaseURL: "https://opendayiscrizioni-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "opendayiscrizioni",
+            storageBucket: "opendayiscrizioni.firebasestorage.app",
+            messagingSenderId: "448538612897",
+            appId: "1:448538612897:web:437a8b17991687fc0a8ce0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const codaRef = ref(db, 'coda');
+        const limiteRef = ref(db, 'config/limiteMassimo');
+
+        if (giaRegistrato) {
+            attivaModalitaAttesa(giaRegistrato, localStorage.getItem('coda_nome_utente'));
+        } else {
+            onValue(limiteRef, (limiteSnapshot) => {
+                const limiteMax = limiteSnapshot.val() || 10;
+
+                onValue(codaRef, (codaSnapshot) => {
+                    if (localStorage.getItem('coda_id_utente')) return;
+
+                    const data = codaSnapshot.val();
+                    let postiOccupati = 0;
+
+                    if (data) {
+                        Object.keys(data).forEach(id => {
+                            const item = data[id];
+                            postiOccupati += item.delega ? 2 : 1;
+                        });
+                    }
+
+                    if (postiOccupati >= limiteMax) {
+                        document.getElementById('schermataForm').style.display = 'none';
+                        document.getElementById('schermataPiena').style.display = 'block';
+                    } else {
+                        document.getElementById('schermataPiena').style.display = 'none';
+                        document.getElementById('schermataForm').style.display = 'block';
+                    }
+                }, { onlyOnce: true });
+            }, { onlyOnce: true });
+        }
+
+        window.registraInCoda = function() {
+            const nome = document.getElementById('nomeUtente').value.trim();
+            const conDelega = document.getElementById('checkDelega').checked;
+
+            if(!nome) {
+                alert("Per favore inserisci il tuo Cognome e Nome.");
+                return;
+            }
+
+            const nuovoTicket = push(codaRef, {
+                nome: nome,
+                delega: conDelega,
+                timestamp: Date.now(),
+                stato: 'attesa'
+            });
+
+            localStorage.setItem('coda_id_utente', nuovoTicket.key);
+            localStorage.setItem('coda_nome_utente', nome);
+
+            attivaModalitaAttesa(nuovoTicket.key, nome);
+        }
+
+        function attivaModalitaAttesa(idMioTicket, nome) {
+            document.getElementById('schermataForm').style.display = 'none';
+            document.getElementById('schermataPiena').style.display = 'none';
+            document.getElementById('marioNome').innerText = nome;
+            document.getElementById('nomeUtenteIscritto').innerText = nome;
+            document.getElementById('schermataAttesa').style.display = 'block';
+
+            onValue(codaRef, (snapshot) => {
+                const data = snapshot.val();
+                
+                if (!data || !data[idMioTicket]) {
+                    document.getElementById('schermataAttesa').style.display = 'none';
+                    document.getElementById('schermataChiamata').style.display = 'none';
+                    document.getElementById('schermataIscritto').style.display = 'none';
+                    localStorage.removeItem('coda_id_utente');
+                    localStorage.removeItem('coda_nome_utente');
+                    sessionStorage.removeItem('qr_verificato');
+                    
+                    const card = document.querySelector('.card');
+                    card.innerHTML = `
+                        <h2>Banco Iscrizioni</h2>
+                        <div style="background: #e2e3e5; border: 2px solid #d6d8db; padding: 25px; border-radius: 8px; margin-top: 15px;">
+                            <h3 style="margin-top:0; color: #383d41;">Operazione Conclusa</h3>
+                            <p>La tua pratica è stata completata al banco. Grazie e arrivederci!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const mioStato = data[idMioTicket].stato;
+
+                if (mioStato === 'iscritto') {
+                    document.getElementById('schermataAttesa').style.display = 'none';
+                    document.getElementById('schermataChiamata').style.display = 'none';
+                    document.getElementById('schermataIscritto').style.display = 'block';
+                    return;
+                }
+
+                if (mioStato === 'chiamato') {
+                    document.getElementById('schermataAttesa').style.display = 'none';
+                    document.getElementById('schermataChiamata').style.display = 'block';
+                    if (navigator.vibrate) {
+                        navigator.vibrate([500, 200, 500, 200, 500]);
+                    }
+                    return;
+                }
+
+                let personeDavanti = 0;
+                const mioTimestamp = data[idMioTicket].timestamp;
+
+                const tuttiITicket = Object.keys(data).map(id => ({ id, ...data[id] }))
+                    .sort((a, b) => a.timestamp - b.timestamp);
+
+                let numeroMioBiglietto = 0;
+                tuttiITicket.forEach((item, index) => {
+                    const statoItem = item.stato || 'attesa';
+                    if (item.timestamp < mioTimestamp && (statoItem === 'attesa' || statoItem === 'chiamato')) {
+                        personeDavanti += item.delega ? 2 : 1;
+                    }
+                    if (item.id === idMioTicket) {
+                        numeroMioBiglietto = index + 1;
+                    }
+                });
+
+                document.getElementById('mioNumeroBiglietto').innerText = `Il tuo biglietto è il N° ${numeroMioBiglietto}`;
+
+                const boxPersone = document.getElementById('personeDavanti');
+                if (personeDavanti === 0) {
+                    boxPersone.innerHTML = `<span style="color: #28a745; font-size: 22px;">Sei il prossimo! 🎯</span>`;
+                } else {
+                    boxPersone.innerHTML = `<span style="font-size: 16px; font-weight: normal; color: #555;">(${personeDavanti} ${personeDavanti === 1 ? 'persona davanti' : 'persone davanti'})</span>`;
+                    boxPersone.style.color = "#007bff";
+                }
+            });
+        }
+    </script>
+</body>
+</html>

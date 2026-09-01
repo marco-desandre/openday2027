@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pannello Banco - Coda Iscrizioni</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f9; padding: 30px; color: #333; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        h2 { margin-top: 0; color: #007bff; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        
+        .box-limite { font-size: 14px; background: #e9ecef; padding: 6px 12px; border-radius: 6px; color: #495057; display: flex; align-items: center; gap: 8px; }
+        .badge-pieno { background: #dc3545; color: white; padding: 6px 12px; border-radius: 6px; }
+        
+        .btn-modifica { background: #6c757d; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .btn-modifica:hover { background: #5a6268; }
+
+        .item-coda { display: flex; justify-content: space-between; align-items: center; padding: 14px; margin-top: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; }
+        .item-in-attesa { border-left: 5px solid #007bff; }
+        .item-chiamato { background: #fff3cd; color: #856404; border-left: 5px solid #ffc107; }
+        .item-iscritto { background: #d4edda; color: #155724; border-left: 5px solid #28a745; }
+        
+        .badge-delega { background: #ffc107; color: #856404; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-left: 8px; display: inline-block; }
+        .numero-biglietto { font-size: 18px; font-weight: bold; color: #007bff; margin-right: 10px; }
+
+        button { background: #28a745; color: white; border: none; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #218838; }
+        .btn-rimuovi { background: #6c757d; margin-left: 8px; }
+        .btn-rimuovi:hover { background: #5a6268; }
+        .btn-chiama { background: #ffc107; color: #856404; border: none; padding: 10px 14px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-chiama:hover { background: #e0a800; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>
+            Gestione Coda
+            <div id="boxLimiteContainer" class="box-limite">
+                <span>Posti disponibili: <strong id="valoreDisponibili">0</strong>/<strong id="valoreLimite">10</strong></span>
+                <button class="btn-modifica" onclick="modificaLimite()">Modifica Limite</button>
+            </div>
+        </h2>
+        <p>Persone in attesa aggiornate in tempo reale:</p>
+        <div id="listaCoda">Caricamento coda...</div>
+    </div>
+
+    <!-- Script Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+        import { getDatabase, ref, onValue, update, remove, set } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAXtD-62C2rWpsZoEhW85HN1pxTe8a5jL4",
+            authDomain: "opendayiscrizioni.firebaseapp.com",
+            databaseURL: "https://opendayiscrizioni-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "opendayiscrizioni",
+            storageBucket: "opendayiscrizioni.firebasestorage.app",
+            messagingSenderId: "448538612897",
+            appId: "1:448538612897:web:437a8b17991687fc0a8ce0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const codaRef = ref(db, 'coda');
+        const limiteRef = ref(db, 'config/limiteMassimo');
+
+        let limiteMaxCorrente = 10;
+        const PASSWORD_ADMIN = "tuchini2027";
+
+        onValue(limiteRef, (snapshot) => {
+            const val = snapshot.val();
+            if (val !== null) {
+                limiteMaxCorrente = parseInt(val);
+                document.getElementById('valoreLimite').innerText = limiteMaxCorrente;
+            } else {
+                set(limiteRef, 10);
+            }
+        });
+
+        window.modificaLimite = function() {
+            const pwdInserita = prompt("Inserisci la password amministratore per modificare il limite:");
+            if (pwdInserita === null) return;
+
+            if (pwdInserita !== PASSWORD_ADMIN) {
+                alert("Password errata!");
+                return;
+            }
+
+            const nuovoLimite = prompt("Inserisci il limite massimo di posti in coda:", limiteMaxCorrente);
+            if (nuovoLimite !== null && !isNaN(nuovoLimite) && nuovoLimite > 0) {
+                set(limiteRef, parseInt(nuovoLimite)).then(() => {
+                    location.reload();
+                });
+            }
+        };
+
+        onValue(codaRef, (snapshot) => {
+            const data = snapshot.val();
+            const container = document.getElementById('listaCoda');
+            container.innerHTML = '';
+
+            if (!data) {
+                container.innerHTML = '<p>Nessuno in coda al momento.</p>';
+                document.getElementById('valoreDisponibili').innerText = limiteMaxCorrente;
+                return;
+            }
+
+            const arrayCoda = Object.keys(data).map(id => ({ id, ...data[id] }));
+            
+            arrayCoda.sort((a, b) => {
+                const pesoStato = (stato) => {
+                    if (stato === 'chiamato') return 1;
+                    if (stato === 'attesa') return 2;
+                    if (stato === 'iscritto') return 3;
+                    return 2;
+                };
+                
+                const pesoA = pesoStato(a.stato);
+                const pesoB = pesoStato(b.stato);
+
+                if (pesoA !== pesoB) return pesoA - pesoB;
+
+                if (a.stato === 'iscritto' && b.stato === 'iscritto') {
+                    const tA = a.timestampIscritto || a.timestamp;
+                    const tB = b.timestampIscritto || b.timestamp;
+                    return tA - tB;
+                }
+
+                return a.timestamp - b.timestamp;
+            });
+
+            let postiTotaliPesati = 0;
+            arrayCoda.forEach(persona => {
+                postiTotaliPesati += persona.delega ? 2 : 1;
+            });
+
+            let postiDisponibili = limiteMaxCorrente - postiTotaliPesati;
+            if (postiDisponibili < 0) postiDisponibili = 0;
+
+            document.getElementById('valoreDisponibili').innerText = postiDisponibili;
+
+            const boxContainer = document.getElementById('boxLimiteContainer');
+            if (postiTotaliPesati >= limiteMaxCorrente) {
+                boxContainer.className = "badge-pieno";
+                boxContainer.innerHTML = `<span>CODA PIENA (0/${limiteMaxCorrente} disponibili)</span> <button class="btn-modifica" onclick="modificaLimite()">Modifica Limite</button>`;
+            } else {
+                boxContainer.className = "box-limite";
+                boxContainer.innerHTML = `<span>Posti disponibili: <strong>${postiDisponibili}/${limiteMaxCorrente}</strong></span> <button class="btn-modifica" onclick="modificaLimite()">Modifica Limite</button>`;
+            }
+
+            const listaCronologica = [...arrayCoda].sort((a, b) => a.timestamp - b.timestamp);
+
+            arrayCoda.forEach(persona => {
+                const numeroBiglietto = listaCronologica.findIndex(p => p.id === persona.id) + 1;
+                const div = document.createElement('div');
+                const stato = persona.stato || 'attesa';
+                
+                let classeStato = 'item-in-attesa';
+                let testoStato = '💤 In attesa..';
+                let pulsantiHTML = '';
+
+                if (stato === 'chiamato') {
+                    classeStato = 'item-chiamato';
+                    testoStato = '📢 Chiamato';
+                    pulsantiHTML = `<button onclick="confermaIscrizione('${persona.id}')">✅ Conferma iscrizione</button>`;
+                } else if (stato === 'iscritto') {
+                    classeStato = 'item-iscritto';
+                    testoStato = '🟢 Iscrizione effettuata';
+                    pulsantiHTML = `<button onclick="rimuoviPersona('${persona.id}')" class="btn-rimuovi">🗑️ Elimina</button>`;
+                } else {
+                    pulsantiHTML = `<button onclick="chiamaPersona('${persona.id}')" class="btn-chiama">📢 Chiama</button>`;
+                }
+
+                div.className = `item-coda ${classeStato}`;
+                const etichettaDelega = persona.delega ? '<span class="badge-delega">⚠️ DELEGA (2 posti)</span>' : '';
+
+                div.innerHTML = `
+                    <div style="text-align: left;">
+                        <span class="numero-biglietto">N° ${numeroBiglietto}</span>
+                        <strong>${persona.nome}</strong> ${etichettaDelega}<br>
+                        <small style="margin-left: 55px;">Stato: ${testoStato}</small>
+                    </div>
+                    <div>
+                        ${pulsantiHTML}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        });
+
+        window.chiamaPersona = function(id) {
+            update(ref(db, 'coda/' + id), { stato: 'chiamato' }).then(() => {
+                location.reload();
+            });
+        }
+
+        window.confermaIscrizione = function(id) {
+            update(ref(db, 'coda/' + id), { 
+                stato: 'iscritto',
+                timestampIscritto: Date.now() 
+            }).then(() => {
+                location.reload();
+            });
+        }
+
+        window.rimuoviPersona = function(id) {
+            if(confirm("Se elimini questa persona dalla coda potrà nuovamente presentare domanda di iscrizione.\n\n Elimino?")) {
+                remove(ref(db, 'coda/' + id)).then(() => {
+                    location.reload();
+                });
+            }
+        }
+    </script>
+</body>
+</html>

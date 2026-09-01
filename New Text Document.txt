@@ -1,0 +1,2 @@
+Link firebase (account dsnmrc@gmail.com)
+https://console.firebase.google.com/project/opendayiscrizioni/database/opendayiscrizioni-default-rtdb/data/~2F
