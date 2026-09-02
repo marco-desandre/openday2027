@@ -9,7 +9,7 @@
         .container { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         h2 { margin-top: 0; color: #007bff; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         
-        .box-limite { font-size: 14px; background: #e9ecef; padding: 6px 12px; border-radius: 6px; color: #495057; display: flex; align-items: center; gap: 8px; }
+        .box-limite { font-size: 14px; background: #e9ecef; padding: 6px 12px; border-radius: 6px; color: #495057; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
         .badge-pieno { background: #dc3545 !important; color: white !important; }
         .badge-pieno strong { color: white !important; }
         
@@ -39,7 +39,9 @@
         <h2>
             Gestione Coda
             <div id="boxLimiteContainer" class="box-limite">
-                <span>Posti disponibili: <strong id="valoreDisponibili">0</strong>/<strong id="valoreLimite">10</strong></span>
+                <span>In attesa: <strong id="valoreInAttesa">0</strong></span>
+                <span>•</span>
+                <span>Disponibili: <strong id="valoreDisponibili">0</strong>/<strong id="valoreLimite">10</strong></span>
                 <button class="btn-modifica" id="btnModificaLimite">Modifica Limite</button>
             </div>
         </h2>
@@ -128,7 +130,9 @@
                 if (!data) {
                     container.innerHTML = '<p>Nessuno in coda al momento.</p>';
                     const elDisp = document.getElementById('valoreDisponibili');
+                    const elAttesa = document.getElementById('valoreInAttesa');
                     if (elDisp) elDisp.innerText = limiteMaxCorrente;
+                    if (elAttesa) elAttesa.innerText = 0;
                     return;
                 }
 
@@ -139,7 +143,9 @@
                 if (arrayCoda.length === 0) {
                     container.innerHTML = '<p>Nessuno in coda al momento.</p>';
                     const elDisp = document.getElementById('valoreDisponibili');
+                    const elAttesa = document.getElementById('valoreInAttesa');
                     if (elDisp) elDisp.innerText = limiteMaxCorrente;
+                    if (elAttesa) elAttesa.innerText = 0;
                     return;
                 }
                 
@@ -166,18 +172,30 @@
                 });
 
                 let postiTotaliPesati = 0;
+                let personeInAttesaCount = 0;
+
                 arrayCoda.forEach(persona => {
-                    postiTotaliPesati += persona.delega ? 2 : 1;
+                    const pesoPersona = persona.delega ? 2 : 1;
+                    postiTotaliPesati += pesoPersona;
+                    
+                    const stato = persona.stato || 'attesa';
+                    // Conta le persone effettive in attesa o chiamate, pesando la delega per 2
+                    if (stato === 'attesa' || stato === 'chiamato') {
+                        personeInAttesaCount += pesoPersona;
+                    }
                 });
 
                 let postiDisponibili = limiteMaxCorrente - postiTotaliPesati;
                 if (postiDisponibili < 0) postiDisponibili = 0;
 
-                // Aggiornamento sicuro dei valori senza distruggere il DOM
+                // Aggiornamento dei valori nel DOM
                 const elDisp = document.getElementById('valoreDisponibili');
                 const elLim = document.getElementById('valoreLimite');
+                const elAttesa = document.getElementById('valoreInAttesa');
+                
                 if (elDisp) elDisp.innerText = postiDisponibili;
                 if (elLim) elLim.innerText = limiteMaxCorrente;
+                if (elAttesa) elAttesa.innerText = personeInAttesaCount;
 
                 const boxContainer = document.getElementById('boxLimiteContainer');
                 if (boxContainer) {
