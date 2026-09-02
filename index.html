@@ -16,7 +16,6 @@
         .delega-container { text-align: left; margin-top: 15px; font-size: 15px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .delega-container input { width: 20px; height: 20px; margin: 0; cursor: pointer; }
 
-        /* Spostato verso destra di un tab (circa 25 pixel) e ridotto leggermente la larghezza per compensare */
         #containerDelegato { display: none; margin-top: 10px; margin-left: 28px; width: calc(100% - 28px); }
 
         button { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; }
@@ -24,12 +23,12 @@
         
         #schermataForm { display: none; }
         #schermataAttesa { display: none; background: #fff3cd; border: 2px solid #ffeeba; padding: 20px; border-radius: 8px; margin-top: 15px; }
-        #schermataChiamata { display: none; background: #d4edda; border: 2px solid #c3e6cb; padding: 25px; border-radius: 8px; margin-top: 15px; }
+        #schermataChiamata { display: none; background: #d4edda; border: 2px solid #c3e6cb; padding: 25px; border-radius: 8px; margin-top: 15px; color: #155724; }
         #schermataIscritto { display: none; background: #d4edda; border: 2px solid #c3e6cb; padding: 25px; border-radius: 8px; margin-top: 15px; color: #155724; }
         #schermataPiena { display: none; background: #f8d7da; border: 2px solid #f5c6cb; padding: 20px; border-radius: 8px; margin-top: 15px; color: #721c24; }
         
         .numero-evidenza { font-size: 28px; font-weight: bold; color: #007bff; margin: 10px 0; line-height: 1.3; }
-        .turno-chiamata { font-size: 28px; font-weight: bold; color: #155724; }
+        .turno-chiamata { font-size: 22px; font-weight: bold; color: #155724; margin-top: 15px; line-height: 1.4; }
     </style>
 </head>
 <body>
@@ -51,9 +50,9 @@
                 <span>Iscrizione con delega</span>
             </label>
 
-            <!-- Campo aggiuntivo per il nome del delegante/delegato -->
+            <!-- Campo aggiuntivo per il nome del delegante -->
             <div id="containerDelegato">
-                <input type="text" id="nomeDelegato" placeholder="Cognome e nome della persona delegata" autocomplete="off">
+                <input type="text" id="nomeDelegato" placeholder="Cognome e nome del delegante" autocomplete="off">
             </div>
 
             <button onclick="registraInCoda()">Prendi il Numero</button>
@@ -76,8 +75,7 @@
         <!-- FASE 3: Turno Arrivato -->
         <div id="schermataChiamata">
             <h3 style="margin-top:0; color: #155724;">📢 È IL TUO TURNO!</h3>
-            <p>Presentati subito al banco iscrizioni.</p>
-            <div class="turno-chiamata">CORRI!</div>
+            <div class="turno-chiamata"><span id="nomeChiamato" style="font-weight: bold;"></span> è il tuo turno!!<br>Presentati al banco iscrizioni con il numero <span id="numeroChiamato" style="font-weight: bold;"></span></div>
         </div>
 
         <!-- FASE 4: Iscrizione Effettuata -->
@@ -94,7 +92,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
         import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
 
-        // Funzione per mostrare o nascondere il campo del delegato in base alla spunta
         window.toggleDelega = function() {
             const check = document.getElementById('checkDelega').checked;
             const container = document.getElementById('containerDelegato');
@@ -102,7 +99,7 @@
                 container.style.display = 'block';
             } else {
                 container.style.display = 'none';
-                document.getElementById('nomeDelegato').value = ''; // Pulisce il campo se desselezionato
+                document.getElementById('nomeDelegato').value = ''; 
             }
         };
 
@@ -200,7 +197,7 @@
             }
 
             if(conDelega && !nomeDelegato) {
-                alert("Hai spuntato l'iscrizione con delega: inserisci il nome della persona delegata.");
+                alert("Hai spuntato l'iscrizione con delega: inserisci il nome del delegante.");
                 return;
             }
 
@@ -249,6 +246,12 @@
 
                 const mioStato = data[idMioTicket].stato;
 
+                // Calcolo preliminare della lista cronologica per ricavare il numero del biglietto
+                const tuttiITicket = Object.keys(data).map(id => ({ id, ...data[id] }))
+                    .sort((a, b) => a.timestamp - b.timestamp);
+
+                const numeroMioBiglietto = tuttiITicket.findIndex(p => p.id === idMioTicket) + 1;
+
                 if (mioStato === 'iscritto') {
                     document.getElementById('schermataAttesa').style.display = 'none';
                     document.getElementById('schermataChiamata').style.display = 'none';
@@ -259,6 +262,11 @@
                 if (mioStato === 'chiamato') {
                     document.getElementById('schermataAttesa').style.display = 'none';
                     document.getElementById('schermataChiamata').style.display = 'block';
+                    
+                    // Inserimento dinamico di nome e numero nella schermata di chiamata
+                    document.getElementById('nomeChiamato').innerText = nome;
+                    document.getElementById('numeroChiamato').innerText = numeroMioBiglietto;
+
                     if (navigator.vibrate) {
                         navigator.vibrate([500, 200, 500, 200, 500]);
                     }
@@ -268,17 +276,10 @@
                 let personeDavanti = 0;
                 const mioTimestamp = data[idMioTicket].timestamp;
 
-                const tuttiITicket = Object.keys(data).map(id => ({ id, ...data[id] }))
-                    .sort((a, b) => a.timestamp - b.timestamp);
-
-                let numeroMioBiglietto = 0;
-                tuttiITicket.forEach((item, index) => {
+                tuttiITicket.forEach((item) => {
                     const statoItem = item.stato || 'attesa';
                     if (item.timestamp < mioTimestamp && (statoItem === 'attesa' || statoItem === 'chiamato')) {
                         personeDavanti += item.delega ? 2 : 1;
-                    }
-                    if (item.id === idMioTicket) {
-                        numeroMioBiglietto = index + 1;
                     }
                 });
 
