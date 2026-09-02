@@ -9,6 +9,7 @@
         .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 450px; margin: auto; }
         img { width: 250px; height: 250px; margin: 20px 0; border: 4px solid #f4f4f9; border-radius: 8px; }
         p { color: #666; font-size: 14px; line-height: 1.5; }
+        #countdown { font-weight: bold; color: #007bff; }
     </style>
 </head>
 <body>
@@ -17,21 +18,44 @@
         <h2>Inquadra per metterti in coda</h2>
         <p>Scansiona questo QR code con lo smartphone per prendere il numero progressivo di iscrizione.</p>
         
-        <!-- Il QR code punta a qr.html con un generatore online -->
         <div id="qrcodeContainer">
             <img id="qrImg" src="" alt="QR Code Coda">
         </div>
 
-        <p><small>Il link generato ha validità immediata solo tramite scansione fisica.</small></p>
+        <p>Il QR code si aggiorna automaticamente per sicurezza.<br>Prossimo cambio tra: <span id="countdown">15</span> secondi</p>
     </div>
 
     <script>
-        // Genera dinamicamente il QR puntando all'indirizzo del tuo sito con il token di sicurezza
-        const urlSito = "https://marco-desandre.github.io/openday2027/qr.html";
-        const urlQR = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlSito)}`;
-        document.getElementById('qrImg').src = urlQR;
+        const URL_BASE = "https://marco-desandre.github.io/openday2027/index.html";
+        const INTERVALLO_SECONDI = 15; // Aggiorna il QR ogni 15 secondi
+        let secondiRimasti = INTERVALLO_SECONDI;
+
+        function aggiornaQRCode() {
+            // Genera il link sicuro con token e timestamp attuale
+            const timestampCorrente = Date.now();
+            const urlSicuro = `${URL_BASE}?t=tuchini2027&ts=${timestampCorrente}`;
+            
+            // Crea l'URL per l'API del QR code
+            const urlQR = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlSicuro)}`;
+            
+            // Assegna l'immagine
+            document.getElementById('qrImg').src = urlQR;
+            secondiRimasti = INTERVALLO_SECONDI;
+        }
+
+        // Avvia subito il primo QR
+        aggiornaQRCode();
+
+        // Timer per il conto alla rovescia e il rinnovo automatico del QR
+        setInterval(() => {
+            secondiRimasti--;
+            document.getElementById('countdown').innerText = secondiRimasti;
+            
+            if (secondiRimasti <= 0) {
+                aggiornaQRCode();
+            }
+        }, 1000);
     </script>
 
 </body>
-</html>
 </html>

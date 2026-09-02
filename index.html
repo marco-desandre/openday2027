@@ -16,6 +16,9 @@
         .delega-container { text-align: left; margin-top: 15px; font-size: 15px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .delega-container input { width: 20px; height: 20px; margin: 0; cursor: pointer; }
 
+        /* Spostato verso destra di un tab (circa 25 pixel) e ridotto leggermente la larghezza per compensare */
+        #containerDelegato { display: none; margin-top: 10px; margin-left: 28px; width: calc(100% - 28px); }
+
         button { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; }
         button:active { background: #0056b3; }
         
@@ -40,12 +43,18 @@
         <div id="schermataForm">
             <p>Inserisci i tuoi dati per metterti in coda!<br>
             <small style="color: #666;">Se intendi iscrivere una seconda persona tramite delega, prendi il numero anche per lui spuntando la voce sottostante.</small></p>
-            <input type="text" id="nomeUtente" placeholder="Cognome e nome" autocomplete="off">
+            
+            <input type="text" id="nomeUtente" placeholder="Il tuo cognome e nome" autocomplete="off">
             
             <label class="delega-container">
-                <input type="checkbox" id="checkDelega">
+                <input type="checkbox" id="checkDelega" onchange="toggleDelega()">
                 <span>Iscrizione con delega</span>
             </label>
+
+            <!-- Campo aggiuntivo per il nome del delegante/delegato -->
+            <div id="containerDelegato">
+                <input type="text" id="nomeDelegato" placeholder="Cognome e nome della persona delegata" autocomplete="off">
+            </div>
 
             <button onclick="registraInCoda()">Prendi il Numero</button>
         </div>
@@ -84,6 +93,18 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
         import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
+
+        // Funzione per mostrare o nascondere il campo del delegato in base alla spunta
+        window.toggleDelega = function() {
+            const check = document.getElementById('checkDelega').checked;
+            const container = document.getElementById('containerDelegato');
+            if (check) {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+                document.getElementById('nomeDelegato').value = ''; // Pulisce il campo se desselezionato
+            }
+        };
 
         const urlParams = new URLSearchParams(window.location.search);
         const tokenUrl = urlParams.get('t');
@@ -171,15 +192,22 @@
         window.registraInCoda = function() {
             const nome = document.getElementById('nomeUtente').value.trim();
             const conDelega = document.getElementById('checkDelega').checked;
+            const nomeDelegato = document.getElementById('nomeDelegato').value.trim();
 
             if(!nome) {
                 alert("Per favore inserisci il tuo Cognome e Nome.");
                 return;
             }
 
+            if(conDelega && !nomeDelegato) {
+                alert("Hai spuntato l'iscrizione con delega: inserisci il nome della persona delegata.");
+                return;
+            }
+
             const nuovoTicket = push(codaRef, {
                 nome: nome,
                 delega: conDelega,
+                delegato: conDelega ? nomeDelegato : "",
                 timestamp: Date.now(),
                 stato: 'attesa'
             });

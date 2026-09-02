@@ -10,7 +10,8 @@
         h2 { margin-top: 0; color: #007bff; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         
         .box-limite { font-size: 14px; background: #e9ecef; padding: 6px 12px; border-radius: 6px; color: #495057; display: flex; align-items: center; gap: 8px; }
-        .badge-pieno { background: #dc3545; color: white; padding: 6px 12px; border-radius: 6px; }
+        .badge-pieno { background: #dc3545 !important; color: white !important; }
+        .badge-pieno strong { color: white !important; }
         
         .btn-modifica { background: #6c757d; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; }
         .btn-modifica:hover { background: #5a6268; }
@@ -21,6 +22,7 @@
         .item-iscritto { background: #d4edda; color: #155724; border-left: 5px solid #28a745; }
         
         .badge-delega { background: #ffc107; color: #856404; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-left: 8px; display: inline-block; }
+        .testo-delegante { font-size: 13px; color: #666; margin-top: 3px; display: block; margin-left: 55px; }
         .numero-biglietto { font-size: 18px; font-weight: bold; color: #007bff; margin-right: 10px; }
 
         button { background: #28a745; color: white; border: none; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-weight: bold; }
@@ -38,7 +40,7 @@
             Gestione Coda
             <div id="boxLimiteContainer" class="box-limite">
                 <span>Posti disponibili: <strong id="valoreDisponibili">0</strong>/<strong id="valoreLimite">10</strong></span>
-                <button class="btn-modifica" onclick="modificaLimite()">Modifica Limite</button>
+                <button class="btn-modifica" id="btnModificaLimite">Modifica Limite</button>
             </div>
         </h2>
         <p>Persone in attesa aggiornate in tempo reale:</p>
@@ -68,149 +70,171 @@
         let limiteMaxCorrente = 10;
         const PASSWORD_ADMIN = "tuchini2027";
 
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.id === 'btnModificaLimite') {
+                const pwdInserita = prompt("Inserisci la password amministratore per modificare il limite:");
+                if (pwdInserita === null) return;
+
+                if (pwdInserita !== PASSWORD_ADMIN) {
+                    alert("Password errata!");
+                    return;
+                }
+
+                const nuovoLimite = prompt("Inserisci il limite massimo di posti in coda:", limiteMaxCorrente);
+                if (nuovoLimite !== null && !isNaN(nuovoLimite) && nuovoLimite > 0) {
+                    set(limiteRef, parseInt(nuovoLimite));
+                }
+            }
+
+            if (e.target && e.target.classList.contains('azione-chiama')) {
+                const idPersona = e.target.getAttribute('data-id');
+                update(ref(db, 'coda/' + idPersona), { stato: 'chiamato' });
+            }
+
+            if (e.target && e.target.classList.contains('azione-conferma')) {
+                const idPersona = e.target.getAttribute('data-id');
+                update(ref(db, 'coda/' + idPersona), { 
+                    stato: 'iscritto',
+                    timestampIscritto: Date.now() 
+                });
+            }
+
+            if (e.target && e.target.classList.contains('azione-rimuovi')) {
+                const idPersona = e.target.getAttribute('data-id');
+                if(confirm("Se elimini questa persona dalla coda potrà nuovamente presentare domanda di iscrizione.\nSei sicuro che vuoi eliminarla?")) {
+                    remove(ref(db, 'coda/' + idPersona));
+                }
+            }
+        });
+
         onValue(limiteRef, (snapshot) => {
             const val = snapshot.val();
             if (val !== null) {
                 limiteMaxCorrente = parseInt(val);
-                document.getElementById('valoreLimite').innerText = limiteMaxCorrente;
+                const elLimite = document.getElementById('valoreLimite');
+                if (elLimite) elLimite.innerText = limiteMaxCorrente;
             } else {
                 set(limiteRef, 10);
             }
         });
 
-        window.modificaLimite = function() {
-            const pwdInserita = prompt("Inserisci la password amministratore per modificare il limite:");
-            if (pwdInserita === null) return;
-
-            if (pwdInserita !== PASSWORD_ADMIN) {
-                alert("Password errata!");
-                return;
-            }
-
-            const nuovoLimite = prompt("Inserisci il limite massimo di posti in coda:", limiteMaxCorrente);
-            if (nuovoLimite !== null && !isNaN(nuovoLimite) && nuovoLimite > 0) {
-                set(limiteRef, parseInt(nuovoLimite)).then(() => {
-                    location.reload();
-                });
-            }
-        };
-
         onValue(codaRef, (snapshot) => {
-            const data = snapshot.val();
             const container = document.getElementById('listaCoda');
-            container.innerHTML = '';
-
-            if (!data) {
-                container.innerHTML = '<p>Nessuno in coda al momento.</p>';
-                document.getElementById('valoreDisponibili').innerText = limiteMaxCorrente;
-                return;
-            }
-
-            const arrayCoda = Object.keys(data).map(id => ({ id, ...data[id] }));
             
-            arrayCoda.sort((a, b) => {
-                const pesoStato = (stato) => {
-                    if (stato === 'chiamato') return 1;
-                    if (stato === 'attesa') return 2;
-                    if (stato === 'iscritto') return 3;
-                    return 2;
-                };
-                
-                const pesoA = pesoStato(a.stato);
-                const pesoB = pesoStato(b.stato);
+            try {
+                const data = snapshot.val();
+                container.innerHTML = '';
 
-                if (pesoA !== pesoB) return pesoA - pesoB;
-
-                if (a.stato === 'iscritto' && b.stato === 'iscritto') {
-                    const tA = a.timestampIscritto || a.timestamp;
-                    const tB = b.timestampIscritto || b.timestamp;
-                    return tA - tB;
+                if (!data) {
+                    container.innerHTML = '<p>Nessuno in coda al momento.</p>';
+                    const elDisp = document.getElementById('valoreDisponibili');
+                    if (elDisp) elDisp.innerText = limiteMaxCorrente;
+                    return;
                 }
 
-                return a.timestamp - b.timestamp;
-            });
+                const arrayCoda = Object.keys(data)
+                    .filter(id => data[id] !== null && typeof data[id] === 'object')
+                    .map(id => ({ id, ...data[id] }));
 
-            let postiTotaliPesati = 0;
-            arrayCoda.forEach(persona => {
-                postiTotaliPesati += persona.delega ? 2 : 1;
-            });
-
-            let postiDisponibili = limiteMaxCorrente - postiTotaliPesati;
-            if (postiDisponibili < 0) postiDisponibili = 0;
-
-            document.getElementById('valoreDisponibili').innerText = postiDisponibili;
-
-            const boxContainer = document.getElementById('boxLimiteContainer');
-            if (postiTotaliPesati >= limiteMaxCorrente) {
-                boxContainer.className = "badge-pieno";
-                boxContainer.innerHTML = `<span>CODA PIENA (0/${limiteMaxCorrente} disponibili)</span> <button class="btn-modifica" onclick="modificaLimite()">Modifica Limite</button>`;
-            } else {
-                boxContainer.className = "box-limite";
-                boxContainer.innerHTML = `<span>Posti disponibili: <strong>${postiDisponibili}/${limiteMaxCorrente}</strong></span> <button class="btn-modifica" onclick="modificaLimite()">Modifica Limite</button>`;
-            }
-
-            const listaCronologica = [...arrayCoda].sort((a, b) => a.timestamp - b.timestamp);
-
-            arrayCoda.forEach(persona => {
-                const numeroBiglietto = listaCronologica.findIndex(p => p.id === persona.id) + 1;
-                const div = document.createElement('div');
-                const stato = persona.stato || 'attesa';
-                
-                let classeStato = 'item-in-attesa';
-                let testoStato = '💤 In attesa..';
-                let pulsantiHTML = '';
-
-                if (stato === 'chiamato') {
-                    classeStato = 'item-chiamato';
-                    testoStato = '📢 Chiamato';
-                    pulsantiHTML = `<button onclick="confermaIscrizione('${persona.id}')">✅ Conferma iscrizione</button>`;
-                } else if (stato === 'iscritto') {
-                    classeStato = 'item-iscritto';
-                    testoStato = '🟢 Iscrizione effettuata';
-                    pulsantiHTML = `<button onclick="rimuoviPersona('${persona.id}')" class="btn-rimuovi">🗑️ Elimina</button>`;
-                } else {
-                    pulsantiHTML = `<button onclick="chiamaPersona('${persona.id}')" class="btn-chiama">📢 Chiama</button>`;
+                if (arrayCoda.length === 0) {
+                    container.innerHTML = '<p>Nessuno in coda al momento.</p>';
+                    const elDisp = document.getElementById('valoreDisponibili');
+                    if (elDisp) elDisp.innerText = limiteMaxCorrente;
+                    return;
                 }
+                
+                arrayCoda.sort((a, b) => {
+                    const pesoStato = (stato) => {
+                        if (stato === 'chiamato') return 1;
+                        if (stato === 'attesa') return 2;
+                        if (stato === 'iscritto') return 3;
+                        return 2;
+                    };
+                    
+                    const pesoA = pesoStato(a.stato);
+                    const pesoB = pesoStato(b.stato);
 
-                div.className = `item-coda ${classeStato}`;
-                const etichettaDelega = persona.delega ? '<span class="badge-delega">⚠️ DELEGA (2 posti)</span>' : '';
+                    if (pesoA !== pesoB) return pesoA - pesoB;
 
-                div.innerHTML = `
-                    <div style="text-align: left;">
-                        <span class="numero-biglietto">N° ${numeroBiglietto}</span>
-                        <strong>${persona.nome}</strong> ${etichettaDelega}<br>
-                        <small style="margin-left: 55px;">Stato: ${testoStato}</small>
-                    </div>
-                    <div>
-                        ${pulsantiHTML}
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        });
+                    if (a.stato === 'iscritto' && b.stato === 'iscritto') {
+                        const tA = a.timestampIscritto || a.timestamp;
+                        const tB = b.timestampIscritto || b.timestamp;
+                        return tA - tB;
+                    }
 
-        window.chiamaPersona = function(id) {
-            update(ref(db, 'coda/' + id), { stato: 'chiamato' }).then(() => {
-                location.reload();
-            });
-        }
-
-        window.confermaIscrizione = function(id) {
-            update(ref(db, 'coda/' + id), { 
-                stato: 'iscritto',
-                timestampIscritto: Date.now() 
-            }).then(() => {
-                location.reload();
-            });
-        }
-
-        window.rimuoviPersona = function(id) {
-            if(confirm("Se elimini questa persona dalla coda potrà nuovamente presentare domanda di iscrizione.\n\n Elimino?")) {
-                remove(ref(db, 'coda/' + id)).then(() => {
-                    location.reload();
+                    return a.timestamp - b.timestamp;
                 });
+
+                let postiTotaliPesati = 0;
+                arrayCoda.forEach(persona => {
+                    postiTotaliPesati += persona.delega ? 2 : 1;
+                });
+
+                let postiDisponibili = limiteMaxCorrente - postiTotaliPesati;
+                if (postiDisponibili < 0) postiDisponibili = 0;
+
+                // Aggiornamento sicuro dei valori senza distruggere il DOM
+                const elDisp = document.getElementById('valoreDisponibili');
+                const elLim = document.getElementById('valoreLimite');
+                if (elDisp) elDisp.innerText = postiDisponibili;
+                if (elLim) elLim.innerText = limiteMaxCorrente;
+
+                const boxContainer = document.getElementById('boxLimiteContainer');
+                if (boxContainer) {
+                    if (postiTotaliPesati >= limiteMaxCorrente) {
+                        boxContainer.classList.add('badge-pieno');
+                    } else {
+                        boxContainer.classList.remove('badge-pieno');
+                    }
+                }
+
+                const listaCronologica = [...arrayCoda].sort((a, b) => a.timestamp - b.timestamp);
+
+                arrayCoda.forEach(persona => {
+                    const numeroBiglietto = listaCronologica.findIndex(p => p.id === persona.id) + 1;
+                    const div = document.createElement('div');
+                    const stato = persona.stato || 'attesa';
+                    
+                    let classeStato = 'item-in-attesa';
+                    let testoStato = '💤 In attesa';
+                    let pulsantiHTML = '';
+
+                    if (stato === 'chiamato') {
+                        classeStato = 'item-chiamato';
+                        testoStato = '📢 Chiamato';
+                        pulsantiHTML = `<button class="azione-conferma" data-id="${persona.id}">✅ Conferma iscrizione</button>`;
+                    } else if (stato === 'iscritto') {
+                        classeStato = 'item-iscritto';
+                        testoStato = '🟢 Iscrizione effettuata';
+                        pulsantiHTML = `<button class="btn-rimuovi azione-rimuovi" data-id="${persona.id}">🗑️ Elimina</button>`;
+                    } else {
+                        pulsantiHTML = `<button class="btn-chiama azione-chiama" data-id="${persona.id}">📢 Chiama</button>`;
+                    }
+
+                    div.className = `item-coda ${classeStato}`;
+                    
+                    const etichettaDelega = persona.delega ? '<span class="badge-delega">⚠️ DELEGA (2 posti)</span>' : '';
+                    const rigaDelegante = (persona.delega && persona.delegato) ? `<small class="testo-delegante">Delegante: <strong>${persona.delegato}</strong></small>` : '';
+
+                    div.innerHTML = `
+                        <div style="text-align: left;">
+                            <span class="numero-biglietto">N° ${numeroBiglietto}</span>
+                            <strong>${persona.nome}</strong> ${etichettaDelega}
+                            ${rigaDelegante}
+                            <small style="margin-left: 55px; display: block; margin-top: 2px;">Stato: ${testoStato}</small>
+                        </div>
+                        <div>
+                            ${pulsantiHTML}
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+
+            } catch (err) {
+                console.error("Errore di rendering:", err);
+                container.innerHTML = `<p style="color: red; font-weight: bold;">Errore nello script: ${err.message}</p>`;
             }
-        }
+        });
     </script>
 </body>
 </html>
