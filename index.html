@@ -10,13 +10,13 @@
         
         .logo-aziendale { max-width: 150px; height: auto; margin-bottom: 15px; }
 
-        input[type="text"], button { width: 100%; padding: 14px; margin-top: 15px; font-size: 16px; box-sizing: border-box; border-radius: 8px; }
-        input[type="text"] { border: 1px solid #ccc; }
+        input[type="text"], input[type="tel"], button { width: 100%; padding: 14px; margin-top: 15px; font-size: 16px; box-sizing: border-box; border-radius: 8px; }
+        input[type="text"], input[type="tel"] { border: 1px solid #ccc; }
         
         .delega-container { text-align: left; margin-top: 15px; font-size: 15px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .delega-container input { width: 20px; height: 20px; margin: 0; cursor: pointer; }
 
-        #containerDelegato { display: none; margin-top: 10px; margin-left: 28px; width: calc(100% - 28px); }
+        #containerDelegato, #containerDelegatoRiserva { display: none; margin-top: 10px; margin-left: 28px; width: calc(100% - 28px); }
 
         button { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; }
         button:active { background: #0056b3; }
@@ -25,7 +25,7 @@
         #schermataAttesa { display: none; background: #fff3cd; border: 2px solid #ffeeba; padding: 20px; border-radius: 8px; margin-top: 15px; }
         #schermataChiamata { display: none; background: #d4edda; border: 2px solid #c3e6cb; padding: 25px; border-radius: 8px; margin-top: 15px; color: #155724; }
         #schermataIscritto { display: none; background: #d4edda; border: 2px solid #c3e6cb; padding: 25px; border-radius: 8px; margin-top: 15px; color: #155724; }
-        #schermataPiena { display: none; background: #f8d7da; border: 2px solid #f5c6cb; padding: 20px; border-radius: 8px; margin-top: 15px; color: #721c24; }
+        #schermataPiena { display: none; background: #fff3cd; border: 2px solid #ffeeba; padding: 20px; border-radius: 8px; margin-top: 15px; color: #856404; text-align: left; }
         
         .numero-evidenza { font-size: 28px; font-weight: bold; color: #007bff; margin: 10px 0; line-height: 1.3; }
         .turno-chiamata { font-size: 22px; font-weight: bold; color: #155724; margin-top: 15px; line-height: 1.4; }
@@ -38,19 +38,19 @@
         
         <h2>OpenDay 2027 - Banco Iscrizioni</h2>
 
-        <!-- FASE 1: Inserimento Nome e Delega -->
+        <!-- FASE 1: Inserimento Nome, Telefono e Delega (Coda Normale) -->
         <div id="schermataForm">
             <p>Inserisci i tuoi dati per metterti in coda!<br>
             <small style="color: #666;">Se intendi iscrivere una seconda persona tramite delega, prendi il numero anche per lui spuntando la voce sottostante.</small></p>
             
             <input type="text" id="nomeUtente" placeholder="Il tuo cognome e nome" autocomplete="off">
+            <input type="tel" id="telefonoUtente" placeholder="Il tuo numero di telefono" autocomplete="tel">
             
             <label class="delega-container">
                 <input type="checkbox" id="checkDelega" onchange="toggleDelega()">
                 <span>Iscrizione con delega</span>
             </label>
 
-            <!-- Campo aggiuntivo per il nome del delegante -->
             <div id="containerDelegato">
                 <input type="text" id="nomeDelegato" placeholder="Cognome e nome del delegante" autocomplete="off">
             </div>
@@ -58,15 +58,29 @@
             <button onclick="registraInCoda()">Prendi il Numero</button>
         </div>
 
-        <!-- MESSAGGIO CODA PIENA -->
+        <!-- MESSAGGIO CODA PIENA / LISTA RISERVA -->
         <div id="schermataPiena">
-            <h3 style="margin-top:0;">Coda Al Completo</h3>
-            <p>Abbiamo raggiunto il limite massimo di capienza in questo momento. Riprova più tardi quando si libererà un posto.</p>
+            <h3 style="margin-top:0; color: #856404; text-align: center;">⚠️ Coda completa - Lista di Riserva</h3>
+            <p style="font-size: 14px; line-height: 1.4;">Abbiamo raggiunto il limite massimo di capienza attuale. Puoi comunque inserire i tuoi dati per entrare nella <strong>lista di riserva</strong>: verrai spostato automaticamente in coda attiva non appena si libererà un posto!</p>
+            
+            <input type="text" id="nomeUtenteRiserva" placeholder="Il tuo cognome e nome" autocomplete="off">
+            <input type="tel" id="telefonoUtenteRiserva" placeholder="Il tuo numero di telefono" autocomplete="tel">
+            
+            <label class="delega-container">
+                <input type="checkbox" id="checkDelegaRiserva" onchange="toggleDelegaRiserva()">
+                <span>Iscrizione con delega</span>
+            </label>
+
+            <div id="containerDelegatoRiserva">
+                <input type="text" id="nomeDelegatoRiserva" placeholder="Cognome e nome del delegante" autocomplete="off">
+            </div>
+
+            <button onclick="registraInRiserva()" style="background: #ffc107; color: #856404; margin-top: 15px;">Iscriviti alla Lista di Riserva</button>
         </div>
 
         <!-- FASE 2: In Attesa -->
         <div id="schermataAttesa">
-            <p style="margin:0;"><span id="marioNome" style="font-weight:bold;"></span>, sei in coda!</p>
+            <p style="margin:0;"><span id="marioNome" style="font-weight:bold;"></span>, sei registrato!</p>
             <div id="mioNumeroBiglietto" style="font-size: 20px; font-weight: bold; color: #007bff; margin: 5px 0;"></div>
             <div class="numero-evidenza" id="personeDavanti">Calcolo...</div>
             <p style="font-size: 14px; color: #856404; margin-bottom:0;">Tieni questa pagina aperta. Ti avviseremo non appena sarà il tuo turno.</p>
@@ -75,7 +89,7 @@
         <!-- FASE 3: Turno Arrivato -->
         <div id="schermataChiamata">
             <h3 style="margin-top:0; color: #155724;">📢 È IL TUO TURNO!</h3>
-            <div class="turno-chiamata"><span id="nomeChiamato" style="font-weight: bold;"></span> presentati al banco iscrizioni con il numero <span id="numeroChiamato" style="font-weight: bold;"></span></div>
+            <div class="turno-chiamata"><span id="nomeChiamato" style="font-weight: bold;"></span> è il tuo turno!!<br>Presentati al banco iscrizioni con il numero <span id="numeroChiamato" style="font-weight: bold;"></span></div>
         </div>
 
         <!-- FASE 4: Iscrizione Effettuata -->
@@ -87,7 +101,7 @@
         </div>
     </div>
 
-    <!-- Script Firebase e Sicurezza QR Code con Bypass Debug -->
+    <!-- Script Firebase e Sicurezza QR Code -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
         import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
@@ -100,6 +114,17 @@
             } else {
                 container.style.display = 'none';
                 document.getElementById('nomeDelegato').value = ''; 
+            }
+        };
+
+        window.toggleDelegaRiserva = function() {
+            const check = document.getElementById('checkDelegaRiserva').checked;
+            const container = document.getElementById('containerDelegatoRiserva');
+            if (check) {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+                document.getElementById('nomeDelegatoRiserva').value = ''; 
             }
         };
 
@@ -134,7 +159,7 @@
             document.body.innerHTML = `
                 <div style="font-family: sans-serif; text-align: center; padding: 40px 20px; background: #f4f4f9; color: #333; max-width: 400px; margin: 50px auto; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
                     <h2 style="color: #dc3545; margin-top: 0;">⚠️ Accesso non consentito</h2>
-                    <p>Per metterti in coda devi effettuare la scansione fisica del <strong>QR code ufficiale</strong> esposto al banco dell'Open Day.</p>
+                    <p>Per metterti in coda devi effettuare la scansione fisica del <strong>QR code ufficiale</strong> esposto.</p>
                     <p style="font-size: 14px; color: #666;">I link condivisi tramite chat o scaduti non sono validi.</p>
                 </div>
             `;
@@ -171,7 +196,10 @@
                     if (data) {
                         Object.keys(data).forEach(id => {
                             const item = data[id];
-                            postiOccupati += item.delega ? 2 : 1;
+                            const stato = item.stato || 'attesa';
+                            if (stato !== 'riserva') {
+                                postiOccupati += item.delega ? 2 : 1;
+                            }
                         });
                     }
 
@@ -188,11 +216,17 @@
 
         window.registraInCoda = function() {
             const nome = document.getElementById('nomeUtente').value.trim();
+            const telefono = document.getElementById('telefonoUtente').value.trim();
             const conDelega = document.getElementById('checkDelega').checked;
             const nomeDelegato = document.getElementById('nomeDelegato').value.trim();
 
             if(!nome) {
                 alert("Per favore inserisci il tuo Cognome e Nome.");
+                return;
+            }
+
+            if(!telefono) {
+                alert("Per favore inserisci il tuo numero di telefono.");
                 return;
             }
 
@@ -203,10 +237,47 @@
 
             const nuovoTicket = push(codaRef, {
                 nome: nome,
+                telefono: telefono,
                 delega: conDelega,
                 delegato: conDelega ? nomeDelegato : "",
                 timestamp: Date.now(),
                 stato: 'attesa'
+            });
+
+            localStorage.setItem('coda_id_utente', nuovoTicket.key);
+            localStorage.setItem('coda_nome_utente', nome);
+
+            attivaModalitaAttesa(nuovoTicket.key, nome);
+        }
+
+        window.registraInRiserva = function() {
+            const nome = document.getElementById('nomeUtenteRiserva').value.trim();
+            const telefono = document.getElementById('telefonoUtenteRiserva').value.trim();
+            const conDelega = document.getElementById('checkDelegaRiserva').checked;
+            const nomeDelegato = document.getElementById('nomeDelegatoRiserva').value.trim();
+
+            if(!nome) {
+                alert("Per favore inserisci il tuo Cognome e Nome.");
+                return;
+            }
+
+            if(!telefono) {
+                alert("Per favore inserisci il tuo numero di telefono.");
+                return;
+            }
+
+            if(conDelega && !nomeDelegato) {
+                alert("Hai spuntato l'iscrizione con delega: inserisci il nome del delegante.");
+                return;
+            }
+
+            const nuovoTicket = push(codaRef, {
+                nome: nome,
+                telefono: telefono,
+                delega: conDelega,
+                delegato: conDelega ? nomeDelegato : "",
+                timestamp: Date.now(),
+                stato: 'riserva'
             });
 
             localStorage.setItem('coda_id_utente', nuovoTicket.key);
@@ -244,13 +315,22 @@
                     return;
                 }
 
-                const mioStato = data[idMioTicket].stato;
+                const mioOggetto = data[idMioTicket];
+                const mioStato = mioOggetto.stato || 'attesa';
 
-                // Calcolo preliminare della lista cronologica per ricavare il numero del biglietto
-                const tuttiITicket = Object.keys(data).map(id => ({ id, ...data[id] }))
+                if (mioStato === 'riserva') {
+                    document.getElementById('schermataAttesa').style.display = 'block';
+                    document.getElementById('mioNumeroBiglietto').innerText = `Sei in Lista di Riserva`;
+                    document.getElementById('personeDavanti').innerHTML = `<span style="font-size: 16px; font-weight: normal; color: #856404;">Il banco ti sposterà in coda attiva non appena si libererà un posto.</span>`;
+                    return;
+                }
+
+                const arrayAttiva = Object.keys(data)
+                    .filter(id => data[id] !== null && typeof data[id] === 'object' && (data[id].stato || 'attesa') !== 'riserva')
+                    .map(id => ({ id, ...data[id] }))
                     .sort((a, b) => a.timestamp - b.timestamp);
 
-                const numeroMioBiglietto = tuttiITicket.findIndex(p => p.id === idMioTicket) + 1;
+                const numeroMioBiglietto = arrayAttiva.findIndex(p => p.id === idMioTicket) + 1;
 
                 if (mioStato === 'iscritto') {
                     document.getElementById('schermataAttesa').style.display = 'none';
@@ -263,9 +343,8 @@
                     document.getElementById('schermataAttesa').style.display = 'none';
                     document.getElementById('schermataChiamata').style.display = 'block';
                     
-                    // Inserimento dinamico di nome e numero nella schermata di chiamata
                     document.getElementById('nomeChiamato').innerText = nome;
-                    document.getElementById('numeroChiamato').innerText = numeroMioBiglietto;
+                    document.getElementById('numeroChiamato').innerText = numeroMioBiglietto > 0 ? numeroMioBiglietto : '-';
 
                     if (navigator.vibrate) {
                         navigator.vibrate([500, 200, 500, 200, 500]);
@@ -274,9 +353,9 @@
                 }
 
                 let personeDavanti = 0;
-                const mioTimestamp = data[idMioTicket].timestamp;
+                const mioTimestamp = mioOggetto.timestamp;
 
-                tuttiITicket.forEach((item) => {
+                arrayAttiva.forEach((item) => {
                     const statoItem = item.stato || 'attesa';
                     if (item.timestamp < mioTimestamp && (statoItem === 'attesa' || statoItem === 'chiamato')) {
                         personeDavanti += item.delega ? 2 : 1;
