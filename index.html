@@ -3,39 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coda Iscrizioni</title>
+    <title>OpenDay 2027 - Coda Iscrizioni</title>
     <style>
         * { box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; text-align: center; padding: 20px 15px; background: #f0f2f5; color: #333; margin: 0; display: flex; flex-direction: column; justify-content: center; min-height: 100vh; }
-        .card { background: white; padding: 25px 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 450px; width: 100%; margin: auto; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            text-align: center; 
+            padding: 20px 16px; 
+            background: #f4f7fc; 
+            color: #1f2937; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            min-height: 100vh; 
+        }
+        .card { 
+            background: white; 
+            padding: 30px 22px; 
+            border-radius: 24px; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06); 
+            max-width: 420px; 
+            width: 100%; 
+            margin: auto; 
+            border: 1px solid rgba(0,0,0,0.02);
+        }
         
-        .logo-aziendale { max-width: 130px; height: auto; margin-bottom: 10px; }
-        h2 { font-size: 20px; color: #1a1a1a; margin-top: 5px; margin-bottom: 20px; }
+        .logo-aziendale { max-width: 140px; height: auto; margin-bottom: 12px; }
+        h2 { font-size: 22px; color: #111827; font-weight: 700; margin-top: 0; margin-bottom: 6px; }
+        .sottotitolo { font-size: 14px; color: #6b7280; margin-bottom: 24px; line-height: 1.4; }
 
-        input[type="text"], input[type="tel"], button { width: 100%; padding: 15px; margin-top: 12px; font-size: 16px; border-radius: 10px; border: 1px solid #ddd; outline: none; }
-        input[type="text"]:focus, input[type="tel"]:focus { border-color: #007bff; box-shadow: 0 0 0 3px rgba(0,123,255,0.15); }
+        input[type="text"], input[type="tel"] { 
+            width: 100%; 
+            padding: 16px; 
+            margin-top: 12px; 
+            font-size: 16px; 
+            border-radius: 14px; 
+            border: 1.5px solid #e5e7eb; 
+            outline: none; 
+            background: #f9fafb;
+            transition: all 0.2s ease;
+        }
+        input[type="text"]:focus, input[type="tel"]:focus { 
+            border-color: #2563eb; 
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); 
+        }
         
-        .delega-container { text-align: left; margin-top: 15px; font-size: 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 5px 0; }
-        .delega-container input { width: 22px; height: 22px; margin: 0; cursor: pointer; accent-color: #007bff; }
+        .delega-container { 
+            text-align: left; 
+            margin-top: 18px; 
+            font-size: 14px; 
+            font-weight: 500;
+            color: #4b5563;
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            cursor: pointer; 
+            background: #f9fafb;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1.5px solid #e5e7eb;
+        }
+        .delega-container input { width: 20px; height: 20px; margin: 0; cursor: pointer; accent-color: #2563eb; }
 
-        #containerDelegato, #containerDelegatoRiserva { display: none; margin-top: 10px; margin-left: 34px; width: calc(100% - 34px); }
+        #containerDelegato, #containerDelegatoRiserva { display: none; margin-top: 10px; }
 
-        button { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; min-height: 50px; box-shadow: 0 4px 10px rgba(0,123,255,0.2); transition: background 0.2s; }
-        button:active { background: #0056b3; transform: scale(0.98); }
+        button { 
+            width: 100%;
+            background: #2563eb; 
+            color: white; 
+            border: none; 
+            font-weight: 600; 
+            font-size: 16px;
+            cursor: pointer; 
+            min-height: 52px; 
+            border-radius: 14px;
+            margin-top: 20px;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3); 
+            transition: background 0.2s, transform 0.1s; 
+        }
+        button:active { background: #1d4ed8; transform: scale(0.98); }
         
         #schermataForm { display: none; }
-        #schermataAttesa { display: none; background: #fff9e6; border: 2px solid #ffeeba; padding: 20px; border-radius: 12px; margin-top: 15px; }
-        #schermataChiamata { display: none; background: #d4edda; border: 2px solid #c3e6cb; padding: 25px 15px; border-radius: 12px; margin-top: 15px; color: #155724; animation: pulse 1.5s infinite; }
-        #schermataIscritto { display: none; background: #d4edda; border: 2px solid #c3e6cb; padding: 25px 15px; border-radius: 12px; margin-top: 15px; color: #155724; }
-        #schermataPiena { display: none; background: #fff9e6; border: 2px solid #ffeeba; padding: 20px; border-radius: 12px; margin-top: 15px; color: #856404; text-align: left; }
         
-        .numero-evidenza { font-size: 32px; font-weight: bold; color: #007bff; margin: 12px 0; line-height: 1.2; }
-        .turno-chiamata { font-size: 20px; font-weight: bold; color: #155724; margin-top: 10px; line-height: 1.4; }
+        #schermataAttesa { 
+            display: none; 
+            background: linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%); 
+            border: 1px solid #fde68a; 
+            padding: 24px 16px; 
+            border-radius: 20px; 
+            margin-top: 10px; 
+        }
+        
+        #schermataChiamata { 
+            display: none; 
+            background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%); 
+            border: 2px solid #86efac; 
+            padding: 28px 16px; 
+            border-radius: 20px; 
+            margin-top: 10px; 
+            color: #166534; 
+            animation: bounceIn 0.6s ease, pulseGlow 2s infinite; 
+        }
+        
+        #schermataIscritto { 
+            display: none; 
+            background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%); 
+            border: 1px solid #bbf7d0; 
+            padding: 28px 16px; 
+            border-radius: 20px; 
+            margin-top: 10px; 
+            color: #166534; 
+        }
+        
+        #schermataPiena { 
+            display: none; 
+            background: linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%); 
+            border: 1px solid #fde68a; 
+            padding: 22px 16px; 
+            border-radius: 20px; 
+            margin-top: 10px; 
+            color: #92400e; 
+            text-align: left; 
+        }
+        
+        .badge-numero {
+            background: white;
+            color: #2563eb;
+            display: inline-block;
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin: 8px 0;
+        }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
+        .numero-evidenza { 
+            font-size: 36px; 
+            font-weight: 800; 
+            color: #1e3a8a; 
+            margin: 10px 0; 
+            letter-spacing: -1px;
+        }
+        
+        .turno-chiamata { font-size: 20px; font-weight: 700; color: #166534; margin-top: 10px; line-height: 1.4; }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(34, 197, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
         }
     </style>
 </head>
@@ -45,11 +163,10 @@
         <img src="logotuchini.png" alt="Logo" class="logo-aziendale">
         
         <h2>OpenDay 2027</h2>
+        <p class="sottotitolo">Sistema di gestione coda digitale</p>
 
         <!-- FASE 1: Inserimento Dati (Coda Normale) -->
         <div id="schermataForm">
-            <p style="font-size: 14px; color: #555; margin-top:0;">Inserisci i tuoi dati per metterti in coda</p>
-            
             <input type="text" id="nomeUtente" placeholder="Cognome e Nome" autocomplete="name">
             <input type="tel" id="telefonoUtente" placeholder="Numero di telefono" autocomplete="tel">
             
@@ -67,13 +184,13 @@
 
         <!-- LISTA DI RISERVA -->
         <div id="schermataPiena">
-            <h3 style="margin-top:0; color: #856404; text-align: center; font-size: 18px;">⚠️ Coda Al Completo</h3>
-            <p style="font-size: 13px; line-height: 1.4; margin-bottom: 15px;">Siamo al completo ma puoi iscriverti alla <strong>lista di riserva</strong>: verrai spostato automaticamente appena si libera un posto.</p>
+            <h3 style="margin-top:0; color: #b45309; text-align: center; font-size: 18px;">⚠️ Coda Al Completo</h3>
+            <p style="font-size: 13px; line-height: 1.4; margin-bottom: 16px;">Siamo momentaneamente al completo. Puoi iscriverti alla <strong>lista di riserva</strong>: verrai spostato automaticamente appena si libera un posto.</p>
             
             <input type="text" id="nomeUtenteRiserva" placeholder="Cognome e Nome" autocomplete="name">
             <input type="tel" id="telefonoUtenteRiserva" placeholder="Numero di telefono" autocomplete="tel">
             
-            <label class="delega-container">
+            <label class="delega-container" style="background: #fff; border-color: #fde68a;">
                 <input type="checkbox" id="checkDelegaRiserva" onchange="toggleDelegaRiserva()">
                 <span>Iscrizione con delega</span>
             </label>
@@ -82,27 +199,27 @@
                 <input type="text" id="nomeDelegatoRiserva" placeholder="Cognome e Nome del delegante" autocomplete="off">
             </div>
 
-            <button onclick="registraInRiserva()" style="background: #ffc107; color: #856404; margin-top: 15px;">Iscriviti alla Riserva</button>
+            <button onclick="registraInRiserva()" style="background: #d97706; box-shadow: 0 4px 14px rgba(217, 119, 6, 0.3); margin-top: 18px;">Iscriviti alla Riserva</button>
         </div>
 
         <!-- FASE 2: In Attesa -->
         <div id="schermataAttesa">
-            <p style="margin:0; font-size: 15px;"><span id="marioNome" style="font-weight:bold;"></span>, sei in coda!</p>
-            <div id="mioNumeroBiglietto" style="font-size: 18px; font-weight: bold; color: #007bff; margin: 8px 0;"></div>
-            <div class="numero-evidenza" id="personeDavanti">Calcolo...</div>
-            <p style="font-size: 13px; color: #856404; margin-bottom:0; line-height: 1.3;">Tieni questa pagina aperta e lo schermo attivo. Ti avviseremo al tuo turno.</p>
+            <p style="margin:0; font-size: 15px; color: #78350f;">Ciao <span id="marioNome" style="font-weight:700;"></span>,</p>
+            <div id="mioNumeroBiglietto" class="badge-numero">Il tuo biglietto è il N° -</div>
+            <div class="numero-evidenza" id="personeDavanti">...</div>
+            <p style="font-size: 13px; color: #92400e; margin-bottom:0; line-height: 1.4;">Tieni questa pagina aperta. Lo schermo rimarrà attivo e ti avviseremo al tuo turno.</p>
         </div>
 
         <!-- FASE 3: Turno Arrivato -->
         <div id="schermataChiamata">
-            <h3 style="margin-top:0; color: #155724; font-size: 22px;">📢 È IL TUO TURNO!</h3>
-            <div class="turno-chiamata"><span id="nomeChiamato" style="font-weight: bold;"></span> è il tuo turno!!<br>Presentati al banco con il numero <span id="numeroChiamato" style="font-weight: bold;"></span></div>
+            <h3 style="margin-top:0; color: #166534; font-size: 24px; letter-spacing: -0.5px;">📢 È IL TUO TURNO!</h3>
+            <div class="turno-chiamata"><span id="nomeChiamato" style="font-weight: 800;"></span> è il tuo turno!<br><span style="font-size: 16px; font-weight: 500; color: #15803d;">Presentati al banco con il numero <span id="numeroChiamato" style="font-weight: 700;"></span></span></div>
         </div>
 
         <!-- FASE 4: Iscrizione Effettuata -->
         <div id="schermataIscritto">
-            <h3 style="margin-top:0; color: #155724; font-size: 20px;">🟢 ISCRIZIONE COMPLETATA</h3>
-            <p style="font-size: 14px; line-height: 1.4;">Complimenti <span id="nomeUtenteIscritto" style="font-weight: bold;"></span>!<br>Passa al banco per ritirare la busta.</p>
+            <h3 style="margin-top:0; color: #166534; font-size: 20px;">🟢 ISCRIZIONE COMPLETATA</h3>
+            <p style="font-size: 14px; line-height: 1.5; color: #166534;">Complimenti <span id="nomeUtenteIscritto" style="font-weight: 700;"></span>!<br>Passa al banco per ritirare la busta e completare l'anagrafica.</p>
         </div>
     </div>
 
@@ -129,12 +246,12 @@
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(587.33, ctx.currentTime); // Nota Re5
-                gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
                 osc.connect(gain);
                 gain.connect(ctx.destination);
                 osc.start();
-                osc.stop(ctx.currentTime + 0.35);
+                osc.stop(ctx.currentTime + 0.4);
             } catch(e) {}
         }
 
@@ -172,9 +289,9 @@
 
         if (!accessoConsentito) {
             document.body.innerHTML = `
-                <div style="background: white; padding: 30px; border-radius: 16px; max-width: 350px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                    <h2 style="color: #dc3545; margin-top: 0;">⚠️ Accesso non consentito</h2>
-                    <p style="font-size: 14px; color: #555;">Inquadra il QR code ufficiale esposto al banco dell'Open Day per accedere alla coda.</p>
+                <div class="card">
+                    <h2 style="color: #dc2626; margin-top: 0;">⚠️ Accesso non consentito</h2>
+                    <p style="font-size: 14px; color: #4b5563; line-height: 1.5;">Inquadra il QR code ufficiale esposto al banco dell'Open Day per accedere alla coda.</p>
                 </div>
             `;
             throw new Error("Accesso bloccato.");
@@ -280,7 +397,7 @@
                     document.body.innerHTML = `
                         <div class="card">
                             <h2>Operazione Conclusa</h2>
-                            <p style="font-size:14px; color:#555;">La tua pratica è stata completata al banco. Grazie!</p>
+                            <p style="font-size:14px; color:#4b5563; line-height: 1.5;">La tua pratica è stata completata al banco. Grazie e arrivederci!</p>
                         </div>
                     `;
                     localStorage.clear();
@@ -294,7 +411,7 @@
                 if (mioStato === 'riserva') {
                     document.getElementById('schermataAttesa').style.display = 'block';
                     document.getElementById('mioNumeroBiglietto').innerText = `In Lista di Riserva`;
-                    document.getElementById('personeDavanti').innerHTML = `<span style="font-size: 14px; color: #856404;">Verrai spostato in coda attiva appena si libera un posto.</span>`;
+                    document.getElementById('personeDavanti').innerHTML = `<span style="font-size: 15px; font-weight: 500; color: #b45309;">Verrai spostato in coda attiva non appena si libera un posto.</span>`;
                     return;
                 }
 
@@ -337,10 +454,10 @@
 
                 const boxPersone = document.getElementById('personeDavanti');
                 if (personeDavanti === 0) {
-                    boxPersone.innerHTML = `<span style="color: #28a745; font-size: 20px;">Sei il prossimo! 🎯</span>`;
+                    boxPersone.innerHTML = `<span style="color: #16a34a; font-size: 24px;">Sei il prossimo! 🎯</span>`;
                 } else {
-                    boxPersone.innerHTML = `<span style="font-size: 15px; font-weight: normal; color: #555;">(${personeDavanti} ${personeDavanti === 1 ? 'persona davanti' : 'persone davanti'})</span>`;
-                    boxPersone.style.color = "#007bff";
+                    boxPersone.innerHTML = `${personeDavanti} <span style="font-size: 16px; font-weight: 500; color: #4b5563;">${personeDavanti === 1 ? 'persona davanti' : 'persone davanti'}</span>`;
+                    boxPersone.style.color = "#1e3a8a";
                 }
             });
         }
