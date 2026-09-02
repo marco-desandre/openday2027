@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pannello Banco - Coda Iscrizioni</title>
+    <!-- Chart.js per il grafico delle statistiche -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            background: #ffffff; /* Sfondo del browser bianco pulito */
+            background: #ffffff; 
             padding: 15px; 
             color: #1e293b; 
             margin: 0; 
@@ -22,22 +24,66 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06); 
             border: 2px solid #e2e8f0;
         }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        
         h2 { 
-            margin-top: 0; 
-            color: #991b1b; /* Rosso squadra */
-            font-size: 22px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 14px; 
+            margin: 0; 
+            color: #991b1b; 
+            font-size: 20px; 
             font-weight: 800;
             letter-spacing: -0.5px;
         }
+
+        .header-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-stats-header {
+            background: #0284c7;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(2, 132, 199, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            width: auto !important;
+        }
+        .btn-stats-header:active { background: #0369a1; }
+
+        .btn-reset-header {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(220, 38, 38, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            width: auto !important;
+        }
+        .btn-reset-header:active { background: #b91c1c; }
         
         .box-limite { 
             font-size: 14px; 
             background: #f8fafc; 
-            padding: 14px 18px; 
-            border-radius: 16px; 
+            padding: 12px 16px; 
+            border-radius: 14px; 
             color: #475569; 
             display: flex; 
             justify-content: space-between; 
@@ -45,26 +91,26 @@
             border: 1px solid #e2e8f0;
             flex-wrap: wrap;
             gap: 10px;
+            margin-bottom: 14px;
         }
-        .box-limite strong { color: #15803d; font-size: 16px; } /* Verde squadra */
+        .box-limite strong { color: #15803d; font-size: 15px; }
         .badge-pieno { background: #991b1b !important; border-color: #7f1d1d !important; color: #ffffff !important; }
         .badge-pieno strong { color: #ffffff !important; }
         
-        .btn-modifica { background: #475569; color: #ffffff; border: none; padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; transition: background 0.2s; }
+        .btn-modifica { background: #475569; color: #ffffff; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; }
         .btn-modifica:active { background: #334155; }
 
         .btn-riserva { 
-            background: linear-gradient(135deg, #15803d 0%, #166534 100%); /* Verde squadra */
+            background: linear-gradient(135deg, #15803d 0%, #166534 100%); 
             color: white; 
             border: none; 
-            padding: 16px; 
-            border-radius: 16px; 
+            padding: 10px 16px; 
+            border-radius: 12px; 
             cursor: pointer; 
             font-weight: 700; 
-            font-size: 15px; 
+            font-size: 14px; 
             width: 100%; 
-            margin-top: 18px; 
-            box-shadow: 0 4px 12px rgba(21, 128, 61, 0.25);
+            box-shadow: 0 3px 8px rgba(21, 128, 61, 0.2);
             transition: transform 0.1s;
         }
         .btn-riserva:active { transform: scale(0.98); }
@@ -73,8 +119,8 @@
             display: flex; 
             flex-direction: column; 
             gap: 14px;
-            padding: 18px; 
-            margin-top: 14px; 
+            padding: 16px; 
+            margin-top: 12px; 
             background: #ffffff; 
             border: 1px solid #e2e8f0; 
             border-radius: 16px; 
@@ -84,69 +130,89 @@
             .item-coda { flex-direction: row; justify-content: space-between; align-items: center; }
         }
 
-        /* Stati basati su verde e rosso */
-        .item-in-attesa { background: #fafafa; border-color: #e2e8f0; border-left: 6px solid #15803d; } /* Verde in attesa */
-        .item-chiamato { background: #fef2f2; border-color: #fca5a5; border-left: 6px solid #dc2626; } /* Rosso chiamata */
-        .item-iscritto { background: #f0fdf4; border-color: #bbf7d0; border-left: 6px solid #16a34a; } /* Verde iscritto */
+        .item-in-attesa { background: #fafafa; border-color: #e2e8f0; border-left: 6px solid #15803d; }
+        .item-chiamato { background: #fef2f2; border-color: #fca5a5; border-left: 6px solid #dc2626; }
+        .item-iscritto { background: #f0fdf4; border-color: #bbf7d0; border-left: 6px solid #16a34a; }
         
         .badge-delega { background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; display: inline-block; border: 1px solid #fca5a5; }
         .testo-delegante { font-size: 13px; color: #475569; margin-top: 4px; display: block; }
         .testo-telefono { font-size: 13px; color: #475569; margin-top: 2px; display: block; }
         .numero-biglietto { font-size: 15px; font-weight: 800; color: #15803d; margin-right: 10px; background: #f0fdf4; padding: 6px 10px; border-radius: 10px; display: inline-block; border: 1px solid #bbf7d0; }
 
-        /* Finestra Modale per la Lista di Riserva */
-        #modalRiserva { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(3px); justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
+        /* Finestre Modali */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(3px); justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
         .modal-content { background: #ffffff; padding: 24px; border-radius: 24px; width: 100%; max-width: 520px; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15); border: 2px solid #e2e8f0; }
         .item-riserva { padding: 14px; border-bottom: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 12px; font-size: 14px; }
         @media (min-width: 480px) {
             .item-riserva { flex-direction: row; justify-content: space-between; align-items: center; }
         }
 
-        button { background: #15803d; color: white; border: none; padding: 12px 18px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 14px; width: 100%; box-shadow: 0 4px 12px rgba(21, 128, 61, 0.2); }
+        button { background: #15803d; color: white; border: none; padding: 10px 16px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 14px; width: 100%; box-shadow: 0 3px 8px rgba(21, 128, 61, 0.2); }
         @media (min-width: 480px) { button { width: auto; } }
         button:active { opacity: 0.9; transform: scale(0.98); }
         
         .btn-rimuovi { background: #64748b; box-shadow: none; }
-        .btn-chiama { background: #dc2626; color: #ffffff; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25); }
-        .btn-promuovi { background: #15803d; font-size: 13px; box-shadow: 0 4px 12px rgba(21, 128, 61, 0.25); }
+        .btn-chiama { background: #dc2626; color: #ffffff; box-shadow: 0 3px 8px rgba(220, 38, 38, 0.2); }
+        .btn-promuovi { background: #15803d; font-size: 13px; box-shadow: 0 3px 8px rgba(21, 128, 61, 0.2); }
         
-        .azioni-gruppo { display: flex; gap: 10px; width: 100%; }
+        .azioni-gruppo { display: flex; gap: 8px; width: 100%; }
         @media (min-width: 480px) { .azioni-gruppo { width: auto; } }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>
-            Gestione Coda Banco
-            <div id="boxLimiteContainer" class="box-limite">
-                <span>In attesa: <strong id="valoreInAttesa">0</strong></span>
-                <span>•</span>
-                <span>Disponibili: <strong id="valoreDisponibili">0</strong>/<strong id="valoreLimite">10</strong></span>
-                <button class="btn-modifica" id="btnModificaLimite">Modifica Limite</button>
+        <!-- Header con Titolo e Pulsanti a destra -->
+        <div class="header-top">
+            <h2>Gestione Coda Banco</h2>
+            <div class="header-buttons">
+                <button class="btn-stats-header" id="btnApriStats">📊 Stats</button>
+                <button class="btn-reset-header" id="btnSvuotaDb">🗑️ Svuota</button>
             </div>
-        </h2>
+        </div>
+
+        <!-- Box Limite Posti -->
+        <div id="boxLimiteContainer" class="box-limite">
+            <span>In attesa: <strong id="valoreInAttesa">0</strong></span>
+            <span>•</span>
+            <span>Disponibili: <strong id="valoreDisponibili">0</strong>/<strong id="valoreLimite">10</strong></span>
+            <button class="btn-modifica" id="btnModificaLimite">Modifica Limite</button>
+        </div>
         
-        <!-- Pulsante per aprire la Lista di Riserva -->
+        <!-- Pulsante Lista di Riserva Compatto -->
         <button class="btn-riserva" id="btnApriRiserve">📋 Visualizza Lista di Riserva (<span id="counterRiserve">0</span>)</button>
 
-        <p style="margin-top: 22px; font-size: 13px; color: #991b1b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Coda attiva in tempo reale:</p>
+        <p style="margin-top: 18px; font-size: 12px; color: #991b1b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Coda attiva in tempo reale:</p>
         <div id="listaCoda">Caricamento coda...</div>
     </div>
 
     <!-- Modale per la Lista di Riserva -->
-    <div id="modalRiserva">
+    <div id="modalRiserva" class="modal">
         <div class="modal-content">
             <h3 style="margin-top: 0; color: #991b1b; font-size: 18px; display: flex; justify-content: space-between; align-items: center;">
                 Lista di Riserva 
-                <button onclick="chiudiRiserve()" style="background: #dc2626; width: auto; padding: 6px 14px; font-size: 13px; border-radius: 10px; box-shadow: none;">✕ Chiudi</button>
+                <button onclick="chiudiModal('modalRiserva')" style="background: #dc2626; width: auto; padding: 6px 14px; font-size: 13px; border-radius: 10px; box-shadow: none;">✕ Chiudi</button>
             </h3>
             <p style="font-size: 13px; color: #64748b; margin-top: 0;">Ordinato per orario di inserimento. Puoi promuovere un utente in coda attiva.</p>
             <div id="listaRiservaContent">Nessun utente in riserva.</div>
         </div>
     </div>
 
-    <!-- Script Firebase -->
+    <!-- Modale per il Grafico Statistiche -->
+    <div id="modalStats" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <h3 style="margin-top: 0; color: #991b1b; font-size: 18px; display: flex; justify-content: space-between; align-items: center;">
+                Statistiche Iscrizioni (Flusso 30 min)
+                <button onclick="chiudiModal('modalStats')" style="background: #dc2626; width: auto; padding: 6px 14px; font-size: 13px; border-radius: 10px; box-shadow: none;">✕ Chiudi</button>
+            </h3>
+            <p style="font-size: 13px; color: #64748b; margin-top: 0;">Numero di iscrizioni completate suddivise per fasce orarie di 30 minuti.</p>
+            <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="graficoIscrizioni"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Firebase e Logica Grafico -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
         import { getDatabase, ref, onValue, update, remove, set } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
@@ -168,15 +234,40 @@
 
         let limiteMaxCorrente = 10;
         const PASSWORD_ADMIN = "tuchini2027";
+        const PASSWORD_RESET = "1978";
         let cacheDatiCoda = {};
+        let chartInstance = null;
 
         document.getElementById('btnApriRiserve').addEventListener('click', () => {
             document.getElementById('modalRiserva').style.display = 'flex';
             renderizzaListaRiserve(cacheDatiCoda);
         });
 
-        window.chiudiRiserve = function() {
-            document.getElementById('modalRiserva').style.display = 'none';
+        document.getElementById('btnApriStats').addEventListener('click', () => {
+            document.getElementById('modalStats').style.display = 'flex';
+            generaGraficoStatistiche(cacheDatiCoda);
+        });
+
+        document.getElementById('btnSvuotaDb').addEventListener('click', () => {
+            const pwd = prompt("Inserisci la password di sicurezza per svuotare il database:");
+            if (pwd === null) return;
+
+            if (pwd !== PASSWORD_RESET) {
+                alert("Password errata!");
+                return;
+            }
+
+            if (confirm("ATTENZIONE: Stai per cancellare interamente il database (coda attiva, riserve e statistiche). Vuoi procedere?")) {
+                set(codaRef, null).then(() => {
+                    alert("Database svuotato con successo!");
+                }).catch(err => {
+                    alert("Errore durante lo svuotamento: " + err.message);
+                });
+            }
+        });
+
+        window.chiudiModal = function(idModal) {
+            document.getElementById(idModal).style.display = 'none';
         };
 
         document.addEventListener('click', function(e) {
@@ -362,6 +453,10 @@
                     renderizzaListaRiserve(data);
                 }
 
+                if (document.getElementById('modalStats').style.display === 'flex') {
+                    generaGraficoStatistiche(data);
+                }
+
             } catch (err) {
                 console.error("Errore di rendering:", err);
                 container.innerHTML = `<p style="color: #dc2626; font-weight: bold;">Errore nello script: ${err.message}</p>`;
@@ -410,6 +505,72 @@
                     </div>
                 `;
                 containerRiserva.appendChild(div);
+            });
+        }
+
+        function generaGraficoStatistiche(data) {
+            if (!data) return;
+
+            const iscrittiCompletati = Object.keys(data)
+                .filter(id => data[id] !== null && typeof data[id] === 'object' && data[id].stato === 'iscritto' && data[id].timestampIscritto)
+                .map(id => data[id]);
+
+            const conteggioFasce = {};
+
+            iscrittiCompletati.forEach(item => {
+                const d = new Date(item.timestampIscritto);
+                const ore = d.getHours();
+                const minuti = d.getMinutes();
+                
+                const fasciaMinuti = minuti < 30 ? 0 : 30;
+                const prossimaOra = fasciaMinuti === 30 ? (ore + 1) % 24 : ore;
+                const prossimoMinutoStr = fasciaMinuti === 30 ? "00" : "30";
+                const oraInizioStr = String(ore).padStart(2, '0') + ":" + (fasciaMinuti === 0 ? "00" : "30");
+                const oraFineStr = String(prossimaOra).padStart(2, '0') + ":" + prossimoMinutoStr;
+
+                const etichettaFascia = `${oraInizioStr} - ${oraFineStr}`;
+                conteggioFasce[etichettaFascia] = (conteggioFasce[etichettaFascia] || 0) + 1;
+            });
+
+            const etichetteOrdinate = Object.keys(conteggioFasce).sort();
+            const valoriDati = etichetteOrdinate.map(fascia => conteggioFasce[fascia]);
+
+            const ctx = document.getElementById('graficoIscrizioni').getContext('2d');
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: etichetteOrdinate.length > 0 ? etichetteOrdinate : ['Nessun dato'],
+                    datasets: [{
+                        label: 'Iscrizioni processate',
+                        data: valoriDati.length > 0 ? valoriDati : [0],
+                        backgroundColor: '#15803d',
+                        borderColor: '#166534',
+                        borderWidth: 1,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
             });
         }
     </script>
