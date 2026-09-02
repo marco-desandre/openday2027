@@ -10,8 +10,8 @@
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            background: #ffffff; 
-            padding: 15px; 
+            background: #f8fafc; 
+            padding: 12px; 
             color: #1e293b; 
             margin: 0; 
         }
@@ -19,9 +19,9 @@
             max-width: 650px; 
             margin: auto; 
             background: #ffffff; 
-            padding: 24px 20px; 
-            border-radius: 24px; 
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06); 
+            padding: 16px 14px; 
+            border-radius: 20px; 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); 
             border: 2px solid #e2e8f0;
         }
         
@@ -29,88 +29,70 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
         
         h2 { 
             margin: 0; 
             color: #991b1b; 
-            font-size: 20px; 
+            font-size: 18px; 
             font-weight: 800;
             letter-spacing: -0.5px;
         }
 
-        .header-buttons {
+        .header-actions {
             display: flex;
-            gap: 8px;
-        }
-        
-        .btn-stats-header {
-            background: #0284c7;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(2, 132, 199, 0.2);
-            display: flex;
+            gap: 6px;
             align-items: center;
-            gap: 5px;
-            width: auto !important;
         }
-        .btn-stats-header:active { background: #0369a1; }
 
-        .btn-reset-header {
-            background: #dc2626;
-            color: white;
+        .mini-btn {
             border: none;
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 13px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 11px;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 2px 6px rgba(220, 38, 38, 0.2);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.1s;
+            width: auto !important;
             display: flex;
             align-items: center;
-            gap: 5px;
-            width: auto !important;
+            justify-content: center;
         }
-        .btn-reset-header:active { background: #b91c1c; }
+        .mini-btn:active { transform: scale(0.95); }
+
+        .btn-stats { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
+        .btn-reset { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; padding: 6px 8px; font-size: 13px; }
+        .btn-slot-small { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
         
         .box-limite { 
-            font-size: 14px; 
+            font-size: 13px; 
             background: #f8fafc; 
-            padding: 12px 16px; 
-            border-radius: 14px; 
+            padding: 10px 14px; 
+            border-radius: 12px; 
             color: #475569; 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
             border: 1px solid #e2e8f0;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
         }
-        .box-limite strong { color: #15803d; font-size: 15px; }
+        .box-limite strong { color: #15803d; font-size: 14px; }
         .badge-pieno { background: #991b1b !important; border-color: #7f1d1d !important; color: #ffffff !important; }
         .badge-pieno strong { color: #ffffff !important; }
-        
-        .btn-modifica { background: #475569; color: #ffffff; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; }
-        .btn-modifica:active { background: #334155; }
 
         .btn-riserva { 
             background: linear-gradient(135deg, #15803d 0%, #166534 100%); 
             color: white; 
             border: none; 
-            padding: 10px 16px; 
-            border-radius: 12px; 
+            padding: 10px 14px; 
+            border-radius: 10px; 
             cursor: pointer; 
             font-weight: 700; 
-            font-size: 14px; 
+            font-size: 13px; 
             width: 100%; 
-            box-shadow: 0 3px 8px rgba(21, 128, 61, 0.2);
+            box-shadow: 0 2px 6px rgba(21, 128, 61, 0.2);
             transition: transform 0.1s;
         }
         .btn-riserva:active { transform: scale(0.98); }
@@ -118,42 +100,42 @@
         .item-coda { 
             display: flex; 
             flex-direction: column; 
-            gap: 14px;
-            padding: 16px; 
-            margin-top: 12px; 
+            gap: 12px;
+            padding: 14px; 
+            margin-top: 10px; 
             background: #ffffff; 
             border: 1px solid #e2e8f0; 
-            border-radius: 16px; 
+            border-radius: 14px; 
             transition: all 0.2s;
         }
         @media (min-width: 480px) {
             .item-coda { flex-direction: row; justify-content: space-between; align-items: center; }
         }
 
-        .item-in-attesa { background: #fafafa; border-color: #e2e8f0; border-left: 6px solid #15803d; }
-        .item-chiamato { background: #fef2f2; border-color: #fca5a5; border-left: 6px solid #dc2626; }
-        .item-iscritto { background: #f0fdf4; border-color: #bbf7d0; border-left: 6px solid #16a34a; }
+        .item-in-attesa { background: #fafafa; border-color: #e2e8f0; border-left: 5px solid #15803d; }
+        .item-chiamato { background: #fef2f2; border-color: #fca5a5; border-left: 5px solid #dc2626; }
+        .item-iscritto { background: #f0fdf4; border-color: #bbf7d0; border-left: 5px solid #16a34a; }
         
-        .badge-delega { background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; display: inline-block; border: 1px solid #fca5a5; }
-        .testo-delegante { font-size: 13px; color: #475569; margin-top: 4px; display: block; }
-        .testo-telefono { font-size: 13px; color: #475569; margin-top: 2px; display: block; }
-        .numero-biglietto { font-size: 15px; font-weight: 800; color: #15803d; margin-right: 10px; background: #f0fdf4; padding: 6px 10px; border-radius: 10px; display: inline-block; border: 1px solid #bbf7d0; }
+        .badge-delega { background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-block; border: 1px solid #fca5a5; }
+        .testo-delegante { font-size: 12px; color: #475569; margin-top: 2px; display: block; }
+        .testo-telefono { font-size: 12px; color: #475569; margin-top: 2px; display: block; }
+        .numero-biglietto { font-size: 14px; font-weight: 800; color: #15803d; margin-right: 8px; background: #f0fdf4; padding: 4px 8px; border-radius: 8px; display: inline-block; border: 1px solid #bbf7d0; }
 
         /* Finestre Modali */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(3px); justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
-        .modal-content { background: #ffffff; padding: 24px; border-radius: 24px; width: 100%; max-width: 520px; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15); border: 2px solid #e2e8f0; }
-        .item-riserva { padding: 14px; border-bottom: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 12px; font-size: 14px; }
+        .modal-content { background: #ffffff; padding: 20px; border-radius: 20px; width: 100%; max-width: 520px; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15); border: 2px solid #e2e8f0; }
+        .item-riserva { padding: 12px; border-bottom: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
         @media (min-width: 480px) {
             .item-riserva { flex-direction: row; justify-content: space-between; align-items: center; }
         }
 
-        button { background: #15803d; color: white; border: none; padding: 10px 16px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 14px; width: 100%; box-shadow: 0 3px 8px rgba(21, 128, 61, 0.2); }
+        button { background: #15803d; color: white; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 13px; width: 100%; box-shadow: 0 2px 6px rgba(21, 128, 61, 0.2); }
         @media (min-width: 480px) { button { width: auto; } }
         button:active { opacity: 0.9; transform: scale(0.98); }
         
         .btn-rimuovi { background: #64748b; box-shadow: none; }
-        .btn-chiama { background: #dc2626; color: #ffffff; box-shadow: 0 3px 8px rgba(220, 38, 38, 0.2); }
-        .btn-promuovi { background: #15803d; font-size: 13px; box-shadow: 0 3px 8px rgba(21, 128, 61, 0.2); }
+        .btn-chiama { background: #dc2626; color: #ffffff; box-shadow: 0 2px 6px rgba(220, 38, 38, 0.2); }
+        .btn-promuovi { background: #15803d; font-size: 12px; box-shadow: 0 2px 6px rgba(21, 128, 61, 0.2); }
         
         .azioni-gruppo { display: flex; gap: 8px; width: 100%; }
         @media (min-width: 480px) { .azioni-gruppo { width: auto; } }
@@ -162,51 +144,51 @@
 <body>
 
     <div class="container">
-        <!-- Header con Titolo e Pulsanti a destra -->
+        <!-- Header con Titolo e Pulsantini compatti a destra -->
         <div class="header-top">
-            <h2>Gestione Coda Banco</h2>
-            <div class="header-buttons">
-                <button class="btn-stats-header" id="btnApriStats">📊 Stats</button>
-                <button class="btn-reset-header" id="btnSvuotaDb">🗑️ Svuota</button>
+            <h2>Gestione Coda</h2>
+            <div class="header-actions">
+                <button class="mini-btn btn-stats" id="btnApriStats">📊 Stats</button>
+                <button class="mini-btn btn-slot-small" id="btnModificaLimite">⚙️ Slot</button>
+                <button class="mini-btn btn-reset" id="btnSvuotaDb" title="Svuota Database">🗑️</button>
             </div>
         </div>
 
-        <!-- Box Limite Posti -->
+        <!-- Box Slot Posti Compatto -->
         <div id="boxLimiteContainer" class="box-limite">
             <span>In attesa: <strong id="valoreInAttesa">0</strong></span>
             <span>•</span>
-            <span>Disponibili: <strong id="valoreDisponibili">0</strong>/<strong id="valoreLimite">10</strong></span>
-            <button class="btn-modifica" id="btnModificaLimite">Modifica Limite</button>
+            <span>Disp: <strong id="valoreDisponibili">0</strong>/<strong id="valoreLimite">10</strong></span>
         </div>
         
         <!-- Pulsante Lista di Riserva Compatto -->
-        <button class="btn-riserva" id="btnApriRiserve">📋 Visualizza Lista di Riserva (<span id="counterRiserve">0</span>)</button>
+        <button class="btn-riserva" id="btnApriRiserve">📋 Lista di Riserva (<span id="counterRiserve">0</span>)</button>
 
-        <p style="margin-top: 18px; font-size: 12px; color: #991b1b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Coda attiva in tempo reale:</p>
+        <p style="margin-top: 14px; font-size: 11px; color: #991b1b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Coda attiva:</p>
         <div id="listaCoda">Caricamento coda...</div>
     </div>
 
     <!-- Modale per la Lista di Riserva -->
     <div id="modalRiserva" class="modal">
         <div class="modal-content">
-            <h3 style="margin-top: 0; color: #991b1b; font-size: 18px; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin-top: 0; color: #991b1b; font-size: 16px; display: flex; justify-content: space-between; align-items: center;">
                 Lista di Riserva 
-                <button onclick="chiudiModal('modalRiserva')" style="background: #dc2626; width: auto; padding: 6px 14px; font-size: 13px; border-radius: 10px; box-shadow: none;">✕ Chiudi</button>
+                <button onclick="chiudiModal('modalRiserva')" style="background: #dc2626; width: auto; padding: 4px 10px; font-size: 12px; border-radius: 6px; box-shadow: none;">✕</button>
             </h3>
-            <p style="font-size: 13px; color: #64748b; margin-top: 0;">Ordinato per orario di inserimento. Puoi promuovere un utente in coda attiva.</p>
+            <p style="font-size: 12px; color: #64748b; margin-top: 0;">Ordinato per orario di inserimento. Puoi promuovere un utente in coda attiva.</p>
             <div id="listaRiservaContent">Nessun utente in riserva.</div>
         </div>
     </div>
 
     <!-- Modale per il Grafico Statistiche -->
     <div id="modalStats" class="modal">
-        <div class="modal-content" style="max-width: 600px;">
-            <h3 style="margin-top: 0; color: #991b1b; font-size: 18px; display: flex; justify-content: space-between; align-items: center;">
+        <div class="modal-content" style="max-width: 550px;">
+            <h3 style="margin-top: 0; color: #991b1b; font-size: 16px; display: flex; justify-content: space-between; align-items: center;">
                 Statistiche Iscrizioni (Flusso 30 min)
-                <button onclick="chiudiModal('modalStats')" style="background: #dc2626; width: auto; padding: 6px 14px; font-size: 13px; border-radius: 10px; box-shadow: none;">✕ Chiudi</button>
+                <button onclick="chiudiModal('modalStats')" style="background: #dc2626; width: auto; padding: 4px 10px; font-size: 12px; border-radius: 6px; box-shadow: none;">✕</button>
             </h3>
-            <p style="font-size: 13px; color: #64748b; margin-top: 0;">Numero di iscrizioni completate suddivise per fasce orarie di 30 minuti.</p>
-            <div style="position: relative; height: 300px; width: 100%;">
+            <p style="font-size: 12px; color: #64748b; margin-top: 0;">Numero di iscrizioni completate suddivise per fasce orarie di 30 minuti.</p>
+            <div style="position: relative; height: 260px; width: 100%;">
                 <canvas id="graficoIscrizioni"></canvas>
             </div>
         </div>
@@ -266,26 +248,26 @@
             }
         });
 
+        document.getElementById('btnModificaLimite').addEventListener('click', () => {
+            const pwdInserita = prompt("Inserisci la password amministratore per modificare gli slot massimi:");
+            if (pwdInserita === null) return;
+
+            if (pwdInserita !== PASSWORD_ADMIN) {
+                alert("Password errata!");
+                return;
+            }
+
+            const nuovoLimite = prompt("Inserisci il numero massimo di slot in coda:", limiteMaxCorrente);
+            if (nuovoLimite !== null && !isNaN(nuovoLimite) && nuovoLimite > 0) {
+                set(limiteRef, parseInt(nuovoLimite));
+            }
+        });
+
         window.chiudiModal = function(idModal) {
             document.getElementById(idModal).style.display = 'none';
         };
 
         document.addEventListener('click', function(e) {
-            if (e.target && e.target.id === 'btnModificaLimite') {
-                const pwdInserita = prompt("Inserisci la password amministratore per modificare il limite:");
-                if (pwdInserita === null) return;
-
-                if (pwdInserita !== PASSWORD_ADMIN) {
-                    alert("Password errata!");
-                    return;
-                }
-
-                const nuovoLimite = prompt("Inserisci il limite massimo di posti in coda:", limiteMaxCorrente);
-                if (nuovoLimite !== null && !isNaN(nuovoLimite) && nuovoLimite > 0) {
-                    set(limiteRef, parseInt(nuovoLimite));
-                }
-            }
-
             if (e.target && e.target.classList.contains('azione-chiama')) {
                 const idPersona = e.target.getAttribute('data-id');
                 update(ref(db, 'coda/' + idPersona), { stato: 'chiamato' });
@@ -334,7 +316,7 @@
                 container.innerHTML = '';
 
                 if (!data) {
-                    container.innerHTML = '<p style="color: #64748b; text-align: center; padding: 25px 0;">Nessuno in coda al momento.</p>';
+                    container.innerHTML = '<p style="color: #64748b; text-align: center; padding: 20px 0;">Nessuno in coda al momento.</p>';
                     document.getElementById('valoreDisponibili').innerText = limiteMaxCorrente;
                     document.getElementById('valoreInAttesa').innerText = 0;
                     document.getElementById('counterRiserve').innerText = 0;
@@ -401,7 +383,7 @@
                 }
 
                 if (arrayCodaAttiva.length === 0) {
-                    container.innerHTML = '<p style="color: #64748b; text-align: center; padding: 25px 0;">Nessuno in coda attiva al momento.</p>';
+                    container.innerHTML = '<p style="color: #64748b; text-align: center; padding: 20px 0;">Nessuno in coda attiva al momento.</p>';
                     return;
                 }
 
@@ -419,28 +401,28 @@
                     if (stato === 'chiamato') {
                         classeStato = 'item-chiamato';
                         testoStato = '📢 Chiamato';
-                        pulsantiHTML = `<button class="azione-conferma" data-id="${persona.id}">✅ Conferma iscrizione</button>`;
+                        pulsantiHTML = `<button class="azione-conferma" data-id="${persona.id}">✅ Conferma</button>`;
                     } else if (stato === 'iscritto') {
                         classeStato = 'item-iscritto';
-                        testoStato = '🟢 Iscrizione effettuata';
-                        pulsantiHTML = `<button class="btn-rimuovi azione-rimuovi" data-id="${persona.id}">🗑️ Elimina</button>`;
+                        testoStato = '🟢 Iscritto';
+                        pulsantiHTML = `<button class="btn-rimuovi azione-rimuovi" data-id="${persona.id}">🗑️</button>`;
                     } else {
                         pulsantiHTML = `<button class="btn-chiama azione-chiama" data-id="${persona.id}">📢 Chiama</button>`;
                     }
 
                     div.className = `item-coda ${classeStato}`;
                     
-                    const etichettaDelega = persona.delega ? '<span class="badge-delega">⚠️ DELEGA (2 posti)</span>' : '';
+                    const etichettaDelega = persona.delega ? '<span class="badge-delega">⚠️ DELEGA (2)</span>' : '';
                     const rigaDelegante = (persona.delega && persona.delegato) ? `<small class="testo-delegante">Delegante: <strong>${persona.delegato}</strong></small>` : '';
                     const rigaTelefono = persona.telefono ? `<small class="testo-telefono">📞 Tel: <strong>${persona.telefono}</strong></small>` : '';
 
                     div.innerHTML = `
                         <div style="text-align: left;">
                             <span class="numero-biglietto">N° ${numeroBiglietto}</span>
-                            <strong style="font-size: 16px; color: #0f172a;">${persona.nome}</strong> ${etichettaDelega}
+                            <strong style="font-size: 15px; color: #0f172a;">${persona.nome}</strong> ${etichettaDelega}
                             ${rigaTelefono}
                             ${rigaDelegante}
-                            <small style="color: #64748b; display: block; margin-top: 6px;">Stato: ${testoStato}</small>
+                            <small style="color: #64748b; display: block; margin-top: 4px;">Stato: ${testoStato}</small>
                         </div>
                         <div class="azioni-gruppo">
                             ${pulsantiHTML}
@@ -499,7 +481,7 @@
                         ${infoDelegante}
                         <br><small style="color: #94a3b8;">Inserito alle: ${orario}</small>
                     </div>
-                    <div style="display: flex; gap: 8px; width: 100%;">
+                    <div style="display: flex; gap: 6px; width: 100%;">
                         <button class="azione-promuovi btn-promuovi" data-id="${persona.id}">⬆️ Sposta</button>
                         <button class="azione-rimuovi btn-rimuovi" data-id="${persona.id}">🗑️</button>
                     </div>
@@ -551,7 +533,7 @@
                         backgroundColor: '#15803d',
                         borderColor: '#166534',
                         borderWidth: 1,
-                        borderRadius: 8
+                        borderRadius: 6
                     }]
                 },
                 options: {
