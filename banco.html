@@ -16,6 +16,9 @@
         .btn-modifica { background: #6c757d; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; }
         .btn-modifica:hover { background: #5a6268; }
 
+        .btn-riserva { background: #ffc107; color: #856404; border: none; padding: 10px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; width: 100%; margin-top: 15px; }
+        .btn-riserva:hover { background: #e0a800; }
+
         .item-coda { display: flex; justify-content: space-between; align-items: center; padding: 14px; margin-top: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; }
         .item-in-attesa { border-left: 5px solid #007bff; }
         .item-chiamato { background: #fff3cd; color: #856404; border-left: 5px solid #ffc107; }
@@ -25,12 +28,19 @@
         .testo-delegante { font-size: 13px; color: #666; margin-top: 3px; display: block; margin-left: 55px; }
         .numero-biglietto { font-size: 18px; font-weight: bold; color: #007bff; margin-right: 10px; }
 
+        /* Finestra Modale per la Lista di Riserva */
+        #modalRiserva { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .item-riserva { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+
         button { background: #28a745; color: white; border: none; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         button:hover { background: #218838; }
         .btn-rimuovi { background: #6c757d; margin-left: 8px; }
         .btn-rimuovi:hover { background: #5a6268; }
         .btn-chiama { background: #ffc107; color: #856404; border: none; padding: 10px 14px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         .btn-chiama:hover { background: #e0a800; }
+        .btn-promuovi { background: #17a2b8; font-size: 12px; padding: 6px 10px; }
+        .btn-promuovi:hover { background: #138496; }
     </style>
 </head>
 <body>
@@ -45,8 +55,24 @@
                 <button class="btn-modifica" id="btnModificaLimite">Modifica Limite</button>
             </div>
         </h2>
-        <p>Persone in attesa aggiornate in tempo reale:</p>
+        
+        <!-- Pulsante per aprire la Lista di Riserva -->
+        <button class="btn-riserva" id="btnApriRiserve">📋 Visualizza Lista di Riserva (<span id="counterRiserve">0</span>)</button>
+
+        <p style="margin-top: 20px;">Persone in attesa aggiornate in tempo reale:</p>
         <div id="listaCoda">Caricamento coda...</div>
+    </div>
+
+    <!-- Modale per la Lista di Riserva -->
+    <div id="modalRiserva">
+        <div class="modal-content">
+            <h3 style="margin-top: 0; color: #007bff; display: flex; justify-content: space-between; align-items: center;">
+                Lista di Riserva 
+                <button onclick="chiudiRiserve()" style="background: #dc3545; padding: 5px 10px; font-size: 14px;">✕ Chiudi</button>
+            </h3>
+            <p style="font-size: 13px; color: #666;">Elenco ordinato rigorosamente per orario di inserimento. Puoi promuovere un utente in coda attiva se si liberano posti.</p>
+            <div id="listaRiservaContent">Nessun utente in riserva.</div>
+        </div>
     </div>
 
     <!-- Script Firebase -->
@@ -71,6 +97,17 @@
 
         let limiteMaxCorrente = 10;
         const PASSWORD_ADMIN = "tuchini2027";
+        let cacheDatiCoda = {};
+
+        // Gestione apertura/chiusura modale riserve
+        document.getElementById('btnApriRiserve').addEventListener('click', () => {
+            document.getElementById('modalRiserva').style.display = 'flex';
+            renderizzaListaRiserve(cacheDatiCoda);
+        });
+
+        window.chiudiRiserve = function() {
+            document.getElementById('modalRiserva').style.display = 'none';
+        };
 
         document.addEventListener('click', function(e) {
             if (e.target && e.target.id === 'btnModificaLimite') {
@@ -103,9 +140,17 @@
 
             if (e.target && e.target.classList.contains('azione-rimuovi')) {
                 const idPersona = e.target.getAttribute('data-id');
-                if(confirm("Se elimini questa persona dalla coda potrà nuovamente presentare domanda di iscrizione.\nSei sicuro che vuoi eliminarla?")) {
+                if(confirm("Se elimini questa persona verrà rimossa definitivamente.\nSei sicuro?")) {
                     remove(ref(db, 'coda/' + idPersona));
                 }
+            }
+
+            // Promuovi utente da riserva a coda attiva
+            if (e.target && e.target.classList.contains('azione-promuovi')) {
+                const idPersona = e.target.getAttribute('data-id');
+                update(ref(db, 'coda/' + idPersona), { stato: 'attesa' }).then(() => {
+                    renderizzaListaRiserve(cacheDatiCoda);
+                });
             }
         });
 
@@ -125,31 +170,28 @@
             
             try {
                 const data = snapshot.val();
+                cacheDatiCoda = data || {};
                 container.innerHTML = '';
 
                 if (!data) {
                     container.innerHTML = '<p>Nessuno in coda al momento.</p>';
-                    const elDisp = document.getElementById('valoreDisponibili');
-                    const elAttesa = document.getElementById('valoreInAttesa');
-                    if (elDisp) elDisp.innerText = limiteMaxCorrente;
-                    if (elAttesa) elAttesa.innerText = 0;
+                    document.getElementById('valoreDisponibili').innerText = limiteMaxCorrente;
+                    document.getElementById('valoreInAttesa').innerText = 0;
+                    document.getElementById('counterRiserve').innerText = 0;
                     return;
                 }
 
-                const arrayCoda = Object.keys(data)
+                const arrayCompleto = Object.keys(data)
                     .filter(id => data[id] !== null && typeof data[id] === 'object')
                     .map(id => ({ id, ...data[id] }));
 
-                if (arrayCoda.length === 0) {
-                    container.innerHTML = '<p>Nessuno in coda al momento.</p>';
-                    const elDisp = document.getElementById('valoreDisponibili');
-                    const elAttesa = document.getElementById('valoreInAttesa');
-                    if (elDisp) elDisp.innerText = limiteMaxCorrente;
-                    if (elAttesa) elAttesa.innerText = 0;
-                    return;
-                }
-                
-                arrayCoda.sort((a, b) => {
+                // Separa la coda attiva (esclude le riserve) dalle riserve vere e proprie
+                const arrayCodaAttiva = arrayCompleto.filter(p => (p.stato || 'attesa') !== 'riserva');
+                const arrayRiserve = arrayCompleto.filter(p => p.stato === 'riserva');
+
+                document.getElementById('counterRiserve').innerText = arrayRiserve.length;
+
+                arrayCodaAttiva.sort((a, b) => {
                     const pesoStato = (stato) => {
                         if (stato === 'chiamato') return 1;
                         if (stato === 'attesa') return 2;
@@ -174,12 +216,11 @@
                 let postiTotaliPesati = 0;
                 let personeInAttesaCount = 0;
 
-                arrayCoda.forEach(persona => {
+                arrayCodaAttiva.forEach(persona => {
                     const pesoPersona = persona.delega ? 2 : 1;
                     postiTotaliPesati += pesoPersona;
                     
                     const stato = persona.stato || 'attesa';
-                    // Conta le persone effettive in attesa o chiamate, pesando la delega per 2
                     if (stato === 'attesa' || stato === 'chiamato') {
                         personeInAttesaCount += pesoPersona;
                     }
@@ -188,14 +229,8 @@
                 let postiDisponibili = limiteMaxCorrente - postiTotaliPesati;
                 if (postiDisponibili < 0) postiDisponibili = 0;
 
-                // Aggiornamento dei valori nel DOM
-                const elDisp = document.getElementById('valoreDisponibili');
-                const elLim = document.getElementById('valoreLimite');
-                const elAttesa = document.getElementById('valoreInAttesa');
-                
-                if (elDisp) elDisp.innerText = postiDisponibili;
-                if (elLim) elLim.innerText = limiteMaxCorrente;
-                if (elAttesa) elAttesa.innerText = personeInAttesaCount;
+                document.getElementById('valoreDisponibili').innerText = postiDisponibili;
+                document.getElementById('valoreInAttesa').innerText = personeInAttesaCount;
 
                 const boxContainer = document.getElementById('boxLimiteContainer');
                 if (boxContainer) {
@@ -206,9 +241,14 @@
                     }
                 }
 
-                const listaCronologica = [...arrayCoda].sort((a, b) => a.timestamp - b.timestamp);
+                if (arrayCodaAttiva.length === 0) {
+                    container.innerHTML = '<p>Nessuno in coda attiva al momento.</p>';
+                    return;
+                }
 
-                arrayCoda.forEach(persona => {
+                const listaCronologica = [...arrayCodaAttiva].sort((a, b) => a.timestamp - b.timestamp);
+
+                arrayCodaAttiva.forEach(persona => {
                     const numeroBiglietto = listaCronologica.findIndex(p => p.id === persona.id) + 1;
                     const div = document.createElement('div');
                     const stato = persona.stato || 'attesa';
@@ -248,11 +288,60 @@
                     container.appendChild(div);
                 });
 
+                // Aggiorna dinamicamente anche la modale delle riserve se è aperta
+                if (document.getElementById('modalRiserva').style.display === 'flex') {
+                    renderizzaListaRiserve(data);
+                }
+
             } catch (err) {
                 console.error("Errore di rendering:", err);
                 container.innerHTML = `<p style="color: red; font-weight: bold;">Errore nello script: ${err.message}</p>`;
             }
         });
+
+        function renderizzaListaRiserve(data) {
+            const containerRiserva = document.getElementById('listaRiservaContent');
+            containerRiserva.innerHTML = '';
+
+            if (!data) {
+                containerRiserva.innerHTML = '<p>Nessun utente in riserva.</p>';
+                return;
+            }
+
+            const arrayRiserve = Object.keys(data)
+                .filter(id => data[id] !== null && typeof data[id] === 'object' && data[id].stato === 'riserva')
+                .map(id => ({ id, ...data[id] }));
+
+            // Ordinamento cronologico rigoroso per ora di inserimento
+            arrayRiserve.sort((a, b) => a.timestamp - b.timestamp);
+
+            if (arrayRiserve.length === 0) {
+                containerRiserva.innerHTML = '<p>Nessun utente in riserva al momento.</p>';
+                return;
+            }
+
+            arrayRiserve.forEach((persona, index) => {
+                const orario = new Date(persona.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const div = document.createElement('div');
+                div.className = 'item-riserva';
+
+                const etichettaDelega = persona.delega ? ' <span class="badge-delega">⚠️ DELEGA (2 posti)</span>' : '';
+                const infoDelegante = (persona.delega && persona.delegato) ? `<br><small style="color:#666; margin-left:0;">Delegante: <strong>${persona.delegato}</strong></small>` : '';
+
+                div.innerHTML = `
+                    <div style="text-align: left;">
+                        <strong>#${index + 1} - ${persona.nome}</strong>${etichettaDelega}
+                        ${infoDelegante}
+                        <br><small style="color: #888;">Inserito alle: ${orario}</small>
+                    </div>
+                    <div style="display: flex; gap: 5px;">
+                        <button class="azione-promuovi btn-promuovi" data-id="${persona.id}">⬆️ Sposta in Coda</button>
+                        <button class="azione-rimuovi btn-rimuovi" data-id="${persona.id}" style="padding: 6px 10px; font-size: 12px;">🗑️</button>
+                    </div>
+                `;
+                containerRiserva.appendChild(div);
+            });
+        }
     </script>
 </body>
 </html>
