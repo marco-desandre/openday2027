@@ -47,24 +47,24 @@
         }
 
         .mini-btn {
-            border: none;
+            background: #ffffff; /* Sfondo bianco come richiesto */
+            border: 1.5px solid #cbd5e1;
             padding: 6px 10px;
             border-radius: 8px;
             font-size: 11px;
             font-weight: 700;
+            color: #334155;
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            transition: transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            transition: transform 0.1s, background 0.1s;
             width: auto !important;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .mini-btn:active { transform: scale(0.95); }
+        .mini-btn:active { transform: scale(0.95); background: #f1f5f9; }
 
-        .btn-stats { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
-        .btn-reset { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; padding: 6px 8px; font-size: 13px; }
-        .btn-slot-small { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+        .btn-reset { padding: 6px 9px; font-size: 13px; }
         
         .box-limite { 
             font-size: 13px; 
@@ -144,12 +144,12 @@
 <body>
 
     <div class="container">
-        <!-- Header con Titolo e Pulsantini compatti a destra -->
+        <!-- Header con Titolo e Pulsantini compatti su sfondo bianco -->
         <div class="header-top">
             <h2>Gestione Coda</h2>
             <div class="header-actions">
-                <button class="mini-btn btn-stats" id="btnApriStats">📊 Stats</button>
-                <button class="mini-btn btn-slot-small" id="btnModificaLimite">⚙️ Slot</button>
+                <button class="mini-btn" id="btnApriStats">📊 Stats</button>
+                <button class="mini-btn" id="btnModificaLimite">⚙️ Slot</button>
                 <button class="mini-btn btn-reset" id="btnSvuotaDb" title="Svuota Database">🗑️</button>
             </div>
         </div>
