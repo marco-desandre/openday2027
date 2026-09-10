@@ -68,6 +68,24 @@
             border-radius: 10px;
         }
 
+        /* Pulsante per sbloccare l'audio */
+        #btnAttivaAudio {
+            background-color: #e94560;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+            transition: background 0.2s;
+        }
+        #btnAttivaAudio:hover {
+            background-color: #d73852;
+        }
+
         /* Effetto lampeggiante per attirare l'attenzione */
         @keyframes lampcheggio {
             0% { transform: scale(1); opacity: 1; }
@@ -79,6 +97,10 @@
 
     <div class="container">
         <h1>OpenDay 2027</h1>
+        
+        <!-- Pulsante sblocco audio per i browser -->
+        <button id="btnAttivaAudio">🔊 Clicca qui per attivare l'audio</button>
+
         <div class="istruzioni">Prossimi numeri chiamati al banco iscrizioni:</div>
         
         <div id="listaChiamati">
@@ -105,6 +127,55 @@
         const db = getDatabase(app);
         const codaRef = ref(db, 'coda');
 
+        let ultimiChiamatiNotificati = new Set();
+        let audioAbilitato = false;
+
+        // Gestione del click sul pulsante di sblocco audio
+        document.getElementById('btnAttivaAudio').addEventListener('click', () => {
+            audioAbilitato = true;
+            document.getElementById('btnAttivaAudio').style.display = 'none'; // Nasconde il bottone una volta cliccato
+            
+            // Test vocale silenzioso/di conferma all'attivazione
+            if ('speechSynthesis' in window) {
+                const testUtterance = new SpeechSynthesisUtterance("Audio attivo");
+                testUtterance.lang = 'it-IT';
+                testUtterance.volume = 0.1; // Basso volume per il test
+                window.speechSynthesis.speak(testUtterance);
+            }
+        });
+
+        // Funzione per pronunciare il numero
+        // Funzione per pronunciare il numero con la voce migliore disponibile
+        function pronunciaNumero(numero) {
+            if (!audioAbilitato || !('speechSynthesis' in window)) return;
+            
+            window.speechSynthesis.cancel(); // Ferma eventuali letture precedenti
+
+            const testoDaDire = `Attenzione. Numero... ${numero}`;
+            const utterance = new SpeechSynthesisUtterance(testoDaDire);
+            utterance.lang = 'it-IT';
+            utterance.rate = 0.85; // Leggermente più lenta e scandita
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+
+            // Cerca una voce italiana di alta qualità (es. Google o Microsoft Natural)
+            const voci = window.speechSynthesis.getVoices();
+            const voceItalianaMigliore = voci.find(v => v.lang.includes('it') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Online'))) || voci.find(v => v.lang.includes('it'));
+
+            if (voceItalianaMigliore) {
+                utterance.voice = voceItalianaMigliore;
+            }
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Alcuni browser caricano le voci in modo asincrono, questo assicura di prenderle
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => {
+                window.speechSynthesis.getVoices();
+            };
+        }
+
         onValue(codaRef, (snapshot) => {
             const data = snapshot.val();
             const container = document.getElementById('listaChiamati');
@@ -112,31 +183,38 @@
 
             if (!data) {
                 container.innerHTML = '<div class="nessun-turno">Nessun turno in corso.</div>';
+                ultimiChiamatiNotificati.clear();
                 return;
             }
 
-            // Trasformiamo l'oggetto in array e ordiniamo cronologicamente per ricavare i numeri esatti dei biglietti
             const arrayCoda = Object.keys(data).map(id => ({ id, ...data[id] }))
                 .sort((a, b) => a.timestamp - b.timestamp);
 
-            // Filtriamo solo quelli con stato 'chiamato'
             const chiamati = arrayCoda.filter(item => item.stato === 'chiamato');
 
             if (chiamati.length === 0) {
                 container.innerHTML = '<div class="nessun-turno">Nessun numero chiamato al momento. Attendi il tuo turno.</div>';
+                ultimiChiamatiNotificati.clear();
                 return;
             }
 
-            // Mostriamo i numeri dei biglietti chiamati
+            const nuoviChiamatiCorrenti = new Set();
+
             chiamati.forEach(persona => {
-                // Calcoliamo il numero progressivo del biglietto basandoci sulla posizione cronologica generale
                 const numeroBiglietto = arrayCoda.findIndex(p => p.id === persona.id) + 1;
+                nuoviChiamatiCorrenti.add(numeroBiglietto);
+
+                if (!ultimiChiamatiNotificati.has(numeroBiglietto)) {
+                    pronunciaNumero(numeroBiglietto);
+                }
 
                 const div = document.createElement('div');
                 div.className = 'biglietto-chiamato';
                 div.innerText = `N° ${numeroBiglietto}`;
                 container.appendChild(div);
             });
+
+            ultimiChiamatiNotificati = nuoviChiamatiCorrenti;
         });
     </script>
 </body>
