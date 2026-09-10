@@ -3,98 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sala d'Attesa e QR Code - Iscrizioni 2027</title>
+    <title>Schermo Sala d'Attesa - OpenDay 2027</title>
     <style>
         body { 
             font-family: sans-serif; 
             background: #1a1a2e; 
             color: #ffffff; 
+            text-align: center; 
+            padding: 40px 20px; 
             margin: 0;
-            padding: 20px;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            justify-content: center;
             min-height: 100vh;
             box-sizing: border-box;
         }
-
+        .container { 
+            max-width: 800px; 
+            margin: auto; 
+            background: #16213e; 
+            padding: 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5); 
+        }
         h1 { 
             color: #e94560; 
-            margin-top: 10px; 
+            margin-top: 0; 
             font-size: 36px; 
             text-transform: uppercase; 
             letter-spacing: 2px;
-            text-align: center;
         }
-
-        /* Layout principale diviso in due colonne (Schermo a sinistra, QR a destra) */
-        .main-layout {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 30px;
-            max-width: 1200px;
-            width: 100%;
-            justify-content: center;
-            align-items: flex-start;
-            margin-top: 20px;
-        }
-
-        .container-coda { 
-            flex: 2;
-            min-width: 320px;
-            background: #16213e; 
-            padding: 30px; 
-            border-radius: 20px; 
-            box-shadow: 0 8px 30px rgba(0,0,0,0.5); 
-            text-align: center;
-        }
-
-        .container-qr {
-            flex: 1;
-            min-width: 280px;
-            background: #ffffff;
-            color: #333;
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
-            text-align: center;
-        }
-
-        .container-qr h3 {
-            margin-top: 0;
-            color: #1a1a2e;
-            font-size: 22px;
-        }
-
-        .container-qr p {
-            color: #666;
-            font-size: 13px;
-            line-height: 1.4;
-        }
-
-        .container-qr img {
-            width: 200px;
-            height: 200px;
-            margin: 15px 0;
-            border: 4px solid #f4f4f9;
-            border-radius: 8px;
-        }
-
-        #countdown {
-            font-weight: bold;
-            color: #007bff;
-        }
-
         .istruzioni { 
-            font-size: 18px; 
+            font-size: 20px; 
             color: #a0aab2; 
-            margin-bottom: 20px; 
+            margin-bottom: 30px; 
         }
         
+        /* Box dei numeri chiamati */
         #listaChiamati {
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px;
             justify-content: center;
             margin-top: 20px;
         }
@@ -102,33 +51,34 @@
         .biglietto-chiamato {
             background: #ffc107;
             color: #000;
-            font-size: 50px;
+            font-size: 60px;
             font-weight: bold;
-            padding: 15px 30px;
+            padding: 20px 40px;
             border-radius: 15px;
             box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
             animation: lampcheggio 1.2s infinite alternate;
         }
 
         .nessun-turno {
-            font-size: 20px;
+            font-size: 24px;
             color: #6c757d;
             font-style: italic;
             background: #0f3460;
-            padding: 25px;
+            padding: 30px;
             border-radius: 10px;
         }
 
+        /* Pulsante per sbloccare l'audio */
         #btnAttivaAudio {
             background-color: #e94560;
             color: white;
             border: none;
-            padding: 10px 20px;
-            font-size: 16px;
+            padding: 12px 24px;
+            font-size: 18px;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
             transition: background 0.2s;
         }
@@ -136,6 +86,7 @@
             background-color: #d73852;
         }
 
+        /* Effetto lampeggiante per attirare l'attenzione */
         @keyframes lampcheggio {
             0% { transform: scale(1); opacity: 1; }
             100% { transform: scale(1.05); opacity: 0.85; }
@@ -144,64 +95,24 @@
 </head>
 <body>
 
-    <h1>Iscrizioni 2027</h1>
+    <div class="container">
+        <h1>OpenDay 2027</h1>
+        
+        <!-- Pulsante sblocco audio per i browser -->
+        <button id="btnAttivaAudio">🔊 Clicca qui per attivare l'audio</button>
 
-    <div class="main-layout">
-        <!-- COLONNA SINISTRA: Monitor Chiamate e Audio -->
-        <div class="container-coda">
-            <button id="btnAttivaAudio">🔊 Clicca qui per attivare l'audio</button>
-            <div class="istruzioni">Prossimi numeri chiamati al banco iscrizioni:</div>
-            
-            <div id="listaChiamati">
-                <div class="nessun-turno">In attesa di chiamate...</div>
-            </div>
-        </div>
-
-        <!-- COLONNA DESTRA: QR Code Dinamico per mettersi in coda -->
-        <div class="container-qr">
-            <h3>Prendi il tuo numero</h3>
-            <p>Inquadra il QR code con lo smartphone per metterti in coda.</p>
-            
-            <div>
-                <img id="qrImg" src="" alt="QR Code Coda">
-            </div>
-
-            <p>Aggiornamento sicurezza:<br>Prossimo cambio tra: <span id="countdown">15</span> secondi</p>
+        <div class="istruzioni">Prossimi numeri chiamati al banco iscrizioni:</div>
+        
+        <div id="listaChiamati">
+            <div class="nessun-turno">In attesa di chiamate...</div>
         </div>
     </div>
 
-    <!-- Script Firebase & Sintesi Vocale + Generatore QR -->
+    <!-- Script Firebase -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
 
-        // --- GESTIONE QR CODE DINAMICO ---
-        const URL_BASE = "https://marco-desandre.github.io/openday2027/index.html";
-        const INTERVALLO_SECONDI = 15;
-        let secondiRimasti = INTERVALLO_SECONDI;
-
-        function aggiornaQRCode() {
-            const timestampCorrente = Date.now();
-            const urlSicuro = `${URL_BASE}?t=tuchini2027&ts=${timestampCorrente}`;
-            const urlQR = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlSicuro)}`;
-            
-            document.getElementById('qrImg').src = urlQR;
-            secondiRimasti = INTERVALLO_SECONDI;
-        }
-
-        aggiornaQRCode();
-
-        setInterval(() => {
-            secondiRimasti--;
-            document.getElementById('countdown').innerText = secondiRimasti;
-            
-            if (secondiRimasti <= 0) {
-                aggiornaQRCode();
-            }
-        }, 1000);
-
-
-        // --- GESTIONE FIREBASE & VOCE SALA D'ATTESA ---
         const firebaseConfig = {
             apiKey: "AIzaSyAXtD-62C2rWpsZoEhW85HN1pxTe8a5jL4",
             authDomain: "opendayiscrizioni.firebaseapp.com",
@@ -219,30 +130,35 @@
         let ultimiChiamatiNotificati = new Set();
         let audioAbilitato = false;
 
+        // Gestione del click sul pulsante di sblocco audio
         document.getElementById('btnAttivaAudio').addEventListener('click', () => {
             audioAbilitato = true;
-            document.getElementById('btnAttivaAudio').style.display = 'none';
+            document.getElementById('btnAttivaAudio').style.display = 'none'; // Nasconde il bottone una volta cliccato
             
+            // Test vocale silenzioso/di conferma all'attivazione
             if ('speechSynthesis' in window) {
                 const testUtterance = new SpeechSynthesisUtterance("Audio attivo");
                 testUtterance.lang = 'it-IT';
-                testUtterance.volume = 0.1;
+                testUtterance.volume = 0.1; // Basso volume per il test
                 window.speechSynthesis.speak(testUtterance);
             }
         });
 
+        // Funzione per pronunciare il numero
+        // Funzione per pronunciare il numero con la voce migliore disponibile
         function pronunciaNumero(numero) {
             if (!audioAbilitato || !('speechSynthesis' in window)) return;
             
-            window.speechSynthesis.cancel();
+            window.speechSynthesis.cancel(); // Ferma eventuali letture precedenti
 
             const testoDaDire = `Attenzione. Numero... ${numero}`;
             const utterance = new SpeechSynthesisUtterance(testoDaDire);
             utterance.lang = 'it-IT';
-            utterance.rate = 0.85; 
+            utterance.rate = 0.85; // Leggermente più lenta e scandita
             utterance.pitch = 1.0;
             utterance.volume = 1.0;
 
+            // Cerca una voce italiana di alta qualità (es. Google o Microsoft Natural)
             const voci = window.speechSynthesis.getVoices();
             const voceItalianaMigliore = voci.find(v => v.lang.includes('it') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Online'))) || voci.find(v => v.lang.includes('it'));
 
@@ -253,6 +169,7 @@
             window.speechSynthesis.speak(utterance);
         }
 
+        // Alcuni browser caricano le voci in modo asincrono, questo assicura di prenderle
         if ('speechSynthesis' in window) {
             window.speechSynthesis.onvoiceschanged = () => {
                 window.speechSynthesis.getVoices();
