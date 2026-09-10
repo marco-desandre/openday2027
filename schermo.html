@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sala d'Attesa e QR Code - Iscrizioni 2027</title>
+    <!-- Libreria QRCode.js leggera per generare i QR code nativamente via JS su mobile -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body { 
             font-family: sans-serif; 
-            background: #1a1a2e; 
+            background: linear-gradient(135deg, #09140f 0%, #1a1a1a 50%, #1f0a0d 100%);
             color: #ffffff; 
             margin: 0;
             padding: 20px;
@@ -16,15 +18,40 @@
             align-items: center;
             min-height: 100vh;
             box-sizing: border-box;
+            position: relative;
+        }
+
+        /* Overlay scuro per garantire il contrasto */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 15, 12, 0.88);
+            z-index: -2;
+        }
+
+        /* Logo in filigrana di sfondo (convertito in bianco per risaltare sullo scuro) */
+        .filigrana-logo {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 45vw;
+            max-width: 450px;
+            opacity: 0.10;
+            z-index: -1;
+            pointer-events: none;
+            filter: invert(1) brightness(2);
         }
 
         h1 { 
-            color: #e94560; 
+            color: #e53935; /* Rosso sociale */
             margin-top: 10px; 
             font-size: 36px; 
             text-transform: uppercase; 
             letter-spacing: 2px;
             text-align: center;
+            text-shadow: 0 2px 10px rgba(229, 57, 53, 0.4);
         }
 
         /* Layout principale diviso in due colonne (Schermo a sinistra, QR a destra) */
@@ -42,52 +69,45 @@
         .container-coda { 
             flex: 2;
             min-width: 320px;
-            background: #16213e; 
+            background: rgba(22, 36, 28, 0.9);
+            border: 3px solid rgba(46, 125, 50, 0.4);
             padding: 30px; 
             border-radius: 20px; 
-            box-shadow: 0 8px 30px rgba(0,0,0,0.5); 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6); 
             text-align: center;
         }
 
         .container-qr {
             flex: 1;
             min-width: 280px;
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.95);
             color: #333;
             padding: 25px;
             border-radius: 20px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
             text-align: center;
         }
 
         .container-qr h3 {
             margin-top: 0;
-            color: #1a1a2e;
+            color: #0f2017;
             font-size: 22px;
         }
 
         .container-qr p {
-            color: #666;
+            color: #555;
             font-size: 13px;
             line-height: 1.4;
         }
 
-        .container-qr img {
-            width: 200px;
-            height: 200px;
-            margin: 15px 0;
-            border: 4px solid #f4f4f9;
-            border-radius: 8px;
-        }
-
         #countdown {
             font-weight: bold;
-            color: #007bff;
+            color: #2e7d32;
         }
 
         .istruzioni { 
             font-size: 18px; 
-            color: #a0aab2; 
+            color: #c8e6c9; 
             margin-bottom: 20px; 
         }
         
@@ -100,40 +120,41 @@
         }
         
         .biglietto-chiamato {
-            background: #ffc107;
-            color: #000;
+            background: #ffc107; /* Sfondo giallo classico ad alto contrasto */
+            color: #000000;     /* Numero nero */
             font-size: 50px;
             font-weight: bold;
             padding: 15px 30px;
             border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+            box-shadow: 0 4px 20px rgba(255, 193, 7, 0.5);
             animation: lampcheggio 1.2s infinite alternate;
         }
 
         .nessun-turno {
             font-size: 20px;
-            color: #6c757d;
+            color: #a5d6a7;
             font-style: italic;
-            background: #0f3460;
+            background: rgba(15, 45, 25, 0.8);
             padding: 25px;
             border-radius: 10px;
+            border: 1px dashed rgba(46, 125, 50, 0.5);
         }
 
         #btnAttivaAudio {
-            background-color: #e94560;
+            background-color: #e53935; /* Rosso sociale */
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 24px;
             font-size: 16px;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
             margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+            box-shadow: 0 4px 15px rgba(229, 57, 53, 0.4);
             transition: background 0.2s;
         }
         #btnAttivaAudio:hover {
-            background-color: #d73852;
+            background-color: #c62828;
         }
 
         @keyframes lampcheggio {
@@ -143,6 +164,9 @@
     </style>
 </head>
 <body>
+
+    <!-- Logo in filigrana di sfondo -->
+    <img src="logotuchini.png" alt="Logo Tuchini" class="filigrana-logo">
 
     <h1>Iscrizioni 2027</h1>
 
@@ -157,43 +181,57 @@
             </div>
         </div>
 
-        <!-- COLONNA DESTRA: QR Code Dinamico per mettersi in coda -->
+        <!-- COLONNA DESTRA: QR Code Dinamico (Compatibile Mobile) -->
         <div class="container-qr">
             <h3>Prendi il tuo numero</h3>
             <p>Inquadra il QR code con lo smartphone per metterti in coda.</p>
             
-            <div>
-                <img id="qrImg" src="" alt="QR Code Coda">
-            </div>
+            <!-- Contenitore nativo per il QR code -->
+            <div id="qrImgContainer" style="display: flex; justify-content: center; margin: 15px 0;"></div>
 
             <p>Aggiornamento sicurezza:<br>Prossimo cambio tra: <span id="countdown">15</span> secondi</p>
         </div>
     </div>
 
-    <!-- Script Firebase & Sintesi Vocale + Generatore QR -->
+    <!-- Script Firebase, Sintesi Vocale e Generatore QR -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
 
-        // --- GESTIONE QR CODE DINAMICO ---
+        // --- GESTIONE QR CODE DINAMICO NATIVO (Ottimizzato Mobile) ---
         const URL_BASE = "https://marco-desandre.github.io/openday2027/index.html";
         const INTERVALLO_SECONDI = 15;
         let secondiRimasti = INTERVALLO_SECONDI;
+        let qrCodeInstance = null;
 
         function aggiornaQRCode() {
             const timestampCorrente = Date.now();
             const urlSicuro = `${URL_BASE}?t=tuchini2027&ts=${timestampCorrente}`;
-            const urlQR = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlSicuro)}`;
+            const qrContainer = document.getElementById('qrImgContainer');
             
-            document.getElementById('qrImg').src = urlQR;
+            if (!qrCodeInstance) {
+                qrCodeInstance = new QRCode(qrContainer, {
+                    text: urlSicuro,
+                    width: 200,
+                    height: 200,
+                    colorDark : "#0f2017",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.M
+                });
+            } else {
+                qrCodeInstance.clear();
+                qrCodeInstance.makeCode(urlSicuro);
+            }
+            
             secondiRimasti = INTERVALLO_SECONDI;
         }
 
-        aggiornaQRCode();
+        setTimeout(aggiornaQRCode, 100);
 
         setInterval(() => {
             secondiRimasti--;
-            document.getElementById('countdown').innerText = secondiRimasti;
+            const elemCountdown = document.getElementById('countdown');
+            if (elemCountdown) elemCountdown.innerText = secondiRimasti;
             
             if (secondiRimasti <= 0) {
                 aggiornaQRCode();
