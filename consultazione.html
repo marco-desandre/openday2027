@@ -71,6 +71,16 @@
         .form-group { flex: 1; display: flex; flex-direction: column; }
         .form-group label { font-size: 13px; font-weight: bold; color: #444; margin-bottom: 2px; }
         
+        /* BLOCCO RIGA OPZIONI E ISCRIZIONI COMPLETE AFFIANCATE */
+        .form-row-opzioni { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; background: #f8f9fa; padding: 12px 20px; border-radius: 6px; border: 1px solid #e9ecef; flex-wrap: wrap; gap: 15px; }
+        .checkboxes-container { display: flex; gap: 30px; align-items: center; }
+        .checkbox-group { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .checkbox-group input[type="checkbox"] { width: 18px; height: 18px; margin: 0; cursor: pointer; }
+        .checkbox-group label { font-size: 14px; font-weight: bold; color: #333; cursor: pointer; margin: 0; }
+        
+        .totale-iscrizioni-inline { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: bold; color: #333; }
+        .badge-conteggio { background-color: #007BFF; color: white; padding: 4px 12px; border-radius: 4px; font-size: 15px; }
+
         .label-con-eta { display: flex; justify-content: space-between; align-items: center; }
         .input-eta-display { background-color: #e9ecef !important; color: #495057; font-weight: bold; text-align: center; cursor: not-allowed; }
 
@@ -78,8 +88,6 @@
         .col-medium { flex: 1; }
         .col-large { flex: 2; }
 
-        .totale-iscrizioni-box { background-color: #e9ecef; padding: 8px 12px; border-radius: 4px; font-size: 14px; font-weight: bold; color: #333; margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
-        
         .header-modale-actions { position: absolute; top: 20px; right: 20px; display: flex; align-items: center; gap: 10px; }
         
         .btn-chiudi-x { background: none; border: none; font-size: 24px; font-weight: bold; color: #666; cursor: pointer; line-height: 1; }
@@ -123,11 +131,11 @@
                 <span id="freccia_gruppoOnorificenze">▼</span>
             </div>
             <div id="gruppoOnorificenze" class="sidebar-group-content">
-                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_10', this)">10 anni</li>
-                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_20', this)">20 anni</li>
-                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_30', this)">30 anni</li>
-                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_40', this)">40 anni</li>
-                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_50', this)">50 anni</li>
+                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_10', this); caricaElenco10Anni();">10 anni</li>
+                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_20', this); caricaElenco20Anni();">20 anni</li>
+                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_30', this); caricaElenco30Anni();">30 anni</li>
+                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_40', this); caricaElenco40Anni();">40 anni</li>
+                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_50', this); caricaElenco50Anni();">50 anni</li>
                 <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_capitani', this)">Capitani</li>
                 <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_tigre', this)">Tigre</li>
             </div>
@@ -276,11 +284,11 @@
             </div>
 
             <!-- SEZIONI DINAMICHE ONORIFICENZE E PREVENTIVI -->
-            <div id="sezione_onorificenze_10" class="sezione-app"><h2>Onorificenze: 10 Anni</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
-            <div id="sezione_onorificenze_20" class="sezione-app"><h2>Onorificenze: 20 Anni</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
-            <div id="sezione_onorificenze_30" class="sezione-app"><h2>Onorificenze: 30 Anni</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
-            <div id="sezione_onorificenze_40" class="sezione-app"><h2>Onorificenze: 40 Anni</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
-            <div id="sezione_onorificenze_50" class="sezione-app"><h2>Onorificenze: 50 Anni</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
+            <div id="sezione_onorificenze_10" class="sezione-app"><h2>Onorificenze: 10 Anni</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_onorificenze_20" class="sezione-app"><h2>Onorificenze: 20 Anni</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_onorificenze_30" class="sezione-app"><h2>Onorificenze: 30 Anni</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_onorificenze_40" class="sezione-app"><h2>Onorificenze: 40 Anni</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_onorificenze_50" class="sezione-app"><h2>Onorificenze: 50 Anni</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
             <div id="sezione_onorificenze_capitani" class="sezione-app"><h2>Onorificenze: Capitani</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
             <div id="sezione_onorificenze_tigre" class="sezione-app"><h2>Onorificenze: Tigre</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
 
@@ -384,17 +392,30 @@
                 </div>
             </div>
 
+            <!-- BLOCCO UNICO CON TIGRE, CAPITANO E TOTALE ISCRIZIONI COMPLETE -->
+            <div class="form-row-opzioni">
+                <div class="checkboxes-container">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="editTigre">
+                        <label for="editTigre">Tigre</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="editCapitanoPiazza">
+                        <label for="editCapitanoPiazza">Capitano di Piazza</label>
+                    </div>
+                </div>
+                <div class="totale-iscrizioni-inline">
+                    <span>Totale Iscrizioni Complete:</span>
+                    <span id="conteggioIscrizioniScheda" class="badge-conteggio">0</span>
+                </div>
+            </div>
+
             <div class="box-bottoni-modale">
                 <button type="button" id="btnAggiungiIscrizione" class="btn-aggiungi-iscrizione" style="display: none;">Aggiungi Iscrizione</button>
                 <button type="button" id="btnSalva" class="btn-salva">Salva Anagrafica</button>
             </div>
 
             <div id="sezioneStoricoContainer" style="display: none;">
-                <div class="totale-iscrizioni-box">
-                    <span>Totale Iscrizioni Complete:</span>
-                    <span id="conteggioIscrizioniScheda" class="badge bg-primary text-dark" style="font-size: 15px;">0</span>
-                </div>
-
                 <h4>Storico Iscrizioni Anni Passati</h4>
                 <div id="storicoCaricamento">Seleziona un iscritto...</div>
                 
@@ -496,6 +517,142 @@
             localStorage.setItem('anno_carnevale_corrente', annoCarnevaleCorrente);
             alert(`Anno carnevale attuale aggiornato con successo a ${annoCarnevaleCorrente}!`);
         };
+
+        // FUNZIONE GENERICA DI ELABORAZIONE ONORIFICENZE (Replicando la vista SQL OW_Iscrizioni)
+        async function elaboraOnorificenze(idSezione, titoloSezione, sogliaAnni, tipoControllo) {
+            const container = document.getElementById(idSezione);
+            container.innerHTML = `<h2>Onorificenze: ${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Elaborazione calcolo ${titoloSezione} in corso...</div>`;
+            
+            try {
+                const snapAnagrafica = await getDocs(collection(db, "anagrafica"));
+                const snapStorico = await getDocs(collection(db, "storico"));
+
+                let anagraficaMap = {};
+                snapAnagrafica.forEach(docSnap => {
+                    anagraficaMap[docSnap.id] = docSnap.data();
+                });
+
+                let storicoPerPersona = {};
+                let totaliCompletiPersona = {};
+
+                snapStorico.forEach(docSnap => {
+                    let st = docSnap.data();
+                    let idPers = st.id_persona;
+                    if (!idPers) return;
+
+                    let tipologia = st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || st.categoria || st.iscrizione || "";
+                    let tipoPulito = String(tipologia).trim().toLowerCase();
+
+                    if (tipoPulito !== "iscrizione completa") return;
+
+                    let annoNum = parseInt(st.anno, 10);
+                    if (isNaN(annoNum)) return;
+
+                    totaliCompletiPersona[idPers] = (totaliCompletiPersona[idPers] || 0) + 1;
+
+                    if (!storicoPerPersona[idPers]) {
+                        storicoPerPersona[idPers] = [];
+                    }
+                    storicoPerPersona[idPers].push(annoNum);
+                });
+
+                let risultati = [];
+
+                for (let idPers in anagraficaMap) {
+                    let persona = anagraficaMap[idPers];
+                    let totaleIscrizioni = totaliCompletiPersona[idPers] || 0;
+
+                    let passaCriterio = false;
+
+                    if (tipoControllo === 'consecutivi') {
+                        let anniArr = storicoPerPersona[idPers] || [];
+                        let anniNorm = anniArr.map(anno => anno > 2022 ? anno - 2 : anno);
+                        anniNorm = [...new Set(anniNorm)].sort((a, b) => a - b);
+                        
+                        let gruppiCount = {};
+                        anniNorm.forEach((annoNorm, index) => {
+                            let rn = index + 1;
+                            let grp = annoNorm - rn;
+                            gruppiCount[grp] = (gruppiCount[grp] || 0) + 1;
+                        });
+
+                        let massimoConsecutivi = 0;
+                        for (let grp in gruppiCount) {
+                            if (gruppiCount[grp] > massimoConsecutivi) {
+                                massimoConsecutivi = gruppiCount[grp];
+                            }
+                        }
+                        
+                        passaCriterio = massimoConsecutivi >= sogliaAnni;
+                        persona.valoreMostrato = massimoConsecutivi;
+                    } else if (tipoControllo === 'totali') {
+                        let sogliaTotaleSql = sogliaAnni - 1;
+                        passaCriterio = totaleIscrizioni > sogliaTotaleSql;
+                        persona.valoreMostrato = totaleIscrizioni;
+                    }
+
+                    if (passaCriterio) {
+                        risultati.push({
+                            cognome: pulisciTesto(persona.cognome),
+                            nome: pulisciTesto(persona.nome),
+                            citta: pulisciTesto(persona.citta),
+                            telefono: pulisciTesto(persona.telefono),
+                            valore: persona.valoreMostrato
+                        });
+                    }
+                }
+
+                risultati.sort((a, b) => a.cognome.localeCompare(b.cognome));
+
+                let etichettaColonnaValore = tipoControllo === 'consecutivi' ? 'Anni Consecutivi' : 'Totale Iscrizioni';
+
+                let html = `
+                    <h2>Onorificenze: ${titoloSezione}</h2>
+                    <p style="color: #666; font-size: 14px;">Elenco estratto in tempo reale applicando i criteri della vista SQL [OW_Iscrizioni].</p>
+                    <div class="box-contatore" style="display: block;">Iscritti trovati: ${risultati.length}</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cognome</th>
+                                <th>Nome</th>
+                                <th>Città</th>
+                                <th>Telefono</th>
+                                <th>${etichettaColonnaValore}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                if (risultati.length === 0) {
+                    html += `<tr><td colspan="5" style="text-align:center; font-style:italic;">Nessun iscritto soddisfa il criterio dei ${titoloSezione}.</td></tr>`;
+                } else {
+                    risultati.forEach(r => {
+                        html += `
+                            <tr>
+                                <td>${r.cognome}</td>
+                                <td>${r.nome}</td>
+                                <td>${r.citta}</td>
+                                <td>${r.telefono}</td>
+                                <td><strong>${r.valore}</strong></td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                html += `</tbody></table>`;
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error("Errore nel calcolo delle onorificenze:", error);
+                container.innerHTML = `<h2>Onorificenze: ${titoloSezione}</h2><p style="color:red;">Errore durante il recupero dei dati: ${error.message}</p>`;
+            }
+        }
+
+        window.caricaElenco10Anni = function() { elaboraOnorificenze('sezione_onorificenze_10', '10 Anni', 10, 'consecutivi'); };
+        window.caricaElenco20Anni = function() { elaboraOnorificenze('sezione_onorificenze_20', '20 Anni', 20, 'totali'); };
+        window.caricaElenco30Anni = function() { elaboraOnorificenze('sezione_onorificenze_30', '30 Anni', 30, 'totali'); };
+        window.caricaElenco40Anni = function() { elaboraOnorificenze('sezione_onorificenze_40', '40 Anni', 40, 'totali'); };
+        window.caricaElenco50Anni = function() { elaboraOnorificenze('sezione_onorificenze_50', '50 Anni', 50, 'totali'); };
 
         async function caricaTabellaUtenti() {
             const tbody = document.getElementById('corpoTabellaUtenti');
@@ -994,6 +1151,10 @@
             document.getElementById('editNumeroDocumento').value = pulisciTesto(persona.numero_documento || persona.numeroDocumento);
             document.getElementById('editScadenzaDocumento').value = formattaDataPerInputDate(persona.scadenza_documento || persona.scadenzaDocumento);
             
+            // IMPOSTAZIONE STATO CHECKBOX TIGRE E CAPITANO DI PIAZZA
+            document.getElementById('editTigre').checked = Boolean(persona.tigre);
+            document.getElementById('editCapitanoPiazza').checked = Boolean(persona.capitano_piazza);
+
             document.getElementById('messaggioRuntimeDuplicato').textContent = "";
             document.getElementById('editCognome').classList.remove('avviso-duplicato-runtime');
             document.getElementById('editNome').classList.remove('avviso-duplicato-runtime');
@@ -1027,6 +1188,10 @@
                 campo.value = "";
             });
             document.getElementById('editEtaDisplay').value = "";
+            document.getElementById('editTigre').checked = false;
+            document.getElementById('editCapitanoPiazza').checked = false;
+            document.getElementById('conteggioIscrizioniScheda').textContent = "0";
+
             document.getElementById('messaggioRuntimeDuplicato').textContent = "";
             document.getElementById('editCognome').classList.remove('avviso-duplicato-runtime');
             document.getElementById('editNome').classList.remove('avviso-duplicato-runtime');
@@ -1387,7 +1552,9 @@
                 mail: document.getElementById('editMail').value.trim(),
                 tipo_documento: document.getElementById('editTipoDocumento').value,
                 numero_documento: document.getElementById('editNumeroDocumento').value.trim(),
-                scadenza_documento: document.getElementById('editScadenzaDocumento').value.trim()
+                scadenza_documento: document.getElementById('editScadenzaDocumento').value.trim(),
+                tigre: document.getElementById('editTigre').checked,
+                capitano_piazza: document.getElementById('editCapitanoPiazza').checked
             };
         }
 
@@ -1596,8 +1763,6 @@
                 cercaIscritti(testo);
             }, 300);
         });
-
-        window.caricaDatiRicercaFiltrata = caricaDatiRicercaFiltrata;
     </script>
 </body>
 </html>
