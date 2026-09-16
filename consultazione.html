@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Gestionale Iscritti - Login</title>
+    <title>Gestionale Iscritti</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 0; background-color: #f4f4f9; display: flex; height: 100vh; overflow: hidden; }
         
@@ -18,9 +18,7 @@
         /* SIDEBAR LATERALE SINISTRA */
         .sidebar { width: 260px; background-color: #343a40; color: white; display: flex; flex-direction: column; box-shadow: 2px 0 5px rgba(0,0,0,0.1); z-index: 100; overflow-y: auto; transition: all 0.3s; }
         .sidebar.nascosta { display: none; }
-        .sidebar-header { padding: 20px; font-size: 16px; font-weight: bold; background-color: #212529; border-bottom: 1px solid #454d55; display: flex; justify-content: space-between; align-items: center; }
-        .btn-logout { background: #dc3545; color: white; border: none; padding: 4px 8px; font-size: 11px; border-radius: 3px; cursor: pointer; }
-        .btn-logout:hover { background: #c82333; }
+        .sidebar-header { padding: 20px; font-size: 16px; font-weight: bold; background-color: #212529; border-bottom: 1px solid #454d55; }
 
         .sidebar-menu { list-style: none; padding: 0; margin: 0; flex: 1; }
         .sidebar-item { padding: 12px 20px; cursor: pointer; font-size: 14px; transition: background 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -41,10 +39,17 @@
         .main-content { flex: 1; padding: 30px; overflow-y: auto; position: relative; }
         .container { max-width: 1050px; background: white; padding: 25px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); margin: auto; position: relative; }
         
-        .box-modalita { position: absolute; top: 25px; right: 25px; display: flex; gap: 5px; background: #e9ecef; padding: 4px; border-radius: 6px; z-index: 10; }
+        /* INTESTAZIONE SUPERIORE (MODALITA E LOGOUT) */
+        .top-bar-header { position: absolute; top: 20px; right: 25px; display: flex; align-items: center; gap: 12px; z-index: 10; }
+        .box-modalita { display: flex; gap: 5px; background: #e9ecef; padding: 4px; border-radius: 6px; }
         .btn-modalita { border: none; background: transparent; padding: 6px 12px; font-size: 13px; font-weight: bold; cursor: pointer; border-radius: 4px; color: #555; transition: all 0.2s; }
         .btn-modalita.attivo { background-color: #007BFF; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         
+        .user-info-box { display: flex; align-items: center; gap: 10px; background: #e9ecef; padding: 4px 10px; border-radius: 6px; }
+        .user-email-text { font-size: 13px; font-weight: bold; color: #495057; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .btn-logout { background: #dc3545; color: white; border: none; padding: 6px 12px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
+        .btn-logout:hover { background: #c82333; }
+
         .sezione-app { display: none; }
         .sezione-app.attiva { display: block; }
 
@@ -147,10 +152,7 @@
 
     <!-- MENU LATERALE SINISTRO -->
     <nav id="sidebarMenu" class="sidebar">
-        <div class="sidebar-header">
-            <span id="userEmailDisplay">Gestionale</span>
-            <button type="button" class="btn-logout" onclick="eseguiLogout()">Esci</button>
-        </div>
+        <div class="sidebar-header">Gestionale Iscritti</div>
         <ul class="sidebar-menu">
             <li class="sidebar-item attivo" onclick="cambiaSezioneMenu('visualizzazione_standard', this)">Visualizzazione standard</li>
             <li class="sidebar-item" onclick="cambiaSezioneMenu('ricerca', this)">Ricerca filtrata</li>
@@ -191,9 +193,16 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-            <div class="box-modalita">
-                <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
-                <button type="button" id="btnUser" class="btn-modalita" onclick="cambiaModalita('user')">User</button>
+            <!-- BARRA INTESTAZIONE CON LOGOUT E SELETTORE MODALITÀ (SE ADMIN) -->
+            <div class="top-bar-header">
+                <div id="boxModalita" class="box-modalita" style="display: none;">
+                    <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
+                    <button type="button" id="btnUser" class="btn-modalita" onclick="cambiaModalita('user')">User</button>
+                </div>
+                <div class="user-info-box">
+                    <span id="userEmailDisplayHeader" class="user-email-text"></span>
+                    <button type="button" class="btn-logout" onclick="eseguiLogout()">Esci</button>
+                </div>
             </div>
 
             <!-- SEZIONE 0: VISUALIZZAZIONE STANDARD -->
@@ -528,7 +537,8 @@
 
         let timeoutRicerca = null;
         let timeoutRuntime = null;
-        let modalitaCorrente = 'admin';
+        let modalitaCorrente = 'user';
+        let ruoloUtenteLoggato = 'user'; // memorizza il ruolo reale nel DB
         let anniPresentiNellaScheda = [];
         let cacheTuttiIscritti = [];
         let colonnaOrdinamentoCorrente = -1;
@@ -588,14 +598,20 @@
                     return;
                 }
 
-                // Utente autorizzato e attivo: rimuove l'overlay di login
-                document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('userEmailDisplay').textContent = user.email;
+                // Salva il ruolo effettivo dell'utente
+                ruoloUtenteLoggato = (utenteDoc.ruolo || 'User').toLowerCase();
 
-                // Imposta la modalità in base al ruolo assegnato in Firestore
-                if (utenteDoc.ruolo && utenteDoc.ruolo.toLowerCase() === 'admin') {
+                // Mostra la UI e imposta email nell'intestazione
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('userEmailDisplayHeader').textContent = user.email;
+
+                const boxModalita = document.getElementById('boxModalita');
+
+                if (ruoloUtenteLoggato === 'admin') {
+                    boxModalita.style.display = 'flex';
                     cambiaModalita('admin');
                 } else {
+                    boxModalita.style.display = 'none';
                     cambiaModalita('user');
                 }
 
@@ -892,6 +908,12 @@
         };
 
         window.cambiaModalita = function(modalita) {
+            // Controllo permessi: se l'utente reale è un User, viene bloccato il passaggio ad Admin
+            if (modalita === 'admin' && ruoloUtenteLoggato !== 'admin') {
+                alert("Non disponi dei permessi necessari per accedere alla modalità Admin.");
+                return;
+            }
+
             modalitaCorrente = modalita;
             const btnAdmin = document.getElementById('btnAdmin');
             const btnUser = document.getElementById('btnUser');
