@@ -119,8 +119,8 @@
         .checkbox-group input[type="checkbox"]:disabled { cursor: not-allowed; opacity: 0.6; }
         .checkbox-group label { font-size: 14px; font-weight: bold; color: #333; cursor: pointer; margin: 0; }
         
-        .totale-iscrizioni-inline { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: bold; color: #333; }
-        .badge-conteggio { background-color: #007BFF; color: white; padding: 4px 12px; border-radius: 4px; font-size: 15px; }
+        .totale-iscrizioni-inline { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: bold; color: #333; }
+        .badge-conteggio { background-color: #007BFF; color: white; padding: 4px 10px; border-radius: 4px; font-size: 14px; }
 
         .label-con-eta { display: flex; justify-content: space-between; align-items: center; }
         .input-eta-display { background-color: #e9ecef !important; color: #495057; font-weight: bold; text-align: center; cursor: not-allowed; }
@@ -464,7 +464,7 @@
                 </div>
             </div>
 
-            <!-- BLOCCO UNICO CON TIGRE, CAPITANO E TOTALE ISCRIZIONI COMPLETE -->
+            <!-- BLOCCO UNICO CON TIGRE, CAPITANO E DOPPIO CONTATORE ISCRIZIONI -->
             <div class="form-row-opzioni">
                 <div class="checkboxes-container">
                     <div class="checkbox-group">
@@ -476,9 +476,15 @@
                         <label for="editCapitanoPiazza">Capitano di Piazza</label>
                     </div>
                 </div>
-                <div class="totale-iscrizioni-inline">
-                    <span>Totale Iscrizioni Complete:</span>
-                    <span id="conteggioIscrizioniScheda" class="badge-conteggio">0</span>
+                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                    <div class="totale-iscrizioni-inline">
+                        <span>Tot. Complete:</span>
+                        <span id="conteggioIscrizioniScheda" class="badge-conteggio">0</span>
+                    </div>
+                    <div class="totale-iscrizioni-inline">
+                        <span>Consecutive:</span>
+                        <span id="conteggioConsecutiveScheda" class="badge-conteggio" style="background-color: #17a2b8;">0</span>
+                    </div>
                 </div>
             </div>
 
@@ -995,7 +1001,6 @@
                     let annoNum = parseInt(st.anno, 10);
                     if (isNaN(annoNum)) return;
 
-                    // Esclude rigorosamente l'anno corrente e futuri dal calcolo del preventivo
                     if (annoNum > annoLimitePreventivo) return;
 
                     let tipologia = st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || st.categoria || st.iscrizione || "";
@@ -1800,6 +1805,7 @@
 
             document.getElementById('sezioneStoricoContainer').style.display = 'block';
             document.getElementById('conteggioIscrizioniScheda').textContent = "...";
+            document.getElementById('conteggioConsecutiveScheda').textContent = "...";
             
             const btnSalva = document.getElementById('btnSalva');
             btnSalva.textContent = "Salva Modifiche Anagrafica";
@@ -1831,6 +1837,7 @@
             checkCapitano.disabled = disabilitaCampi;
 
             document.getElementById('conteggioIscrizioniScheda').textContent = "0";
+            document.getElementById('conteggioConsecutiveScheda').textContent = "0";
 
             document.getElementById('messaggioRuntimeDuplicato').textContent = "";
             document.getElementById('editCognome').classList.remove('avviso-duplicato-runtime');
@@ -1886,6 +1893,7 @@
             const tabellaStorico = document.getElementById('tabellaStorico');
             const tbodyStorico = document.getElementById('corpoTabellaStorico');
             const spanConteggioScheda = document.getElementById('conteggioIscrizioniScheda');
+            const spanConsecutiveScheda = document.getElementById('conteggioConsecutiveScheda');
             
             tbodyStorico.innerHTML = '';
             tabellaStorico.style.display = 'none';
@@ -1900,6 +1908,7 @@
                 if (querySnapshot.empty) {
                     divCaricamento.textContent = "Nessuna iscrizione passata trovata per questa persona.";
                     spanConteggioScheda.textContent = "0";
+                    spanConsecutiveScheda.textContent = "0";
                     return;
                 }
 
@@ -1908,6 +1917,7 @@
 
                 let recordStorico = [];
                 let conteggioComplete = 0;
+                let anniCompletiArr = [];
 
                 querySnapshot.forEach((docSnap) => {
                     const dati = docSnap.data();
@@ -1916,12 +1926,39 @@
                         anniPresentiNellaScheda.push(String(dati.anno).trim());
                     }
                     let tipoIscrizione = dati.tipo_iscrizione || dati.tipo || dati.tipologia || dati.descrizione || dati.categoria || dati.descrizione_tipo || dati.iscrizione || '';
-                    if (String(tipoIscrizione).trim().toLowerCase() === "iscrizione completa") {
+                    let tipoPulito = String(tipoIscrizione).trim().toLowerCase();
+
+                    if (tipoPulito === "iscrizione completa") {
                         conteggioComplete++;
+                        let annoNum = parseInt(dati.anno, 10);
+                        if (!isNaN(annoNum)) {
+                            anniCompletiArr.push(annoNum);
+                        }
                     }
                 });
 
+                let massimoConsecutivi = 0;
+                if (anniCompletiArr.length > 0) {
+                    let anniNorm = anniCompletiArr.map(anno => anno > 2022 ? anno - 2 : anno);
+                    anniNorm = [...new Set(anniNorm)].sort((a, b) => a - b);
+                    
+                    let gruppiCount = {};
+                    anniNorm.forEach((annoNorm, index) => {
+                        let rn = index + 1;
+                        let grp = annoNorm - rn;
+                        gruppiCount[grp] = (gruppiCount[grp] || 0) + 1;
+                    });
+
+                    for (let grp in gruppiCount) {
+                        if (gruppiCount[grp] > massimoConsecutivi) {
+                            massimoConsecutivi = gruppiCount[grp];
+                        }
+                    }
+                }
+
                 spanConteggioScheda.textContent = conteggioComplete;
+                spanConsecutiveScheda.textContent = massimoConsecutivi;
+
                 recordStorico.sort((a, b) => (b.anno || '').localeCompare(a.anno || ''));
 
                 recordStorico.forEach(dati => {
@@ -1949,6 +1986,7 @@
                 console.error("Errore caricamento storico:", error);
                 divCaricamento.textContent = "Errore durante il caricamento dello storico.";
                 spanConteggioScheda.textContent = "0";
+                spanConsecutiveScheda.textContent = "0";
             }
         }
 
