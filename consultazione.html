@@ -62,11 +62,11 @@
 
         /* PULSANTE E PANNELLO PERSONALIZZA COLONNE */
         .box-personalizza-colonne { position: relative; margin-bottom: 15px; display: inline-block; }
-        .btn-toggle-colonne { background-color: #6c757d; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
+        .btn-toggle-colonne { background-color: #6c757d; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 6px; transition: background 0.2s; }
         .btn-toggle-colonne:hover { background-color: #5a6268; }
-        .pannello-colonne { display: none; position: absolute; top: 40px; left: 0; background: white; border: 1px solid #ccc; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 6px; padding: 15px; z-index: 50; width: 320px; max-height: 350px; overflow-y: auto; }
+        .pannello-colonne { display: none; position: absolute; top: 40px; left: 0; background: white; border: 1px solid #ced4da; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 6px; padding: 15px; z-index: 50; width: 300px; max-height: 350px; overflow-y: auto; }
         .pannello-colonne.aperto { display: block; }
-        .pannello-colonne h5 { margin: 0 0 10px 0; color: #333; font-size: 14px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .pannello-colonne h5 { margin: 0 0 10px 0; color: #333; font-size: 14px; border-bottom: 1px solid #dee2e6; padding-bottom: 8px; }
         .grid-checkbox-colonne { display: flex; flex-direction: column; gap: 8px; }
         .grid-checkbox-colonne label { font-size: 13px; color: #333; display: flex; align-items: center; gap: 8px; cursor: pointer; }
         .grid-checkbox-colonne input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
@@ -78,17 +78,22 @@
         .campo-vuoto { border: 2px solid #dc3545 !important; background-color: #fff8f8; }
         .avviso-duplicato-runtime { border: 2px solid #ffc107 !important; background-color: #fffdf0 !important; }
 
-        .table-responsive { width: 100%; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; white-space: nowrap; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 13px; }
-        th { background-color: #007BFF; color: white; cursor: pointer; user-select: none; position: relative; }
-        th:hover { background-color: #0056b3; }
+        .table-responsive { width: 100%; overflow-x: auto; border: 1px solid #dee2e6; border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; white-space: nowrap; background: white; }
+        th, td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #f1f1f1; padding: 12px 15px; text-align: left; font-size: 13px; }
+        th { background-color: #f8f9fa; color: #495057; font-weight: bold; cursor: pointer; user-select: none; position: relative; border-bottom: 2px solid #dee2e6; }
+        th:hover { background-color: #e9ecef; color: #007BFF; }
         tr:hover { background-color: #f1f1f1; cursor: pointer; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
+        tr:nth-child(even) { background-color: #fafafa; }
+        
+        /* BARRA FILTRI RAPIDI INTEGRATA SOTTO L'INTESTAZIONE */
+        .filtro-colonna-container { padding: 8px 10px; background: #ffffff; border-bottom: 2px solid #dee2e6; }
+        .filtro-colonna { width: 100%; padding: 6px 8px; font-size: 12px; box-sizing: border-box; border: 1px solid #ced4da; border-radius: 4px; outline: none; background: #fff; color: #333; transition: border-color 0.2s; }
+        .filtro-colonna:focus { border-color: #007BFF; box-shadow: 0 0 0 2px rgba(0,123,255,0.15); }
+
         #messaggioGuida { font-size: 14px; color: #666; text-align: center; margin: 20px 0; font-style: italic; }
         
         .box-contatore { font-size: 14px; color: #333; margin-bottom: 10px; font-weight: bold; }
-        .filtro-colonna { width: 100%; padding: 5px; font-size: 12px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 3px; cursor: text; color: #333; background: #fff; }
         
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
         .modal-content { background-color: white; padding: 30px; border-radius: 8px; width: 850px; max-height: 90vh; overflow-y: auto; box-shadow: 0px 4px 15px rgba(0,0,0,0.2); position: relative; }
@@ -639,9 +644,9 @@
                 
                 const div = document.createElement('div');
                 div.innerHTML = `
-                    <label style="${isDisabled ? 'color: #aaa; cursor: not-allowed;' : ''}">
+                    <label style="${isDisabled ? 'color: #adb5bd; cursor: not-allowed;' : ''}">
                         <input type="checkbox" value="${col.id}" ${isChecked ? 'checked' : ''} ${isDisabled ? 'disabled' : ''} onchange="aggiornaColonneSelezionate()">
-                        ${col.titolo} ${isDisabled ? '<small>(disponibile solo per anno specifico)</small>' : ''}
+                        ${col.titolo} ${isDisabled ? '<small style="font-size:11px; color:#6c757d;">(solo anno specifico)</small>' : ''}
                     </label>
                 `;
                 container.appendChild(div);
@@ -1072,7 +1077,6 @@
             const tabella = document.getElementById('tabellaIscrittiFiltrata');
             const boxContatore = document.getElementById('boxContatoreFiltrato');
 
-            // Aggiorna lo stato delle checkbox nel pannello colonne (disabilita le colonne specifiche se non c'è un anno specifico)
             inizializzaPannelloColonne();
 
             if (!annoSelezionato || annoSelezionato === "") {
@@ -1146,7 +1150,6 @@
 
                 risultatiFiltrati.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || ''));
 
-                // Filtra le colonne attive escludendo quelle riservate ad anno specifico se è selezionato "tutti"
                 let colonneAttiveFinali = colonneSelezionate.filter(colId => {
                     const colDef = DEFINIZIONE_COLONNE.find(c => c.id === colId);
                     if (colDef && colDef.richiedeAnnoSpecifico && !annoSpecificoSelezionato) {
@@ -1155,6 +1158,7 @@
                     return true;
                 });
 
+                // RIGA 1: Intestazioni pulite e cliccabili per ordinamento
                 let htmlThead = "<tr>";
                 colonneAttiveFinali.forEach((colId, index) => {
                     const colDef = DEFINIZIONE_COLONNE.find(c => c.id === colId);
@@ -1162,11 +1166,22 @@
                     htmlThead += `
                         <th onclick="ordinaTabellaFiltrata(${index}, ${JSON.stringify(colonneAttiveFinali)})">
                             ${titolo} <span id="sort-${index}"></span>
-                            <input type="text" class="filtro-colonna" placeholder="Filtra..." oninput="applicaFiltriTabellaFiltrata()" onclick="event.stopPropagation()">
                         </th>
                     `;
                 });
                 htmlThead += "</tr>";
+
+                // RIGA 2: Riga dedicata pulita per i filtri di ricerca in tempo reale sotto ogni colonna
+                htmlThead += "<tr style='background-color: #fcfcfc;'>";
+                colonneAttiveFinali.forEach(() => {
+                    htmlThead += `
+                        <td class="filtro-colonna-container">
+                            <input type="text" class="filtro-colonna" placeholder="Filtra..." oninput="applicaFiltriTabellaFiltrata()" onclick="event.stopPropagation()">
+                        </td>
+                    `;
+                });
+                htmlThead += "</tr>";
+
                 thead.innerHTML = htmlThead;
 
                 tbody.innerHTML = '';
