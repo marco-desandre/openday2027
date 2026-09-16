@@ -619,8 +619,8 @@
             { id: 'scadenza_documento', titolo: 'Scadenza Documento', default: false, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
             { id: 'tigre', titolo: 'Tigre', default: false, formatter: val => val ? 'Sì' : 'No' },
             { id: 'capitano_piazza', titolo: 'Capitano Piazza', default: false, formatter: val => val ? 'Sì' : 'No' },
-            { id: 'inserito_da', titolo: 'Inserito da (Anno)', default: false },
-            { id: 'inserito_il', titolo: 'Inserito il (Anno)', default: false }
+            { id: 'inserito_da', titolo: 'Inserito da', default: false },
+            { id: 'inserito_il', titolo: 'Inserito il', default: false }
         ];
 
         let colonneSelezionate = JSON.parse(localStorage.getItem('colonne_visibili_ricerca')) || DEFINIZIONE_COLONNE.filter(c => c.default).map(c => c.id);
@@ -1021,7 +1021,6 @@
             }
 
             if (valoreSezione === 'ricerca') {
-                // Se entri nella ricerca filtrata, esegui il caricamento (gestirà automaticamente se l'anno è vuoto o già selezionato)
                 caricaDatiRicercaFiltrata();
             } else if (valoreSezione === 'configurazione') {
                 caricaTabellaUtenti();
@@ -1066,7 +1065,6 @@
             const tabella = document.getElementById('tabellaIscrittiFiltrata');
             const boxContatore = document.getElementById('boxContatoreFiltrato');
 
-            // Se non è stato selezionato alcun anno (è vuoto), mantieni la tabella pulita/vuota
             if (!annoSelezionato || annoSelezionato === "") {
                 tabella.style.display = 'none';
                 boxContatore.style.display = 'none';
@@ -1135,11 +1133,8 @@
 
                 risultatiFiltrati.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || ''));
 
+                // Utilizza esattamente le colonne spuntate nel pannello personalizza colonne
                 let colonneAttiveFinali = [...colonneSelezionate];
-                if (annoSelezionato !== "tutti") {
-                    if (!colonneAttiveFinali.includes('inserito_da')) colonneAttiveFinali.push('inserito_da');
-                    if (!colonneAttiveFinali.includes('inserito_il')) colonneAttiveFinali.push('inserito_il');
-                }
 
                 let htmlThead = "<tr>";
                 colonneAttiveFinali.forEach((colId, index) => {
