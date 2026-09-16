@@ -69,6 +69,49 @@
 
         #containerDelegato, #containerDelegatoRiserva { display: none; margin-top: 10px; }
 
+        /* Sezione Metodo di Pagamento */
+        .sezione-pagamento {
+            text-align: left;
+            margin-top: 18px;
+            background: #f9fafb;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1.5px solid #e5e7eb;
+        }
+        .sezione-pagamento label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        .opzioni-pagamento {
+            display: flex;
+            gap: 10px;
+        }
+        .opzione-radio {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1.5px solid #d1d5db;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .opzione-radio input { accent-color: #2563eb; cursor: pointer; }
+        .avviso-satispay {
+            font-size: 11px;
+            color: #dc2626;
+            margin-top: 8px;
+            font-weight: 600;
+            text-align: left;
+        }
+
         button { 
             width: 100%;
             background: #2563eb; 
@@ -179,6 +222,20 @@
                 <input type="text" id="nomeDelegato" placeholder="Cognome e Nome del delegante" autocomplete="off">
             </div>
 
+            <!-- Selezione Metodo di Pagamento -->
+            <div class="sezione-pagamento">
+                <label>Metodo di pagamento:</label>
+                <div class="opzioni-pagamento">
+                    <label class="opzione-radio">
+                        <input type="radio" name="pagamentoUtente" value="bancomat" checked> Bancomat
+                    </label>
+                    <label class="opzione-radio">
+                        <input type="radio" name="pagamentoUtente" value="contanti"> Contanti
+                    </label>
+                </div>
+                <div class="avviso-satispay">⚠️ Satispay non è accettato</div>
+            </div>
+
             <button onclick="registraInCoda()">Prendi il Numero</button>
         </div>
 
@@ -197,6 +254,20 @@
 
             <div id="containerDelegatoRiserva">
                 <input type="text" id="nomeDelegatoRiserva" placeholder="Cognome e Nome del delegante" autocomplete="off">
+            </div>
+
+            <!-- Selezione Metodo di Pagamento Riserva -->
+            <div class="sezione-pagamento" style="background: #fff; border-color: #fde68a;">
+                <label>Metodo di pagamento:</label>
+                <div class="opzioni-pagamento">
+                    <label class="opzione-radio" style="background: #fffcf0;">
+                        <input type="radio" name="pagamentoRiserva" value="bancomat" checked> Bancomat
+                    </label>
+                    <label class="opzione-radio" style="background: #fffcf0;">
+                        <input type="radio" name="pagamentoRiserva" value="contanti"> Contanti
+                    </label>
+                </div>
+                <div class="avviso-satispay">⚠️ Satispay non è accettato</div>
             </div>
 
             <button onclick="registraInRiserva()" style="background: #d97706; box-shadow: 0 4px 14px rgba(217, 119, 6, 0.3); margin-top: 18px;">Iscriviti alla Riserva</button>
@@ -349,13 +420,14 @@
             const telefono = document.getElementById('telefonoUtente').value.trim();
             const conDelega = document.getElementById('checkDelega').checked;
             const nomeDelegato = document.getElementById('nomeDelegato').value.trim();
+            const pagamento = document.querySelector('input[name="pagamentoUtente"]:checked').value;
 
             if(!nome) { alert("Inserisci il tuo Cognome e Nome."); return; }
             if(!telefono) { alert("Inserisci il tuo numero di telefono."); return; }
             if(conDelega && !nomeDelegato) { alert("Inserisci il nome del delegante."); return; }
 
             const nuovoTicket = push(codaRef, {
-                nome: nome, telefono: telefono, delega: conDelega, delegato: conDelega ? nomeDelegato : "", timestamp: Date.now(), stato: 'attesa'
+                nome: nome, telefono: telefono, delega: conDelega, delegato: conDelega ? nomeDelegato : "", pagamento: pagamento, timestamp: Date.now(), stato: 'attesa'
             });
 
             localStorage.setItem('coda_id_utente', nuovoTicket.key);
@@ -368,13 +440,14 @@
             const telefono = document.getElementById('telefonoUtenteRiserva').value.trim();
             const conDelega = document.getElementById('checkDelegaRiserva').checked;
             const nomeDelegato = document.getElementById('nomeDelegatoRiserva').value.trim();
+            const pagamento = document.querySelector('input[name="pagamentoRiserva"]:checked').value;
 
             if(!nome) { alert("Inserisci il tuo Cognome e Nome."); return; }
             if(!telefono) { alert("Inserisci il tuo numero di telefono."); return; }
             if(conDelega && !nomeDelegato) { alert("Inserisci il nome del delegante."); return; }
 
             const nuovoTicket = push(codaRef, {
-                nome: nome, telefono: telefono, delega: conDelega, delegato: conDelega ? nomeDelegato : "", timestamp: Date.now(), stato: 'riserva'
+                nome: nome, telefono: telefono, delega: conDelega, delegato: conDelega ? nomeDelegato : "", pagamento: pagamento, timestamp: Date.now(), stato: 'riserva'
             });
 
             localStorage.setItem('coda_id_utente', nuovoTicket.key);
@@ -442,10 +515,14 @@
 
                 let personeDavanti = 0;
                 const mioTimestamp = mioOggetto.timestamp;
+                const mioMetodoPagamento = mioOggetto.pagamento || 'bancomat'; // Recupera il tuo metodo (bancomat o contanti)
 
                 arrayAttiva.forEach((item) => {
                     const statoItem = item.stato || 'attesa';
-                    if (item.timestamp < mioTimestamp && (statoItem === 'attesa' || statoItem === 'chiamato')) {
+                    const metodoItem = item.pagamento || 'bancomat';
+                    
+                    // Conta solo chi usa lo stesso metodo di pagamento ed è arrivato prima di te
+                    if (metodoItem === mioMetodoPagamento && item.timestamp < mioTimestamp && (statoItem === 'attesa' || statoItem === 'chiamato')) {
                         personeDavanti += item.delega ? 2 : 1;
                     }
                 });

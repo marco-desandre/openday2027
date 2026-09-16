@@ -30,7 +30,7 @@
             z-index: -2;
         }
 
-        /* Logo in filigrana di sfondo (convertito in bianco per risaltare sullo scuro) */
+        /* Logo in filigrana di sfondo */
         .filigrana-logo {
             position: fixed;
             top: 50%;
@@ -45,7 +45,7 @@
         }
 
         h1 { 
-            color: #e53935; /* Rosso sociale */
+            color: #e53935; 
             margin-top: 10px; 
             font-size: 36px; 
             text-transform: uppercase; 
@@ -110,38 +110,67 @@
             color: #c8e6c9; 
             margin-bottom: 20px; 
         }
-        
-        #listaChiamati {
+
+        /* Sezioni separate Bancomat / Contanti */
+        .box-sezione-chiamate {
             display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px;
             justify-content: center;
-            margin-top: 20px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .colonna-cassa {
+            flex: 1;
+            min-width: 240px;
+            background: rgba(15, 30, 20, 0.7);
+            border: 2px solid rgba(46, 125, 50, 0.3);
+            border-radius: 14px;
+            padding: 15px;
+        }
+
+        .colonna-cassa h3 {
+            margin-top: 0;
+            font-size: 18px;
+            color: #81c784;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 8px;
+        }
+        
+        .lista-box-chiamati {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
         }
         
         .biglietto-chiamato {
-            background: #ffc107; /* Sfondo giallo classico ad alto contrasto */
-            color: #000000;     /* Numero nero */
-            font-size: 50px;
+            background: #ffc107; 
+            color: #000000;     
+            font-size: 40px;
             font-weight: bold;
-            padding: 15px 30px;
-            border-radius: 15px;
+            padding: 10px 20px;
+            border-radius: 12px;
             box-shadow: 0 4px 20px rgba(255, 193, 7, 0.5);
             animation: lampcheggio 1.2s infinite alternate;
+            width: 100%;
+            max-width: 220px;
         }
 
         .nessun-turno {
-            font-size: 20px;
+            font-size: 15px;
             color: #a5d6a7;
             font-style: italic;
-            background: rgba(15, 45, 25, 0.8);
-            padding: 25px;
-            border-radius: 10px;
-            border: 1px dashed rgba(46, 125, 50, 0.5);
+            background: rgba(15, 45, 25, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px dashed rgba(46, 125, 50, 0.3);
         }
 
         #btnAttivaAudio {
-            background-color: #e53935; /* Rosso sociale */
+            background-color: #e53935; 
             color: white;
             border: none;
             padding: 12px 24px;
@@ -176,17 +205,30 @@
             <button id="btnAttivaAudio">🔊 Clicca qui per attivare l'audio</button>
             <div class="istruzioni">Prossimi numeri chiamati al banco iscrizioni:</div>
             
-            <div id="listaChiamati">
-                <div class="nessun-turno">In attesa di chiamate...</div>
+            <div class="box-sezione-chiamate">
+                <!-- Sezione Bancomat -->
+                <div class="colonna-cassa">
+                    <h3>💳 Bancomat</h3>
+                    <div id="listaChiamatiBancomat" class="lista-box-chiamati">
+                        <div class="nessun-turno">Nessun turno</div>
+                    </div>
+                </div>
+
+                <!-- Sezione Contanti -->
+                <div class="colonna-cassa">
+                    <h3>💵 Contanti</h3>
+                    <div id="listaChiamatiContanti" class="lista-box-chiamati">
+                        <div class="nessun-turno">Nessun turno</div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- COLONNA DESTRA: QR Code Dinamico (Compatibile Mobile) -->
+        <!-- COLONNA DESTRA: QR Code Dinamico -->
         <div class="container-qr">
             <h3>Prendi il tuo numero</h3>
             <p>Inquadra il QR code con lo smartphone per metterti in coda.</p>
             
-            <!-- Contenitore nativo per il QR code -->
             <div id="qrImgContainer" style="display: flex; justify-content: center; margin: 15px 0;"></div>
 
             <p>Aggiornamento sicurezza:<br>Prossimo cambio tra: <span id="countdown">15</span> secondi</p>
@@ -198,7 +240,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
 
-        // --- GESTIONE QR CODE DINAMICO NATIVO (Ottimizzato Mobile) ---
+        // --- GESTIONE QR CODE DINAMICO NATIVO ---
         const URL_BASE = "https://marco-desandre.github.io/openday2027/index.html";
         const INTERVALLO_SECONDI = 15;
         let secondiRimasti = INTERVALLO_SECONDI;
@@ -269,12 +311,13 @@
             }
         });
 
-        function pronunciaNumero(numero) {
+        function pronunciaNumero(numero, metodo) {
             if (!audioAbilitato || !('speechSynthesis' in window)) return;
             
             window.speechSynthesis.cancel();
 
-            const testoDaDire = `Attenzione. Numero... ${numero}`;
+            const testoMetodo = metodo === 'contanti' ? 'per contanti' : 'per bancomat';
+            const testoDaDire = `Attenzione. Numero... ${numero}... ${testoMetodo}`;
             const utterance = new SpeechSynthesisUtterance(testoDaDire);
             utterance.lang = 'it-IT';
             utterance.rate = 0.85; 
@@ -299,11 +342,15 @@
 
         onValue(codaRef, (snapshot) => {
             const data = snapshot.val();
-            const container = document.getElementById('listaChiamati');
-            container.innerHTML = '';
+            const containerBancomat = document.getElementById('listaChiamatiBancomat');
+            const containerContanti = document.getElementById('listaChiamatiContanti');
+            
+            containerBancomat.innerHTML = '';
+            containerContanti.innerHTML = '';
 
             if (!data) {
-                container.innerHTML = '<div class="nessun-turno">Nessun turno in corso.</div>';
+                containerBancomat.innerHTML = '<div class="nessun-turno">Nessun turno</div>';
+                containerContanti.innerHTML = '<div class="nessun-turno">Nessun turno</div>';
                 ultimiChiamatiNotificati.clear();
                 return;
             }
@@ -314,26 +361,45 @@
             const chiamati = arrayCoda.filter(item => item.stato === 'chiamato');
 
             if (chiamati.length === 0) {
-                container.innerHTML = '<div class="nessun-turno">Nessun numero chiamato al momento. Attendi il tuo turno.</div>';
+                containerBancomat.innerHTML = '<div class="nessun-turno">Nessun turno</div>';
+                containerContanti.innerHTML = '<div class="nessun-turno">Nessun turno</div>';
                 ultimiChiamatiNotificati.clear();
                 return;
             }
 
             const nuoviChiamatiCorrenti = new Set();
+            let countBancomat = 0;
+            let countContanti = 0;
 
             chiamati.forEach(persona => {
                 const numeroBiglietto = arrayCoda.findIndex(p => p.id === persona.id) + 1;
+                const metodo = persona.pagamento || 'bancomat';
+                
                 nuoviChiamatiCorrenti.add(numeroBiglietto);
 
                 if (!ultimiChiamatiNotificati.has(numeroBiglietto)) {
-                    pronunciaNumero(numeroBiglietto);
+                    pronunciaNumero(numeroBiglietto, metodo);
                 }
 
                 const div = document.createElement('div');
                 div.className = 'biglietto-chiamato';
                 div.innerText = `N° ${numeroBiglietto}`;
-                container.appendChild(div);
+
+                if (metodo === 'contanti') {
+                    containerContanti.appendChild(div);
+                    countContanti++;
+                } else {
+                    containerBancomat.appendChild(div);
+                    countBancomat++;
+                }
             });
+
+            if (countBancomat === 0) {
+                containerBancomat.innerHTML = '<div class="nessun-turno">Nessun turno</div>';
+            }
+            if (countContanti === 0) {
+                containerContanti.innerHTML = '<div class="nessun-turno">Nessun turno</div>';
+            }
 
             ultimiChiamatiNotificati = nuoviChiamatiCorrenti;
         });
