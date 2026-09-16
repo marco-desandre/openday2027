@@ -640,6 +640,7 @@
             { id: 'tigre', titolo: 'Tigre', default: false, formatter: val => val ? 'Si' : 'No' },
             { id: 'capitano_piazza', titolo: 'Capitano Piazza', default: false, formatter: val => val ? 'Si' : 'No' },
             { id: 'tipo_iscrizione', titolo: 'Tipo Iscrizione', default: true, richiedeAnnoSpecifico: true },
+            { id: 'numero_identificativo', titolo: 'Numero Identificativo', default: false, richiedeAnnoSpecifico: true },
             { id: 'inserito_da', titolo: 'Inserito da', default: false, richiedeAnnoSpecifico: true },
             { id: 'inserito_il', titolo: 'Inserito il', default: false, isDate: true, richiedeAnnoSpecifico: true, formatter: val => formattaDataOraCompleta(val) }
         ];
@@ -977,9 +978,6 @@
         window.caricaElenco40Anni = function() { elaboraOnorificenze('sezione_onorificenze_40', '40 Anni', 40, 'totali'); };
         window.caricaElenco50Anni = function() { elaboraOnorificenze('sezione_onorificenze_50', '50 Anni', 50, 'totali'); };
 
-        // ==========================================
-        // PREVENTIVI ISCRIZIONI (CON CLICK, SOGLIA ANNO PRECEDENTE E COLONNA ISCRIZIONE ANNO ATTUALE)
-        // ==========================================
         async function elaboraPreventivoIscrizioni(idSezione, titoloSezione, sogliaAnni, tipoControllo) {
             const container = document.getElementById(idSezione);
             container.innerHTML = `<h2>Preventivo Iscrizioni: ${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Elaborazione preventivo ${titoloSezione} in corso...</div>`;
@@ -998,7 +996,7 @@
 
                 let storicoPerPersona = {};
                 let totaliCompletiPersona = {};
-                let iscrittiAnnoAttualeSet = new Set(); // Per tracciare chi è iscritto all'anno carnevale attuale
+                let iscrittiAnnoAttualeSet = new Set();
 
                 snapStorico.forEach(docSnap => {
                     let st = docSnap.data();
@@ -1331,10 +1329,12 @@
                         if (!mappaIscrizioni[idPers]) mappaIscrizioni[idPers] = [];
                         
                         let tipoIscrizione = st.tipo_iscrizione || st.tipo || st.tipologia || st.descrizione || st.categoria || st.descrizione_tipo || st.iscrizione || '';
+                        let numIdentificativo = st.numero_identificativo || st.numero_ident || st.identificativo || st.codice || st.tessera || st.num_identificativo || '';
                         
                         mappaIscrizioni[idPers].push({
                             anno: String(st.anno || "").trim(),
                             tipo: String(tipoIscrizione).trim(),
+                            numero_identificativo: String(numIdentificativo).trim(),
                             creato_da: st.creato_da || '',
                             creato_il: st.creato_il || ''
                         });
@@ -1361,6 +1361,7 @@
                             risultatiFiltrati.push({
                                 ...persona,
                                 tipo_iscrizione: item.tipo ? pulisciTesto(item.tipo) : '',
+                                numero_identificativo: item.numero_identificativo ? pulisciTesto(item.numero_identificativo) : '',
                                 inserito_da: item.creato_da ? pulisciTesto(item.creato_da) : 'Non registrato',
                                 inserito_il: item.creato_il ? pulisciTesto(item.creato_il) : 'Non disponibile'
                             });
