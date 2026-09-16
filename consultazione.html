@@ -91,6 +91,10 @@
         .filtro-colonna { width: 100%; padding: 6px 8px; font-size: 12px; box-sizing: border-box; border: 1px solid #ced4da; border-radius: 4px; outline: none; background: #fff; color: #333; transition: border-color 0.2s; }
         .filtro-colonna:focus { border-color: #007BFF; box-shadow: 0 0 0 2px rgba(0,123,255,0.15); }
 
+        /* CONTENITORE FILTRO DATA DA/A */
+        .filtro-data-wrapper { display: flex; gap: 4px; align-items: center; }
+        .filtro-data-wrapper input[type="date"] { width: 100%; padding: 4px 6px; font-size: 11px; margin: 0; border: 1px solid #ced4da; border-radius: 3px; background: #fff; }
+
         #messaggioGuida { font-size: 14px; color: #666; text-align: center; margin: 20px 0; font-style: italic; }
         
         .box-contatore { font-size: 14px; color: #333; margin-bottom: 10px; font-weight: bold; }
@@ -612,7 +616,7 @@
             { id: 'cognome', titolo: 'Cognome', default: true },
             { id: 'nome', titolo: 'Nome', default: true },
             { id: 'luogo_nascita', titolo: 'Luogo Nascita', default: false },
-            { id: 'data_nascita', titolo: 'Data di Nascita', default: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
+            { id: 'data_nascita', titolo: 'Data di Nascita', default: true, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
             { id: 'indirizzo', titolo: 'Indirizzo', default: false },
             { id: 'citta', titolo: 'Città', default: true },
             { id: 'cap', titolo: 'CAP', default: false },
@@ -621,7 +625,7 @@
             { id: 'mail', titolo: 'Mail', default: false },
             { id: 'tipo_documento', titolo: 'Tipo Documento', default: false },
             { id: 'numero_documento', titolo: 'N. Documento', default: false },
-            { id: 'scadenza_documento', titolo: 'Scadenza Documento', default: false, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
+            { id: 'scadenza_documento', titolo: 'Scadenza Documento', default: false, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
             { id: 'tigre', titolo: 'Tigre', default: false, formatter: val => val ? 'Si' : 'No' },
             { id: 'capitano_piazza', titolo: 'Capitano Piazza', default: false, formatter: val => val ? 'Si' : 'No' },
             { id: 'tipo_iscrizione', titolo: 'Tipo Iscrizione', default: false, richiedeAnnoSpecifico: true },
@@ -1171,14 +1175,26 @@
                 });
                 htmlThead += "</tr>";
 
-                // RIGA 2: Riga dedicata pulita per i filtri di ricerca in tempo reale sotto ogni colonna
+                // RIGA 2: Riga dedicata pulita per i filtri di ricerca in tempo reale (Testo o Data Da/A)
                 htmlThead += "<tr style='background-color: #fcfcfc;'>";
-                colonneAttiveFinali.forEach(() => {
-                    htmlThead += `
-                        <td class="filtro-colonna-container">
-                            <input type="text" class="filtro-colonna" placeholder="Filtra..." oninput="applicaFiltriTabellaFiltrata()" onclick="event.stopPropagation()">
-                        </td>
-                    `;
+                colonneAttiveFinali.forEach(colId => {
+                    const colDef = DEFINIZIONE_COLONNE.find(c => c.id === colId);
+                    if (colDef && colDef.isDate) {
+                        htmlThead += `
+                            <td class="filtro-colonna-container">
+                                <div class="filtro-data-wrapper" onclick="event.stopPropagation()">
+                                    <input type="date" class="filtro-data-da" title="Da data" onchange="applicaFiliTabellaFiltrataDinamici()">
+                                    <input type="date" class="filtro-data-a" title="A data" onchange="applicaFiliTabellaFiltrataDinamici()">
+                                </div>
+                            </td>
+                        `;
+                    } else {
+                        htmlThead += `
+                            <td class="filtro-colonna-container">
+                                <input type="text" class="filtro-colonna" placeholder="Filtra..." oninput="applicaFiliTabellaFiltrataDinamici()" onclick="event.stopPropagation()">
+                            </td>
+                        `;
+                    }
                 });
                 htmlThead += "</tr>";
 
@@ -1199,7 +1215,10 @@
                         const colDef = DEFINIZIONE_COLONNE.find(c => c.id === colId);
                         let valBrutto = persona[colId];
                         let valFormattato = colDef && colDef.formatter ? colDef.formatter(valBrutto) : pulisciTesto(valBrutto);
-                        htmlTr += `<td>${valFormattato}</td>`;
+                        
+                        // Attributo data grezzo per facilitare i confronti nei filtri Da/A
+                        let rawAttr = (colDef && colDef.isDate && valBrutto) ? `data-raw="${String(valBrutto).split('T')[0]}"` : '';
+                        htmlTr += `<td ${rawAttr}>${valFormattato}</td>`;
                     });
                     tr.innerHTML = htmlTr;
                     tr.addEventListener('click', () => apriModaleEsistente(persona));
@@ -1210,7 +1229,7 @@
                 boxContatore.style.display = 'block';
                 msgGuida.style.display = 'none';
                 tabella.style.display = 'table';
-                applicaFiltriTabellaFiltrata();
+                applicaFiliTabellaFiltrataDinamici();
 
             } catch (error) {
                 console.error("Errore caricamento ricerca filtrata:", error);
@@ -1248,24 +1267,58 @@
             righe.forEach(riga => tbody.appendChild(riga));
         };
 
-        window.applicaFiltriTabellaFiltrata = function() {
-            const filtriInputs = document.querySelectorAll('#tabellaIscrittiFiltrata .filtro-colonna');
+        window.applicaFiliTabellaFiltrataDinamici = function() {
+            const theadTr = document.querySelector('#intestazioneTabellaFiltrata tr:nth-child(2)');
+            if (!theadTr) return;
+            const celleFiltro = theadTr.getElementsByTagName('td');
+            
             const tbody = document.getElementById('corpoTabellaFiltrata');
             const righe = tbody.getElementsByTagName('tr');
 
-            let filtriValori = Array.from(filtriInputs).map(input => input.value.toLowerCase().trim());
             let conteggioVisibili = 0;
 
             for (let i = 0; i < righe.length; i++) {
                 let celle = righe[i].getElementsByTagName('td');
                 let mostraRiga = true;
 
-                for (let j = 0; j < filtriValori.length; j++) {
-                    if (filtriValori[j] !== "") {
-                        let testoCella = celle[j] ? celle[j].textContent.toLowerCase() : "";
-                        if (!testoCella.includes(filtriValori[j])) {
-                            mostraRiga = false;
-                            break;
+                for (let j = 0; j < celleFiltro.length; j++) {
+                    let cellaFiltroContainer = celleFiltro[j];
+                    let inputTesto = cellaFiltroContainer.querySelector('.filtro-colonna');
+                    let inputDataDa = cellaFiltroContainer.querySelector('.filtro-data-da');
+                    let inputDataA = cellaFiltroContainer.querySelector('.filtro-data-a');
+
+                    let cellaTabella = celle[j];
+
+                    if (inputTesto) {
+                        let valFiltro = inputTesto.value.toLowerCase().trim();
+                        if (valFiltro !== "") {
+                            let testoCella = cellaTabella ? cellaTabella.textContent.toLowerCase() : "";
+                            if (!testoCella.includes(valFiltro)) {
+                                mostraRiga = false;
+                                break;
+                            }
+                        }
+                    } else if (inputDataDa || inputDataA) {
+                        let dataDa = inputDataDa ? inputDataDa.value : "";
+                        let dataA = inputDataA ? inputDataA.value : "";
+                        
+                        if (dataDa !== "" || dataA !== "") {
+                            let rawDataCella = cellaTabella ? cellaTabella.getAttribute('data-raw') : "";
+                            
+                            if (!rawDataCella) {
+                                // Se la riga non ha una data valida registrata ma c'è un filtro attivo, la nascondiamo
+                                mostraRiga = false;
+                                break;
+                            }
+
+                            if (dataDa !== "" && rawDataCella < dataDa) {
+                                mostraRiga = false;
+                                break;
+                            }
+                            if (dataA !== "" && rawDataCella > dataA) {
+                                mostraRiga = false;
+                                break;
+                            }
                         }
                     }
                 }
