@@ -587,7 +587,6 @@
 
         document.getElementById('inputAnnoCarnevale').value = annoCarnevaleCorrente;
 
-        // Popola dinamicamente il menu a tendina degli anni dal 1964 all'Anno Carnevale Attuale
         function popolaSelectAnniFiltro() {
             const selectAnno = document.getElementById('selezionaAnnoFiltro');
             const annoSelezionatoPrecedente = selectAnno.value;
@@ -612,9 +611,6 @@
 
         popolaSelectAnniFiltro();
 
-        // ==========================================
-        // CONFIGURAZIONE CAMPI E COLONNE RICERCA FILTRATA
-        // ==========================================
         const DEFINIZIONE_COLONNE = [
             { id: 'cognome', titolo: 'Cognome', default: true },
             { id: 'nome', titolo: 'Nome', default: true },
@@ -675,7 +671,6 @@
             caricaDatiRicercaFiltrata();
         };
 
-        // Funzione per esportare la tabella in CSV
         window.esportaTabellaCSV = function() {
             const tbody = document.getElementById('corpoTabellaFiltrata');
             const righe = Array.from(tbody.getElementsByTagName('tr'));
@@ -734,9 +729,6 @@
 
         inizializzaPannelloColonne();
 
-        // ==========================================
-        // GESTIONE AUTENTICAZIONE GOOGLE & ACCESSO
-        // ==========================================
         window.eseguiLoginGoogle = async function() {
             const errBox = document.getElementById('loginError');
             errBox.textContent = "";
@@ -974,13 +966,16 @@
         window.caricaElenco50Anni = function() { elaboraOnorificenze('sezione_onorificenze_50', '50 Anni', 50, 'totali'); };
 
         // ==========================================
-        // PREVENTIVI ISCRIZIONI
+        // PREVENTIVI ISCRIZIONI (CON CLICK E SOGLIA ANNO PRECEDENTE)
         // ==========================================
         async function elaboraPreventivoIscrizioni(idSezione, titoloSezione, sogliaAnni, tipoControllo) {
             const container = document.getElementById(idSezione);
             container.innerHTML = `<h2>Preventivo Iscrizioni: ${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Elaborazione preventivo ${titoloSezione} in corso...</div>`;
             
             try {
+                const annoCarnevaleNum = parseInt(annoCarnevaleCorrente, 10) || 2027;
+                const annoLimitePreventivo = annoCarnevaleNum - 1;
+
                 const snapAnagrafica = await getDocs(collection(db, "anagrafica"));
                 const snapStorico = await getDocs(collection(db, "storico"));
 
@@ -997,13 +992,16 @@
                     let idPers = st.id_persona;
                     if (!idPers) return;
 
+                    let annoNum = parseInt(st.anno, 10);
+                    if (isNaN(annoNum)) return;
+
+                    // Esclude rigorosamente l'anno corrente e futuri dal calcolo del preventivo
+                    if (annoNum > annoLimitePreventivo) return;
+
                     let tipologia = st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || st.categoria || st.iscrizione || "";
                     let tipoPulito = String(tipologia).trim().toLowerCase();
 
                     if (tipoPulito !== "iscrizione completa") return;
-
-                    let annoNum = parseInt(st.anno, 10);
-                    if (isNaN(annoNum)) return;
 
                     totaliCompletiPersona[idPers] = (totaliCompletiPersona[idPers] || 0) + 1;
 
@@ -1053,6 +1051,7 @@
 
                     if (passaCriterio) {
                         risultati.push({
+                            personaCompleta: { id: idPers, ...persona },
                             cognome: pulisciTesto(persona.cognome),
                             nome: pulisciTesto(persona.nome),
                             citta: pulisciTesto(persona.citta),
@@ -1067,7 +1066,7 @@
 
                 let html = `
                     <h2>Preventivo Iscrizioni: ${titoloSezione}</h2>
-                    <p style="color: #666; font-size: 14px;">Elenco degli iscritti che raggiungeranno ${sogliaAnni} anni il prossimo anno (escludendo il biennio COVID 2021-2022).</p>
+                    <p style="color: #666; font-size: 14px;">Elenco degli iscritti che raggiungeranno ${sogliaAnni} anni nel ${annoCarnevaleNum} (calcolato sulle iscrizioni fino al ${annoLimitePreventivo}, escludendo il biennio COVID 2021-2022). Clicca su una riga per visualizzare lo storico.</p>
                     <div class="box-contatore" style="display: block;">Iscritti trovati: ${risultati.length}</div>
                     <div class="table-responsive"><table>
                         <thead>
@@ -1080,26 +1079,30 @@
                             </tr>
                         </thead>
                         <tbody>
+                        </tbody>
+                    </table></div>
                 `;
 
+                container.innerHTML = html;
+                const tbodyElement = container.querySelector('tbody');
+
                 if (risultati.length === 0) {
-                    html += `<tr><td colspan="5" style="text-align:center; font-style:italic;">Nessun iscritto rientra nel preventivo ${titoloSezione}.</td></tr>`;
+                    tbodyElement.innerHTML = `<tr><td colspan="5" style="text-align:center; font-style:italic;">Nessun iscritto rientra nel preventivo ${titoloSezione}.</td></tr>`;
                 } else {
                     risultati.forEach(r => {
-                        html += `
-                            <tr>
-                                <td>${r.cognome}</td>
-                                <td>${r.nome}</td>
-                                <td>${r.citta}</td>
-                                <td>${r.telefono}</td>
-                                <td><strong>${r.valore}</strong></td>
-                            </tr>
+                        const tr = document.createElement('tr');
+                        tr.style.cursor = 'pointer';
+                        tr.innerHTML = `
+                            <td><strong>${r.cognome}</strong></td>
+                            <td>${r.nome}</td>
+                            <td>${r.citta}</td>
+                            <td>${r.telefono}</td>
+                            <td><strong>${r.valore}</strong></td>
                         `;
+                        tr.addEventListener('click', () => apriModaleEsistente(r.personaCompleta));
+                        tbodyElement.appendChild(tr);
                     });
                 }
-
-                html += `</tbody></table></div>`;
-                container.innerHTML = html;
 
             } catch (error) {
                 console.error("Errore nel calcolo del preventivo:", error);
@@ -1265,9 +1268,6 @@
             }
         };
 
-        // ==========================================
-        // CARICAMENTO E GESTIONE RICERCA FILTRATA
-        // ==========================================
         window.caricaDatiRicercaFiltrata = async function() {
             const annoSelezionato = document.getElementById('selezionaAnnoFiltro').value;
             const msgGuida = document.getElementById('messaggioGuidaFiltrato');
