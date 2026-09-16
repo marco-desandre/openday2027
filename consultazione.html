@@ -53,18 +53,18 @@
         .sezione-app { display: none; }
         .sezione-app.attiva { display: block; }
 
-        .search-row { display: flex; gap: 15px; align-items: flex-end; margin-bottom: 15px; flex-wrap: wrap; }
+        .search-row { display: flex; gap: 15px; align-items: flex-end; margin-bottom: 20px; flex-wrap: wrap; }
         .search-group { flex: 1; min-width: 220px; }
         .search-group input[type="text"] { margin-bottom: 0; }
         
         .btn-nuovo-utente { background-color: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; white-space: nowrap; height: 42px; }
         .btn-nuovo-utente:hover { background-color: #218838; }
 
-        /* PULSANTE E PANNELLO PERSONALIZZA COLONNE */
-        .box-personalizza-colonne { position: relative; margin-bottom: 15px; display: inline-block; }
-        .btn-toggle-colonne { background-color: #6c757d; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 6px; transition: background 0.2s; }
+        /* PULSANTE E PANNELLO PERSONALIZZA COLONNE (SPOSTATO IN ALTO) */
+        .box-personalizza-colonne { position: relative; display: inline-block; }
+        .btn-toggle-colonne { background-color: #6c757d; color: white; border: none; padding: 10px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; height: 42px; transition: background 0.2s; box-sizing: border-box; }
         .btn-toggle-colonne:hover { background-color: #5a6268; }
-        .pannello-colonne { display: none; position: absolute; top: 40px; left: 0; background: white; border: 1px solid #ced4da; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 6px; padding: 15px; z-index: 50; width: 300px; max-height: 350px; overflow-y: auto; }
+        .pannello-colonne { display: none; position: absolute; top: 48px; left: 0; background: white; border: 1px solid #ced4da; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 6px; padding: 15px; z-index: 50; width: 300px; max-height: 350px; overflow-y: auto; }
         .pannello-colonne.aperto { display: block; }
         .pannello-colonne h5 { margin: 0 0 10px 0; color: #333; font-size: 14px; border-bottom: 1px solid #dee2e6; padding-bottom: 8px; }
         .grid-checkbox-colonne { display: flex; flex-direction: column; gap: 8px; }
@@ -239,7 +239,7 @@
                         <input type="text" id="filtroCognome" placeholder="Digita per cercare...">
                     </div>
                     <div>
-                        <button type="button" id="btnNuovoUtente" class="btn-nuovo-utente">+ Nuovo Utente</button>
+                        <button type="button" id="btnNuovoUtente" class="btn-nuovo-utente">+ Nuova Anagrafica</button>
                     </div>
                 </div>
                 
@@ -280,23 +280,17 @@
                             <!-- Popolato dinamicamente da 1964 all'Anno Carnevale Attuale -->
                         </select>
                     </div>
-                    <div class="search-group">
-                        <label for="selezionaTipoFiltro"><strong>Filtra per Tipo Iscrizione:</strong></label>
-                        <select id="selezionaTipoFiltro" onchange="caricaDatiRicercaFiltrata()">
-                            <option value="tutti">Tutti i tipi</option>
-                            <option value="Iscrizione Completa">Iscrizione Completa</option>
-                            <option value="Socio Sostenitore">Socio Sostenitore</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- PULSANTE E PANNELLO PERSONALIZZA COLONNE -->
-                <div class="box-personalizza-colonne">
-                    <button type="button" class="btn-toggle-colonne" onclick="togglePannelloColonne()">⚙️ Personalizza Colonne</button>
-                    <div id="pannelloColonne" class="pannello-colonne">
-                        <h5>Seleziona Colonne Visibili</h5>
-                        <div class="grid-checkbox-colonne" id="listaCheckboxColonne">
-                            <!-- Generato via JS -->
+                    <!-- PULSANTE E PANNELLO PERSONALIZZA COLONNE -->
+                    <div class="search-group" style="flex: initial;">
+                        <label>&nbsp;</label>
+                        <div class="box-personalizza-colonne">
+                            <button type="button" class="btn-toggle-colonne" onclick="togglePannelloColonne()">⚙️ Personalizza Colonne</button>
+                            <div id="pannelloColonne" class="pannello-colonne">
+                                <h5>Seleziona Colonne Visibili</h5>
+                                <div class="grid-checkbox-colonne" id="listaCheckboxColonne">
+                                    <!-- Generato via JS -->
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -628,9 +622,9 @@
             { id: 'scadenza_documento', titolo: 'Scadenza Documento', default: false, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
             { id: 'tigre', titolo: 'Tigre', default: false, formatter: val => val ? 'Si' : 'No' },
             { id: 'capitano_piazza', titolo: 'Capitano Piazza', default: false, formatter: val => val ? 'Si' : 'No' },
-            { id: 'tipo_iscrizione', titolo: 'Tipo Iscrizione', default: false, richiedeAnnoSpecifico: true },
+            { id: 'tipo_iscrizione', titolo: 'Tipo Iscrizione', default: true, richiedeAnnoSpecifico: true },
             { id: 'inserito_da', titolo: 'Inserito da', default: false, richiedeAnnoSpecifico: true },
-            { id: 'inserito_il', titolo: 'Inserito il', default: false, richiedeAnnoSpecifico: true }
+            { id: 'inserito_il', titolo: 'Inserito il', default: false, isDate: true, richiedeAnnoSpecifico: true, formatter: val => formattaDataOraCompleta(val) }
         ];
 
         let colonneSelezionate = JSON.parse(localStorage.getItem('colonne_visibili_ricerca')) || DEFINIZIONE_COLONNE.filter(c => c.default).map(c => c.id);
@@ -1093,7 +1087,6 @@
 
             const annoSpecificoSelezionato = (annoSelezionato !== "tutti");
 
-            const tipoSelezionato = document.getElementById('selezionaTipoFiltro').value;
             const thead = document.getElementById('intestazioneTabellaFiltrata');
             const tbody = document.getElementById('corpoTabellaFiltrata');
 
@@ -1139,9 +1132,8 @@
                 cacheTuttiIscritti.forEach(persona => {
                     persona.iscrizioni.forEach(item => {
                         let matchAnno = (annoSelezionato === "tutti" || item.anno === annoSelezionato);
-                        let matchTipo = (tipoSelezionato === "tutti" || item.tipo.toLowerCase() === tipoSelezionato.toLowerCase());
                         
-                        if (matchAnno && matchTipo) {
+                        if (matchAnno) {
                             risultatiFiltrati.push({
                                 ...persona,
                                 tipo_iscrizione: item.tipo ? pulisciTesto(item.tipo) : '',
@@ -1216,8 +1208,16 @@
                         let valBrutto = persona[colId];
                         let valFormattato = colDef && colDef.formatter ? colDef.formatter(valBrutto) : pulisciTesto(valBrutto);
                         
-                        // Attributo data grezzo per facilitare i confronti nei filtri Da/A
-                        let rawAttr = (colDef && colDef.isDate && valBrutto) ? `data-raw="${String(valBrutto).split('T')[0]}"` : '';
+                        let rawDateVal = "";
+                        if (colDef && colDef.isDate && valBrutto) {
+                            if (colId === 'inserito_il') {
+                                rawDateVal = estraiDataGrezzaDaStringaDataOra(valBrutto);
+                            } else {
+                                rawDateVal = String(valBrutto).split('T')[0];
+                            }
+                        }
+
+                        let rawAttr = rawDateVal ? `data-raw="${rawDateVal}"` : '';
                         htmlTr += `<td ${rawAttr}>${valFormattato}</td>`;
                     });
                     tr.innerHTML = htmlTr;
@@ -1306,7 +1306,6 @@
                             let rawDataCella = cellaTabella ? cellaTabella.getAttribute('data-raw') : "";
                             
                             if (!rawDataCella) {
-                                // Se la riga non ha una data valida registrata ma c'è un filtro attivo, la nascondiamo
                                 mostraRiga = false;
                                 break;
                             }
@@ -1432,6 +1431,28 @@
                 if (parti.length === 3) return `${parti[2]}.${parti[1]}.${parti[0]}`;
             }
             return dataStr;
+        }
+
+        function formattaDataOraCompleta(valore) {
+            if (!valore) return '';
+            let str = String(valore).trim();
+            return str;
+        }
+
+        function estraiDataGrezzaDaStringaDataOra(strValore) {
+            if (!strValore) return "";
+            let str = String(strValore).trim();
+            if (str.includes('/')) {
+                let parteData = str.split(',')[0].trim();
+                let parti = parteData.split('/');
+                if (parti.length === 3) {
+                    return `${parti[2]}-${parti[1]}-${parti[0]}`;
+                }
+            }
+            if (str.includes('-')) {
+                return str.split('T')[0].split(' ')[0];
+            }
+            return "";
         }
 
         function formattaDataPerInputDate(dataStr) {
