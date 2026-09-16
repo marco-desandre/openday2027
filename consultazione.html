@@ -122,6 +122,8 @@
         .btn-modifica-storico:hover { background-color: #e0a800; }
         .btn-elimina-storico { background-color: #dc3545; }
         .btn-elimina-storico:hover { background-color: #c82333; }
+        .btn-info-storico { background-color: #17a2b8; font-weight: bold; }
+        .btn-info-storico:hover { background-color: #138496; }
         .btn-salva-storico { background-color: #28a745; }
         .input-storico, .select-storico { width: 90% !important; padding: 5px !important; margin: 0 !important; font-size: 12px !important; }
 
@@ -1465,7 +1467,8 @@
                     
                     let azioniHtml = (modalitaCorrente === 'admin') 
                         ? `<button type="button" class="btn-azione btn-modifica-storico" onclick="abilitaModificaStorico(this)">Modifica</button>
-                           <button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaStorico('${dati.idDoc}', '${idPersona}')">Elimina</button>`
+                           <button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaStorico('${dati.idDoc}', '${idPersona}')">Elimina</button>
+                           <button type="button" class="btn-azione btn-info-storico" onclick="mostraInfoStorico('${pulisciTesto(dati.creato_da)}', '${pulisciTesto(dati.creato_il)}')">Info</button>`
                         : `<span style="color: #888; font-size: 11px; font-style: italic;">Solo lettura</span>`;
 
                     tr.innerHTML = `
@@ -1482,6 +1485,12 @@
                 spanConteggioScheda.textContent = "0";
             }
         }
+
+        window.mostraInfoStorico = function(creatoDa, creatoIl) {
+            const utente = creatoDa && creatoDa !== "" ? creatoDa : "Non registrato (dato storico precedente)";
+            const dataOra = creatoIl && creatoIl !== "" ? creatoIl : "Non disponibile";
+            alert(`Dettagli Inserimento Iscrizione:\n\n• Inserito da: ${utente}\n• Data e Ora: ${dataOra}`);
+        };
 
         async function verificaDuplicatoNumeroIdentificativo(anno, numeroIdentificativo, idDocEscluso = null) {
             try {
@@ -1597,12 +1606,17 @@
                 return;
             }
 
+            const currentUserEmail = auth.currentUser ? auth.currentUser.email : "Sconosciuto";
+            const currentTimestamp = new Date().toLocaleString('it-IT');
+
             try {
                 await addDoc(collection(db, "storico"), {
                     id_persona: idPersona,
                     anno: nuovoAnno,
                     tipo_iscrizione: nuovoTipo,
-                    numero_identificativo: nuovoNum
+                    numero_identificativo: nuovoNum,
+                    creato_da: currentUserEmail,
+                    creato_il: currentTimestamp
                 });
 
                 alert("Nuova iscrizione salvata con successo!");
@@ -1877,12 +1891,17 @@
                 return;
             }
 
+            const currentUserEmail = auth.currentUser ? auth.currentUser.email : "Sconosciuto";
+            const currentTimestamp = new Date().toLocaleString('it-IT');
+
             try {
                 await addDoc(collection(db, "storico"), {
                     id_persona: idPersona,
                     anno: annoCarnevaleCorrente,
                     tipo_iscrizione: nuovoTipo,
-                    numero_identificativo: nuovoNum
+                    numero_identificativo: nuovoNum,
+                    creato_da: currentUserEmail,
+                    creato_il: currentTimestamp
                 });
 
                 alert("Utente e iscrizione salvati con successo!");
