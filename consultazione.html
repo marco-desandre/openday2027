@@ -205,11 +205,11 @@
                 <span id="freccia_gruppoPreventivi">▼</span>
             </div>
             <div id="gruppoPreventivi" class="sidebar-group-content">
-                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('preventivo_10', this)">Preventivo 10</li>
-                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('preventivo_20', this)">Preventivo 20</li>
-                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('preventivo_30', this)">Preventivo 30</li>
-                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('preventivo_40', this)">Preventivo 40</li>
-                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('preventivo_50', this)">Preventivo 50</li>
+                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('preventivo_10', this); caricaPreventivo10();">Preventivo 10</li>
+                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('preventivo_20', this); caricaPreventivo20();">Preventivo 20</li>
+                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('preventivo_30', this); caricaPreventivo30();">Preventivo 30</li>
+                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('preventivo_40', this); caricaPreventivo40();">Preventivo 40</li>
+                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('preventivo_50', this); caricaPreventivo50();">Preventivo 50</li>
             </div>
 
             <div style="margin-top: auto; border-top: 1px solid #454d55;"></div>
@@ -364,11 +364,11 @@
             <div id="sezione_onorificenze_capitani" class="sezione-app"><h2>Onorificenze: Capitani</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
             <div id="sezione_onorificenze_tigre" class="sezione-app"><h2>Onorificenze: Tigre</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
 
-            <div id="sezione_preventivo_10" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 10</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
-            <div id="sezione_preventivo_20" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 20</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
-            <div id="sezione_preventivo_30" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 30</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
-            <div id="sezione_preventivo_40" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 40</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
-            <div id="sezione_preventivo_50" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 50</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
+            <div id="sezione_preventivo_10" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 10</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_preventivo_20" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 20</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_preventivo_30" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 30</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_preventivo_40" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 40</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_preventivo_50" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 50</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
 
         </div>
     </main>
@@ -927,7 +927,7 @@
 
                 let html = `
                     <h2>Onorificenze: ${titoloSezione}</h2>
-                    <p style="color: #666; font-size: 14px;">Elenco estratto in tempo reale applicando i criteri SQL.</p>
+                    <p style="color: #666; font-size: 14px;">Elenco estratto in tempo reale applicando i criteri.</p>
                     <div class="box-contatore" style="display: block;">Iscritti trovati: ${risultati.length}</div>
                     <div class="table-responsive"><table>
                         <thead>
@@ -972,6 +972,146 @@
         window.caricaElenco30Anni = function() { elaboraOnorificenze('sezione_onorificenze_30', '30 Anni', 30, 'totali'); };
         window.caricaElenco40Anni = function() { elaboraOnorificenze('sezione_onorificenze_40', '40 Anni', 40, 'totali'); };
         window.caricaElenco50Anni = function() { elaboraOnorificenze('sezione_onorificenze_50', '50 Anni', 50, 'totali'); };
+
+        // ==========================================
+        // PREVENTIVI ISCRIZIONI
+        // ==========================================
+        async function elaboraPreventivoIscrizioni(idSezione, titoloSezione, sogliaAnni, tipoControllo) {
+            const container = document.getElementById(idSezione);
+            container.innerHTML = `<h2>Preventivo Iscrizioni: ${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Elaborazione preventivo ${titoloSezione} in corso...</div>`;
+            
+            try {
+                const snapAnagrafica = await getDocs(collection(db, "anagrafica"));
+                const snapStorico = await getDocs(collection(db, "storico"));
+
+                let anagraficaMap = {};
+                snapAnagrafica.forEach(docSnap => {
+                    anagraficaMap[docSnap.id] = docSnap.data();
+                });
+
+                let storicoPerPersona = {};
+                let totaliCompletiPersona = {};
+
+                snapStorico.forEach(docSnap => {
+                    let st = docSnap.data();
+                    let idPers = st.id_persona;
+                    if (!idPers) return;
+
+                    let tipologia = st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || st.categoria || st.iscrizione || "";
+                    let tipoPulito = String(tipologia).trim().toLowerCase();
+
+                    if (tipoPulito !== "iscrizione completa") return;
+
+                    let annoNum = parseInt(st.anno, 10);
+                    if (isNaN(annoNum)) return;
+
+                    totaliCompletiPersona[idPers] = (totaliCompletiPersona[idPers] || 0) + 1;
+
+                    if (!storicoPerPersona[idPers]) {
+                        storicoPerPersona[idPers] = [];
+                    }
+                    storicoPerPersona[idPers].push(annoNum);
+                });
+
+                let risultati = [];
+
+                for (let idPers in anagraficaMap) {
+                    let persona = anagraficaMap[idPers];
+                    let totaleIscrizioni = totaliCompletiPersona[idPers] || 0;
+                    let passaCriterio = false;
+                    let valoreMostrato = 0;
+
+                    if (tipoControllo === 'consecutivi_preventivo') {
+                        let targetConsecutivi = sogliaAnni - 1; 
+                        let anniArr = storicoPerPersona[idPers] || [];
+                        
+                        let anniNorm = anniArr.map(anno => anno > 2022 ? anno - 2 : anno);
+                        anniNorm = [...new Set(anniNorm)].sort((a, b) => a - b);
+                        
+                        let gruppiCount = {};
+                        anniNorm.forEach((annoNorm, index) => {
+                            let rn = index + 1;
+                            let grp = annoNorm - rn;
+                            gruppiCount[grp] = (gruppiCount[grp] || 0) + 1;
+                        });
+
+                        let massimoConsecutivi = 0;
+                        for (let grp in gruppiCount) {
+                            if (gruppiCount[grp] > massimoConsecutivi) {
+                                massimoConsecutivi = gruppiCount[grp];
+                            }
+                        }
+                        
+                        passaCriterio = (massimoConsecutivi === targetConsecutivi);
+                        valoreMostrato = massimoConsecutivi;
+
+                    } else if (tipoControllo === 'totali_preventivo') {
+                        let targetTotale = sogliaAnni - 1;
+                        passaCriterio = (totaleIscrizioni === targetTotale);
+                        valoreMostrato = totaleIscrizioni;
+                    }
+
+                    if (passaCriterio) {
+                        risultati.push({
+                            cognome: pulisciTesto(persona.cognome),
+                            nome: pulisciTesto(persona.nome),
+                            citta: pulisciTesto(persona.citta),
+                            telefono: pulisciTesto(persona.telefono),
+                            valore: valoreMostrato
+                        });
+                    }
+                }
+
+                risultati.sort((a, b) => a.cognome.localeCompare(b.cognome));
+                let etichettaColonnaValore = tipoControllo.includes('consecutivi') ? 'Anni Consecutivi Attuali' : 'Totale Iscrizioni Attuali';
+
+                let html = `
+                    <h2>Preventivo Iscrizioni: ${titoloSezione}</h2>
+                    <p style="color: #666; font-size: 14px;">Elenco degli iscritti che raggiungeranno ${sogliaAnni} anni il prossimo anno (escludendo il biennio COVID 2021-2022).</p>
+                    <div class="box-contatore" style="display: block;">Iscritti trovati: ${risultati.length}</div>
+                    <div class="table-responsive"><table>
+                        <thead>
+                            <tr>
+                                <th>Cognome</th>
+                                <th>Nome</th>
+                                <th>Città</th>
+                                <th>Telefono</th>
+                                <th>${etichettaColonnaValore}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                if (risultati.length === 0) {
+                    html += `<tr><td colspan="5" style="text-align:center; font-style:italic;">Nessun iscritto rientra nel preventivo ${titoloSezione}.</td></tr>`;
+                } else {
+                    risultati.forEach(r => {
+                        html += `
+                            <tr>
+                                <td>${r.cognome}</td>
+                                <td>${r.nome}</td>
+                                <td>${r.citta}</td>
+                                <td>${r.telefono}</td>
+                                <td><strong>${r.valore}</strong></td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                html += `</tbody></table></div>`;
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error("Errore nel calcolo del preventivo:", error);
+                container.innerHTML = `<h2>Preventivo Iscrizioni: ${titoloSezione}</h2><p style="color:red;">Errore durante il calcolo: ${error.message}</p>`;
+            }
+        }
+
+        window.caricaPreventivo10 = function() { elaboraPreventivoIscrizioni('sezione_preventivo_10', 'Preventivo 10', 10, 'consecutivi_preventivo'); };
+        window.caricaPreventivo20 = function() { elaboraPreventivoIscrizioni('sezione_preventivo_20', 'Preventivo 20', 20, 'totali_preventivo'); };
+        window.caricaPreventivo30 = function() { elaboraPreventivoIscrizioni('sezione_preventivo_30', 'Preventivo 30', 30, 'totali_preventivo'); };
+        window.caricaPreventivo40 = function() { elaboraPreventivoIscrizioni('sezione_preventivo_40', 'Preventivo 40', 40, 'totali_preventivo'); };
+        window.caricaPreventivo50 = function() { elaboraPreventivoIscrizioni('sezione_preventivo_50', 'Preventivo 50', 50, 'totali_preventivo'); };
 
         async function caricaTabellaUtenti() {
             const tbody = document.getElementById('corpoTabellaUtenti');
@@ -1213,7 +1353,6 @@
                     return true;
                 });
 
-                // RIGA 1: Intestazioni pulite e cliccabili per ordinamento
                 let htmlThead = "<tr>";
                 colonneAttiveFinali.forEach((colId, index) => {
                     const colDef = DEFINIZIONE_COLONNE.find(c => c.id === colId);
@@ -1226,7 +1365,6 @@
                 });
                 htmlThead += "</tr>";
 
-                // RIGA 2: Riga dedicata pulita per i filtri di ricerca in tempo reale (Testo o Data Da/A)
                 htmlThead += "<tr style='background-color: #fcfcfc;'>";
                 colonneAttiveFinali.forEach(colId => {
                     const colDef = DEFINIZIONE_COLONNE.find(c => c.id === colId);
