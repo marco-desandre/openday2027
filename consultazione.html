@@ -546,8 +546,8 @@
         let timeoutRicerca = null;
         let timeoutRuntime = null;
         let modalitaCorrente = 'user';
-        let ruoloUtenteLoggato = 'user'; // memorizza il ruolo reale nel db
-        let aliasUtenteLoggato = ''; // memorizza l'alias in chiaro dell'utente loggato
+        let ruoloUtenteLoggato = 'user'; 
+        let aliasUtenteLoggato = ''; 
         let anniPresentiNellaScheda = [];
         let cacheTuttiIscritti = [];
         let colonnaOrdinamentoCorrente = -1;
@@ -607,11 +607,11 @@
                     return;
                 }
 
-                // Salva ruolo e alias effettivo dell'utente
+                // Salva correttamente ruolo e alias dal documento Firestore
                 ruoloUtenteLoggato = (utenteDoc.ruolo || 'User').toLowerCase();
                 aliasUtenteLoggato = utenteDoc.alias ? utenteDoc.alias.trim() : user.email;
 
-                // Mostra la UI e imposta alias/email nell'intestazione
+                // Mostra la UI e imposta l'alias nell'intestazione
                 document.getElementById('loginOverlay').style.display = 'none';
                 document.getElementById('userEmailDisplayHeader').textContent = aliasUtenteLoggato;
 
@@ -922,7 +922,6 @@
         };
 
         window.cambiaModalita = function(modalita) {
-            // Controllo permessi: se l'utente reale è un User, viene bloccato il passaggio ad Admin
             if (modalita === 'admin' && ruoloUtenteLoggato !== 'admin') {
                 alert("Non disponi dei permessi necessari per accedere alla modalità Admin.");
                 return;
