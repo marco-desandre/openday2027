@@ -60,10 +60,14 @@
         .btn-nuovo-utente { background-color: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; white-space: nowrap; height: 42px; }
         .btn-nuovo-utente:hover { background-color: #218838; }
 
-        /* PULSANTE E PANNELLO PERSONALIZZA COLONNE (SPOSTATO IN ALTO) */
+        /* PULSANTE E PANNELLO PERSONALIZZA COLONNE E EXPORT CSV */
         .box-personalizza-colonne { position: relative; display: inline-block; }
         .btn-toggle-colonne { background-color: #6c757d; color: white; border: none; padding: 10px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; height: 42px; transition: background 0.2s; box-sizing: border-box; }
         .btn-toggle-colonne:hover { background-color: #5a6268; }
+        
+        .btn-export-csv { background-color: #17a2b8; color: white; border: none; padding: 10px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; height: 42px; transition: background 0.2s; box-sizing: border-box; text-decoration: none; }
+        .btn-export-csv:hover { background-color: #138496; }
+
         .pannello-colonne { display: none; position: absolute; top: 48px; left: 0; background: white; border: 1px solid #ced4da; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 6px; padding: 15px; z-index: 50; width: 300px; max-height: 350px; overflow-y: auto; }
         .pannello-colonne.aperto { display: block; }
         .pannello-colonne h5 { margin: 0 0 10px 0; color: #333; font-size: 14px; border-bottom: 1px solid #dee2e6; padding-bottom: 8px; }
@@ -269,7 +273,7 @@
             <!-- SEZIONE 1: RICERCA FILTRATA -->
             <div id="sezione_ricerca" class="sezione-app">
                 <h2>Elenco Completo - Ricerca Filtrata e Ordinabile</h2>
-                <p style="color: #666; font-size: 14px;">Seleziona un anno o "Tutti gli anni" per visualizzare i dati. Personalizza le colonne e ordina cliccando sulle intestazioni.</p>
+                <p style="color: #666; font-size: 14px;">Seleziona un anno o "Tutti gli anni" per visualizzare i dati. Personalizza le colonne, esporta in CSV e ordina cliccando sulle intestazioni.</p>
                 
                 <div class="search-row">
                     <div class="search-group">
@@ -277,20 +281,25 @@
                         <select id="selezionaAnnoFiltro" onchange="caricaDatiRicercaFiltrata()">
                             <option value="" disabled selected>-- Seleziona anno --</option>
                             <option value="tutti">Tutti gli anni</option>
-                            <!-- Popolato dinamicamente da 1964 all'Anno Carnevale Attuale -->
                         </select>
                     </div>
-                    <!-- PULSANTE E PANNELLO PERSONALIZZA COLONNE -->
-                    <div class="search-group" style="flex: initial;">
-                        <label>&nbsp;</label>
-                        <div class="box-personalizza-colonne">
-                            <button type="button" class="btn-toggle-colonne" onclick="togglePannelloColonne()">⚙️ Personalizza Colonne</button>
-                            <div id="pannelloColonne" class="pannello-colonne">
-                                <h5>Seleziona Colonne Visibili</h5>
-                                <div class="grid-checkbox-colonne" id="listaCheckboxColonne">
-                                    <!-- Generato via JS -->
+                    <!-- PULSANTE E PANNELLO PERSONALIZZA COLONNE E EXPORT CSV -->
+                    <div class="search-group" style="flex: initial; display: flex; gap: 10px; align-items: flex-end;">
+                        <div>
+                            <label>&nbsp;</label>
+                            <div class="box-personalizza-colonne">
+                                <button type="button" class="btn-toggle-colonne" onclick="togglePannelloColonne()">⚙️ Personalizza Colonne</button>
+                                <div id="pannelloColonne" class="pannello-colonne">
+                                    <h5>Seleziona Colonne Visibili</h5>
+                                    <div class="grid-checkbox-colonne" id="listaCheckboxColonne">
+                                        <!-- Generato via JS -->
+                                    </div>
                                 </div>
                             </div>
+                        </div>
+                        <div>
+                            <label>&nbsp;</label>
+                            <button type="button" class="btn-export-csv" onclick="esportaTabellaCSV()">📥 Export CSV</button>
                         </div>
                     </div>
                 </div>
@@ -664,6 +673,56 @@
             });
             localStorage.setItem('colonne_visibili_ricerca', JSON.stringify(colonneSelezionate));
             caricaDatiRicercaFiltrata();
+        };
+
+        // Funzione per esportare la tabella in CSV
+        window.esportaTabellaCSV = function() {
+            const tbody = document.getElementById('corpoTabellaFiltrata');
+            const righe = Array.from(tbody.getElementsByTagName('tr'));
+            
+            const theadTr = document.querySelector('#intestazioneTabellaFiltrata tr:nth-child(1)');
+            if (!theadTr) {
+                alert("Nessun dato da esportare.");
+                return;
+            }
+            
+            const ths = theadTr.getElementsByTagName('th');
+            let intestazioni = [];
+            for (let th of ths) {
+                let testoTh = th.textContent.replace(/[▲▼]/g, "").trim();
+                intestazioni.push('"' + testoTh.replace(/"/g, '""') + '"');
+            }
+            
+            let csvRows = [intestazioni.join(";")];
+            
+            righe.forEach(riga => {
+                if (riga.style.display !== "none") {
+                    let celle = riga.getElementsByTagName('td');
+                    let rigaDati = [];
+                    for (let cella of celle) {
+                        let testoCella = cella.textContent.trim();
+                        rigaDati.push('"' + testoCella.replace(/"/g, '""') + '"');
+                    }
+                    csvRows.push(rigaDati.join(";"));
+                }
+            });
+            
+            if (csvRows.length <= 1) {
+                alert("Non ci sono righe visibili da esportare con i filtri attuali.");
+                return;
+            }
+            
+            const csvString = csvRows.join("\n");
+            const blob = new Blob(["\ufeff" + csvString], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            
+            const annoSelezionato = document.getElementById('selezionaAnnoFiltro').value || "tutti";
+            link.setAttribute("href", url);
+            link.setAttribute("download", `iscritti_carnevale_${annoSelezionato}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         };
 
         document.addEventListener('click', function(event) {
