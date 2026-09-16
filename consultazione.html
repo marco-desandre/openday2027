@@ -619,8 +619,9 @@
             { id: 'scadenza_documento', titolo: 'Scadenza Documento', default: false, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
             { id: 'tigre', titolo: 'Tigre', default: false, formatter: val => val ? 'Si' : 'No' },
             { id: 'capitano_piazza', titolo: 'Capitano Piazza', default: false, formatter: val => val ? 'Si' : 'No' },
-            { id: 'inserito_da', titolo: 'Inserito da', default: false },
-            { id: 'inserito_il', titolo: 'Inserito il', default: false }
+            { id: 'tipo_iscrizione', titolo: 'Tipo Iscrizione', default: false, richiedeAnnoSpecifico: true },
+            { id: 'inserito_da', titolo: 'Inserito da', default: false, richiedeAnnoSpecifico: true },
+            { id: 'inserito_il', titolo: 'Inserito il', default: false, richiedeAnnoSpecifico: true }
         ];
 
         let colonneSelezionate = JSON.parse(localStorage.getItem('colonne_visibili_ricerca')) || DEFINIZIONE_COLONNE.filter(c => c.default).map(c => c.id);
@@ -628,13 +629,19 @@
         function inizializzaPannelloColonne() {
             const container = document.getElementById('listaCheckboxColonne');
             container.innerHTML = '';
+            
+            const annoSelezionato = document.getElementById('selezionaAnnoFiltro').value;
+            const annoSpecificoSelezionato = (annoSelezionato && annoSelezionato !== "" && annoSelezionato !== "tutti");
+
             DEFINIZIONE_COLONNE.forEach(col => {
-                const isChecked = colonneSelezionate.includes(col.id);
+                const isDisabled = col.richiedeAnnoSpecifico && !annoSpecificoSelezionato;
+                const isChecked = colonneSelezionate.includes(col.id) && !isDisabled;
+                
                 const div = document.createElement('div');
                 div.innerHTML = `
-                    <label>
-                        <input type="checkbox" value="${col.id}" ${isChecked ? 'checked' : ''} onchange="aggiornaColonneSelezionate()">
-                        ${col.titolo}
+                    <label style="${isDisabled ? 'color: #aaa; cursor: not-allowed;' : ''}">
+                        <input type="checkbox" value="${col.id}" ${isChecked ? 'checked' : ''} ${isDisabled ? 'disabled' : ''} onchange="aggiornaColonneSelezionate()">
+                        ${col.titolo} ${isDisabled ? '<small>(disponibile solo per anno specifico)</small>' : ''}
                     </label>
                 `;
                 container.appendChild(div);
@@ -650,7 +657,7 @@
             const checkboxes = document.querySelectorAll('#listaCheckboxColonne input[type="checkbox"]');
             colonneSelezionate = [];
             checkboxes.forEach(cb => {
-                if (cb.checked) colonneSelezionate.push(cb.value);
+                if (cb.checked && !cb.disabled) colonneSelezionate.push(cb.value);
             });
             localStorage.setItem('colonne_visibili_ricerca', JSON.stringify(colonneSelezionate));
             caricaDatiRicercaFiltrata();
@@ -1065,6 +1072,9 @@
             const tabella = document.getElementById('tabellaIscrittiFiltrata');
             const boxContatore = document.getElementById('boxContatoreFiltrato');
 
+            // Aggiorna lo stato delle checkbox nel pannello colonne (disabilita le colonne specifiche se non c'è un anno specifico)
+            inizializzaPannelloColonne();
+
             if (!annoSelezionato || annoSelezionato === "") {
                 tabella.style.display = 'none';
                 boxContatore.style.display = 'none';
@@ -1072,6 +1082,8 @@
                 msgGuida.textContent = "Seleziona un anno o 'Tutti gli anni' nel menu sopra per visualizzare l'elenco.";
                 return;
             }
+
+            const annoSpecificoSelezionato = (annoSelezionato !== "tutti");
 
             const tipoSelezionato = document.getElementById('selezionaTipoFiltro').value;
             const thead = document.getElementById('intestazioneTabellaFiltrata');
@@ -1124,6 +1136,7 @@
                         if (matchAnno && matchTipo) {
                             risultatiFiltrati.push({
                                 ...persona,
+                                tipo_iscrizione: item.tipo ? pulisciTesto(item.tipo) : '',
                                 inserito_da: item.creato_da ? pulisciTesto(item.creato_da) : 'Non registrato',
                                 inserito_il: item.creato_il ? pulisciTesto(item.creato_il) : 'Non disponibile'
                             });
@@ -1133,8 +1146,14 @@
 
                 risultatiFiltrati.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || ''));
 
-                // Utilizza esattamente le colonne spuntate nel pannello personalizza colonne
-                let colonneAttiveFinali = [...colonneSelezionate];
+                // Filtra le colonne attive escludendo quelle riservate ad anno specifico se è selezionato "tutti"
+                let colonneAttiveFinali = colonneSelezionate.filter(colId => {
+                    const colDef = DEFINIZIONE_COLONNE.find(c => c.id === colId);
+                    if (colDef && colDef.richiedeAnnoSpecifico && !annoSpecificoSelezionato) {
+                        return false;
+                    }
+                    return true;
+                });
 
                 let htmlThead = "<tr>";
                 colonneAttiveFinali.forEach((colId, index) => {
