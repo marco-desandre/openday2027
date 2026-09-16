@@ -315,6 +315,7 @@
                     <thead>
                         <tr>
                             <th>Username / Email</th>
+                            <th>Alias (Nome in chiaro)</th>
                             <th>Ruolo</th>
                             <th>Stato</th>
                             <th>Azioni</th>
@@ -493,6 +494,11 @@
             </div>
 
             <div class="form-group" style="margin-top: 10px;">
+                <label>Alias (Nome in chiaro):</label>
+                <input type="text" id="inputUserAlias" placeholder="es. Marco De Sandre">
+            </div>
+
+            <div class="form-group" style="margin-top: 10px;">
                 <label>Ruolo:</label>
                 <select id="selectUserRole">
                     <option value="Admin">Admin</option>
@@ -540,7 +546,8 @@
         let timeoutRicerca = null;
         let timeoutRuntime = null;
         let modalitaCorrente = 'user';
-        let ruoloUtenteLoggato = 'user'; // memorizza il ruolo reale nel DB
+        let ruoloUtenteLoggato = 'user'; // memorizza il ruolo reale nel db
+        let aliasUtenteLoggato = ''; // memorizza l'alias in chiaro dell'utente loggato
         let anniPresentiNellaScheda = [];
         let cacheTuttiIscritti = [];
         let colonnaOrdinamentoCorrente = -1;
@@ -600,12 +607,13 @@
                     return;
                 }
 
-                // Salva il ruolo effettivo dell'utente
+                // Salva ruolo e alias effettivo dell'utente
                 ruoloUtenteLoggato = (utenteDoc.ruolo || 'User').toLowerCase();
+                aliasUtenteLoggato = utenteDoc.alias ? utenteDoc.alias.trim() : user.email;
 
-                // Mostra la UI e imposta email nell'intestazione
+                // Mostra la UI e imposta alias/email nell'intestazione
                 document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('userEmailDisplayHeader').textContent = user.email;
+                document.getElementById('userEmailDisplayHeader').textContent = aliasUtenteLoggato;
 
                 const boxModalita = document.getElementById('boxModalita');
 
@@ -792,19 +800,20 @@
 
         async function caricaTabellaUtenti() {
             const tbody = document.getElementById('corpoTabellaUtenti');
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; font-style:italic; color:#666;">Caricamento utenti...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; font-style:italic; color:#666;">Caricamento utenti...</td></tr>';
             try {
                 const querySnapshot = await getDocs(collection(db, "utenti"));
                 tbody.innerHTML = '';
 
                 if (querySnapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; font-style:italic; color:#666;">Nessun utente registrato.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; font-style:italic; color:#666;">Nessun utente registrato.</td></tr>';
                     return;
                 }
 
                 querySnapshot.forEach((docSnap) => {
                     const u = docSnap.data();
                     const attivo = u.attivo !== false;
+                    const alias = u.alias || "-";
                     const statoBadge = attivo 
                         ? '<span style="color: #28a745; font-weight: bold;">Attivo</span>' 
                         : '<span style="color: #dc3545; font-weight: bold;">Disabilitato</span>';
@@ -814,10 +823,11 @@
 
                     tr.innerHTML = `
                         <td>${pulisciTesto(u.email)}</td>
-                        <td><strong>${pulisciTesto(u.ruolo)}</strong></td>
+                        <td><strong>${pulisciTesto(alias)}</strong></td>
+                        <td>${pulisciTesto(u.ruolo)}</td>
                         <td>${statoBadge}</td>
                         <td>
-                            <button type="button" class="btn-azione btn-modifica-storico" onclick="modificaUtente('${docSnap.id}', '${u.email}', '${u.ruolo}', ${attivo})">Modifica</button>
+                            <button type="button" class="btn-azione btn-modifica-storico" onclick="modificaUtente('${docSnap.id}', '${u.email}', '${u.alias || ''}', '${u.ruolo}', ${attivo})">Modifica</button>
                             <button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaUtente('${docSnap.id}')">Elimina</button>
                         </td>
                     `;
@@ -825,13 +835,14 @@
                 });
             } catch (error) {
                 console.error("Errore caricamento utenti:", error);
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Errore durante il caricamento degli utenti.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Errore durante il caricamento degli utenti.</td></tr>';
             }
         }
 
-        window.apriModaleUtente = function(id = "", email = "", ruolo = "User", attivo = true) {
+        window.apriModaleUtente = function(id = "", email = "", alias = "", ruolo = "User", attivo = true) {
             document.getElementById('editUserId').value = id;
             document.getElementById('inputUserEmail').value = email;
+            document.getElementById('inputUserAlias').value = alias;
             document.getElementById('selectUserRole').value = ruolo;
             document.getElementById('selectUserStato').value = attivo ? "attivo" : "disabilitato";
             document.getElementById('userModalTitle').textContent = id ? "Modifica Utente" : "Aggiungi Nuovo Utente";
@@ -842,13 +853,14 @@
             document.getElementById('userModal').style.display = 'none';
         };
 
-        window.modificaUtente = function(id, email, ruolo, attivo) {
-            apriModaleUtente(id, email, ruolo, attivo);
+        window.modificaUtente = function(id, email, alias, ruolo, attivo) {
+            apriModaleUtente(id, email, alias, ruolo, attivo);
         };
 
         window.salvaUtenteSistema = async function() {
             const id = document.getElementById('editUserId').value.trim();
             const email = document.getElementById('inputUserEmail').value.trim().toLowerCase();
+            const alias = document.getElementById('inputUserAlias').value.trim();
             const ruolo = document.getElementById('selectUserRole').value;
             const attivo = document.getElementById('selectUserStato').value === "attivo";
 
@@ -858,7 +870,7 @@
             }
 
             try {
-                const datiUtente = { email, ruolo, attivo };
+                const datiUtente = { email, alias, ruolo, attivo };
                 if (id) {
                     await setDoc(doc(db, "utenti", id), datiUtente, { merge: true });
                     alert("Utente aggiornato con successo!");
@@ -1606,7 +1618,7 @@
                 return;
             }
 
-            const currentUserEmail = auth.currentUser ? auth.currentUser.email : "Sconosciuto";
+            const currentIdentificativoUtente = aliasUtenteLoggato || (auth.currentUser ? auth.currentUser.email : "Sconosciuto");
             const currentTimestamp = new Date().toLocaleString('it-IT');
 
             try {
@@ -1615,7 +1627,7 @@
                     anno: nuovoAnno,
                     tipo_iscrizione: nuovoTipo,
                     numero_identificativo: nuovoNum,
-                    creato_da: currentUserEmail,
+                    creato_da: currentIdentificativoUtente,
                     creato_il: currentTimestamp
                 });
 
@@ -1891,7 +1903,7 @@
                 return;
             }
 
-            const currentUserEmail = auth.currentUser ? auth.currentUser.email : "Sconosciuto";
+            const currentIdentificativoUtente = aliasUtenteLoggato || (auth.currentUser ? auth.currentUser.email : "Sconosciuto");
             const currentTimestamp = new Date().toLocaleString('it-IT');
 
             try {
@@ -1900,7 +1912,7 @@
                     anno: annoCarnevaleCorrente,
                     tipo_iscrizione: nuovoTipo,
                     numero_identificativo: nuovoNum,
-                    creato_da: currentUserEmail,
+                    creato_da: currentIdentificativoUtente,
                     creato_il: currentTimestamp
                 });
 
