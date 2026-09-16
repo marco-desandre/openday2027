@@ -260,18 +260,15 @@
             <!-- SEZIONE 1: RICERCA FILTRATA -->
             <div id="sezione_ricerca" class="sezione-app">
                 <h2>Elenco Completo - Ricerca Filtrata e Ordinabile</h2>
-                <p style="color: #666; font-size: 14px;">Filtra per anno e tipo di iscrizione, personalizza le colonne visualizzate e ordina cliccando sulle intestazioni.</p>
+                <p style="color: #666; font-size: 14px;">Seleziona un anno o "Tutti gli anni" per visualizzare i dati. Personalizza le colonne e ordina cliccando sulle intestazioni.</p>
                 
                 <div class="search-row">
                     <div class="search-group">
                         <label for="selezionaAnnoFiltro"><strong>Filtra per Anno:</strong></label>
                         <select id="selezionaAnnoFiltro" onchange="caricaDatiRicercaFiltrata()">
+                            <option value="" disabled selected>-- Seleziona anno --</option>
                             <option value="tutti">Tutti gli anni</option>
-                            <option value="2027">2027</option>
-                            <option value="2026">2026</option>
-                            <option value="2025">2025</option>
-                            <option value="2024">2024</option>
-                            <option value="2023">2023</option>
+                            <!-- Popolato dinamicamente da 1964 all'Anno Carnevale Attuale -->
                         </select>
                     </div>
                     <div class="search-group">
@@ -299,7 +296,7 @@
                     Iscritti filtrati trovati: <span id="totaleIscrittiFiltrati">0</span>
                 </div>
 
-                <div id="messaggioGuidaFiltrato" style="font-size: 14px; color: #666; text-align: center; margin: 20px 0; font-style: italic;">Caricamento dati in corso...</div>
+                <div id="messaggioGuidaFiltrato" style="font-size: 14px; color: #666; text-align: center; margin: 20px 0; font-style: italic;">Seleziona un anno nel menu sopra per visualizzare l'elenco.</div>
 
                 <div class="table-responsive">
                     <table id="tabellaIscrittiFiltrata" style="display: none;">
@@ -578,6 +575,31 @@
 
         document.getElementById('inputAnnoCarnevale').value = annoCarnevaleCorrente;
 
+        // Popola dinamicamente il menu a tendina degli anni dal 1964 all'Anno Carnevale Attuale
+        function popolaSelectAnniFiltro() {
+            const selectAnno = document.getElementById('selezionaAnnoFiltro');
+            const annoSelezionatoPrecedente = selectAnno.value;
+            
+            selectAnno.innerHTML = `
+                <option value="" disabled selected>-- Seleziona anno --</option>
+                <option value="tutti">Tutti gli anni</option>
+            `;
+
+            const annoMax = parseInt(annoCarnevaleCorrente, 10) || 2027;
+            for (let anno = annoMax; anno >= 1964; anno--) {
+                const opt = document.createElement('option');
+                opt.value = String(anno);
+                opt.textContent = anno;
+                selectAnno.appendChild(opt);
+            }
+
+            if (annoSelezionatoPrecedente && annoSelezionatoPrecedente !== "") {
+                selectAnno.value = annoSelezionatoPrecedente;
+            }
+        }
+
+        popolaSelectAnniFiltro();
+
         // ==========================================
         // CONFIGURAZIONE CAMPI E COLONNE RICERCA FILTRATA
         // ==========================================
@@ -745,6 +767,7 @@
             }
             annoCarnevaleCorrente = valInput;
             localStorage.setItem('anno_carnevale_corrente', annoCarnevaleCorrente);
+            popolaSelectAnniFiltro();
             alert(`Anno carnevale attuale aggiornato con successo a ${annoCarnevaleCorrente}!`);
         };
 
@@ -998,6 +1021,7 @@
             }
 
             if (valoreSezione === 'ricerca') {
+                // Se entri nella ricerca filtrata, esegui il caricamento (gestirà automaticamente se l'anno è vuoto o già selezionato)
                 caricaDatiRicercaFiltrata();
             } else if (valoreSezione === 'configurazione') {
                 caricaTabellaUtenti();
@@ -1036,14 +1060,24 @@
         // ==========================================
         // CARICAMENTO E GESTIONE RICERCA FILTRATA
         // ==========================================
-        async function caricaDatiRicercaFiltrata() {
+        window.caricaDatiRicercaFiltrata = async function() {
             const annoSelezionato = document.getElementById('selezionaAnnoFiltro').value;
-            const tipoSelezionato = document.getElementById('selezionaTipoFiltro').value;
             const msgGuida = document.getElementById('messaggioGuidaFiltrato');
             const tabella = document.getElementById('tabellaIscrittiFiltrata');
+            const boxContatore = document.getElementById('boxContatoreFiltrato');
+
+            // Se non è stato selezionato alcun anno (è vuoto), mantieni la tabella pulita/vuota
+            if (!annoSelezionato || annoSelezionato === "") {
+                tabella.style.display = 'none';
+                boxContatore.style.display = 'none';
+                msgGuida.style.display = 'block';
+                msgGuida.textContent = "Seleziona un anno o 'Tutti gli anni' nel menu sopra per visualizzare l'elenco.";
+                return;
+            }
+
+            const tipoSelezionato = document.getElementById('selezionaTipoFiltro').value;
             const thead = document.getElementById('intestazioneTabellaFiltrata');
             const tbody = document.getElementById('corpoTabellaFiltrata');
-            const boxContatore = document.getElementById('boxContatoreFiltrato');
 
             msgGuida.style.display = 'block';
             msgGuida.textContent = "Caricamento dati in corso...";
@@ -1101,7 +1135,6 @@
 
                 risultatiFiltrati.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || ''));
 
-                // Includi automaticamente le colonne inserito_da e inserito_il se viene selezionato un anno specifico
                 let colonneAttiveFinali = [...colonneSelezionate];
                 if (annoSelezionato !== "tutti") {
                     if (!colonneAttiveFinali.includes('inserito_da')) colonneAttiveFinali.push('inserito_da');
