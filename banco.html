@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pannello Banco - Coda Iscrizioni</title>
-    <!-- Chart.js per il grafico delle statistiche -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * { box-sizing: border-box; }
@@ -64,7 +63,6 @@
         }
         .mini-btn:active { transform: scale(0.95); background: #f1f5f9; }
 
-        /* Stile pulsante selettore modalità pagamento in alto a dx */
         .btn-modalita {
             background: #0f172a !important;
             color: #ffffff !important;
@@ -129,7 +127,6 @@
         .testo-telefono { font-size: 12px; color: #475569; margin-top: 2px; display: block; }
         .numero-biglietto { font-size: 14px; font-weight: 800; color: #15803d; margin-right: 8px; background: #f0fdf4; padding: 4px 8px; border-radius: 8px; display: inline-block; border: 1px solid #bbf7d0; }
 
-        /* Finestre Modali */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(3px); justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
         .modal-content { background: #ffffff; padding: 20px; border-radius: 20px; width: 100%; max-width: 520px; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15); border: 2px solid #e2e8f0; }
         .item-riserva { padding: 12px; border-bottom: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
@@ -152,7 +149,6 @@
 <body>
 
     <div class="container">
-        <!-- Header con Titolo e Pulsantini compatti su sfondo bianco -->
         <div class="header-top">
             <h2>Gestione Coda</h2>
             <div class="header-actions">
@@ -163,21 +159,18 @@
             </div>
         </div>
 
-        <!-- Box Slot Posti Compatto -->
         <div id="boxLimiteContainer" class="box-limite">
             <span>In attesa (<span id="etichettaModalitaBox">Bancomat</span>): <strong id="valoreInAttesa">0</strong></span>
             <span>•</span>
             <span>Disp: <strong id="valoreDisponibili">0</strong>/<strong id="valoreLimite">10</strong></span>
         </div>
         
-        <!-- Pulsante Lista di Riserva Compatto -->
         <button class="btn-riserva" id="btnApriRiserve">📋 Lista di Riserva (<span id="counterRiserve">0</span>)</button>
 
         <p style="margin-top: 14px; font-size: 11px; color: #991b1b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Coda attiva (<span id="etichettaModalitaTitolo">Bancomat</span>):</p>
         <div id="listaCoda">Caricamento coda...</div>
     </div>
 
-    <!-- Modale per la Lista di Riserva -->
     <div id="modalRiserva" class="modal">
         <div class="modal-content">
             <h3 style="margin-top: 0; color: #991b1b; font-size: 16px; display: flex; justify-content: space-between; align-items: center;">
@@ -189,7 +182,6 @@
         </div>
     </div>
 
-    <!-- Modale per il Grafico Statistiche -->
     <div id="modalStats" class="modal">
         <div class="modal-content" style="max-width: 550px;">
             <h3 style="margin-top: 0; color: #991b1b; font-size: 16px; display: flex; justify-content: space-between; align-items: center;">
@@ -203,20 +195,19 @@
         </div>
     </div>
 
-    <!-- Script Firebase e Logica Banco -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
         import { getDatabase, ref, onValue, update, remove, set } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyAXtD-62C2rWpsZoEhW85HN1pxTe8a5jL4",
-            authDomain: "opendayiscrizioni.firebaseapp.com",
-            databaseURL: "https://opendayiscrizioni-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "opendayiscrizioni",
-            storageBucket: "opendayiscrizioni.firebasestorage.app",
-            messagingSenderId: "448538612897",
-            appId: "1:448538612897:web:437a8b17991687fc0a8ce0"
-        };
+			  apiKey: "AIzaSyCKfb2IDqE-y4Ln_1tUIYm09VVMqRRruvQ",
+			  authDomain: "ticketdispensertuchini.firebaseapp.com",
+			  databaseURL: "https://ticketdispensertuchini-default-rtdb.europe-west1.firebasedatabase.app",
+			  projectId: "ticketdispensertuchini",
+			  storageBucket: "ticketdispensertuchini.firebasestorage.app",
+			  messagingSenderId: "582164145424",
+			  appId: "1:582164145424:web:41a6df5056265e19ddf195"
+			};
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
@@ -586,7 +577,7 @@
                         {
                             label: 'Bancomat',
                             data: etichetteOrdinate.length > 0 ? datiBancomat : [0],
-                            backgroundColor: '#0284c7', // Blu
+                            backgroundColor: '#0284c7',
                             borderColor: '#0369a1',
                             borderWidth: 1,
                             borderRadius: 4
@@ -594,7 +585,7 @@
                         {
                             label: 'Contanti',
                             data: etichetteOrdinate.length > 0 ? datiContanti : [0],
-                            backgroundColor: '#15803d', // Verde
+                            backgroundColor: '#15803d',
                             borderColor: '#166534',
                             borderWidth: 1,
                             borderRadius: 4

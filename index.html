@@ -369,15 +369,14 @@
         }
 
         const firebaseConfig = {
-            apiKey: "AIzaSyAXtD-62C2rWpsZoEhW85HN1pxTe8a5jL4",
-            authDomain: "opendayiscrizioni.firebaseapp.com",
-            databaseURL: "https://opendayiscrizioni-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "opendayiscrizioni",
-            storageBucket: "opendayiscrizioni.firebasestorage.app",
-            messagingSenderId: "448538612897",
-            appId: "1:448538612897:web:437a8b17991687fc0a8ce0"
-        };
-
+			  apiKey: "AIzaSyCKfb2IDqE-y4Ln_1tUIYm09VVMqRRruvQ",
+			  authDomain: "ticketdispensertuchini.firebaseapp.com",
+			  databaseURL: "https://ticketdispensertuchini-default-rtdb.europe-west1.firebasedatabase.app",
+			  projectId: "ticketdispensertuchini",
+			  storageBucket: "ticketdispensertuchini.firebasestorage.app",
+			  messagingSenderId: "582164145424",
+			  appId: "1:582164145424:web:41a6df5056265e19ddf195"
+			};
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const codaRef = ref(db, 'coda');
@@ -515,13 +514,12 @@
 
                 let personeDavanti = 0;
                 const mioTimestamp = mioOggetto.timestamp;
-                const mioMetodoPagamento = mioOggetto.pagamento || 'bancomat'; // Recupera il tuo metodo (bancomat o contanti)
+                const mioMetodoPagamento = mioOggetto.pagamento || 'bancomat';
 
                 arrayAttiva.forEach((item) => {
                     const statoItem = item.stato || 'attesa';
                     const metodoItem = item.pagamento || 'bancomat';
                     
-                    // Conta solo chi usa lo stesso metodo di pagamento ed è arrivato prima di te
                     if (metodoItem === mioMetodoPagamento && item.timestamp < mioTimestamp && (statoItem === 'attesa' || statoItem === 'chiamato')) {
                         personeDavanti += item.delega ? 2 : 1;
                     }
