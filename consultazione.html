@@ -37,7 +37,7 @@
 
         /* CONTENUTO PRINCIPALE */
         .main-content { flex: 1; padding: 30px; overflow-y: auto; position: relative; }
-        .container { max-width: 1050px; background: white; padding: 25px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); margin: auto; position: relative; }
+        .container { max-width: 1250px; background: white; padding: 25px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); margin: auto; position: relative; }
         
         /* INTESTAZIONE SUPERIORE (MODALITA E LOGOUT) */
         .top-bar-header { position: absolute; top: 20px; right: 25px; display: flex; align-items: center; gap: 12px; z-index: 10; }
@@ -60,6 +60,17 @@
         .btn-nuovo-utente { background-color: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; white-space: nowrap; height: 42px; }
         .btn-nuovo-utente:hover { background-color: #218838; }
 
+        /* PULSANTE E PANNELLO PERSONALIZZA COLONNE */
+        .box-personalizza-colonne { position: relative; margin-bottom: 15px; display: inline-block; }
+        .btn-toggle-colonne { background-color: #6c757d; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
+        .btn-toggle-colonne:hover { background-color: #5a6268; }
+        .pannello-colonne { display: none; position: absolute; top: 40px; left: 0; background: white; border: 1px solid #ccc; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 6px; padding: 15px; z-index: 50; width: 320px; max-height: 350px; overflow-y: auto; }
+        .pannello-colonne.aperto { display: block; }
+        .pannello-colonne h5 { margin: 0 0 10px 0; color: #333; font-size: 14px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .grid-checkbox-colonne { display: flex; flex-direction: column; gap: 8px; }
+        .grid-checkbox-colonne label { font-size: 13px; color: #333; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .grid-checkbox-colonne input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+
         input[type="text"], input[type="date"], input[type="email"], input[type="number"], select { 
             width: 100%; padding: 10px; margin: 4px 0 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 15px; 
         }
@@ -67,9 +78,10 @@
         .campo-vuoto { border: 2px solid #dc3545 !important; background-color: #fff8f8; }
         .avviso-duplicato-runtime { border: 2px solid #ffc107 !important; background-color: #fffdf0 !important; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; white-space: nowrap; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 13px; }
-        th { background-color: #007BFF; color: white; cursor: pointer; user-select: none; }
+        th { background-color: #007BFF; color: white; cursor: pointer; user-select: none; position: relative; }
         th:hover { background-color: #0056b3; }
         tr:hover { background-color: #f1f1f1; cursor: pointer; }
         tr:nth-child(even) { background-color: #f9f9f9; }
@@ -228,25 +240,27 @@
 
                 <div id="messaggioGuida">Inizia a digitare nel campo sopra per visualizzare gli iscritti.</div>
 
-                <table id="tabellaIscritti" style="display: none;">
-                    <thead>
-                        <tr>
-                            <th>Cognome</th>
-                            <th>Nome</th>
-                            <th>Data di Nascita</th>
-                            <th>Città</th>
-                            <th>Telefono</th>
-                        </tr>
-                    </thead>
-                    <tbody id="corpoTabella">
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table id="tabellaIscritti" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Cognome</th>
+                                <th>Nome</th>
+                                <th>Data di Nascita</th>
+                                <th>Città</th>
+                                <th>Telefono</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoTabella">
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- SEZIONE 1: RICERCA FILTRATA -->
             <div id="sezione_ricerca" class="sezione-app">
                 <h2>Elenco Completo - Ricerca Filtrata e Ordinabile</h2>
-                <p style="color: #666; font-size: 14px;">Filtra per anno e tipo di iscrizione, ordina cliccando sulle intestazioni o filtra digitando nelle caselle sotto i titoli.</p>
+                <p style="color: #666; font-size: 14px;">Filtra per anno e tipo di iscrizione, personalizza le colonne visualizzate e ordina cliccando sulle intestazioni.</p>
                 
                 <div class="search-row">
                     <div class="search-group">
@@ -270,25 +284,29 @@
                     </div>
                 </div>
 
+                <!-- PULSANTE E PANNELLO PERSONALIZZA COLONNE -->
+                <div class="box-personalizza-colonne">
+                    <button type="button" class="btn-toggle-colonne" onclick="togglePannelloColonne()">⚙️ Personalizza Colonne</button>
+                    <div id="pannelloColonne" class="pannello-colonne">
+                        <h5>Seleziona Colonne Visibili</h5>
+                        <div class="grid-checkbox-colonne" id="listaCheckboxColonne">
+                            <!-- Generato via JS -->
+                        </div>
+                    </div>
+                </div>
+
                 <div id="boxContatoreFiltrato" class="box-contatore" style="display: none;">
                     Iscritti filtrati trovati: <span id="totaleIscrittiFiltrati">0</span>
                 </div>
 
                 <div id="messaggioGuidaFiltrato" style="font-size: 14px; color: #666; text-align: center; margin: 20px 0; font-style: italic;">Caricamento dati in corso...</div>
 
-                <table id="tabellaIscrittiFiltrata" style="display: none;">
-                    <thead>
-                        <tr>
-                            <th onclick="ordinaTabellaFiltrata(0)">Cognome <span id="sort-0"></span><input type="text" class="filtro-colonna" placeholder="Filtra..." oninput="applicaFiltriTabellaFiltrata()" onclick="event.stopPropagation()"></th>
-                            <th onclick="ordinaTabellaFiltrata(1)">Nome <span id="sort-1"></span><input type="text" class="filtro-colonna" placeholder="Filtra..." oninput="applicaFiltriTabellaFiltrata()" onclick="event.stopPropagation()"></th>
-                            <th onclick="ordinaTabellaFiltrata(2)">Data di Nascita <span id="sort-2"></span><input type="text" class="filtro-colonna" placeholder="Filtra..." oninput="applicaFiltriTabellaFiltrata()" onclick="event.stopPropagation()"></th>
-                            <th onclick="ordinaTabellaFiltrata(3)">Città <span id="sort-3"></span><input type="text" class="filtro-colonna" placeholder="Filtra..." oninput="applicaFiltriTabellaFiltrata()" onclick="event.stopPropagation()"></th>
-                            <th onclick="ordinaTabellaFiltrata(4)">Telefono <span id="sort-4"></span><input type="text" class="filtro-colonna" placeholder="Filtra..." oninput="applicaFiltriTabellaFiltrata()" onclick="event.stopPropagation()"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="corpoTabellaFiltrata">
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table id="tabellaIscrittiFiltrata" style="display: none;">
+                        <thead id="intestazioneTabellaFiltrata"></thead>
+                        <tbody id="corpoTabellaFiltrata"></tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- SEZIONE CONFIGURAZIONE -->
@@ -311,19 +329,21 @@
                     <button type="button" class="btn-nuovo-utente" style="height: 36px; font-size: 13px; padding: 0 12px;" onclick="apriModaleUtente()">+ Nuovo Utente</button>
                 </div>
                 
-                <table style="margin-top: 10px;">
-                    <thead>
-                        <tr>
-                            <th>Username / Email</th>
-                            <th>Alias (Nome in chiaro)</th>
-                            <th>Ruolo</th>
-                            <th>Stato</th>
-                            <th>Azioni</th>
-                        </tr>
-                    </thead>
-                    <tbody id="corpoTabellaUtenti">
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table style="margin-top: 10px;">
+                        <thead>
+                            <tr>
+                                <th>Username / Email</th>
+                                <th>Alias (Nome in chiaro)</th>
+                                <th>Ruolo</th>
+                                <th>Stato</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoTabellaUtenti">
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- SEZIONI DINAMICHE ONORIFICENZE E PREVENTIVI -->
@@ -462,18 +482,20 @@
                 <h4>Storico Iscrizioni Anni Passati</h4>
                 <div id="storicoCaricamento">Seleziona un iscritto...</div>
                 
-                <table id="tabellaStorico" style="display: none;">
-                    <thead>
-                        <tr>
-                            <th>Anno</th>
-                            <th>Tipo Iscrizione</th>
-                            <th>N. Identificativo</th>
-                            <th>Azioni</th>
-                        </tr>
-                    </thead>
-                    <tbody id="corpoTabellaStorico">
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table id="tabellaStorico" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Anno</th>
+                                <th>Tipo Iscrizione</th>
+                                <th>N. Identificativo</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoTabellaStorico">
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -557,6 +579,71 @@
         document.getElementById('inputAnnoCarnevale').value = annoCarnevaleCorrente;
 
         // ==========================================
+        // CONFIGURAZIONE CAMPI E COLONNE RICERCA FILTRATA
+        // ==========================================
+        const DEFINIZIONE_COLONNE = [
+            { id: 'cognome', titolo: 'Cognome', default: true },
+            { id: 'nome', titolo: 'Nome', default: true },
+            { id: 'luogo_nascita', titolo: 'Luogo Nascita', default: false },
+            { id: 'data_nascita', titolo: 'Data di Nascita', default: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
+            { id: 'indirizzo', titolo: 'Indirizzo', default: false },
+            { id: 'citta', titolo: 'Città', default: true },
+            { id: 'cap', titolo: 'CAP', default: false },
+            { id: 'provincia', titolo: 'Provincia', default: false },
+            { id: 'telefono', titolo: 'Telefono', default: true },
+            { id: 'mail', titolo: 'Mail', default: false },
+            { id: 'tipo_documento', titolo: 'Tipo Documento', default: false },
+            { id: 'numero_documento', titolo: 'N. Documento', default: false },
+            { id: 'scadenza_documento', titolo: 'Scadenza Documento', default: false, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
+            { id: 'tigre', titolo: 'Tigre', default: false, formatter: val => val ? 'Sì' : 'No' },
+            { id: 'capitano_piazza', titolo: 'Capitano Piazza', default: false, formatter: val => val ? 'Sì' : 'No' },
+            { id: 'inserito_da', titolo: 'Inserito da (Anno)', default: false },
+            { id: 'inserito_il', titolo: 'Inserito il (Anno)', default: false }
+        ];
+
+        let colonneSelezionate = JSON.parse(localStorage.getItem('colonne_visibili_ricerca')) || DEFINIZIONE_COLONNE.filter(c => c.default).map(c => c.id);
+
+        function inizializzaPannelloColonne() {
+            const container = document.getElementById('listaCheckboxColonne');
+            container.innerHTML = '';
+            DEFINIZIONE_COLONNE.forEach(col => {
+                const isChecked = colonneSelezionate.includes(col.id);
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <label>
+                        <input type="checkbox" value="${col.id}" ${isChecked ? 'checked' : ''} onchange="aggiornaColonneSelezionate()">
+                        ${col.titolo}
+                    </label>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        window.togglePannelloColonne = function() {
+            const pannello = document.getElementById('pannelloColonne');
+            pannello.classList.toggle('aperto');
+        };
+
+        window.aggiornaColonneSelezionate = function() {
+            const checkboxes = document.querySelectorAll('#listaCheckboxColonne input[type="checkbox"]');
+            colonneSelezionate = [];
+            checkboxes.forEach(cb => {
+                if (cb.checked) colonneSelezionate.push(cb.value);
+            });
+            localStorage.setItem('colonne_visibili_ricerca', JSON.stringify(colonneSelezionate));
+            caricaDatiRicercaFiltrata();
+        };
+
+        document.addEventListener('click', function(event) {
+            const box = document.querySelector('.box-personalizza-colonne');
+            if (box && !box.contains(event.target)) {
+                document.getElementById('pannelloColonne').classList.remove('aperto');
+            }
+        });
+
+        inizializzaPannelloColonne();
+
+        // ==========================================
         // GESTIONE AUTENTICAZIONE GOOGLE & ACCESSO
         // ==========================================
         window.eseguiLoginGoogle = async function() {
@@ -607,11 +694,9 @@
                     return;
                 }
 
-                // Salva correttamente ruolo e alias dal documento Firestore
                 ruoloUtenteLoggato = (utenteDoc.ruolo || 'User').toLowerCase();
                 aliasUtenteLoggato = utenteDoc.alias ? utenteDoc.alias.trim() : user.email;
 
-                // Mostra la UI e imposta l'alias nell'intestazione
                 document.getElementById('loginOverlay').style.display = 'none';
                 document.getElementById('userEmailDisplayHeader').textContent = aliasUtenteLoggato;
 
@@ -705,7 +790,6 @@
                 for (let idPers in anagraficaMap) {
                     let persona = anagraficaMap[idPers];
                     let totaleIscrizioni = totaliCompletiPersona[idPers] || 0;
-
                     let passaCriterio = false;
 
                     if (tipoControllo === 'consecutivi') {
@@ -747,14 +831,13 @@
                 }
 
                 risultati.sort((a, b) => a.cognome.localeCompare(b.cognome));
-
                 let etichettaColonnaValore = tipoControllo === 'consecutivi' ? 'Anni Consecutivi' : 'Totale Iscrizioni';
 
                 let html = `
                     <h2>Onorificenze: ${titoloSezione}</h2>
-                    <p style="color: #666; font-size: 14px;">Elenco estratto in tempo reale applicando i criteri della vista SQL [OW_Iscrizioni].</p>
+                    <p style="color: #666; font-size: 14px;">Elenco estratto in tempo reale applicando i criteri SQL.</p>
                     <div class="box-contatore" style="display: block;">Iscritti trovati: ${risultati.length}</div>
-                    <table>
+                    <div class="table-responsive"><table>
                         <thead>
                             <tr>
                                 <th>Cognome</th>
@@ -783,7 +866,7 @@
                     });
                 }
 
-                html += `</tbody></table>`;
+                html += `</tbody></table></div>`;
                 container.innerHTML = html;
 
             } catch (error) {
@@ -950,11 +1033,15 @@
             }
         };
 
+        // ==========================================
+        // CARICAMENTO E GESTIONE RICERCA FILTRATA
+        // ==========================================
         async function caricaDatiRicercaFiltrata() {
             const annoSelezionato = document.getElementById('selezionaAnnoFiltro').value;
             const tipoSelezionato = document.getElementById('selezionaTipoFiltro').value;
             const msgGuida = document.getElementById('messaggioGuidaFiltrato');
             const tabella = document.getElementById('tabellaIscrittiFiltrata');
+            const thead = document.getElementById('intestazioneTabellaFiltrata');
             const tbody = document.getElementById('corpoTabellaFiltrata');
             const boxContatore = document.getElementById('boxContatoreFiltrato');
 
@@ -978,7 +1065,9 @@
                         
                         mappaIscrizioni[idPers].push({
                             anno: String(st.anno || "").trim(),
-                            tipo: String(tipoIscrizione).trim()
+                            tipo: String(tipoIscrizione).trim(),
+                            creato_da: st.creato_da || '',
+                            creato_il: st.creato_il || ''
                         });
                     });
 
@@ -993,15 +1082,45 @@
                     });
                 }
 
-                let risultatiFiltrati = cacheTuttiIscritti.filter(persona => {
-                    return persona.iscrizioni.some(item => {
+                let risultatiFiltrati = [];
+
+                cacheTuttiIscritti.forEach(persona => {
+                    persona.iscrizioni.forEach(item => {
                         let matchAnno = (annoSelezionato === "tutti" || item.anno === annoSelezionato);
                         let matchTipo = (tipoSelezionato === "tutti" || item.tipo.toLowerCase() === tipoSelezionato.toLowerCase());
-                        return matchAnno && matchTipo;
+                        
+                        if (matchAnno && matchTipo) {
+                            risultatiFiltrati.push({
+                                ...persona,
+                                inserito_da: item.creato_da ? pulisciTesto(item.creato_da) : 'Non registrato',
+                                inserito_il: item.creato_il ? pulisciTesto(item.creato_il) : 'Non disponibile'
+                            });
+                        }
                     });
                 });
 
                 risultatiFiltrati.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || ''));
+
+                // Includi automaticamente le colonne inserito_da e inserito_il se viene selezionato un anno specifico
+                let colonneAttiveFinali = [...colonneSelezionate];
+                if (annoSelezionato !== "tutti") {
+                    if (!colonneAttiveFinali.includes('inserito_da')) colonneAttiveFinali.push('inserito_da');
+                    if (!colonneAttiveFinali.includes('inserito_il')) colonneAttiveFinali.push('inserito_il');
+                }
+
+                let htmlThead = "<tr>";
+                colonneAttiveFinali.forEach((colId, index) => {
+                    const colDef = DEFINIZIONE_COLONNE.find(c => c.id === colId);
+                    const titolo = colDef ? colDef.titolo : colId;
+                    htmlThead += `
+                        <th onclick="ordinaTabellaFiltrata(${index}, ${JSON.stringify(colonneAttiveFinali)})">
+                            ${titolo} <span id="sort-${index}"></span>
+                            <input type="text" class="filtro-colonna" placeholder="Filtra..." oninput="applicaFiltriTabellaFiltrata()" onclick="event.stopPropagation()">
+                        </th>
+                    `;
+                });
+                htmlThead += "</tr>";
+                thead.innerHTML = htmlThead;
 
                 tbody.innerHTML = '';
                 if (risultatiFiltrati.length === 0) {
@@ -1013,13 +1132,14 @@
 
                 risultatiFiltrati.forEach(persona => {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${pulisciTesto(persona.cognome)}</td>
-                        <td>${pulisciTesto(persona.nome)}</td>
-                        <td>${pulisciTesto(formattaDataPerVisualizzazioneTabella(persona.data_nascita))}</td>
-                        <td>${pulisciTesto(persona.citta)}</td>
-                        <td>${pulisciTesto(persona.telefono)}</td>
-                    `;
+                    let htmlTr = "";
+                    colonneAttiveFinali.forEach(colId => {
+                        const colDef = DEFINIZIONE_COLONNE.find(c => c.id === colId);
+                        let valBrutto = persona[colId];
+                        let valFormattato = colDef && colDef.formatter ? colDef.formatter(valBrutto) : pulisciTesto(valBrutto);
+                        htmlTr += `<td>${valFormattato}</td>`;
+                    });
+                    tr.innerHTML = htmlTr;
                     tr.addEventListener('click', () => apriModaleEsistente(persona));
                     tbody.appendChild(tr);
                 });
@@ -1036,7 +1156,7 @@
             }
         }
 
-        window.ordinaTabellaFiltrata = function(colIndex) {
+        window.ordinaTabellaFiltrata = function(colIndex, colonneArray = colonneSelezionate) {
             const tbody = document.getElementById('corpoTabellaFiltrata');
             let righe = Array.from(tbody.getElementsByTagName('tr'));
 
@@ -1047,14 +1167,16 @@
                 ordineAscendente = true;
             }
 
-            for (let i = 0; i < 5; i++) {
-                document.getElementById(`sort-${i}`).textContent = "";
+            for (let i = 0; i < colonneArray.length; i++) {
+                const sortSpan = document.getElementById(`sort-${i}`);
+                if (sortSpan) sortSpan.textContent = "";
             }
-            document.getElementById(`sort-${colIndex}`).textContent = ordineAscendente ? " ▲" : " ▼";
+            const currentSortSpan = document.getElementById(`sort-${colIndex}`);
+            if (currentSortSpan) currentSortSpan.textContent = ordineAscendente ? " ▲" : " ▼";
 
             righe.sort((rigaA, rigaB) => {
-                let cellaA = rigaA.getElementsByTagName('td')[colIndex].textContent.trim().toLowerCase();
-                let cellaB = rigaB.getElementsByTagName('td')[colIndex].textContent.trim().toLowerCase();
+                let cellaA = rigaA.getElementsByTagName('td')[colIndex] ? rigaA.getElementsByTagName('td')[colIndex].textContent.trim().toLowerCase() : "";
+                let cellaB = rigaB.getElementsByTagName('td')[colIndex] ? rigaB.getElementsByTagName('td')[colIndex].textContent.trim().toLowerCase() : "";
 
                 if (cellaA < cellaB) return ordineAscendente ? -1 : 1;
                 if (cellaA > cellaB) return ordineAscendente ? 1 : -1;
