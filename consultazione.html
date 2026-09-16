@@ -840,7 +840,7 @@
 
         async function elaboraOnorificenze(idSezione, titoloSezione, sogliaAnni, tipoControllo) {
             const container = document.getElementById(idSezione);
-            container.innerHTML = `<h2>P ${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Elaborazione calcolo ${titoloSezione} in corso...</div>`;
+            container.innerHTML = `<h2> ${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Elaborazione calcolo ${titoloSezione} in corso...</div>`;
             
             try {
                 const snapAnagrafica = await getDocs(collection(db, "anagrafica"));
