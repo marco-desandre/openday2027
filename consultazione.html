@@ -155,6 +155,12 @@
         #storicoCaricamento { font-size: 14px; color: #666; font-style: italic; margin: 10px 0; }
         #messaggioRuntimeDuplicato { font-size: 13px; font-weight: bold; margin-bottom: 10px; min-height: 18px; }
         .placeholder-sezione { padding: 40px; text-align: center; color: #666; font-size: 18px; background: #fafafa; border: 2px dashed #ddd; border-radius: 6px; }
+
+        /* Media query per ottimizzazione mobile stretta */
+        @media (max-width: 768px) {
+            .modal-content { width: 95%; padding: 15px; }
+            .form-row { flex-direction: column; gap: 0; }
+        }
     </style>
 </head>
 <body>
@@ -464,6 +470,46 @@
                 </div>
             </div>
 
+            <!-- SEZIONE DATI GENITORI (VISIBILE SOLO PER MINORENNI 14-17 ANNI) -->
+            <div id="sezioneDatiGenitori" style="display: none; background: #fff3cd; padding: 12px; border-radius: 6px; border: 1px solid #ffeeba; margin-top: 10px; margin-bottom: 10px;">
+                <h4 style="margin-top: 0; margin-bottom: 10px; color: #856404; font-size: 14px; border-bottom: 1px solid #ffeeba; padding-bottom: 4px;">Dati Genitore / Tutore (Obbligatori per minori da 14 a 17 anni)</h4>
+                
+                <div class="form-row">
+                    <div class="form-group col-medium">
+                        <label style="font-size: 12px;">Cognome Genitore:</label>
+                        <input type="text" id="editGenitoreCognome" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
+                    </div>
+                    <div class="form-group col-medium">
+                        <label style="font-size: 12px;">Nome Genitore:</label>
+                        <input type="text" id="editGenitoreNome" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
+                    </div>
+                    <div class="form-group col-medium">
+                        <label style="font-size: 12px;">Data Nascita:</label>
+                        <input type="date" id="editGenitoreDataNascita" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom: 0;">
+                    <div class="form-group col-medium">
+                        <label style="font-size: 12px;">Tipo Documento:</label>
+                        <select id="editGenitoreTipoDocumento" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px; margin: 4px 0 0 0;">
+                            <option value="">-- Seleziona --</option>
+                            <option value="Passaporto">Passaporto</option>
+                            <option value="Patente">Patente</option>
+                            <option value="Carta di identità">Carta di identità</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-medium">
+                        <label style="font-size: 12px;">N. Documento:</label>
+                        <input type="text" id="editGenitoreNumeroDocumento" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
+                    </div>
+                    <div class="form-group col-medium">
+                        <label style="font-size: 12px;">Scadenza Doc.:</label>
+                        <input type="date" id="editGenitoreScadenzaDocumento" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
+                    </div>
+                </div>
+            </div>
+
             <!-- BLOCCO UNICO CON TIGRE, CAPITANO E DOPPIO CONTATORE ISCRIZIONI -->
             <div class="form-row-opzioni">
                 <div class="checkboxes-container">
@@ -637,6 +683,12 @@
             { id: 'tipo_documento', titolo: 'Tipo Documento', default: false },
             { id: 'numero_documento', titolo: 'N. Documento', default: false },
             { id: 'scadenza_documento', titolo: 'Scadenza Documento', default: false, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
+            { id: 'genitore_cognome', titolo: 'Cognome Genitore', default: false, formatter: val => formattaCognome(val) },
+            { id: 'genitore_nome', titolo: 'Nome Genitore', default: false },
+            { id: 'genitore_data_nascita', titolo: 'Data Nascita Genitore', default: false, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
+            { id: 'genitore_tipo_documento', titolo: 'Tipo Doc. Genitore', default: false },
+            { id: 'genitore_numero_documento', titolo: 'N. Doc. Genitore', default: false },
+            { id: 'genitore_scadenza_documento', titolo: 'Scadenza Doc. Genitore', default: false, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
             { id: 'tigre', titolo: 'Tigre', default: false, formatter: val => val ? 'Si' : 'No' },
             { id: 'capitano_piazza', titolo: 'Capitano Piazza', default: false, formatter: val => val ? 'Si' : 'No' },
             { id: 'tipo_iscrizione', titolo: 'Tipo Iscrizione', default: true, richiedeAnnoSpecifico: true },
@@ -1431,7 +1483,7 @@
                         let valBrutto = persona[colId];
                         let valFormattato;
                         
-                        if (colId === 'cognome') {
+                        if (colId === 'cognome' || colId === 'genitore_cognome') {
                             valFormattato = formattaCognome(valBrutto);
                         } else {
                             valFormattato = colDef && colDef.formatter ? colDef.formatter(valBrutto) : pulisciTesto(valBrutto);
@@ -1563,13 +1615,17 @@
 
         function calcolaEImpostaEta(dataNascitaStr) {
             const inputEta = document.getElementById('editEtaDisplay');
+            const sezioneGenitori = document.getElementById('sezioneDatiGenitori');
+            
             if (!dataNascitaStr) {
                 inputEta.value = "";
+                if (sezioneGenitori) sezioneGenitori.style.display = 'none';
                 return;
             }
             const dataNascita = new Date(dataNascitaStr);
             if (isNaN(dataNascita.getTime())) {
                 inputEta.value = "";
+                if (sezioneGenitori) sezioneGenitori.style.display = 'none';
                 return;
             }
             const oggi = new Date();
@@ -1579,6 +1635,14 @@
                 eta--;
             }
             inputEta.value = eta >= 0 ? eta : "";
+
+            if (sezioneGenitori) {
+                if (eta >= 14 && eta < 18) {
+                    sezioneGenitori.style.display = 'block';
+                } else {
+                    sezioneGenitori.style.display = 'none';
+                }
+            }
         }
 
         document.getElementById('editDataNascita').addEventListener('input', (e) => {
@@ -1808,6 +1872,14 @@
             document.getElementById('editNumeroDocumento').value = pulisciTesto(persona.numero_documento || persona.numeroDocumento);
             document.getElementById('editScadenzaDocumento').value = formattaDataPerInputDate(persona.scadenza_documento || persona.scadenzaDocumento);
             
+            // Popolamento dati genitore
+            document.getElementById('editGenitoreCognome').value = pulisciTesto(persona.genitore_cognome);
+            document.getElementById('editGenitoreNome').value = pulisciTesto(persona.genitore_nome);
+            document.getElementById('editGenitoreDataNascita').value = formattaDataPerInputDate(persona.genitore_data_nascita);
+            document.getElementById('editGenitoreTipoDocumento').value = decodificaTipoDocumento(persona.genitore_tipo_documento);
+            document.getElementById('editGenitoreNumeroDocumento').value = pulisciTesto(persona.genitore_numero_documento);
+            document.getElementById('editGenitoreScadenzaDocumento').value = formattaDataPerInputDate(persona.genitore_scadenza_documento);
+
             const checkTigre = document.getElementById('editTigre');
             const checkCapitano = document.getElementById('editCapitanoPiazza');
             
@@ -1848,10 +1920,11 @@
             document.getElementById('modalTitle').textContent = "Crea Nuovo Utente in Anagrafica";
             document.getElementById('editIdPersona').value = ""; 
             
-            document.querySelectorAll('.campo-controllo').forEach(campo => {
+            document.querySelectorAll('.campo-controllo, .campo-controllo-genitore').forEach(campo => {
                 campo.value = "";
             });
             document.getElementById('editEtaDisplay').value = "";
+            document.getElementById('sezioneDatiGenitori').style.display = 'none';
             
             const checkTigre = document.getElementById('editTigre');
             const checkCapitano = document.getElementById('editCapitanoPiazza');
@@ -2301,7 +2374,15 @@
                 mail: document.getElementById('editMail').value.trim(),
                 tipo_documento: document.getElementById('editTipoDocumento').value,
                 numero_documento: document.getElementById('editNumeroDocumento').value.trim(),
-                scadenza_documento: document.getElementById('editScadenzaDocumento').value.trim()
+                scadenza_documento: document.getElementById('editScadenzaDocumento').value.trim(),
+                
+                // Dati Genitore
+                genitore_cognome: document.getElementById('editGenitoreCognome').value.trim().toUpperCase(),
+                genitore_nome: document.getElementById('editGenitoreNome').value.trim(),
+                genitore_data_nascita: document.getElementById('editGenitoreDataNascita').value.trim(),
+                genitore_tipo_documento: document.getElementById('editGenitoreTipoDocumento').value,
+                genitore_numero_documento: document.getElementById('editGenitoreNumeroDocumento').value.trim(),
+                genitore_scadenza_documento: document.getElementById('editGenitoreScadenzaDocumento').value.trim()
             };
 
             if (modalitaCorrente === 'admin') {
@@ -2339,6 +2420,20 @@
                 if (dataNascitaObj > oggi) {
                     alert("ERRORE: La data di nascita non può essere nel futuro!");
                     return false;
+                }
+
+                // Controllo obbligatorietà dati genitori per minori 14-17 anni
+                let eta = oggi.getFullYear() - dataNascitaObj.getFullYear();
+                const m = oggi.getMonth() - dataNascitaObj.getMonth();
+                if (m < 0 || (m === 0 && oggi.getDate() < dataNascitaObj.getDate())) {
+                    eta--;
+                }
+
+                if (eta >= 14 && eta < 18) {
+                    if (!dati.genitore_cognome || !dati.genitore_nome || !dati.genitore_tipo_documento || !dati.genitore_numero_documento) {
+                        alert("ERRORE: Per i minorenni di età compresa tra 14 e 17 anni, i dati anagrafici e del documento del genitore/tutore sono obbligatori!");
+                        return false;
+                    }
                 }
             }
 
