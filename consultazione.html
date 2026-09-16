@@ -1384,9 +1384,9 @@
                     const colDef = DEFINIZIONE_COLONNE.find(c => c.id === colId);
                     const titolo = colDef ? colDef.titolo : colId;
                     htmlThead += `
-                        <th onclick="ordinaTabellaFiltrata(${index}, ${JSON.stringify(colonneAttiveFinali)})">
-                            ${titolo} <span id="sort-${index}"></span>
-                        </th>
+                        <th onclick="ordinaTabellaFiltrata(${index})">
+							${titolo} <span id="sort-${index}"></span>
+						</th>
                     `;
                 });
                 htmlThead += "</tr>";
