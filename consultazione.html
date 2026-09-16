@@ -1871,6 +1871,9 @@
             messaggioGuida.style.display = 'block';
             messaggioGuida.textContent = "Ricerca in corso...";
             boxContatore.style.display = 'none';
+            
+            // Attiva l'animazione di caricamento
+            mostraCaricamento("Ricerca iscritti in corso...");
 
             try {
                 const querySnapshot = await getDocs(collection(db, "anagrafica"));
@@ -1921,6 +1924,9 @@
             } catch (error) {
                 console.error("Errore ricerca iscritti:", error);
                 messaggioGuida.textContent = "Errore durante il recupero dei dati: " + error.message;
+            } finally {
+                // Nasconde sempre lo spinner alla fine, sia se va a buon fine che in caso di errore
+                nascondiCaricamento();
             }
         }
 
