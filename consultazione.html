@@ -617,8 +617,15 @@
 
         popolaSelectAnniFiltro();
 
+        // Funzione per formattare il cognome con iniziale maiuscola e resto minuscolo (gestisce anche i cognomi composti)
+        function formattaCognome(valore) {
+            let str = pulisciTesto(valore);
+            if (!str) return '';
+            return str.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
+        }
+
         const DEFINIZIONE_COLONNE = [
-            { id: 'cognome', titolo: 'Cognome', default: true },
+            { id: 'cognome', titolo: 'Cognome', default: true, formatter: val => formattaCognome(val) },
             { id: 'nome', titolo: 'Nome', default: true },
             { id: 'luogo_nascita', titolo: 'Luogo Nascita', default: false },
             { id: 'data_nascita', titolo: 'Data di Nascita', default: true, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
@@ -911,7 +918,7 @@
 
                     if (passaCriterio) {
                         risultati.push({
-                            cognome: pulisciTesto(persona.cognome),
+                            cognome: formattaCognome(persona.cognome),
                             nome: pulisciTesto(persona.nome),
                             citta: pulisciTesto(persona.citta),
                             telefono: pulisciTesto(persona.telefono),
@@ -1063,7 +1070,7 @@
                         let giaIscritto = iscrittiAnnoAttualeSet.has(idPers);
                         risultati.push({
                             personaCompleta: { id: idPers, ...persona },
-                            cognome: pulisciTesto(persona.cognome),
+                            cognome: formattaCognome(persona.cognome),
                             nome: pulisciTesto(persona.nome),
                             citta: pulisciTesto(persona.citta),
                             telefono: pulisciTesto(persona.telefono),
@@ -1422,7 +1429,13 @@
                     colonneAttiveFinali.forEach(colId => {
                         const colDef = DEFINIZIONE_COLONNE.find(c => c.id === colId);
                         let valBrutto = persona[colId];
-                        let valFormattato = colDef && colDef.formatter ? colDef.formatter(valBrutto) : pulisciTesto(valBrutto);
+                        let valFormattato;
+                        
+                        if (colId === 'cognome') {
+                            valFormattato = formattaCognome(valBrutto);
+                        } else {
+                            valFormattato = colDef && colDef.formatter ? colDef.formatter(valBrutto) : pulisciTesto(valBrutto);
+                        }
                         
                         let rawDateVal = "";
                         if (colDef && colDef.isDate && valBrutto) {
@@ -1750,7 +1763,7 @@
                 risultati.forEach(persona => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td>${pulisciTesto(persona.cognome)}</td>
+                        <td>${formattaCognome(persona.cognome)}</td>
                         <td>${pulisciTesto(persona.nome)}</td>
                         <td>${pulisciTesto(formattaDataPerVisualizzazioneTabella(persona.data_nascita))}</td>
                         <td>${pulisciTesto(persona.citta)}</td>
@@ -2031,7 +2044,7 @@
                                 const anagSnap = await getDoc(anagRef);
                                 if (anagSnap.exists()) {
                                     const anagDati = anagSnap.data();
-                                    risultato.nomeTitolare = `${pulisciTesto(anagDati.cognome)} ${pulisciTesto(anagDati.nome)}`;
+                                    risultato.nomeTitolare = `${formattaCognome(anagDati.cognome)} ${pulisciTesto(anagDati.nome)}`;
                                 }
                             } catch (e) {
                                 console.error("Errore recupero anagrafica titolare:", e);
