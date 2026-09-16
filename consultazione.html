@@ -617,7 +617,6 @@
 
         popolaSelectAnniFiltro();
 
-        // Funzione per formattare il cognome con iniziale maiuscola e resto minuscolo (gestisce anche i cognomi composti)
         function formattaCognome(valore) {
             let str = pulisciTesto(valore);
             if (!str) return '';
@@ -1118,7 +1117,7 @@
                             : `-`;
 
                         tr.innerHTML = `
-                            <td><strong>${r.cognome}</strong></td>
+                            <td>${r.cognome}</td>
                             <td>${r.nome}</td>
                             <td>${r.citta}</td>
                             <td>${r.telefono}</td>
