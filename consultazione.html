@@ -104,7 +104,7 @@
         .box-contatore { font-size: 14px; color: #333; margin-bottom: 10px; font-weight: bold; }
         
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-        .modal-content { background-color: white; padding: 30px; border-radius: 8px; width: 900px; max-height: 90vh; overflow-y: auto; box-shadow: 0px 4px 15px rgba(0,0,0,0.2); position: relative; }
+        .modal-content { background-color: white; padding: 30px; border-radius: 8px; width: 850px; max-height: 90vh; overflow-y: auto; box-shadow: 0px 4px 15px rgba(0,0,0,0.2); position: relative; }
         .modal-content h3 { margin-top: 0; color: #007BFF; }
         .modal-content h4 { margin-top: 25px; color: #333; border-bottom: 2px solid #007BFF; padding-bottom: 5px; }
         
@@ -265,7 +265,6 @@
                             <tr>
                                 <th>Cognome</th>
                                 <th>Nome</th>
-                                <th>Codice Fiscale</th>
                                 <th>Data di Nascita</th>
                                 <th>Città</th>
                                 <th>Telefono</th>
@@ -406,16 +405,9 @@
 
             <div class="form-row">
                 <div class="form-group col-medium">
-                    <label>Codice Fiscale:</label>
-                    <input type="text" id="editCodiceFiscale" class="campo-controllo" maxlength="16" placeholder="es. RSSMRA80A01H501W" style="text-transform: uppercase;">
-                </div>
-                <div class="form-group col-medium">
                     <label>Luogo di Nascita:</label>
                     <input type="text" id="editLuogoNascita" class="campo-controllo" placeholder="es. Ivrea">
                 </div>
-            </div>
-
-            <div class="form-row">
                 <div class="form-group col-medium">
                     <div class="label-con-eta">
                         <label>Data di Nascita:</label>
@@ -425,9 +417,6 @@
                         <input type="date" id="editDataNascita" class="campo-controllo campo-verifica-runtime" style="flex: 2;">
                         <input type="text" id="editEtaDisplay" class="input-eta-display" style="flex: 1;" readonly placeholder="-">
                     </div>
-                </div>
-                <div class="form-group col-medium">
-                    <!-- Spazio vuoto o allineamento flessibile -->
                 </div>
             </div>
 
@@ -461,41 +450,62 @@
                 </div>
             </div>
 
-            <!-- SEZIONE DATI GENITORI (VISIBILE SOLO PER MINORENNI < 18 ANNI) - 2 GENITORI CON CODICE FISCALE -->
+            <div class="form-row">
+                <div class="form-group col-medium">
+                    <label>Tipo Documento:</label>
+                    <select id="editTipoDocumento" class="campo-controllo">
+                        <option value="">-- Seleziona Tipo Documento --</option>
+                        <option value="Passaporto">Passaporto</option>
+                        <option value="Patente">Patente</option>
+                        <option value="Carta di identità">Carta di identità</option>
+                    </select>
+                </div>
+                <div class="form-group col-medium">
+                    <label>Numero Documento:</label>
+                    <input type="text" id="editNumeroDocumento" class="campo-controllo">
+                </div>
+                <div class="form-group col-medium">
+                    <label>Scadenza Documento:</label>
+                    <input type="date" id="editScadenzaDocumento" class="campo-controllo">
+                </div>
+            </div>
+
+            <!-- SEZIONE DATI GENITORI (VISIBILE SOLO PER MINORENNI 14-17 ANNI) -->
             <div id="sezioneDatiGenitori" style="display: none; background: #fff3cd; padding: 12px; border-radius: 6px; border: 1px solid #ffeeba; margin-top: 10px; margin-bottom: 10px;">
-                <h4 style="margin-top: 0; margin-bottom: 10px; color: #856404; font-size: 14px; border-bottom: 1px solid #ffeeba; padding-bottom: 4px;">Dati Genitori / Tutori (Obbligatori per minorenni < 18 anni)</h4>
+                <h4 style="margin-top: 0; margin-bottom: 10px; color: #856404; font-size: 14px; border-bottom: 1px solid #ffeeba; padding-bottom: 4px;">Dati Genitore / Tutore (Obbligatori per minori da 14 a 17 anni)</h4>
                 
-                <!-- GENITORE 1 -->
-                <p style="font-size: 13px; font-weight: bold; color: #856404; margin: 5px 0;">Genitore 1</p>
                 <div class="form-row">
                     <div class="form-group col-medium">
-                        <label style="font-size: 12px;">Cognome Genitore 1:</label>
-                        <input type="text" id="editGenitore1Cognome" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
+                        <label style="font-size: 12px;">Cognome Genitore:</label>
+                        <input type="text" id="editGenitoreCognome" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
                     </div>
                     <div class="form-group col-medium">
-                        <label style="font-size: 12px;">Nome Genitore 1:</label>
-                        <input type="text" id="editGenitore1Nome" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
+                        <label style="font-size: 12px;">Nome Genitore:</label>
+                        <input type="text" id="editGenitoreNome" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
                     </div>
                     <div class="form-group col-medium">
-                        <label style="font-size: 12px;">Codice Fiscale Genitore 1:</label>
-                        <input type="text" id="editGenitore1CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 6px; font-size: 13px; text-transform: uppercase;">
+                        <label style="font-size: 12px;">Data Nascita:</label>
+                        <input type="date" id="editGenitoreDataNascita" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
                     </div>
                 </div>
 
-                <!-- GENITORE 2 -->
-                <p style="font-size: 13px; font-weight: bold; color: #856404; margin: 10px 0 5px 0;">Genitore 2</p>
                 <div class="form-row" style="margin-bottom: 0;">
                     <div class="form-group col-medium">
-                        <label style="font-size: 12px;">Cognome Genitore 2:</label>
-                        <input type="text" id="editGenitore2Cognome" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
+                        <label style="font-size: 12px;">Tipo Documento:</label>
+                        <select id="editGenitoreTipoDocumento" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px; margin: 4px 0 0 0;">
+                            <option value="">-- Seleziona --</option>
+                            <option value="Passaporto">Passaporto</option>
+                            <option value="Patente">Patente</option>
+                            <option value="Carta di identità">Carta di identità</option>
+                        </select>
                     </div>
                     <div class="form-group col-medium">
-                        <label style="font-size: 12px;">Nome Genitore 2:</label>
-                        <input type="text" id="editGenitore2Nome" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
+                        <label style="font-size: 12px;">N. Documento:</label>
+                        <input type="text" id="editGenitoreNumeroDocumento" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
                     </div>
                     <div class="form-group col-medium">
-                        <label style="font-size: 12px;">Codice Fiscale Genitore 2:</label>
-                        <input type="text" id="editGenitore2CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 6px; font-size: 13px; text-transform: uppercase;">
+                        <label style="font-size: 12px;">Scadenza Doc.:</label>
+                        <input type="date" id="editGenitoreScadenzaDocumento" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
                     </div>
                 </div>
             </div>
@@ -662,7 +672,6 @@
         const DEFINIZIONE_COLONNE = [
             { id: 'cognome', titolo: 'Cognome', default: true, formatter: val => formattaCognome(val) },
             { id: 'nome', titolo: 'Nome', default: true },
-            { id: 'codice_fiscale', titolo: 'Codice Fiscale', default: true, formatter: val => pulisciTesto(val).toUpperCase() },
             { id: 'luogo_nascita', titolo: 'Luogo Nascita', default: false },
             { id: 'data_nascita', titolo: 'Data di Nascita', default: true, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
             { id: 'indirizzo', titolo: 'Indirizzo', default: false },
@@ -671,12 +680,15 @@
             { id: 'provincia', titolo: 'Provincia', default: false },
             { id: 'telefono', titolo: 'Telefono', default: true },
             { id: 'mail', titolo: 'Mail', default: false },
-            { id: 'genitore1_cognome', titolo: 'Cognome Genitore 1', default: false, formatter: val => formattaCognome(val) },
-            { id: 'genitore1_nome', titolo: 'Nome Genitore 1', default: false },
-            { id: 'genitore1_codice_fiscale', titolo: 'CF Genitore 1', default: false, formatter: val => pulisciTesto(val).toUpperCase() },
-            { id: 'genitore2_cognome', titolo: 'Cognome Genitore 2', default: false, formatter: val => formattaCognome(val) },
-            { id: 'genitore2_nome', titolo: 'Nome Genitore 2', default: false },
-            { id: 'genitore2_codice_fiscale', titolo: 'CF Genitore 2', default: false, formatter: val => pulisciTesto(val).toUpperCase() },
+            { id: 'tipo_documento', titolo: 'Tipo Documento', default: false },
+            { id: 'numero_documento', titolo: 'N. Documento', default: false },
+            { id: 'scadenza_documento', titolo: 'Scadenza Documento', default: false, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
+            { id: 'genitore_cognome', titolo: 'Cognome Genitore', default: false, formatter: val => formattaCognome(val) },
+            { id: 'genitore_nome', titolo: 'Nome Genitore', default: false },
+            { id: 'genitore_data_nascita', titolo: 'Data Nascita Genitore', default: false, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
+            { id: 'genitore_tipo_documento', titolo: 'Tipo Doc. Genitore', default: false },
+            { id: 'genitore_numero_documento', titolo: 'N. Doc. Genitore', default: false },
+            { id: 'genitore_scadenza_documento', titolo: 'Scadenza Doc. Genitore', default: false, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
             { id: 'tigre', titolo: 'Tigre', default: false, formatter: val => val ? 'Si' : 'No' },
             { id: 'capitano_piazza', titolo: 'Capitano Piazza', default: false, formatter: val => val ? 'Si' : 'No' },
             { id: 'tipo_iscrizione', titolo: 'Tipo Iscrizione', default: true, richiedeAnnoSpecifico: true },
@@ -1471,7 +1483,7 @@
                         let valBrutto = persona[colId];
                         let valFormattato;
                         
-                        if (colId === 'cognome' || colId === 'genitore1_cognome' || colId === 'genitore2_cognome') {
+                        if (colId === 'cognome' || colId === 'genitore_cognome') {
                             valFormattato = formattaCognome(valBrutto);
                         } else {
                             valFormattato = colDef && colDef.formatter ? colDef.formatter(valBrutto) : pulisciTesto(valBrutto);
@@ -1624,9 +1636,8 @@
             }
             inputEta.value = eta >= 0 ? eta : "";
 
-            // Mostra la sezione genitori se l'età è minore di 18 anni (< 18)
             if (sezioneGenitori) {
-                if (eta >= 0 && eta < 18) {
+                if (eta >= 14 && eta < 18) {
                     sezioneGenitori.style.display = 'block';
                 } else {
                     sezioneGenitori.style.display = 'none';
@@ -1691,6 +1702,19 @@
             });
             elemento.addEventListener('change', eseguiVerificaRuntime);
         });
+
+        function decodificaTipoDocumento(valoreDb) {
+            if (valoreDb === null || valoreDb === undefined) return "";
+            let valStr = String(valoreDb).trim();
+            if (valStr === "1") return "Passaporto";
+            if (valStr === "2") return "Patente";
+            if (valStr === "3") return "Carta di identità";
+            let valLower = valStr.toLowerCase();
+            if (valLower.includes("passaporto")) return "Passaporto";
+            if (valLower.includes("patente")) return "Patente";
+            if (valLower.includes("carta") || valLower.includes("identità") || valLower.includes("identita")) return "Carta di identità";
+            return "";
+        }
 
         function formattaDataPerVisualizzazioneTabella(dataStr) {
             if (!dataStr) return '';
@@ -1805,7 +1829,6 @@
                     tr.innerHTML = `
                         <td>${formattaCognome(persona.cognome)}</td>
                         <td>${pulisciTesto(persona.nome)}</td>
-                        <td>${pulisciTesto(persona.codice_fiscale || persona.codiceFiscale).toUpperCase()}</td>
                         <td>${pulisciTesto(formattaDataPerVisualizzazioneTabella(persona.data_nascita))}</td>
                         <td>${pulisciTesto(persona.citta)}</td>
                         <td>${pulisciTesto(persona.telefono)}</td>
@@ -1831,7 +1854,6 @@
             document.getElementById('editIdPersona').value = persona.id;
             document.getElementById('editCognome').value = pulisciTesto(persona.cognome);
             document.getElementById('editNome').value = pulisciTesto(persona.nome);
-            document.getElementById('editCodiceFiscale').value = pulisciTesto(persona.codice_fiscale || persona.codiceFiscale).toUpperCase();
             document.getElementById('editLuogoNascita').value = pulisciTesto(persona.luogo_nascita || persona.luogoNascita);
             
             const dataNascitaFormatted = formattaDataPerInputDate(persona.data_nascita);
@@ -1845,15 +1867,18 @@
             document.getElementById('editTelefono').value = pulisciTesto(persona.telefono);
             document.getElementById('editMail').value = pulisciTesto(persona.mail || persona.email);
             
-            // Popolamento dati genitore 1
-            document.getElementById('editGenitore1Cognome').value = pulisciTesto(persona.genitore1_cognome || persona.genitore_cognome);
-            document.getElementById('editGenitore1Nome').value = pulisciTesto(persona.genitore1_nome || persona.genitore_nome);
-            document.getElementById('editGenitore1CodiceFiscale').value = pulisciTesto(persona.genitore1_codice_fiscale || persona.genitore_codice_fiscale).toUpperCase();
-
-            // Popolamento dati genitore 2
-            document.getElementById('editGenitore2Cognome').value = pulisciTesto(persona.genitore2_cognome);
-            document.getElementById('editGenitore2Nome').value = pulisciTesto(persona.genitore2_nome);
-            document.getElementById('editGenitore2CodiceFiscale').value = pulisciTesto(persona.genitore2_codice_fiscale).toUpperCase();
+            const tipoDocDb = persona.tipo_documento || persona.tipoDocumento;
+            document.getElementById('editTipoDocumento').value = decodificaTipoDocumento(tipoDocDb);
+            document.getElementById('editNumeroDocumento').value = pulisciTesto(persona.numero_documento || persona.numeroDocumento);
+            document.getElementById('editScadenzaDocumento').value = formattaDataPerInputDate(persona.scadenza_documento || persona.scadenzaDocumento);
+            
+            // Popolamento dati genitore
+            document.getElementById('editGenitoreCognome').value = pulisciTesto(persona.genitore_cognome);
+            document.getElementById('editGenitoreNome').value = pulisciTesto(persona.genitore_nome);
+            document.getElementById('editGenitoreDataNascita').value = formattaDataPerInputDate(persona.genitore_data_nascita);
+            document.getElementById('editGenitoreTipoDocumento').value = decodificaTipoDocumento(persona.genitore_tipo_documento);
+            document.getElementById('editGenitoreNumeroDocumento').value = pulisciTesto(persona.genitore_numero_documento);
+            document.getElementById('editGenitoreScadenzaDocumento').value = formattaDataPerInputDate(persona.genitore_scadenza_documento);
 
             const checkTigre = document.getElementById('editTigre');
             const checkCapitano = document.getElementById('editCapitanoPiazza');
@@ -2339,7 +2364,6 @@
             const dati = {
                 cognome: document.getElementById('editCognome').value.trim().toUpperCase(),
                 nome: document.getElementById('editNome').value.trim(),
-                codice_fiscale: document.getElementById('editCodiceFiscale').value.trim().toUpperCase(),
                 luogo_nascita: document.getElementById('editLuogoNascita').value.trim(),
                 data_nascita: document.getElementById('editDataNascita').value.trim(),
                 indirizzo: document.getElementById('editIndirizzo').value.trim(),
@@ -2348,16 +2372,17 @@
                 provincia: document.getElementById('editProvincia').value.trim().toUpperCase(),
                 telefono: document.getElementById('editTelefono').value.trim(),
                 mail: document.getElementById('editMail').value.trim(),
+                tipo_documento: document.getElementById('editTipoDocumento').value,
+                numero_documento: document.getElementById('editNumeroDocumento').value.trim(),
+                scadenza_documento: document.getElementById('editScadenzaDocumento').value.trim(),
                 
-                // Dati Genitore 1
-                genitore1_cognome: document.getElementById('editGenitore1Cognome').value.trim().toUpperCase(),
-                genitore1_nome: document.getElementById('editGenitore1Nome').value.trim(),
-                genitore1_codice_fiscale: document.getElementById('editGenitore1CodiceFiscale').value.trim().toUpperCase(),
-
-                // Dati Genitore 2
-                genitore2_cognome: document.getElementById('editGenitore2Cognome').value.trim().toUpperCase(),
-                genitore2_nome: document.getElementById('editGenitore2Nome').value.trim(),
-                genitore2_codice_fiscale: document.getElementById('editGenitore2CodiceFiscale').value.trim().toUpperCase()
+                // Dati Genitore
+                genitore_cognome: document.getElementById('editGenitoreCognome').value.trim().toUpperCase(),
+                genitore_nome: document.getElementById('editGenitoreNome').value.trim(),
+                genitore_data_nascita: document.getElementById('editGenitoreDataNascita').value.trim(),
+                genitore_tipo_documento: document.getElementById('editGenitoreTipoDocumento').value,
+                genitore_numero_documento: document.getElementById('editGenitoreNumeroDocumento').value.trim(),
+                genitore_scadenza_documento: document.getElementById('editGenitoreScadenzaDocumento').value.trim()
             };
 
             if (modalitaCorrente === 'admin') {
@@ -2389,11 +2414,6 @@
                 return false;
             }
 
-            if (dati.codice_fiscale && !/^[A-Z0-9]{16}$/.test(dati.codice_fiscale)) {
-                alert("ERRORE: Il Codice Fiscale dell'iscritto deve essere composto da esattamente 16 caratteri alfanumerici.");
-                return false;
-            }
-
             if (dati.data_nascita) {
                 const dataNascitaObj = new Date(dati.data_nascita);
                 const oggi = new Date();
@@ -2402,27 +2422,16 @@
                     return false;
                 }
 
-                // Controllo obbligatorietà dati genitori per minorenni (< 18 anni)
+                // Controllo obbligatorietà dati genitori per minori 14-17 anni
                 let eta = oggi.getFullYear() - dataNascitaObj.getFullYear();
                 const m = oggi.getMonth() - dataNascitaObj.getMonth();
                 if (m < 0 || (m === 0 && oggi.getDate() < dataNascitaObj.getDate())) {
                     eta--;
                 }
 
-                if (eta >= 0 && eta < 18) {
-                    if (!dati.genitore1_cognome || !dati.genitore1_nome || !dati.genitore1_codice_fiscale ||
-                        !dati.genitore2_cognome || !dati.genitore2_nome || !dati.genitore2_codice_fiscale) {
-                        alert("ERRORE: Per i minorenni (età < 18 anni), i dati anagrafici e i Codici Fiscali di entrambi i genitori/tutori sono obbligatori!");
-                        return false;
-                    }
-
-                    if (dati.genitore1_codice_fiscale && !/^[A-Z0-9]{16}$/.test(dati.genitore1_codice_fiscale)) {
-                        alert("ERRORE: Il Codice Fiscale del Genitore 1 deve essere composto da esattamente 16 caratteri.");
-                        return false;
-                    }
-
-                    if (dati.genitore2_codice_fiscale && !/^[A-Z0-9]{16}$/.test(dati.genitore2_codice_fiscale)) {
-                        alert("ERRORE: Il Codice Fiscale del Genitore 2 deve essere composto da esattamente 16 caratteri.");
+                if (eta >= 14 && eta < 18) {
+                    if (!dati.genitore_cognome || !dati.genitore_nome || !dati.genitore_tipo_documento || !dati.genitore_numero_documento) {
+                        alert("ERRORE: Per i minorenni di età compresa tra 14 e 17 anni, i dati anagrafici e del documento del genitore/tutore sono obbligatori!");
                         return false;
                     }
                 }
