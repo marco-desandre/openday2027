@@ -446,10 +446,10 @@
                 <button type="button" class="btn-chiudi-x" id="btnChiudiX" aria-label="Chiudi">&times;</button>
             </div>
 
-            <!-- INTESTAZIONE MODALE CON PULSANTE LETTURA CIE / CF -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-right: 120px;">
+            <!-- INTESTAZIONE MODALE CON PULSANTE LETTURA CIE / CF ISCRITTO -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-right: 120px; flex-wrap: wrap; gap: 10px;">
                 <h3 id="modalTitle" style="margin: 0;">Scheda Iscritto e Storico</h3>
-                <button type="button" class="btn-leggi-cie" onclick="leggiCieOCF()" style="background-color: #6f42c1; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 6px;">🪪 Leggi CIE / CF</button>
+                <button type="button" class="btn-leggi-cie" onclick="leggiCieOCF('iscritto')" style="background-color: #6f42c1; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 6px;">🪪 Leggi CIE / CF Iscritto</button>
             </div>
 
             <input type="hidden" id="editIdPersona">
@@ -527,7 +527,10 @@
                 <h4 style="margin-top: 0; margin-bottom: 10px; color: #856404; font-size: 14px; border-bottom: 1px solid #ffeeba; padding-bottom: 4px;">Dati Genitori / Tutori (Obbligatori per minori da 14 a 17 anni - Due genitori)</h4>
                 
                 <!-- GENITORE 1 -->
-                <div style="font-weight: bold; font-size: 13px; color: #856404; margin-bottom: 4px;">Genitore 1</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <div style="font-weight: bold; font-size: 13px; color: #856404;">Genitore 1</div>
+                    <button type="button" onclick="leggiCieOCF('genitore1')" style="background-color: #6f42c1; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold;">🪪 Leggi CIE / CF Genitore 1</button>
+                </div>
                 <div class="form-row">
                     <div class="form-group col-medium">
                         <label style="font-size: 12px;">Cognome:</label>
@@ -548,7 +551,10 @@
                 </div>
 
                 <!-- GENITORE 2 -->
-                <div style="font-weight: bold; font-size: 13px; color: #856404; margin: 10px 0 4px 0;">Genitore 2</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0 4px 0;">
+                    <div style="font-weight: bold; font-size: 13px; color: #856404;">Genitore 2</div>
+                    <button type="button" onclick="leggiCieOCF('genitore2')" style="background-color: #6f42c1; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold;">🪪 Leggi CIE / CF Genitore 2</button>
+                </div>
                 <div class="form-row" style="margin-bottom: 0;">
                     <div class="form-group col-medium">
                         <label style="font-size: 12px;">Cognome:</label>
@@ -965,14 +971,23 @@
             alert(`Anno carnevale attuale aggiornato con successo a ${annoCarnevaleCorrente}!`);
         };
 
-        // Funzione per la lettura di CIE o CF (Pulsante dedicato)
-        window.leggiCieOCF = function() {
-            // Qui puoi integrare la logica di lettura (es. Web NFC, scanner barcode/OCR o simulazione test)
-            const inputCf = prompt("Funzione Lettura CIE / CF:\nInserisci o scansiona il Codice Fiscale (o dati CIE):");
+        // Funzione per la lettura di CIE o CF (Iscritto o Genitori)
+        window.leggiCieOCF = function(target) {
+            let titoloTarget = "Iscritto";
+            let campoId = "editCodiceFiscale";
+            if (target === 'genitore1') {
+                titoloTarget = "Genitore 1";
+                campoId = "editGenitore1CodiceFiscale";
+            } else if (target === 'genitore2') {
+                titoloTarget = "Genitore 2";
+                campoId = "editGenitore2CodiceFiscale";
+            }
+
+            const inputCf = prompt(`Funzione Lettura CIE / CF (${titoloTarget}):\nInserisci o scansiona il Codice Fiscale:`);
             if (inputCf && inputCf.trim() !== "") {
                 const cfPulito = inputCf.trim().toUpperCase();
-                document.getElementById('editCodiceFiscale').value = cfPulito;
-                alert(`Codice Fiscale acquisito correttamente: ${cfPulito}`);
+                document.getElementById(campoId).value = cfPulito;
+                alert(`Codice Fiscale (${titoloTarget}) acquisito correttamente: ${cfPulito}`);
                 controllaCampiVuoti();
             }
         };
