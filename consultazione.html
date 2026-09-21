@@ -15,6 +15,48 @@
         .btn-google:hover { background-color: #3367D6; }
         .login-error { color: #dc3545; font-size: 13px; margin-top: 15px; font-weight: bold; min-height: 18px; }
 
+        /* OVERLAY DI CARICAMENTO GLOBALE */
+        #loadingOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(52, 58, 64, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .loader-box {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            text-align: center;
+            color: #333;
+            width: 300px;
+        }
+        .spinner-cerchio {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #007BFF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loader-text { font-size: 15px; font-weight: bold; color: #495057; margin-bottom: 5px; }
+        .loader-subtext { font-size: 12px; color: #6c757d; }
+
         /* SIDEBAR LATERALE SINISTRA */
         .sidebar { width: 260px; background-color: #343a40; color: white; display: flex; flex-direction: column; box-shadow: 2px 0 5px rgba(0,0,0,0.1); z-index: 100; overflow-y: auto; transition: all 0.3s; }
         .sidebar.nascosta { display: none; }
@@ -25,8 +67,7 @@
         .sidebar-item:hover { background-color: #495057; }
         .sidebar-item.attivo { background-color: #007BFF; font-weight: bold; }
         
-        /* GRUPPI COLLASSABILI */
-        .sidebar-group-title { padding: 12px 20px; font-size: 14px; text-transform: none; color: #ced4da; font-weight: bold; background-color: rgba(0,0,0,0.15); cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); user-select: none; }
+        .sidebar-group-title { padding: 12px 20px; font-size: 14px; color: #ced4da; font-weight: bold; background-color: rgba(0,0,0,0.15); cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); user-select: none; }
         .sidebar-group-title:hover { background-color: #495057; color: white; }
         .sidebar-group-content { display: none; background-color: rgba(0,0,0,0.1); }
         .sidebar-group-content.aperto { display: block; }
@@ -39,7 +80,6 @@
         .main-content { flex: 1; padding: 30px; overflow-y: auto; position: relative; }
         .container { max-width: 1250px; background: white; padding: 25px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); margin: auto; position: relative; }
         
-        /* INTESTAZIONE SUPERIORE (MODALITA E LOGOUT) */
         .top-bar-header { position: absolute; top: 20px; right: 25px; display: flex; align-items: center; gap: 12px; z-index: 10; }
         .box-modalita { display: flex; gap: 5px; background: #e9ecef; padding: 4px; border-radius: 6px; }
         .btn-modalita { border: none; background: transparent; padding: 6px 12px; font-size: 13px; font-weight: bold; cursor: pointer; border-radius: 4px; color: #555; transition: all 0.2s; }
@@ -60,7 +100,6 @@
         .btn-nuovo-utente { background-color: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; white-space: nowrap; height: 42px; }
         .btn-nuovo-utente:hover { background-color: #218838; }
 
-        /* PULSANTE E PANNELLO PERSONALIZZA COLONNE E EXPORT CSV */
         .box-personalizza-colonne { position: relative; display: inline-block; }
         .btn-toggle-colonne { background-color: #6c757d; color: white; border: none; padding: 10px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; height: 42px; transition: background 0.2s; box-sizing: border-box; }
         .btn-toggle-colonne:hover { background-color: #5a6268; }
@@ -90,21 +129,18 @@
         tr:hover { background-color: #f1f1f1; cursor: pointer; }
         tr:nth-child(even) { background-color: #fafafa; }
         
-        /* BARRA FILTRI RAPIDI INTEGRATA SOTTO L'INTESTAZIONE */
         .filtro-colonna-container { padding: 8px 10px; background: #ffffff; border-bottom: 2px solid #dee2e6; }
         .filtro-colonna { width: 100%; padding: 6px 8px; font-size: 12px; box-sizing: border-box; border: 1px solid #ced4da; border-radius: 4px; outline: none; background: #fff; color: #333; transition: border-color 0.2s; }
         .filtro-colonna:focus { border-color: #007BFF; box-shadow: 0 0 0 2px rgba(0,123,255,0.15); }
 
-        /* CONTENITORE FILTRO DATA DA/A */
         .filtro-data-wrapper { display: flex; gap: 4px; align-items: center; }
         .filtro-data-wrapper input[type="date"] { width: 100%; padding: 4px 6px; font-size: 11px; margin: 0; border: 1px solid #ced4da; border-radius: 3px; background: #fff; }
 
         #messaggioGuida { font-size: 14px; color: #666; text-align: center; margin: 20px 0; font-style: italic; }
-        
         .box-contatore { font-size: 14px; color: #333; margin-bottom: 10px; font-weight: bold; }
         
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-        .modal-content { background-color: white; padding: 30px; border-radius: 8px; width: 900px; max-height: 90vh; overflow-y: auto; box-shadow: 0px 4px 15px rgba(0,0,0,0.2); position: relative; }
+        .modal-content { background-color: white; padding: 30px; border-radius: 8px; width: 850px; max-height: 90vh; overflow-y: auto; box-shadow: 0px 4px 15px rgba(0,0,0,0.2); position: relative; }
         .modal-content h3 { margin-top: 0; color: #007BFF; }
         .modal-content h4 { margin-top: 25px; color: #333; border-bottom: 2px solid #007BFF; padding-bottom: 5px; }
         
@@ -182,6 +218,15 @@
         </div>
     </div>
 
+    <!-- OVERLAY DI CARICAMENTO -->
+    <div id="loadingOverlay">
+        <div class="loader-box">
+            <div class="spinner-cerchio"></div>
+            <div id="loaderText" class="loader-text">Elaborazione in corso...</div>
+            <div class="loader-subtext">Attendere prego</div>
+        </div>
+    </div>
+
     <!-- MENU LATERALE SINISTRO -->
     <nav id="sidebarMenu" class="sidebar">
         <div class="sidebar-header">Tuchini del Borghetto</div>
@@ -234,7 +279,6 @@
                 </div>
             </div>
 
-            <!-- SEZIONE 0: VISUALIZZAZIONE STANDARD -->
             <div id="sezione_visualizzazione_standard" class="sezione-app attiva">
                 <h2>Elenco Iscritti</h2>
                 <p style="color: #666; font-size: 14px;">Digita almeno 2 lettere del cognome per cercare nel database.</p>
@@ -261,7 +305,6 @@
                             <tr>
                                 <th>Cognome</th>
                                 <th>Nome</th>
-                                <th>Codice Fiscale</th>
                                 <th>Data di Nascita</th>
                                 <th>Città</th>
                                 <th>Telefono</th>
@@ -273,7 +316,6 @@
                 </div>
             </div>
 
-            <!-- SEZIONE 1: RICERCA FILTRATA -->
             <div id="sezione_ricerca" class="sezione-app">
                 <h2>Elenco Completo - Ricerca Filtrata e Ordinabile</h2>
                 <p style="color: #666; font-size: 14px;">Seleziona un anno o "Tutti gli anni" per visualizzare i dati. Personalizza le colonne, esporta in CSV e ordina cliccando sulle intestazioni.</p>
@@ -318,7 +360,6 @@
                 </div>
             </div>
 
-            <!-- SEZIONE CONFIGURAZIONE -->
             <div id="sezione_configurazione" class="sezione-app">
                 <h2>Configurazione Sistema</h2>
                 <p style="color: #666; font-size: 14px; margin-bottom: 25px;">Gestisci i parametri generali e gli accessi al gestionale.</p>
@@ -354,12 +395,11 @@
                 </div>
             </div>
 
-            <!-- SEZIONI DINAMICHE ONORIFICENZE E PREVENTIVI -->
             <div id="sezione_onorificenze_10" class="sezione-app"><h2>10 Anni di tiro</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
             <div id="sezione_onorificenze_20" class="sezione-app"><h2>20 Anni di tiro</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
             <div id="sezione_onorificenze_30" class="sezione-app"><h2>30 Anni di tiro</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
             <div id="sezione_onorificenze_40" class="sezione-app"><h2>40 Anni di tiro</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
-            <div id="sezione_onorificenze_50" class="sezione-app"><h2>50 Anni di tiro</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_onorificenze_50" class="sezione-app"><h2>50 Anni di tiro</h2><div class="placeholder-sezione">Seleziona la voce nel menu pour calcolare i dati...</div></div>
             <div id="sezione_onorificenze_capitani" class="sezione-app"><h2>Capitani di Piazza</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
             <div id="sezione_onorificenze_tigre" class="sezione-app"><h2>Tigre</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
 
@@ -378,6 +418,7 @@
             <div class="header-modale-actions">
                 <button type="button" id="btnEliminaAnagrafica" class="btn-elimina-anagrafica" style="display: none;">Elimina Anagrafica</button>
                 <button type="button" class="btn-chiudi-x" id="btnChiudiX" aria-label="Chiudi">&times;</button>
+                <button type="button" id="btnLeggiCieCf" class="btn-azione btn-info-storico" style="padding: 8px 12px; font-weight: bold;" onclick="leggiCieCfIscritto()">🪪 Leggi CIE / CF Iscritto</button>
             </div>
 
             <h3 id="modalTitle">Scheda Iscritto e Storico</h3>
@@ -397,20 +438,10 @@
             </div>
 
             <div class="form-row">
-                <div class="form-group col-medium">
+                <div class="form-group col-large">
                     <label>Codice Fiscale:</label>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" id="editCodiceFiscale" class="campo-controllo" maxlength="16" placeholder="es. RSSMRA80A01H501W" style="text-transform: uppercase; margin: 4px 0 10px 0;">
-                        <button type="button" onclick="calcolaCodiceFiscaleDaCampi()" style="background: #007BFF; color: white; border: none; padding: 0 14px; border-radius: 4px; cursor: pointer; font-weight: bold; height: 42px; margin-top: 4px; white-space: nowrap;">Calcola CF</button>
-                    </div>
+                    <input type="text" id="editCodiceFiscale" class="campo-controllo" maxlength="16" placeholder="es. RSSMRA80A01H501W" style="text-transform: uppercase;" oninput="onCodiceFiscaleInput(this.value)">
                 </div>
-                <div class="form-group col-medium">
-                    <label>Luogo di Nascita:</label>
-                    <input type="text" id="editLuogoNascita" class="campo-controllo" placeholder="es. Torino">
-                </div>
-            </div>
-
-            <div class="form-row">
                 <div class="form-group col-medium">
                     <div class="label-con-eta">
                         <label>Data di Nascita:</label>
@@ -421,7 +452,16 @@
                         <input type="text" id="editEtaDisplay" class="input-eta-display" style="flex: 1;" readonly placeholder="-">
                     </div>
                 </div>
-                <div class="form-group col-medium"></div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-medium">
+                    <label>Luogo di Nascita:</label>
+                    <input type="text" id="editLuogoNascita" class="campo-controllo" placeholder="es. Torino">
+                </div>
+                <div class="form-group col-medium" style="display: flex; align-items: flex-end;">
+                    <button type="button" class="btn-azione" style="background-color: #007BFF; width: 100%; padding: 10px; font-size: 14px; font-weight: bold;" onclick="calcolaCodiceFiscaleManuale()">Calcola CF</button>
+                </div>
             </div>
 
             <div class="form-row">
@@ -454,39 +494,116 @@
                 </div>
             </div>
 
-            <!-- SEZIONE DATI GENITORI (< 18 ANNI) -->
+            <div class="form-row">
+                <div class="form-group col-small">
+                    <label>Tipo Doc:</label>
+                    <select id="editTipoDocumento" class="campo-controllo" style="padding: 8px; font-size: 13px;">
+                        <option value="">-- Seleziona --</option>
+                        <option value="Passaporto">Passaporto</option>
+                        <option value="Patente">Patente</option>
+                        <option value="Carta di identità">Carta di identità</option>
+                    </select>
+                </div>
+                <div class="form-group col-medium">
+                    <label>N. Documento:</label>
+                    <input type="text" id="editNumeroDocumento" class="campo-controllo" style="padding: 8px; font-size: 13px;">
+                </div>
+                <div class="form-group col-medium">
+                    <label>Scadenza:</label>
+                    <input type="date" id="editScadenzaDocumento" class="campo-controllo" style="padding: 8px; font-size: 13px;">
+                </div>
+                <div class="form-group col-small" style="display: flex; align-items: flex-end;">
+                    <button type="button" class="btn-azione" style="background-color: #17a2b8; width: 100%; padding: 8px; font-size: 13px; font-weight: bold; margin-bottom: 10px;" onclick="leggiCieCfIscritto()">Leggi</button>
+                </div>
+            </div>
+
+            <!-- SEZIONE DATI GENITORI (VISIBILE SOLO PER MINORENNI 14-17 ANNI) -->
             <div id="sezioneDatiGenitori" style="display: none; background: #fff3cd; padding: 12px; border-radius: 6px; border: 1px solid #ffeeba; margin-top: 10px; margin-bottom: 10px;">
-                <h4 style="margin-top: 0; margin-bottom: 10px; color: #856404; font-size: 14px; border-bottom: 1px solid #ffeeba; padding-bottom: 4px;">Dati Genitori / Tutori (Obbligatori per minorenni < 18 anni)</h4>
+                <h4 style="margin-top: 0; margin-bottom: 10px; color: #856404; font-size: 14px; border-bottom: 1px solid #ffeeba; padding-bottom: 4px;">Dati Genitori / Tutori (Obbligatori per minori da 14 a 17 anni)</h4>
                 
+                <!-- Genitore 1 -->
                 <p style="font-size: 13px; font-weight: bold; color: #856404; margin: 5px 0;">Genitore 1</p>
                 <div class="form-row">
                     <div class="form-group col-medium">
-                        <label style="font-size: 12px;">Cognome Genitore 1:</label>
-                        <input type="text" id="editGenitore1Cognome" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
+                        <label style="font-size: 11px;">Cognome:</label>
+                        <input type="text" id="editGenitore1Cognome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;">
                     </div>
                     <div class="form-group col-medium">
-                        <label style="font-size: 12px;">Nome Genitore 1:</label>
-                        <input type="text" id="editGenitore1Nome" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
+                        <label style="font-size: 11px;">Nome:</label>
+                        <input type="text" id="editGenitore1Nome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;">
                     </div>
                     <div class="form-group col-medium">
-                        <label style="font-size: 12px;">Codice Fiscale Genitore 1:</label>
-                        <input type="text" id="editGenitore1CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 6px; font-size: 13px; text-transform: uppercase;">
+                        <label style="font-size: 11px;">Codice Fiscale:</label>
+                        <input type="text" id="editGenitore1CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 5px; font-size: 12px; text-transform: uppercase;">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-medium">
+                        <label style="font-size: 11px;">Data Nascita:</label>
+                        <input type="date" id="editGenitore1DataNascita" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;">
+                    </div>
+                    <div class="form-group col-small">
+                        <label style="font-size: 11px;">Tipo Doc:</label>
+                        <select id="editGenitore1TipoDocumento" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
+                            <option value="">-- Seleziona --</option>
+                            <option value="Passaporto">Passaporto</option>
+                            <option value="Patente">Patente</option>
+                            <option value="Carta di identità">Carta di identità</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-medium">
+                        <label style="font-size: 11px;">N. Doc:</label>
+                        <input type="text" id="editGenitore1NumeroDocumento" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;">
+                    </div>
+                    <div class="form-group col-medium">
+                        <label style="font-size: 11px;">Scadenza:</label>
+                        <input type="date" id="editGenitore1ScadenzaDocumento" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;">
+                    </div>
+                    <div class="form-group col-small" style="display: flex; align-items: flex-end;">
+                        <button type="button" class="btn-azione" style="background-color: #17a2b8; width: 100%; padding: 6px; font-size: 11px; font-weight: bold; margin-bottom: 10px;" onclick="leggiCieCfGenitore(1)">Leggi</button>
                     </div>
                 </div>
 
+                <!-- Genitore 2 -->
                 <p style="font-size: 13px; font-weight: bold; color: #856404; margin: 10px 0 5px 0;">Genitore 2</p>
+                <div class="form-row">
+                    <div class="form-group col-medium">
+                        <label style="font-size: 11px;">Cognome:</label>
+                        <input type="text" id="editGenitore2Cognome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;">
+                    </div>
+                    <div class="form-group col-medium">
+                        <label style="font-size: 11px;">Nome:</label>
+                        <input type="text" id="editGenitore2Nome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;">
+                    </div>
+                    <div class="form-group col-medium">
+                        <label style="font-size: 11px;">Codice Fiscale:</label>
+                        <input type="text" id="editGenitore2CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 5px; font-size: 12px; text-transform: uppercase;">
+                    </div>
+                </div>
                 <div class="form-row" style="margin-bottom: 0;">
                     <div class="form-group col-medium">
-                        <label style="font-size: 12px;">Cognome Genitore 2:</label>
-                        <input type="text" id="editGenitore2Cognome" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
+                        <label style="font-size: 11px;">Data Nascita:</label>
+                        <input type="date" id="editGenitore2DataNascita" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;">
+                    </div>
+                    <div class="form-group col-small">
+                        <label style="font-size: 11px;">Tipo Doc:</label>
+                        <select id="editGenitore2TipoDocumento" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
+                            <option value="">-- Seleziona --</option>
+                            <option value="Passaporto">Passaporto</option>
+                            <option value="Patente">Patente</option>
+                            <option value="Carta di identità">Carta di identità</option>
+                        </select>
                     </div>
                     <div class="form-group col-medium">
-                        <label style="font-size: 12px;">Nome Genitore 2:</label>
-                        <input type="text" id="editGenitore2Nome" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
+                        <label style="font-size: 11px;">N. Doc:</label>
+                        <input type="text" id="editGenitore2NumeroDocumento" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;">
                     </div>
                     <div class="form-group col-medium">
-                        <label style="font-size: 12px;">Codice Fiscale Genitore 2:</label>
-                        <input type="text" id="editGenitore2CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 6px; font-size: 13px; text-transform: uppercase;">
+                        <label style="font-size: 11px;">Scadenza:</label>
+                        <input type="date" id="editGenitore2ScadenzaDocumento" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;">
+                    </div>
+                    <div class="form-group col-small" style="display: flex; align-items: flex-end;">
+                        <button type="button" class="btn-azione" style="background-color: #17a2b8; width: 100%; padding: 6px; font-size: 11px; font-weight: bold; margin-bottom: 10px;" onclick="leggiCieCfGenitore(2)">Leggi</button>
                     </div>
                 </div>
             </div>
@@ -617,88 +734,13 @@
 
         document.getElementById('inputAnnoCarnevale').value = annoCarnevaleCorrente;
 
-        // Funzione per il calcolo del Codice Fiscale
-        window.calcolaCodiceFiscaleDaCampi = function() {
-            const cognome = document.getElementById('editCognome').value.trim().toUpperCase();
-            const nome = document.getElementById('editNome').value.trim().toUpperCase();
-            const luogo = document.getElementById('editLuogoNascita').value.trim().toUpperCase();
-            const dataNascita = document.getElementById('editDataNascita').value.trim();
+        window.mostraCaricamento = function(messaggio = "Elaborazione in corso...") {
+            document.getElementById('loaderText').textContent = messaggio;
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        };
 
-            if (!cognome || !nome || !luogo || !dataNascita) {
-                alert("Compila Cognome, Nome, Luogo e Data di Nascita prima di calcolare il Codice Fiscale.");
-                return;
-            }
-
-            // Estrazione parti codice cognome
-            function estraiConsonantiVocali(str) {
-                const pulita = str.replace(/[^A-Z]/g, '');
-                const consonanti = pulita.replace(/[AEIOU]/g, '');
-                const vocali = pulita.replace(/[^AEIOU]/g, '');
-                return { consonanti, vocali };
-            }
-
-            const cogCv = estraiConsonantiVocali(cognome);
-            let partCognome = (cogCv.consonanti + cogCv.vocali + 'XXX').substring(0, 3);
-
-            // Estrazione parti codice nome
-            const nomCv = estraiConsonantiVocali(nome);
-            let partNome = '';
-            if (nomCv.consonanti.length >= 4) {
-                partNome = nomCv.consonanti[0] + nomCv.consonanti[2] + nomCv.consonanti[3];
-            } else {
-                partNome = (nomCv.consonanti + nomCv.vocali + 'XXX').substring(0, 3);
-            }
-
-            // Data di nascita e sesso (default M)
-            const partiData = dataNascita.split('-');
-            if (partiData.length !== 3) {
-                alert("Data di nascita non valida.");
-                return;
-            }
-            const anno = partiData[0].substring(2, 4);
-            const mesiCodice = { '01': 'A', '02': 'B', '03': 'C', '04': 'D', '05': 'E', '06': 'H', '07': 'L', '08': 'M', '09': 'P', '10': 'R', '11': 'S', '12': 'T' };
-            const mese = mesiCodice[partiData[1]] || 'A';
-            
-            let giorno = parseInt(partiData[2], 10);
-            // Selezioniamo sesso maschile di default (giorno invariato, se femminile +40)
-            let giornoStr = String(giorno).padStart(2, '0');
-
-            // Codice catastale comune (Belfiore) - Dizionario di base con Torino e principali comuni
-            const codiciComuni = {
-                "TORINO": "L219",
-                "ROMA": "H501",
-                "MILANO": "F205",
-                "NAPOLI": "F839",
-                "IVREA": "E379",
-                "CHIVASSO": "C652",
-                "CIRIE": "C722",
-                "VIGLIANO": "L872"
-            };
-
-            let codiceCatastale = codiciComuni[luogo] || "H501"; // Default Roma o fallback
-
-            let cfParziale = partCognome + partNome + anno + mese + giornoStr + codiceCatastale;
-
-            // Tabella caratteri controllo finale pari/dispari
-            const valoriPari = { '0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, 'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7, 'I': 8, 'J': 9, 'K': 10, 'L': 11, 'M': 12, 'N': 13, 'O': 14, 'P': 15, 'Q': 16, 'R': 17, 'S': 18, 'T': 19, 'U': 20, 'V': 21, 'W': 22, 'X': 23, 'Y': 24, 'Z': 25 };
-            const valoriDispari = { '0': 1, '1': 0, '2': 5, '3': 7, '4': 9, '5': 13, '6': 15, '7': 17, '8': 19, '9': 21, 'A': 1, 'B': 0, 'C': 5, 'D': 7, 'E': 9, 'F': 13, 'G': 15, 'H': 17, 'I': 19, 'J': 21, 'K': 2, 'L': 4, 'M': 18, 'N': 20, 'O': 11, 'P': 3, 'Q': 6, 'R': 8, 'S': 12, 'T': 14, 'U': 16, 'V': 10, 'W': 22, 'X': 25, 'Y': 24, 'Z': 23 };
-            const restoCaratteri = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-            let somma = 0;
-            for (let i = 0; i < 15; i++) {
-                let c = cfParziale[i];
-                if (i % 2 === 0) {
-                    somma += valoriDispari[c] || 0;
-                } else {
-                    somma += valoriPari[c] || 0;
-                }
-            }
-
-            let carattereControllo = restoCaratteri[somma % 26];
-            let codiceFiscaleFinale = cfParziale + carattereControllo;
-
-            document.getElementById('editCodiceFiscale').value = codiceFiscaleFinale;
-            alert("Codice Fiscale calcolato con successo: " + codiceFiscaleFinale);
+        window.nascondiCaricamento = function() {
+            document.getElementById('loadingOverlay').style.display = 'none';
         };
 
         function popolaSelectAnniFiltro() {
@@ -734,7 +776,7 @@
         const DEFINIZIONE_COLONNE = [
             { id: 'cognome', titolo: 'Cognome', default: true, formatter: val => formattaCognome(val) },
             { id: 'nome', titolo: 'Nome', default: true },
-            { id: 'codice_fiscale', titolo: 'Codice Fiscale', default: true, formatter: val => pulisciTesto(val).toUpperCase() },
+            { id: 'codice_fiscale', titolo: 'Codice Fiscale', default: false, formatter: val => pulisciTesto(val).toUpperCase() },
             { id: 'luogo_nascita', titolo: 'Luogo Nascita', default: false },
             { id: 'data_nascita', titolo: 'Data di Nascita', default: true, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
             { id: 'indirizzo', titolo: 'Indirizzo', default: false },
@@ -743,12 +785,23 @@
             { id: 'provincia', titolo: 'Provincia', default: false },
             { id: 'telefono', titolo: 'Telefono', default: true },
             { id: 'mail', titolo: 'Mail', default: false },
+            { id: 'tipo_documento', titolo: 'Tipo Documento', default: false },
+            { id: 'numero_documento', titolo: 'N. Documento', default: false },
+            { id: 'scadenza_documento', titolo: 'Scadenza Documento', default: false, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
             { id: 'genitore1_cognome', titolo: 'Cognome Genitore 1', default: false, formatter: val => formattaCognome(val) },
             { id: 'genitore1_nome', titolo: 'Nome Genitore 1', default: false },
             { id: 'genitore1_codice_fiscale', titolo: 'CF Genitore 1', default: false, formatter: val => pulisciTesto(val).toUpperCase() },
+            { id: 'genitore1_data_nascita', titolo: 'Data Nascita Genitore 1', default: false, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
+            { id: 'genitore1_tipo_documento', titolo: 'Tipo Doc. Genitore 1', default: false },
+            { id: 'genitore1_numero_documento', titolo: 'N. Doc. Genitore 1', default: false },
+            { id: 'genitore1_scadenza_documento', titolo: 'Scadenza Doc. Genitore 1', default: false, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
             { id: 'genitore2_cognome', titolo: 'Cognome Genitore 2', default: false, formatter: val => formattaCognome(val) },
             { id: 'genitore2_nome', titolo: 'Nome Genitore 2', default: false },
             { id: 'genitore2_codice_fiscale', titolo: 'CF Genitore 2', default: false, formatter: val => pulisciTesto(val).toUpperCase() },
+            { id: 'genitore2_data_nascita', titolo: 'Data Nascita Genitore 2', default: false, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
+            { id: 'genitore2_tipo_documento', titolo: 'Tipo Doc. Genitore 2', default: false },
+            { id: 'genitore2_numero_documento', titolo: 'N. Doc. Genitore 2', default: false },
+            { id: 'genitore2_scadenza_documento', titolo: 'Scadenza Doc. Genitore 2', default: false, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
             { id: 'tigre', titolo: 'Tigre', default: false, formatter: val => val ? 'Si' : 'No' },
             { id: 'capitano_piazza', titolo: 'Capitano Piazza', default: false, formatter: val => val ? 'Si' : 'No' },
             { id: 'tipo_iscrizione', titolo: 'Tipo Iscrizione', default: true, richiedeAnnoSpecifico: true },
@@ -798,32 +851,47 @@
         window.esportaTabellaCSV = function() {
             const tbody = document.getElementById('corpoTabellaFiltrata');
             const righe = Array.from(tbody.getElementsByTagName('tr'));
-            const theadTr = document.querySelector('#intestazioneTabellaFiltrata tr:nth-child(1)');
-            if (!theadTr) return alert("Nessun dato da esportare.");
             
+            const theadTr = document.querySelector('#intestazioneTabellaFiltrata tr:nth-child(1)');
+            if (!theadTr) {
+                alert("Nessun dato da esportare.");
+                return;
+            }
+            
+            const ths = theadTr.getElementsByTagName('th');
             let intestazioni = [];
-            for (let th of theadTr.getElementsByTagName('th')) {
-                intestazioni.push('"' + th.textContent.replace(/[▲▼]/g, "").trim().replace(/"/g, '""') + '"');
+            for (let th of ths) {
+                let testoTh = th.textContent.replace(/[▲▼]/g, "").trim();
+                intestazioni.push('"' + testoTh.replace(/"/g, '""') + '"');
             }
             
             let csvRows = [intestazioni.join(";")];
+            
             righe.forEach(riga => {
                 if (riga.style.display !== "none") {
+                    let celle = riga.getElementsByTagName('td');
                     let rigaDati = [];
-                    for (let cella of riga.getElementsByTagName('td')) {
-                        rigaDati.push('"' + cella.textContent.trim().replace(/"/g, '""') + '"');
+                    for (let cella of celle) {
+                        let testoCella = cella.textContent.trim();
+                        rigaDati.push('"' + testoCella.replace(/"/g, '""') + '"');
                     }
                     csvRows.push(rigaDati.join(";"));
                 }
             });
             
-            if (csvRows.length <= 1) return alert("Non ci sono righe visibili da esportare.");
+            if (csvRows.length <= 1) {
+                alert("Non ci sono righe visibili da esportare con i filtri attuali.");
+                return;
+            }
             
-            const blob = new Blob(["\ufeff" + csvRows.join("\n")], { type: 'text/csv;charset=utf-8;' });
+            const csvString = csvRows.join("\n");
+            const blob = new Blob(["\ufeff" + csvString], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
+            
+            const annoSelezionato = document.getElementById('selezionaAnnoFiltro').value || "tutti";
             link.setAttribute("href", url);
-            link.setAttribute("download", `iscritti_carnevale.csv`);
+            link.setAttribute("download", `iscritti_carnevale_${annoSelezionato}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -850,20 +918,27 @@
         };
 
         window.eseguiLogout = async function() {
-            await signOut(auth);
-            document.getElementById('loginOverlay').style.display = 'flex';
+            try {
+                await signOut(auth);
+                document.getElementById('loginOverlay').style.display = 'flex';
+            } catch (error) {
+                console.error("Errore logout:", error);
+            }
         };
 
         async function verificaAutorizzazioneUtente(user) {
             const errBox = document.getElementById('loginError');
             const emailUser = user.email.trim().toLowerCase();
+
             try {
                 const querySnapshot = await getDocs(query(collection(db, "utenti"), where("email", "==", emailUser)));
+
                 if (querySnapshot.empty) {
                     await signOut(auth);
                     errBox.textContent = `Accesso negato: L'indirizzo ${emailUser} non è registrato.`;
                     return;
                 }
+
                 let utenteDoc = null;
                 querySnapshot.forEach(docSnap => { utenteDoc = docSnap.data(); });
 
@@ -878,10 +953,17 @@
 
                 document.getElementById('loginOverlay').style.display = 'none';
                 document.getElementById('userEmailDisplayHeader').textContent = aliasUtenteLoggato;
-                document.getElementById('boxModalita').style.display = (ruoloUtenteLoggato === 'admin') ? 'flex' : 'none';
-                cambiaModalita(ruoloUtenteLoggato === 'admin' ? 'admin' : 'user');
+
+                const boxModalita = document.getElementById('boxModalita');
+                if (ruoloUtenteLoggato === 'admin') {
+                    boxModalita.style.display = 'flex';
+                    cambiaModalita('admin');
+                } else {
+                    boxModalita.style.display = 'none';
+                    cambiaModalita('user');
+                }
             } catch (error) {
-                errBox.textContent = "Errore durante la verifica dei permessi.";
+                errBox.textContent = "Errore verifica permessi.";
                 await signOut(auth);
             }
         }
@@ -894,56 +976,222 @@
         window.toggleMenuGruppo = function(idGruppo, elemento) {
             const contenuto = document.getElementById(idGruppo);
             const freccia = elemento.querySelector('span:last-child');
-            contenuto.classList.toggle('aperto');
-            freccia.textContent = contenuto.classList.contains('aperto') ? "▲" : "▼";
+            if (contenuto.classList.contains('aperto')) {
+                contenuto.classList.remove('aperto');
+                freccia.textContent = "▼";
+            } else {
+                contenuto.classList.add('aperto');
+                freccia.textContent = "▲";
+            }
         };
 
         window.salvaAnnoCarnevale = function() {
             const valInput = document.getElementById('inputAnnoCarnevale').value.trim();
-            if (!valInput || isNaN(valInput)) return alert("Inserisci un anno valido.");
+            if (!valInput || isNaN(valInput)) { alert("Inserisci un anno valido."); return; }
             annoCarnevaleCorrente = valInput;
             localStorage.setItem('anno_carnevale_corrente', annoCarnevaleCorrente);
             popolaSelectAnniFiltro();
-            alert(`Anno carnevale attuale aggiornato a ${annoCarnevaleCorrente}!`);
+            alert(`Anno carnevale aggiornato a ${annoCarnevaleCorrente}!`);
         };
 
-        // Funzioni onorificenze e preventivi di supporto
+        // Tabella Comuni / Codici Catastali principali (Belfiore)
+        const dizionarioComuniCatastali = {
+            "L219": "Torino",
+            "H501": "Roma",
+            "F205": "Milano",
+            "F839": "Napoli",
+            "E379": "Ivrea",
+            "C652": "Chivasso",
+            "C722": "Ciriè",
+            "L872": "Vigliano",
+            "D969": "Genova",
+            "F352": "Modena"
+        };
+
+        const dizionarioNomiComuni = {
+            "TORINO": "L219",
+            "ROMA": "H501",
+            "MILANO": "F205",
+            "NAPOLI": "F839",
+            "IVREA": "E379",
+            "CHIVASSO": "C652",
+            "CIRIE'": "C722",
+            "CIRIE": "C722",
+            "VIGLIANO": "L872"
+        };
+
+        // Funzione per decodificare il Codice Fiscale (Caso 1: ho il CF)
+        function decodificaDatiDaCodiceFiscale(cf) {
+            if (!cf || cf.length !== 16) return;
+            cf = cf.toUpperCase();
+
+            // 1. Estrazione Data di Nascita
+            const annoCar = cf.substring(6, 8);
+            const meseCar = cf.substring(8, 9);
+            let giornoCar = parseInt(cf.substring(9, 11), 10);
+            
+            let annoNum = parseInt(annoCar, 10);
+            const annoCorrente2CIF = new Date().getFullYear() % 100;
+            let secolo = annoNum <= annoCorrente2CIF ? 2000 : 1900;
+            let annoNascita = secolo + annoNum;
+
+            const mesiCodice = { 'A': '01', 'B': '02', 'C': '03', 'D': '04', 'E': '05', 'H': '06', 'L': '07', 'M': '08', 'P': '09', 'R': '10', 'S': '11', 'T': '12' };
+            let meseNum = mesiCodice[meseCar] || '01';
+
+            if (giornoCar > 40) {
+                giornoCar -= 40; // Femminile
+            }
+            let giornoStr = String(giornoCar).padStart(2, '0');
+
+            const dataNascitaIso = `${annoNascita}-${meseNum}-${giornoStr}`;
+            document.getElementById('editDataNascita').value = dataNascitaIso;
+            calcolaEImpostaEta(dataNascitaIso);
+
+            // 2. Estrazione Luogo di Nascita dal codice catastale (caratteri 12-15)
+            const codCatastale = cf.substring(11, 15);
+            if (dizionarioComuniCatastali[codCatastale]) {
+                document.getElementById('editLuogoNascita').value = dizionarioComuniCatastali[codCatastale];
+            }
+        }
+
+        window.onCodiceFiscaleInput = function(valore) {
+            let cf = valore.trim().toUpperCase();
+            if (cf.length === 16) {
+                decodificaDatiDaCodiceFiscale(cf);
+            }
+        };
+
+        // Funzione per calcolare il CF (Caso 2: non ho il CF, lo calcolo dai campi)
+        window.calcolaCodiceFiscaleManuale = function() {
+            const cognome = document.getElementById('editCognome').value.trim().toUpperCase();
+            const nome = document.getElementById('editNome').value.trim().toUpperCase();
+            const luogo = document.getElementById('editLuogoNascita').value.trim().toUpperCase();
+            const dataNascita = document.getElementById('editDataNascita').value.trim();
+
+            if (!cognome || !nome || !luogo || !dataNascita) {
+                alert("Compila Cognome, Nome, Luogo e Data di Nascita prima di calcolare il Codice Fiscale.");
+                return;
+            }
+
+            function estraiCv(str) {
+                const pulita = str.replace(/[^A-Z]/g, '');
+                return {
+                    consonanti: pulita.replace(/[AEIOU]/g, ''),
+                    vocali: pulita.replace(/[^AEIOU]/g, '')
+                };
+            }
+
+            const cog = estraiCv(cognome);
+            let partCog = (cog.consonanti + cog.vocali + 'XXX').substring(0, 3);
+
+            const nom = estraiCv(nome);
+            let partNom = '';
+            if (nom.consonanti.length >= 4) {
+                partNom = nom.consonanti[0] + nom.consonanti[2] + nom.consonanti[3];
+            } else {
+                partNom = (nom.consonanti + nom.vocali + 'XXX').substring(0, 3);
+            }
+
+            const pData = dataNascita.split('-');
+            if (pData.length !== 3) { alert("Data non valida."); return; }
+            let anno = pData[0].substring(2, 4);
+            const mCod = { '01': 'A', '02': 'B', '03': 'C', '04': 'D', '05': 'E', '06': 'H', '07': 'L', '08': 'M', '09': 'P', '10': 'R', '11': 'S', '12': 'T' };
+            let mese = mCod[pData[1]] || 'A';
+            let giorno = String(parseInt(pData[2], 10)).padStart(2, '0');
+
+            let codCat = dizionarioNomiComuni[luogo] || "H501";
+
+            let cfParz = partCog + partNom + anno + mese + giorno + codCat;
+
+            const vPari = {'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'A':0,'B':1,'C':2,'D':3,'E':4,'F':5,'G':6,'H':7,'I':8,'J':9,'K':10,'L':11,'M':12,'N':13,'O':14,'P':15,'Q':16,'R':17,'S':18,'T':19,'U':20,'V':21,'W':22,'X':23,'Y':24,'Z':25};
+            const vDisp = {'0':1,'1':0,'2':5,'3':7,'4':9,'5':13,'6':15,'7':17,'8':19,'9':21,'A':1,'B':0,'C':5,'D':7,'E':9,'F':13,'G':15,'H':17,'I':19,'J':21,'K':2,'L':4,'M':18,'N':20,'O':11,'P':3,'Q':6,'R':8,'S':12,'T':14,'U':16,'V':10,'W':22,'X':25,'Y':24,'Z':23};
+            const rCar = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+            let somma = 0;
+            for (let i = 0; i < 15; i++) {
+                let c = cfParz[i];
+                if (i % 2 === 0) somma += vDisp[c] || 0;
+                else somma += vPari[c] || 0;
+            }
+
+            let cfFinale = cfParz + rCar[somma % 26];
+            document.getElementById('editCodiceFiscale').value = cfFinale;
+        };
+
+        window.leggiCieCfIscritto = function() {
+            let cf = prompt("Inserisci o scansiona il Codice Fiscale dell'iscritto:");
+            if (cf && cf.trim().length === 16) {
+                document.getElementById('editCodiceFiscale').value = cf.trim().toUpperCase();
+                decodificaDatiDaCodiceFiscale(cf.trim());
+            } else if (cf) {
+                alert("Codice Fiscale non valido (deve essere di 16 caratteri).");
+            }
+        };
+
+        window.leggiCieCfGenitore = function(numGen) {
+            let cf = prompt(`Inserisci o scansiona il Codice Fiscale del Genitore ${numGen}:`);
+            if (cf && cf.trim().length === 16) {
+                cf = cf.trim().toUpperCase();
+                document.getElementById(`editGenitore${numGen}CodiceFiscale`).value = cf;
+                
+                // Estrae data dal CF del genitore
+                const annoCar = cf.substring(6, 8);
+                const meseCar = cf.substring(8, 9);
+                let giornoCar = parseInt(cf.substring(9, 11), 10);
+                
+                let annoNum = parseInt(annoCar, 10);
+                const annoCorrente2CIF = new Date().getFullYear() % 100;
+                let secolo = annoNum <= annoCorrente2CIF ? 2000 : 1900;
+                let annoNascita = secolo + annoNum;
+
+                const mesiCodice = { 'A': '01', 'B': '02', 'C': '03', 'D': '04', 'E': '05', 'H': '06', 'L': '07', 'M': '08', 'P': '09', 'R': '10', 'S': '11', 'T': '12' };
+                let meseNum = mesiCodice[meseCar] || '01';
+                if (giornoCar > 40) giornoCar -= 40;
+                let giornoStr = String(giornoCar).padStart(2, '0');
+
+                document.getElementById(`editGenitore${numGen}DataNascita`).value = `${annoNascita}-${meseNum}-${giornoStr}`;
+            } else if (cf) {
+                alert("Codice Fiscale non valido.");
+            }
+        };
+
         async function elaboraOnorificenze(idSezione, titoloSezione, sogliaAnni, tipoControllo) {
             const container = document.getElementById(idSezione);
-            container.innerHTML = `<h2>${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Elaborazione in corso...</div>`;
+            container.innerHTML = `<h2>${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Elaborazione...</div>`;
+            mostraCaricamento(`Elaborazione ${titoloSezione}...`);
             try {
-                const snapAnagrafica = await getDocs(collection(db, "anagrafica"));
+                const snapAnag = await getDocs(collection(db, "anagrafica"));
                 const snapStorico = await getDocs(collection(db, "storico"));
-                let anagraficaMap = {}, storicoPerPersona = {}, totaliCompletiPersona = {};
-                snapAnagrafica.forEach(docSnap => { anagraficaMap[docSnap.id] = docSnap.data(); });
-                snapStorico.forEach(docSnap => {
-                    let st = docSnap.data(), idPers = st.id_persona;
+                let anagMap = {}, storicoMap = {}, totaleComp = {};
+                snapAnag.forEach(d => anagMap[d.id] = d.data());
+                snapStorico.forEach(d => {
+                    let st = d.data();
+                    let idPers = st.id_persona;
                     if (!idPers) return;
-                    let tipoPulito = String(st.tipologia || st.tipo_iscrizione || st.tipo || "").trim().toLowerCase();
-                    if (tipoPulito !== "iscrizione completa") return;
+                    let tipologia = String(st.tipologia || st.tipo_iscrizione || st.tipo || "").trim().toLowerCase();
+                    if (tipologia !== "iscrizione completa") return;
                     let annoNum = parseInt(st.anno, 10);
                     if (isNaN(annoNum)) return;
-                    totaliCompletiPersona[idPers] = (totaliCompletiPersona[idPers] || 0) + 1;
-                    if (!storicoPerPersona[idPers]) storicoPerPersona[idPers] = [];
-                    storicoPerPersona[idPers].push(annoNum);
+                    totaleComp[idPers] = (totaleComp[idPers] || 0) + 1;
+                    if (!storicoMap[idPers]) storicoMap[idPers] = [];
+                    storicoMap[idPers].push(annoNum);
                 });
 
                 let risultati = [];
-                for (let idPers in anagraficaMap) {
-                    let persona = anagraficaMap[idPers], passaCriterio = false;
+                for (let idPers in anagMap) {
+                    let persona = anagMap[idPers], passa = false, val = 0;
                     if (tipoControllo === 'consecutivi') {
-                        let anniArr = (storicoPerPersona[idPers] || []).map(a => a > 2022 ? a - 2 : a).sort((a, b) => a - b);
-                        let maxCons = 0, gruppi = {};
-                        anniArr.forEach((a, i) => { let grp = a - (i + 1); gruppi[grp] = (gruppi[grp] || 0) + 1; });
-                        for (let g in gruppi) if (gruppi[g] > maxCons) maxCons = gruppi[g];
-                        passaCriterio = maxCons >= sogliaAnni;
-                        persona.valoreMostrato = maxCons;
+                        let anni = (storicoMap[idPers] || []).map(a => a > 2022 ? a - 2 : a).sort((a, b) => a - b);
+                        let maxC = 0, gruppi = {};
+                        anni.forEach((a, i) => { let g = a - (i + 1); gruppi[g] = (gruppi[g] || 0) + 1; });
+                        for (let g in gruppi) if (gruppi[g] > maxC) maxC = gruppi[g];
+                        passa = maxC >= sogliaAnni; val = maxC;
                     } else {
-                        passaCriterio = (totaliCompletiPersona[idPers] || 0) > sogliaAnni - 1;
-                        persona.valoreMostrato = totaliCompletiPersona[idPers] || 0;
+                        let tot = totaleComp[idPers] || 0;
+                        passa = tot > sogliaAnni - 1; val = tot;
                     }
-                    if (passaCriterio) {
-                        risultati.push({ cognome: formattaCognome(persona.cognome), nome: pulisciTesto(persona.nome), citta: pulisciTesto(persona.citta), telefono: pulisciTesto(persona.telefono), valore: persona.valoreMostrato });
+                    if (passa) {
+                        risultati.push({ cognome: formattaCognome(persona.cognome), nome: pulisciTesto(persona.nome), citta: pulisciTesto(persona.citta), telefono: pulisciTesto(persona.telefono), valore: val });
                     }
                 }
                 risultati.sort((a, b) => a.cognome.localeCompare(b.cognome));
@@ -951,7 +1199,9 @@
                 if (risultati.length === 0) html += `<tr><td colspan="5" style="text-align:center;">Nessun risultato.</td></tr>`;
                 else risultati.forEach(r => html += `<tr><td>${r.cognome}</td><td>${r.nome}</td><td>${r.citta}</td><td>${r.telefono}</td><td><strong>${r.valore}</strong></td></tr>`);
                 container.innerHTML = html + `</tbody></table></div>`;
-            } catch (e) { container.innerHTML = `<p style="color:red;">Errore: ${e.message}</p>`; }
+            } catch (e) {
+                container.innerHTML = `<p style="color:red;">Errore: ${e.message}</p>`;
+            } finally { nascondiCaricamento(); }
         }
 
         window.caricaElenco10Anni = () => elaboraOnorificenze('sezione_onorificenze_10', '10 Anni', 10, 'consecutivi');
@@ -964,7 +1214,7 @@
 
         async function caricaTabellaUtenti() {
             const tbody = document.getElementById('corpoTabellaUtenti');
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Caricamento utenti...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Caricamento...</td></tr>';
             try {
                 const snap = await getDocs(collection(db, "utenti"));
                 tbody.innerHTML = '';
@@ -973,7 +1223,7 @@
                     const u = docSnap.data(), attivo = u.attivo !== false;
                     tbody.innerHTML += `<tr><td>${pulisciTesto(u.email)}</td><td><strong>${pulisciTesto(u.alias)}</strong></td><td>${pulisciTesto(u.ruolo)}</td><td>${attivo ? 'Attivo' : 'Disabilitato'}</td><td><button type="button" class="btn-azione btn-modifica-storico" onclick="modificaUtente('${docSnap.id}', '${u.email}', '${u.alias || ''}', '${u.ruolo}', ${attivo})">Modifica</button></td></tr>`;
                 });
-            } catch (e) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Errore caricamento.</td></tr>'; }
+            } catch (e) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Errore.</td></tr>'; }
         }
 
         window.apriModaleUtente = (id = "", email = "", alias = "", ruolo = "User", attivo = true) => {
@@ -1025,6 +1275,7 @@
             inizializzaPannelloColonne();
             if (!annoSelezionato) { tab.style.display = 'none'; box.style.display = 'none'; msg.style.display = 'block'; return; }
             msg.textContent = "Caricamento in corso...";
+            mostraCaricamento("Caricamento dati ricerca...");
             try {
                 if (cacheTuttiIscritti.length === 0) {
                     const snapAnag = await getDocs(collection(db, "anagrafica")), snapStorico = await getDocs(collection(db, "storico"));
@@ -1059,16 +1310,17 @@
                 document.getElementById('totaleIscrittiFiltrati').textContent = risultati.length;
                 box.style.display = 'block'; msg.style.display = 'none'; tab.style.display = 'table';
             } catch (e) { msg.textContent = "Errore: " + e.message; }
+            finally { nascondiCaricamento(); }
         };
 
         function calcolaEImpostaEta(dataStr) {
             const inputEta = document.getElementById('editEtaDisplay'), sezGen = document.getElementById('sezioneDatiGenitori');
-            if (!dataStr) { inputEta.value = ""; sezGen.style.display = 'none'; return; }
+            if (!dataStr) { inputEta.value = ""; if (sezGen) sezGen.style.display = 'none'; return; }
             let d = new Date(dataStr), oggi = new Date();
             let eta = oggi.getFullYear() - d.getFullYear();
             if (oggi.getMonth() < d.getMonth() || (oggi.getMonth() === d.getMonth() && oggi.getDate() < d.getDate())) eta--;
             inputEta.value = eta >= 0 ? eta : "";
-            sezGen.style.display = (eta >= 0 && eta < 18) ? 'block' : 'none';
+            if (sezGen) sezGen.style.display = (eta >= 14 && eta < 18) ? 'block' : 'none';
         }
 
         document.getElementById('editDataNascita').addEventListener('input', e => calcolaEImpostaEta(e.target.value));
@@ -1102,13 +1354,21 @@
             return p.length === 3 ? `${p[2]}.${p[1]}.${p[0]}` : s;
         }
         function formattaDataOraCompleta(s) { return s || ''; }
+        function formattaDataPerInputDate(s) {
+            if (!s) return '';
+            s = String(s).trim();
+            if (s.includes('-')) return s.split('T')[0].split(' ')[0];
+            return s;
+        }
         function pulisciTesto(v) { return (v === null || v === undefined || String(v).toUpperCase() === 'NULL') ? '' : String(v).trim(); }
+        function decodificaTipoDocumento(v) { return pulisciTesto(v); }
 
         async function cercaIscritti(testo) {
             const msg = document.getElementById('messaggioGuida'), tab = document.getElementById('tabellaIscritti'), tbody = document.getElementById('corpoTabella'), box = document.getElementById('boxContatore');
             testo = testo.trim().toUpperCase();
             if (testo.length < 2) { tab.style.display = 'none'; box.style.display = 'none'; msg.style.display = 'block'; msg.textContent = "Digita almeno 2 lettere del cognome."; return; }
             msg.textContent = "Ricerca in corso...";
+            mostraCaricamento("Ricerca iscritti in corso...");
             try {
                 const snap = await getDocs(collection(db, "anagrafica"));
                 tbody.innerHTML = '';
@@ -1121,13 +1381,14 @@
                 res.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || ''));
                 res.forEach(p => {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${formattaCognome(p.cognome)}</td><td>${pulisciTesto(p.nome)}</td><td>${pulisciTesto(p.codice_fiscale).toUpperCase()}</td><td>${formattaDataPerVisualizzazioneTabella(p.data_nascita)}</td><td>${pulisciTesto(p.citta)}</td><td>${pulisciTesto(p.telefono)}</td>`;
+                    tr.innerHTML = `<td>${formattaCognome(p.cognome)}</td><td>${pulisciTesto(p.nome)}</td><td>${formattaDataPerVisualizzazioneTabella(p.data_nascita)}</td><td>${pulisciTesto(p.citta)}</td><td>${pulisciTesto(p.telefono)}</td>`;
                     tr.onclick = () => apriModaleEsistente(p);
                     tbody.appendChild(tr);
                 });
                 document.getElementById('totaleIscritti').textContent = res.length;
                 box.style.display = 'block'; msg.style.display = 'none'; tab.style.display = 'table';
             } catch (e) { msg.textContent = "Errore: " + e.message; }
+            finally { nascondiCaricamento(); }
         }
 
         const modal = document.getElementById('editModal');
@@ -1137,10 +1398,10 @@
             document.getElementById('editIdPersona').value = p.id;
             document.getElementById('editCognome').value = pulisciTesto(p.cognome);
             document.getElementById('editNome').value = pulisciTesto(p.nome);
-            document.getElementById('editCodiceFiscale').value = pulisciTesto(p.codice_fiscale).toUpperCase();
-            document.getElementById('editLuogoNascita').value = pulisciTesto(p.luogo_nascita);
+            document.getElementById('editCodiceFiscale').value = pulisciTesto(p.codice_fiscale || p.codiceFiscale).toUpperCase();
+            document.getElementById('editLuogoNascita').value = pulisciTesto(p.luogo_nascita || p.luogoNascita);
             
-            let dtNascita = (p.data_nascita || '').split('T')[0];
+            let dtNascita = formattaDataPerInputDate(p.data_nascita);
             document.getElementById('editDataNascita').value = dtNascita;
             calcolaEImpostaEta(dtNascita);
 
@@ -1149,14 +1410,27 @@
             document.getElementById('editCap').value = pulisciTesto(p.cap);
             document.getElementById('editProvincia').value = pulisciTesto(p.provincia);
             document.getElementById('editTelefono').value = pulisciTesto(p.telefono);
-            document.getElementById('editMail').value = pulisciTesto(p.mail);
+            document.getElementById('editMail').value = pulisciTesto(p.mail || p.email);
             
+            document.getElementById('editTipoDocumento').value = decodificaTipoDocumento(p.tipo_documento);
+            document.getElementById('editNumeroDocumento').value = pulisciTesto(p.numero_documento);
+            document.getElementById('editScadenzaDocumento').value = formattaDataPerInputDate(p.scadenza_documento);
+
             document.getElementById('editGenitore1Cognome').value = pulisciTesto(p.genitore1_cognome);
             document.getElementById('editGenitore1Nome').value = pulisciTesto(p.genitore1_nome);
             document.getElementById('editGenitore1CodiceFiscale').value = pulisciTesto(p.genitore1_codice_fiscale).toUpperCase();
+            document.getElementById('editGenitore1DataNascita').value = formattaDataPerInputDate(p.genitore1_data_nascita);
+            document.getElementById('editGenitore1TipoDocumento').value = decodificaTipoDocumento(p.genitore1_tipo_documento);
+            document.getElementById('editGenitore1NumeroDocumento').value = pulisciTesto(p.genitore1_numero_documento);
+            document.getElementById('editGenitore1ScadenzaDocumento').value = formattaDataPerInputDate(p.genitore1_scadenza_documento);
+
             document.getElementById('editGenitore2Cognome').value = pulisciTesto(p.genitore2_cognome);
             document.getElementById('editGenitore2Nome').value = pulisciTesto(p.genitore2_nome);
             document.getElementById('editGenitore2CodiceFiscale').value = pulisciTesto(p.genitore2_codice_fiscale).toUpperCase();
+            document.getElementById('editGenitore2DataNascita').value = formattaDataPerInputDate(p.genitore2_data_nascita);
+            document.getElementById('editGenitore2TipoDocumento').value = decodificaTipoDocumento(p.genitore2_tipo_documento);
+            document.getElementById('editGenitore2NumeroDocumento').value = pulisciTesto(p.genitore2_numero_documento);
+            document.getElementById('editGenitore2ScadenzaDocumento').value = formattaDataPerInputDate(p.genitore2_scadenza_documento);
 
             document.getElementById('editTigre').checked = Boolean(p.tigre);
             document.getElementById('editCapitanoPiazza').checked = Boolean(p.capitano_piazza);
@@ -1250,7 +1524,7 @@
                 cognome: document.getElementById('editCognome').value.trim().toUpperCase(),
                 nome: document.getElementById('editNome').value.trim(),
                 codice_fiscale: document.getElementById('editCodiceFiscale').value.trim().toUpperCase(),
-                luogo_nascita: document.getElementById('editLuogoNascita').value.trim().toUpperCase(),
+                luogo_nascita: document.getElementById('editLuogoNascita').value.trim(),
                 data_nascita: document.getElementById('editDataNascita').value.trim(),
                 indirizzo: document.getElementById('editIndirizzo').value.trim(),
                 citta: document.getElementById('editCitta').value.trim(),
@@ -1258,12 +1532,26 @@
                 provincia: document.getElementById('editProvincia').value.trim().toUpperCase(),
                 telefono: document.getElementById('editTelefono').value.trim(),
                 mail: document.getElementById('editMail').value.trim(),
+                tipo_documento: document.getElementById('editTipoDocumento').value,
+                numero_documento: document.getElementById('editNumeroDocumento').value.trim(),
+                scadenza_documento: document.getElementById('editScadenzaDocumento').value.trim(),
+
                 genitore1_cognome: document.getElementById('editGenitore1Cognome').value.trim().toUpperCase(),
                 genitore1_nome: document.getElementById('editGenitore1Nome').value.trim(),
                 genitore1_codice_fiscale: document.getElementById('editGenitore1CodiceFiscale').value.trim().toUpperCase(),
+                genitore1_data_nascita: document.getElementById('editGenitore1DataNascita').value.trim(),
+                genitore1_tipo_documento: document.getElementById('editGenitore1TipoDocumento').value,
+                genitore1_numero_documento: document.getElementById('editGenitore1NumeroDocumento').value.trim(),
+                genitore1_scadenza_documento: document.getElementById('editGenitore1ScadenzaDocumento').value.trim(),
+
                 genitore2_cognome: document.getElementById('editGenitore2Cognome').value.trim().toUpperCase(),
                 genitore2_nome: document.getElementById('editGenitore2Nome').value.trim(),
                 genitore2_codice_fiscale: document.getElementById('editGenitore2CodiceFiscale').value.trim().toUpperCase(),
+                genitore2_data_nascita: document.getElementById('editGenitore2DataNascita').value.trim(),
+                genitore2_tipo_documento: document.getElementById('editGenitore2TipoDocumento').value,
+                genitore2_numero_documento: document.getElementById('editGenitore2NumeroDocumento').value.trim(),
+                genitore2_scadenza_documento: document.getElementById('editGenitore2ScadenzaDocumento').value.trim(),
+
                 tigre: document.getElementById('editTigre').checked,
                 capitano_piazza: document.getElementById('editCapitanoPiazza').checked
             };
