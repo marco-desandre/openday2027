@@ -1001,7 +1001,6 @@
                 document.getElementById('editLuogoNascita').value = dizionarioComuniCatastali[codCatastale];
             }
 
-            // Forza il controllo duplicati in tempo reale dopo l'auto-compilazione
             eseguiVerificaRuntime();
         }
 
@@ -1194,7 +1193,10 @@
             if (sezGen) sezGen.style.display = (eta >= 0 && eta < 18) ? 'block' : 'none';
         }
 
-        document.getElementById('editDataNascita').addEventListener('input', e => calcolaEImpostaEta(e.target.value));
+        document.getElementById('editDataNascita').addEventListener('input', e => {
+            calcolaEImpostaEta(e.target.value);
+            eseguiVerificaRuntime();
+        });
 
         function controllaCampiVuoti() {
             document.querySelectorAll('.campo-controllo').forEach(c => {
@@ -1203,21 +1205,51 @@
         }
         document.querySelectorAll('.campo-controllo').forEach(c => { c.addEventListener('input', controllaCampiVuoti); });
 
+        // LOGICA AGGIORNATA CONTROLLO OMONIMIA E DUPLICATI
         async function eseguiVerificaRuntime() {
-            const cog = document.getElementById('editCognome').value.trim(), nom = document.getElementById('editNome').value.trim(), dat = document.getElementById('editDataNascita').value.trim(), idC = document.getElementById('editIdPersona').value.trim();
+            const cog = document.getElementById('editCognome').value.trim();
+            const nom = document.getElementById('editNome').value.trim();
+            const dat = document.getElementById('editDataNascita').value.trim();
+            const idC = document.getElementById('editIdPersona').value.trim();
             const msg = document.getElementById('messaggioRuntimeDuplicato');
+            
             msg.textContent = "";
-            if (cog.length < 2 && nom.length < 2) return;
+            if (cog.length < 2 || nom.length < 2) return;
+
             const snap = await getDocs(collection(db, "anagrafica"));
-            let dup = false;
+            let omonimoTrovato = false;
+            let duplicatoEsattoTrovato = false;
+
             snap.forEach(d => {
                 if (idC && d.id === idC) return;
                 let dt = d.data();
-                if (String(dt.cognome).trim().toUpperCase() === cog.toUpperCase() && String(dt.nome).trim().toUpperCase() === nom.toUpperCase() && String(dt.data_nascita).trim() === dat) dup = true;
+                let dbCognome = String(dt.cognome || "").trim().toUpperCase();
+                let dbNome = String(dt.nome || "").trim().toUpperCase();
+                let dbData = String(dt.data_nascita || "").trim();
+
+                if (dbCognome === cog.toUpperCase() && dbNome === nom.toUpperCase()) {
+                    omonimoTrovato = true;
+                    if (dat && dbData === dat) {
+                        duplicatoEsattoTrovato = true;
+                    }
+                }
             });
-            if (dup) { msg.style.color = "#dc3545"; msg.textContent = "⚠️ Attenzione: Esiste già un iscritto con lo stesso Cognome, Nome e Data di Nascita!"; }
+
+            if (duplicatoEsattoTrovato) {
+                msg.style.color = "#dc3545";
+                msg.textContent = "⚠️ Attenzione: Esiste già un iscritto con lo stesso Cognome, Nome e Data di Nascita!";
+            } else if (omonimoTrovato) {
+                msg.style.color = "#ff851b";
+                msg.textContent = "ℹ️ Attenzione: Esiste già un iscritto con lo stesso Cognome e Nome (Omonimia).";
+            }
         }
-        document.querySelectorAll('.campo-verifica-runtime').forEach(e => e.addEventListener('input', () => { clearTimeout(timeoutRuntime); timeoutRuntime = setTimeout(eseguiVerificaRuntime, 400); }));
+
+        document.querySelectorAll('.campo-verifica-runtime').forEach(e => {
+            e.addEventListener('input', () => {
+                clearTimeout(timeoutRuntime);
+                timeoutRuntime = setTimeout(eseguiVerificaRuntime, 400);
+            });
+        });
 
         function formattaDataPerVisualizzazioneTabella(s) {
             if (!s) return '';
@@ -1313,6 +1345,7 @@
             document.getElementById('editIdPersona').value = "";
             document.querySelectorAll('.campo-controllo, .campo-controllo-genitore').forEach(c => c.value = "");
             document.getElementById('editEtaDisplay').value = "";
+            document.getElementById('messaggioRuntimeDuplicato').textContent = "";
             document.getElementById('sezioneDatiGenitori').style.display = 'none';
             document.getElementById('editTigre').checked = false;
             document.getElementById('editCapitanoPiazza').checked = false;
