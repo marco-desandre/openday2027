@@ -484,9 +484,9 @@
                         <label style="font-size: 11px;">Tipo Documento:</label>
                         <select id="editTipoDocumento" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
                             <option value="">-- Seleziona --</option>
-                            <option value="Carta d'Identità">Carta d'Identità</option>
                             <option value="Passaporto">Passaporto</option>
                             <option value="Patente">Patente</option>
+                            <option value="Carta di identità">Carta di identità</option>
                         </select>
                     </div>
                     <div class="form-group col-medium">
@@ -540,9 +540,9 @@
                             <label style="font-size: 11px;">Tipo Documento (Gen 1):</label>
                             <select id="editGenitore1TipoDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
                                 <option value="">-- Seleziona --</option>
-                                <option value="Carta d'Identità">Carta d'Identità</option>
                                 <option value="Passaporto">Passaporto</option>
                                 <option value="Patente">Patente</option>
+                                <option value="Carta di identità">Carta di identità</option>
                             </select>
                         </div>
                         <div class="form-group col-medium">
@@ -592,9 +592,9 @@
                             <label style="font-size: 11px;">Tipo Documento (Gen 2):</label>
                             <select id="editGenitore2TipoDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
                                 <option value="">-- Seleziona --</option>
-                                <option value="Carta d'Identità">Carta d'Identità</option>
                                 <option value="Passaporto">Passaporto</option>
                                 <option value="Patente">Patente</option>
+                                <option value="Carta di identità">Carta di identità</option>
                             </select>
                         </div>
                         <div class="form-group col-medium">
@@ -787,6 +787,15 @@
             return str.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
         }
 
+        // Funzione di mappatura per convertire codici o stringhe salvate nel formato del menu a tendina
+        function mappaTipoDocumento(valore) {
+            const valStr = String(valore || "").trim();
+            if (valStr === "1") return "Passaporto";
+            if (valStr === "2") return "Patente";
+            if (valStr === "3") return "Carta di identità";
+            return valStr; // Se è già testuale o vuoto
+        }
+
         const DEFINIZIONE_COLONNE = [
             { id: 'cognome', titolo: 'Cognome', default: true, formatter: val => formattaCognome(val) },
             { id: 'nome', titolo: 'Nome', default: true },
@@ -799,7 +808,7 @@
             { id: 'provincia', titolo: 'Provincia', default: false },
             { id: 'telefono', titolo: 'Telefono', default: true },
             { id: 'mail', titolo: 'Mail', default: false },
-            { id: 'tipo_documento', titolo: 'Tipo Documento', default: false },
+            { id: 'tipo_documento', titolo: 'Tipo Documento', default: false, formatter: val => mappaTipoDocumento(val) },
             { id: 'numero_documento', titolo: 'N. Documento', default: false },
             { id: 'scadenza_documento', titolo: 'Scadenza Documento', default: false, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
             { id: 'genitore1_cognome', titolo: 'Cognome Genitore 1', default: false, formatter: val => formattaCognome(val) },
@@ -807,7 +816,7 @@
             { id: 'genitore1_luogo_nascita', titolo: 'Luogo Nascita Genitore 1', default: false },
             { id: 'genitore1_data_nascita', titolo: 'Data Nascita Genitore 1', default: false },
             { id: 'genitore1_codice_fiscale', titolo: 'CF Genitore 1', default: false, formatter: val => pulisciTesto(val).toUpperCase() },
-            { id: 'genitore1_tipo_doc', titolo: 'Tipo Doc Gen 1', default: false },
+            { id: 'genitore1_tipo_doc', titolo: 'Tipo Doc Gen 1', default: false, formatter: val => mappaTipoDocumento(val) },
             { id: 'genitore1_num_doc', titolo: 'N. Doc Gen 1', default: false },
             { id: 'genitore1_scadenza_doc', titolo: 'Scadenza Doc Gen 1', default: false },
             { id: 'genitore2_cognome', titolo: 'Cognome Genitore 2', default: false, formatter: val => formattaCognome(val) },
@@ -815,7 +824,7 @@
             { id: 'genitore2_luogo_nascita', titolo: 'Luogo Nascita Genitore 2', default: false },
             { id: 'genitore2_data_nascita', titolo: 'Data Nascita Genitore 2', default: false },
             { id: 'genitore2_codice_fiscale', titolo: 'CF Genitore 2', default: false, formatter: val => pulisciTesto(val).toUpperCase() },
-            { id: 'genitore2_tipo_doc', titolo: 'Tipo Doc Gen 2', default: false },
+            { id: 'genitore2_tipo_doc', titolo: 'Tipo Doc Gen 2', default: false, formatter: val => mappaTipoDocumento(val) },
             { id: 'genitore2_num_doc', titolo: 'N. Doc Gen 2', default: false },
             { id: 'genitore2_scadenza_doc', titolo: 'Scadenza Doc Gen 2', default: false },
             { id: 'tigre', titolo: 'Tigre', default: false, formatter: val => val ? 'Si' : 'No' },
@@ -1288,7 +1297,12 @@
                 tbody.innerHTML = '';
                 risultati.forEach(p => {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = cols.map(c => `<td>${pulisciTesto(p[c])}</td>`).join('');
+                    tr.innerHTML = cols.map(c => {
+                        let defCol = DEFINIZIONE_COLONNE.find(x => x.id === c);
+                        let val = p[c];
+                        if (defCol && defCol.formatter) val = defCol.formatter(val);
+                        return `<td>${pulisciTesto(val)}</td>`;
+                    }).join('');
                     tr.onclick = () => apriModaleEsistente(p);
                     tbody.appendChild(tr);
                 });
@@ -1428,7 +1442,7 @@
             document.getElementById('editTelefono').value = pulisciTesto(p.telefono);
             document.getElementById('editMail').value = pulisciTesto(p.mail || p.email);
             
-            document.getElementById('editTipoDocumento').value = pulisciTesto(p.tipo_documento);
+            document.getElementById('editTipoDocumento').value = mappaTipoDocumento(p.tipo_documento);
             document.getElementById('editNumeroDocumento').value = pulisciTesto(p.numero_documento);
             document.getElementById('editScadenzaDocumento').value = formattaDataPerInputDate(p.scadenza_documento);
 
@@ -1437,7 +1451,7 @@
             document.getElementById('editGenitore1LuogoNascita').value = pulisciTesto(p.genitore1_luogo_nascita);
             document.getElementById('editGenitore1DataNascita').value = formattaDataPerInputDate(p.genitore1_data_nascita);
             document.getElementById('editGenitore1CodiceFiscale').value = pulisciTesto(p.genitore1_codice_fiscale || p.genitore_codice_fiscale).toUpperCase();
-            document.getElementById('editGenitore1TipoDoc').value = pulisciTesto(p.genitore1_tipo_doc);
+            document.getElementById('editGenitore1TipoDoc').value = mappaTipoDocumento(p.genitore1_tipo_doc);
             document.getElementById('editGenitore1NumDoc').value = pulisciTesto(p.genitore1_num_doc);
             document.getElementById('editGenitore1ScadenzaDoc').value = formattaDataPerInputDate(p.genitore1_scadenza_doc);
             
@@ -1446,7 +1460,7 @@
             document.getElementById('editGenitore2LuogoNascita').value = pulisciTesto(p.genitore2_luogo_nascita);
             document.getElementById('editGenitore2DataNascita').value = formattaDataPerInputDate(p.genitore2_data_nascita);
             document.getElementById('editGenitore2CodiceFiscale').value = pulisciTesto(p.genitore2_codice_fiscale).toUpperCase();
-            document.getElementById('editGenitore2TipoDoc').value = pulisciTesto(p.genitore2_tipo_doc);
+            document.getElementById('editGenitore2TipoDoc').value = mappaTipoDocumento(p.genitore2_tipo_doc);
             document.getElementById('editGenitore2NumDoc').value = pulisciTesto(p.genitore2_num_doc);
             document.getElementById('editGenitore2ScadenzaDoc').value = formattaDataPerInputDate(p.genitore2_scadenza_doc);
 
