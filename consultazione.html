@@ -1157,7 +1157,7 @@
                     let st = d.data();
                     let idPers = st.id_persona;
                     if (!idPers) return;
-                    let tipologia = String(st.tipologia || st.tipo_iscrizione || st.tipo || "").trim().toLowerCase();
+                    let tipologia = String(st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || "").trim().toLowerCase();
                     if (tipologia !== "iscrizione completa") return;
                     let annoNum = parseInt(st.anno, 10);
                     if (isNaN(annoNum)) return;
@@ -1348,9 +1348,10 @@
                     snapStorico.forEach(d => {
                         let st = d.data();
                         if (!mappa[st.id_persona]) mappa[st.id_persona] = [];
+                        let tipoTrovato = st.tipo_iscrizione || st.tipologia || st.tipo || st.descrizione || "";
                         mappa[st.id_persona].push({ 
                             anno: String(st.anno || ""), 
-                            tipo_iscrizione: String(st.tipo_iscrizione || st.tipo || ""), 
+                            tipo_iscrizione: String(tipoTrovato), 
                             numero_identificativo: String(st.numero_identificativo || "") 
                         });
                     });
@@ -1613,7 +1614,8 @@
 
                 docsList.forEach(st => {
                     if (st.anno) anniPresentiNellaScheda.push(String(st.anno).trim());
-                    tbody.innerHTML += `<tr><td>${pulisciTesto(st.anno)}</td><td>${pulisciTesto(st.tipo_iscrizione || st.tipo)}</td><td>${pulisciTesto(st.numero_identificativo)}</td><td>-</td></tr>`;
+                    let tipoIscrizioneVal = st.tipo_iscrizione || st.tipologia || st.tipo || st.descrizione || "";
+                    tbody.innerHTML += `<tr><td>${pulisciTesto(st.anno)}</td><td>${pulisciTesto(tipoIscrizioneVal)}</td><td>${pulisciTesto(st.numero_identificativo)}</td><td>-</td></tr>`;
                 });
             } catch (e) { div.textContent = "Errore caricamento storico."; }
         }
