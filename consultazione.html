@@ -500,49 +500,42 @@
                 </div>
             </div>
 
-            <!-- SEZIONE DATI GENITORI (< 18 ANNI) - DUE GENITORI -->
+            <!-- SEZIONE DATI GENITORI (VISIBILE SOLO PER MINORENNI 14-17 ANNI) -->
             <div id="sezioneDatiGenitori" style="display: none; background: #fff3cd; padding: 12px; border-radius: 6px; border: 1px solid #ffeeba; margin-top: 10px; margin-bottom: 10px;">
-                <h4 style="margin-top: 0; margin-bottom: 10px; color: #856404; font-size: 14px; border-bottom: 1px solid #ffeeba; padding-bottom: 4px;">Dati Genitori / Tutori (Obbligatori per minorenni < 18 anni)</h4>
+                <h4 style="margin-top: 0; margin-bottom: 10px; color: #856404; font-size: 14px; border-bottom: 1px solid #ffeeba; padding-bottom: 4px;">Dati Genitore / Tutore (Obbligatori per minori da 14 a 17 anni)</h4>
                 
-                <!-- GENITORE 1 -->
-                <p style="font-size: 13px; font-weight: bold; color: #856404; margin: 5px 0;">Genitore 1</p>
                 <div class="form-row">
                     <div class="form-group col-medium">
-                        <label style="font-size: 11px;">Cognome:</label>
-                        <input type="text" id="editGenitore1Cognome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;">
+                        <label style="font-size: 12px;">Cognome Genitore:</label>
+                        <input type="text" id="editGenitoreCognome" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
                     </div>
                     <div class="form-group col-medium">
-                        <label style="font-size: 11px;">Nome:</label>
-                        <input type="text" id="editGenitore1Nome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;">
+                        <label style="font-size: 12px;">Nome Genitore:</label>
+                        <input type="text" id="editGenitoreNome" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
                     </div>
                     <div class="form-group col-medium">
-                        <label style="font-size: 11px;">Codice Fiscale:</label>
-                        <div style="display: flex; gap: 6px;">
-                            <input type="text" id="editGenitore1CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 5px; font-size: 12px; text-transform: uppercase; margin: 4px 0 0 0;">
-                            <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 8px; font-size: 11px; font-weight: bold; height: 32px; margin-top: 4px;" onclick="calcolaCFGenitore(1)">Calcola</button>
-                            <button type="button" class="btn-azione btn-info-storico" style="padding: 0 8px; font-size: 11px; font-weight: bold; height: 32px; margin-top: 4px;" onclick="leggiCieCfGenitore(1)">Leggi</button>
-                        </div>
+                        <label style="font-size: 12px;">Data Nascita:</label>
+                        <input type="date" id="editGenitoreDataNascita" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
                     </div>
                 </div>
 
-                <!-- GENITORE 2 -->
-                <p style="font-size: 13px; font-weight: bold; color: #856404; margin: 10px 0 5px 0;">Genitore 2</p>
                 <div class="form-row" style="margin-bottom: 0;">
                     <div class="form-group col-medium">
-                        <label style="font-size: 11px;">Cognome:</label>
-                        <input type="text" id="editGenitore2Cognome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;">
+                        <label style="font-size: 12px;">Tipo Documento:</label>
+                        <select id="editGenitoreTipoDocumento" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px; margin: 4px 0 0 0;">
+                            <option value="">-- Seleziona --</option>
+                            <option value="Passaporto">Passaporto</option>
+                            <option value="Patente">Patente</option>
+                            <option value="Carta di identità">Carta di identità</option>
+                        </select>
                     </div>
                     <div class="form-group col-medium">
-                        <label style="font-size: 11px;">Nome:</label>
-                        <input type="text" id="editGenitore2Nome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;">
+                        <label style="font-size: 12px;">N. Documento:</label>
+                        <input type="text" id="editGenitoreNumeroDocumento" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
                     </div>
                     <div class="form-group col-medium">
-                        <label style="font-size: 11px;">Codice Fiscale:</label>
-                        <div style="display: flex; gap: 6px;">
-                            <input type="text" id="editGenitore2CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 5px; font-size: 12px; text-transform: uppercase; margin: 4px 0 0 0;">
-                            <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 8px; font-size: 11px; font-weight: bold; height: 32px; margin-top: 4px;" onclick="calcolaCFGenitore(2)">Calcola</button>
-                            <button type="button" class="btn-azione btn-info-storico" style="padding: 0 8px; font-size: 11px; font-weight: bold; height: 32px; margin-top: 4px;" onclick="leggiCieCfGenitore(2)">Leggi</button>
-                        </div>
+                        <label style="font-size: 12px;">Scadenza Doc.:</label>
+                        <input type="date" id="editGenitoreScadenzaDocumento" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
                     </div>
                 </div>
             </div>
@@ -724,12 +717,12 @@
             { id: 'provincia', titolo: 'Provincia', default: false },
             { id: 'telefono', titolo: 'Telefono', default: true },
             { id: 'mail', titolo: 'Mail', default: false },
-            { id: 'genitore1_cognome', titolo: 'Cognome Genitore 1', default: false, formatter: val => formattaCognome(val) },
-            { id: 'genitore1_nome', titolo: 'Nome Genitore 1', default: false },
-            { id: 'genitore1_codice_fiscale', titolo: 'CF Genitore 1', default: false, formatter: val => pulisciTesto(val).toUpperCase() },
-            { id: 'genitore2_cognome', titolo: 'Cognome Genitore 2', default: false, formatter: val => formattaCognome(val) },
-            { id: 'genitore2_nome', titolo: 'Nome Genitore 2', default: false },
-            { id: 'genitore2_codice_fiscale', titolo: 'CF Genitore 2', default: false, formatter: val => pulisciTesto(val).toUpperCase() },
+            { id: 'genitore_cognome', titolo: 'Cognome Genitore', default: false, formatter: val => formattaCognome(val) },
+            { id: 'genitore_nome', titolo: 'Nome Genitore', default: false },
+            { id: 'genitore_data_nascita', titolo: 'Data Nascita Genitore', default: false, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
+            { id: 'genitore_tipo_documento', titolo: 'Tipo Doc. Genitore', default: false },
+            { id: 'genitore_numero_documento', titolo: 'N. Doc. Genitore', default: false },
+            { id: 'genitore_scadenza_documento', titolo: 'Scadenza Doc. Genitore', default: false, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
             { id: 'tigre', titolo: 'Tigre', default: false, formatter: val => val ? 'Si' : 'No' },
             { id: 'capitano_piazza', titolo: 'Capitano Piazza', default: false, formatter: val => val ? 'Si' : 'No' },
             { id: 'tipo_iscrizione', titolo: 'Tipo Iscrizione', default: true, richiedeAnnoSpecifico: true },
@@ -943,7 +936,6 @@
                 return;
             }
             
-            // Logica semplificata generazione CF
             function estraiCv(str) {
                 const pulita = str.replace(/[^A-Z]/g, '');
                 return { c: pulita.replace(/[AEIOU]/g, ''), v: pulita.replace(/[^AEIOU]/g, '') };
@@ -973,20 +965,6 @@
             document.getElementById('editCodiceFiscale').value = cfParz + rCar[somma % 26];
         };
 
-        window.calcolaCFGenitore = function(numGen) {
-            const cognome = document.getElementById(`editGenitore${numGen}Cognome`).value.trim().toUpperCase();
-            const nome = document.getElementById(`editGenitore${numGen}Nome`).value.trim().toUpperCase();
-            if (!cognome || !nome) {
-                alert("Inserisci Cognome e Nome del Genitore per calcolare il Codice Fiscale.");
-                return;
-            }
-            // Semplificazione calcolo o prompt
-            let cf = prompt(`Inserisci o calcola il CF per Genitore ${numGen}:`);
-            if (cf && cf.trim().length === 16) {
-                document.getElementById(`editGenitore${numGen}CodiceFiscale`).value = cf.trim().toUpperCase();
-            }
-        };
-
         window.leggiCieCfIscritto = function() {
             let cf = prompt("Inserisci o scansiona il Codice Fiscale dell'iscritto:");
             if (cf && cf.trim().length === 16) {
@@ -995,15 +973,6 @@
                 decodificaCfInCampi(cf);
             } else if (cf) {
                 alert("Codice Fiscale non valido (16 caratteri richiesti).");
-            }
-        };
-
-        window.leggiCieCfGenitore = function(numGen) {
-            let cf = prompt(`Inserisci o scansiona il Codice Fiscale del Genitore ${numGen}:`);
-            if (cf && cf.trim().length === 16) {
-                document.getElementById(`editGenitore${numGen}CodiceFiscale`).value = cf.trim().toUpperCase();
-            } else if (cf) {
-                alert("Codice Fiscale non valido.");
             }
         };
 
@@ -1198,7 +1167,7 @@
             let eta = oggi.getFullYear() - d.getFullYear();
             if (oggi.getMonth() < d.getMonth() || (oggi.getMonth() === d.getMonth() && oggi.getDate() < d.getDate())) eta--;
             inputEta.value = eta >= 0 ? eta : "";
-            if (sezGen) sezGen.style.display = (eta >= 0 && eta < 18) ? 'block' : 'none';
+            if (sezGen) sezGen.style.display = (eta >= 14 && eta < 18) ? 'block' : 'none';
         }
 
         document.getElementById('editDataNascita').addEventListener('input', e => calcolaEImpostaEta(e.target.value));
@@ -1289,13 +1258,12 @@
             document.getElementById('editTelefono').value = pulisciTesto(p.telefono);
             document.getElementById('editMail').value = pulisciTesto(p.mail || p.email);
             
-            document.getElementById('editGenitore1Cognome').value = pulisciTesto(p.genitore1_cognome || p.genitore_cognome);
-            document.getElementById('editGenitore1Nome').value = pulisciTesto(p.genitore1_nome || p.genitore_nome);
-            document.getElementById('editGenitore1CodiceFiscale').value = pulisciTesto(p.genitore1_codice_fiscale || p.genitore_codice_fiscale).toUpperCase();
-            
-            document.getElementById('editGenitore2Cognome').value = pulisciTesto(p.genitore2_cognome);
-            document.getElementById('editGenitore2Nome').value = pulisciTesto(p.genitore2_nome);
-            document.getElementById('editGenitore2CodiceFiscale').value = pulisciTesto(p.genitore2_codice_fiscale).toUpperCase();
+            document.getElementById('editGenitoreCognome').value = pulisciTesto(p.genitore_cognome);
+            document.getElementById('editGenitoreNome').value = pulisciTesto(p.genitore_nome);
+            document.getElementById('editGenitoreDataNascita').value = formattaDataPerInputDate(p.genitore_data_nascita);
+            document.getElementById('editGenitoreTipoDocumento').value = pulisciTesto(p.genitore_tipo_documento);
+            document.getElementById('editGenitoreNumeroDocumento').value = pulisciTesto(p.genitore_numero_documento);
+            document.getElementById('editGenitoreScadenzaDocumento').value = formattaDataPerInputDate(p.genitore_scadenza_documento);
 
             document.getElementById('editTigre').checked = Boolean(p.tigre);
             document.getElementById('editCapitanoPiazza').checked = Boolean(p.capitano_piazza);
@@ -1398,13 +1366,12 @@
                 telefono: document.getElementById('editTelefono').value.trim(),
                 mail: document.getElementById('editMail').value.trim(),
                 
-                genitore1_cognome: document.getElementById('editGenitore1Cognome').value.trim().toUpperCase(),
-                genitore1_nome: document.getElementById('editGenitore1Nome').value.trim(),
-                genitore1_codice_fiscale: document.getElementById('editGenitore1CodiceFiscale').value.trim().toUpperCase(),
-
-                genitore2_cognome: document.getElementById('editGenitore2Cognome').value.trim().toUpperCase(),
-                genitore2_nome: document.getElementById('editGenitore2Nome').value.trim(),
-                genitore2_codice_fiscale: document.getElementById('editGenitore2CodiceFiscale').value.trim().toUpperCase(),
+                genitore_cognome: document.getElementById('editGenitoreCognome').value.trim().toUpperCase(),
+                genitore_nome: document.getElementById('editGenitoreNome').value.trim(),
+                genitore_data_nascita: document.getElementById('editGenitoreDataNascita').value.trim(),
+                genitore_tipo_documento: document.getElementById('editGenitoreTipoDocumento').value.trim(),
+                genitore_numero_documento: document.getElementById('editGenitoreNumeroDocumento').value.trim().toUpperCase(),
+                genitore_scadenza_documento: document.getElementById('editGenitoreScadenzaDocumento').value.trim(),
 
                 tigre: document.getElementById('editTigre').checked,
                 capitano_piazza: document.getElementById('editCapitanoPiazza').checked
