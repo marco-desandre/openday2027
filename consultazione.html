@@ -1580,6 +1580,8 @@
             document.getElementById('btnAggiungiIscrizione').style.display = 'none';
             document.getElementById('btnEliminaAnagrafica').style.display = 'none';
             document.getElementById('sezioneStoricoContainer').style.display = 'none';
+            document.getElementById('conteggioIscrizioniScheda').textContent = "0";
+            document.getElementById('conteggioConsecutiveScheda').textContent = "0";
             
             const btnSalva = document.getElementById('btnSalva');
             btnSalva.textContent = "Salva Anagrafica";
@@ -1604,9 +1606,18 @@
             const div = document.getElementById('storicoCaricamento'), tab = document.getElementById('tabellaStorico'), tbody = document.getElementById('corpoTabellaStorico');
             tbody.innerHTML = ''; tab.style.display = 'none'; div.style.display = 'block'; div.textContent = "Caricamento storico...";
             anniPresentiNellaScheda = [];
+            
+            let totaleComplete = 0;
+            let anniCompleteList = [];
+
             try {
                 const snap = await getDocs(query(collection(db, "storico"), where("id_persona", "==", id)));
-                if (snap.empty) { div.textContent = "Nessuna iscrizione passata."; return; }
+                if (snap.empty) { 
+                    div.textContent = "Nessuna iscrizione passata."; 
+                    document.getElementById('conteggioIscrizioniScheda').textContent = "0";
+                    document.getElementById('conteggioConsecutiveScheda').textContent = "0";
+                    return; 
+                }
                 div.style.display = 'none'; tab.style.display = 'table';
                 
                 let docsList = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -1615,9 +1626,37 @@
                 docsList.forEach(st => {
                     if (st.anno) anniPresentiNellaScheda.push(String(st.anno).trim());
                     let tipoIscrizioneVal = st.tipo_iscrizione || st.tipologia || st.tipo || st.descrizione || "";
+                    
+                    if (String(tipoIscrizioneVal).trim().toLowerCase() === "iscrizione completa") {
+                        totaleComplete++;
+                        let annoNum = parseInt(st.anno, 10);
+                        if (!isNaN(annoNum)) {
+                            anniCompleteList.push(annoNum > 2022 ? annoNum - 2 : annoNum);
+                        }
+                    }
+
                     tbody.innerHTML += `<tr><td>${pulisciTesto(st.anno)}</td><td>${pulisciTesto(tipoIscrizioneVal)}</td><td>${pulisciTesto(st.numero_identificativo)}</td><td>-</td></tr>`;
                 });
-            } catch (e) { div.textContent = "Errore caricamento storico."; }
+
+                // Calcolo consecutive
+                anniCompleteList.sort((a, b) => a - b);
+                let maxC = 0, gruppi = {};
+                anniCompleteList.forEach((a, i) => {
+                    let g = a - (i + 1);
+                    gruppi[g] = (gruppi[g] || 0) + 1;
+                });
+                for (let g in gruppi) {
+                    if (gruppi[g] > maxC) maxC = gruppi[g];
+                }
+
+                document.getElementById('conteggioIscrizioniScheda').textContent = totaleComplete;
+                document.getElementById('conteggioConsecutiveScheda').textContent = maxC;
+
+            } catch (e) { 
+                div.textContent = "Errore caricamento storico."; 
+                document.getElementById('conteggioIscrizioniScheda').textContent = "0";
+                document.getElementById('conteggioConsecutiveScheda').textContent = "0";
+            }
         }
 
         function attivaInserimentoNuovaIscrizioneEsistente() {
