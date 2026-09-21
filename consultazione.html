@@ -194,6 +194,7 @@
             <li class="sidebar-item attivo" onclick="cambiaSezioneMenu('visualizzazione_standard', this)">Iscritti</li>
             <li class="sidebar-item" onclick="cambiaSezioneMenu('ricerca', this)">Ricerca filtrata</li>
             
+            <!-- GRUPPO PREMI -->
             <div class="sidebar-group-title" onclick="toggleMenuGruppo('gruppoOnorificenze', this)">
                 <span>Premi</span>
                 <span id="freccia_gruppoOnorificenze">▼</span>
@@ -208,6 +209,7 @@
                 <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_tigre', this)">Tigre</li>
             </div>
 
+            <!-- GRUPPO PREVENTIVI ISCRIZIONI -->
             <div class="sidebar-group-title" onclick="toggleMenuGruppo('gruppoPreventivi', this)">
                 <span>Preventivi iscrizioni</span>
                 <span id="freccia_gruppoPreventivi">▼</span>
@@ -381,11 +383,11 @@
             <div id="sezione_onorificenze_capitani" class="sezione-app"><h2>Capitani di Piazza</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
             <div id="sezione_onorificenze_tigre" class="sezione-app"><h2>Tigre</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
 
-            <div id="sezione_preventivo_10" class="sezione-app"><h2>Preventivo Iscrizioni: 10 Anni</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
-            <div id="sezione_preventivo_20" class="sezione-app"><h2>Preventivo Iscrizioni: 20 Anni</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
-            <div id="sezione_preventivo_30" class="sezione-app"><h2>Preventivo Iscrizioni: 30 Anni</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
-            <div id="sezione_preventivo_40" class="sezione-app"><h2>Preventivo Iscrizioni: 40 Anni</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
-            <div id="sezione_preventivo_50" class="sezione-app"><h2>Preventivo Iscrizioni: 50 Anni</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_preventivo_10" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 10</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_preventivo_20" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 20</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_preventivo_30" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 30</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_preventivo_40" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 40</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_preventivo_50" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 50</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
 
         </div>
     </main>
@@ -403,7 +405,6 @@
             
             <div id="messaggioRuntimeDuplicato"></div>
 
-            <!-- RIGA 1: Cognome / Nome -->
             <div class="form-row">
                 <div class="form-group col-medium">
                     <label>Cognome:</label>
@@ -415,7 +416,6 @@
                 </div>
             </div>
 
-            <!-- RIGA 2: Codice Fiscale / Pulsante Calcola CF (Gestito da Flag) -->
             <div class="form-row" id="gruppoCampoCodiceFiscale">
                 <div class="form-group col-large">
                     <label>Codice Fiscale:</label>
@@ -426,7 +426,6 @@
                 </div>
             </div>
 
-            <!-- RIGA 3: Luogo di Nascita / Data di Nascita / Anni attuali -->
             <div class="form-row">
                 <div class="form-group col-medium">
                     <label>Luogo di Nascita:</label>
@@ -444,7 +443,6 @@
                 </div>
             </div>
 
-            <!-- RIGA 4: Indirizzo, Città, CAP, Provincia -->
             <div class="form-row">
                 <div class="form-group col-large">
                     <label>Indirizzo:</label>
@@ -464,7 +462,6 @@
                 </div>
             </div>
 
-            <!-- RIGA 5: Telefono / Mail -->
             <div class="form-row">
                 <div class="form-group col-medium">
                     <label>Telefono:</label>
@@ -476,7 +473,6 @@
                 </div>
             </div>
 
-            <!-- SEZIONE DOCUMENTO D'IDENTITÀ (GESTITO DA FLAG) -->
             <div id="gruppoSezioneDocumento" style="display: none; background: #e7f5ff; padding: 12px; border-radius: 6px; border: 1px solid #74c0fc; margin-top: 10px; margin-bottom: 10px;">
                 <h4 style="margin-top: 0; margin-bottom: 10px; color: #1864ab; font-size: 14px; border-bottom: 1px solid #74c0fc; padding-bottom: 4px;">Documento d'Identità</h4>
                 <div class="form-row" style="margin-bottom: 0;">
@@ -500,11 +496,9 @@
                 </div>
             </div>
 
-            <!-- SEZIONE DATI GENITORI (VISIBILE SOLO PER MINORENNI < 18 ANNI) -->
             <div id="sezioneDatiGenitori" style="display: none; background: #fff3cd; padding: 12px; border-radius: 6px; border: 1px solid #ffeeba; margin-top: 10px; margin-bottom: 10px;">
                 <h4 style="margin-top: 0; margin-bottom: 10px; color: #856404; font-size: 14px; border-bottom: 1px solid #ffeeba; padding-bottom: 4px;">Dati Genitori / Tutori (Obbligatori per minorenni < 18 anni)</h4>
                 
-                <!-- GENITORE 1 -->
                 <p style="font-size: 13px; font-weight: bold; color: #856404; margin: 5px 0;">Genitore 1</p>
                 <div class="form-row">
                     <div class="form-group col-medium">
@@ -533,7 +527,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- Documento Genitore 1 (Gestito da Flag) -->
                 <div id="gruppoGen1Doc" style="display: none; margin-bottom: 10px;">
                     <div class="form-row" style="margin-bottom: 0;">
                         <div class="form-group col-medium">
@@ -556,7 +549,6 @@
                     </div>
                 </div>
 
-                <!-- GENITORE 2 -->
                 <p style="font-size: 13px; font-weight: bold; color: #856404; margin: 10px 0 5px 0;">Genitore 2</p>
                 <div class="form-row">
                     <div class="form-group col-medium">
@@ -585,7 +577,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- Documento Genitore 2 (Gestito da Flag) -->
                 <div id="gruppoGen2Doc" style="display: none; margin-top: 5px; margin-bottom: 0;">
                     <div class="form-row" style="margin-bottom: 0;">
                         <div class="form-group col-medium">
@@ -1184,7 +1175,7 @@
                     }
                 }
                 risultati.sort((a, b) => a.cognome.localeCompare(b.cognome));
-                let html = `<h2>Onorificenze: ${titoloSezione}</h2><div class="box-contatore" style="display:block;">Trovati: ${risultati.length}</div><div class="table-responsive"><thead><tr><th>Cognome</th><th>Nome</th><th>Città</th><th>Telefono</th><th>Valore</th></tr></thead><tbody>`;
+                let html = `<h2>Onorificenze: ${titoloSezione}</h2><div class="box-contatore" style="display:block;">Trovati: ${risultati.length}</div><div class="table-responsive"><table><thead><tr><th>Cognome</th><th>Nome</th><th>Città</th><th>Telefono</th><th>Valore</th></tr></thead><tbody>`;
                 if (risultati.length === 0) html += `<tr><td colspan="5" style="text-align:center;">Nessun risultato.</td></tr>`;
                 else risultati.forEach(r => html += `<tr><td>${r.cognome}</td><td>${r.nome}</td><td>${r.citta}</td><td>${r.telefono}</td><td><strong>${r.valore}</strong></td></tr>`);
                 container.innerHTML = html + `</tbody></table></div>`;
@@ -1204,55 +1195,159 @@
             container.innerHTML = `<h2>Preventivo Iscrizioni: ${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Elaborazione preventivo...</div>`;
             mostraCaricamento(`Elaborazione Preventivo ${titoloSezione}...`);
             try {
+                const annoCarnevaleNum = parseInt(annoCarnevaleCorrente, 10) || 2027;
+                const annoLimitePreventivo = annoCarnevaleNum - 1;
+
                 const snapAnag = await getDocs(collection(db, "anagrafica"));
                 const snapStorico = await getDocs(collection(db, "storico"));
-                let anagMap = {}, storicoMap = {}, totaleComp = {};
-                snapAnag.forEach(d => anagMap[d.id] = d.data());
-                snapStorico.forEach(d => {
-                    let st = d.data();
+
+                let anagraficaMap = {};
+                snapAnag.forEach(docSnap => {
+                    anagraficaMap[docSnap.id] = docSnap.data();
+                });
+
+                let storicoPerPersona = {};
+                let totaliCompletiPersona = {};
+                let iscrittiAnnoAttualeSet = new Set();
+
+                snapStorico.forEach(docSnap => {
+                    let st = docSnap.data();
                     let idPers = st.id_persona;
                     if (!idPers) return;
-                    let tipologia = String(st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || "").trim().toLowerCase();
-                    if (tipologia !== "iscrizione completa") return;
+
                     let annoNum = parseInt(st.anno, 10);
                     if (isNaN(annoNum)) return;
-                    totaleComp[idPers] = (totaleComp[idPers] || 0) + 1;
-                    if (!storicoMap[idPers]) storicoMap[idPers] = [];
-                    storicoMap[idPers].push(annoNum);
+
+                    let tipologia = st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || st.categoria || st.iscrizione || "";
+                    let tipoPulito = String(tipologia).trim().toLowerCase();
+
+                    if (tipoPulito === "iscrizione completa" && annoNum === annoCarnevaleNum) {
+                        iscrittiAnnoAttualeSet.add(idPers);
+                    }
+
+                    if (annoNum > annoLimitePreventivo) return;
+                    if (tipoPulito !== "iscrizione completa") return;
+
+                    totaliCompletiPersona[idPers] = (totaliCompletiPersona[idPers] || 0) + 1;
+
+                    if (!storicoPerPersona[idPers]) {
+                        storicoPerPersona[idPers] = [];
+                    }
+                    storicoPerPersona[idPers].push(annoNum);
                 });
 
                 let risultati = [];
-                for (let idPers in anagMap) {
-                    let persona = anagMap[idPers], passa = false, val = 0;
-                    if (tipoControllo === 'consecutivi') {
-                        let anni = (storicoMap[idPers] || []).map(a => a > 2022 ? a - 2 : a).sort((a, b) => a - b);
-                        let maxC = 0, gruppi = {};
-                        anni.forEach((a, i) => { let g = a - (i + 1); gruppi[g] = (gruppi[g] || 0) + 1; });
-                        for (let g in gruppi) if (gruppi[g] > maxC) maxC = gruppi[g];
-                        passa = maxC >= sogliaAnni; val = maxC;
-                    } else {
-                        let tot = totaleComp[idPers] || 0;
-                        passa = tot >= sogliaAnni; val = tot;
+
+                for (let idPers in anagraficaMap) {
+                    let persona = anagraficaMap[idPers];
+                    let totaleIscrizioni = totaliCompletiPersona[idPers] || 0;
+                    let passaCriterio = false;
+                    let valoreMostrato = 0;
+
+                    if (tipoControllo === 'consecutivi_preventivo') {
+                        let targetConsecutivi = sogliaAnni - 1; 
+                        let anniArr = storicoPerPersona[idPers] || [];
+                        
+                        let anniNorm = anniArr.map(anno => anno > 2022 ? anno - 2 : anno);
+                        anniNorm = [...new Set(anniNorm)].sort((a, b) => a - b);
+                        
+                        let gruppiCount = {};
+                        anniNorm.forEach((annoNorm, index) => {
+                            let rn = index + 1;
+                            let grp = annoNorm - rn;
+                            gruppiCount[grp] = (gruppiCount[grp] || 0) + 1;
+                        });
+
+                        let massimoConsecutivi = 0;
+                        for (let grp in gruppiCount) {
+                            if (gruppiCount[grp] > massimoConsecutivi) {
+                                massimoConsecutivi = gruppiCount[grp];
+                            }
+                        }
+                        
+                        passaCriterio = (massimoConsecutivi === targetConsecutivi);
+                        valoreMostrato = massimoConsecutivi;
+
+                    } else if (tipoControllo === 'totali_preventivo') {
+                        let targetTotale = sogliaAnni - 1;
+                        passaCriterio = (totaleIscrizioni === targetTotale);
+                        valoreMostrato = totaleIscrizioni;
                     }
-                    if (passa) {
-                        risultati.push({ cognome: formattaCognome(persona.cognome), nome: pulisciTesto(persona.nome), citta: pulisciTesto(persona.citta), telefono: pulisciTesto(persona.telefono), valore: val });
+
+                    if (passaCriterio) {
+                        let giaIscritto = iscrittiAnnoAttualeSet.has(idPers);
+                        risultati.push({
+                            personaCompleta: { id: idPers, ...persona },
+                            cognome: formattaCognome(persona.cognome),
+                            nome: pulisciTesto(persona.nome),
+                            citta: pulisciTesto(persona.citta),
+                            telefono: pulisciTesto(persona.telefono),
+                            valore: valoreMostrato,
+                            iscrittoAnno: giaIscritto
+                        });
                     }
                 }
+
                 risultati.sort((a, b) => a.cognome.localeCompare(b.cognome));
-                let html = `<h2>Preventivo Iscrizioni: ${titoloSezione}</h2><div class="box-contatore" style="display:block;">Totale preventivo: ${risultati.length}</div><div class="table-responsive"><table><thead><tr><th>Cognome</th><th>Nome</th><th>Città</th><th>Telefono</th><th>Anni Validi</th></tr></thead><tbody>`;
-                if (risultati.length === 0) html += `<tr><td colspan="5" style="text-align:center;">Nessun risultato per il preventivo.</td></tr>`;
-                else risultati.forEach(r => html += `<tr><td>${r.cognome}</td><td>${r.nome}</td><td>${r.citta}</td><td>${r.telefono}</td><td><strong>${r.valore}</strong></td></tr>`);
-                container.innerHTML = html + `</tbody></table></div>`;
+                let etichettaColonnaValore = tipoControllo.includes('consecutivi') ? 'Anni Consecutivi Attuali' : 'Totale Iscrizioni Attuali';
+
+                let html = `
+                    <h2>Preventivo Iscrizioni: ${titoloSezione}</h2>
+                    <p style="color: #666; font-size: 14px;">Elenco degli iscritti che raggiungeranno ${sogliaAnni} anni nel ${annoCarnevaleNum} (calcolato sulle iscrizioni fino al ${annoLimitePreventivo}, escludendo il biennio COVID 2021-2022)[cite: 3]. Clicca su una riga per visualizzare lo storico[cite: 3].</p>
+                    <div class="box-contatore" style="display: block;">Iscritti trovati: ${risultati.length}</div>
+                    <div class="table-responsive"><table>
+                        <thead>
+                            <tr>
+                                <th>Cognome</th>
+                                <th>Nome</th>
+                                <th>Città</th>
+                                <th>Telefono</th>
+                                <th>${etichettaColonnaValore}</th>
+                                <th>Iscrizione anno ${annoCarnevaleNum}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table></div>
+                `;
+
+                container.innerHTML = html;
+                const tbodyElement = container.querySelector('tbody');
+
+                if (risultati.length === 0) {
+                    tbodyElement.innerHTML = `<tr><td colspan="6" style="text-align:center; font-style:italic;">Nessun iscritto rientra nel preventivo ${titoloSezione}.</td></tr>`;
+                } else {
+                    risultati.forEach(r => {
+                        const tr = document.createElement('tr');
+                        tr.style.cursor = 'pointer';
+                        
+                        let statoIscrizioneHtml = r.iscrittoAnno 
+                            ? `<span style="color: #28a745; font-weight: bold;">Iscritto</span>` 
+                            : `-`;
+
+                        tr.innerHTML = `
+                            <td>${r.cognome}</td>
+                            <td>${r.nome}</td>
+                            <td>${r.citta}</td>
+                            <td>${r.telefono}</td>
+                            <td><strong>${r.valore}</strong></td>
+                            <td>${statoIscrizioneHtml}</td>
+                        `;
+                        tr.addEventListener('click', () => apriModaleEsistente(r.personaCompleta));
+                        tbodyElement.appendChild(tr);
+                    });
+                }
+
             } catch (e) {
                 container.innerHTML = `<p style="color:red;">Errore preventivo: ${e.message}</p>`;
             } finally { nascondiCaricamento(); }
         }
 
-        window.caricaPreventivo10 = () => elaboraPreventivoIscrizioni('sezione_preventivo_10', '10 Anni', 10, 'consecutivi');
-        window.caricaPreventivo20 = () => elaboraPreventivoIscrizioni('sezione_preventivo_20', '20 Anni', 20, 'totali');
-        window.caricaPreventivo30 = () => elaboraPreventivoIscrizioni('sezione_preventivo_30', '30 Anni', 30, 'totali');
-        window.caricaPreventivo40 = () => elaboraPreventivoIscrizioni('sezione_preventivo_40', '40 Anni', 40, 'totali');
-        window.caricaPreventivo50 = () => elaboraPreventivoIscrizioni('sezione_preventivo_50', '50 Anni', 50, 'totali');
+        window.caricaPreventivo10 = () => elaboraPreventivoIscrizioni('sezione_preventivo_10', 'Preventivo 10', 10, 'consecutivi_preventivo');
+        window.caricaPreventivo20 = () => elaboraPreventivoIscrizioni('sezione_preventivo_20', 'Preventivo 20', 20, 'totali_preventivo');
+        window.caricaPreventivo30 = () => elaboraPreventivoIscrizioni('sezione_preventivo_30', 'Preventivo 30', 30, 'totali_preventivo');
+        window.caricaPreventivo40 = () => elaboraPreventivoIscrizioni('sezione_preventivo_40', 'Preventivo 40', 40, 'totali_preventivo');
+        window.caricaPreventivo50 = () => elaboraPreventivoIscrizioni('sezione_preventivo_50', 'Preventivo 50', 50, 'totali_preventivo');
 
         async function caricaTabellaUtenti() {
             const tbody = document.getElementById('corpoTabellaUtenti');
