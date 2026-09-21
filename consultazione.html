@@ -1332,6 +1332,12 @@
             document.getElementById('btnUser').classList.toggle('attivo', isUser);
             document.getElementById('sidebarMenu').classList.toggle('nascosta', isUser);
             if (isUser) cambiaSezioneMenu('visualizzazione_standard');
+            
+            // Ricarica lo storico dell'utente aperto se la modale è visiva per aggiornare i pulsanti Admin
+            const idPersonaCorrente = document.getElementById('editIdPersona').value;
+            if (idPersonaCorrente && document.getElementById('editModal').style.display === 'flex') {
+                caricaStoricoPersona(idPersonaCorrente);
+            }
         };
 
         window.caricaDatiRicercaFiltrata = async function() {
@@ -1635,7 +1641,21 @@
                         }
                     }
 
-                    tbody.innerHTML += `<tr><td>${pulisciTesto(st.anno)}</td><td>${pulisciTesto(tipoIscrizioneVal)}</td><td>${pulisciTesto(st.numero_identificativo)}</td><td>-</td></tr>`;
+                    let azioniHtml = '-';
+                    if (modalitaCorrente === 'admin') {
+                        azioniHtml = `
+                            <button type="button" class="btn-azione btn-modifica-storico" onclick="abilitaModificaStorico(this, '${st.id}')">Modifica</button>
+                            <button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaRigaStorico('${st.id}', '${id}')">Elimina</button>
+                        `;
+                    }
+
+                    tbody.innerHTML += `
+                        <tr data-id="${st.id}">
+                            <td>${pulisciTesto(st.anno)}</td>
+                            <td class="td-tipo">${pulisciTesto(tipoIscrizioneVal)}</td>
+                            <td class="td-num">${pulisciTesto(st.numero_identificativo)}</td>
+                            <td class="td-azioni">${azioniHtml}</td>
+                        </tr>`;
                 });
 
                 // Calcolo consecutive
@@ -1658,6 +1678,54 @@
                 document.getElementById('conteggioConsecutiveScheda').textContent = "0";
             }
         }
+
+        window.abilitaModificaStorico = function(btn, storicoId) {
+            const tr = btn.closest('tr');
+            const tdTipo = tr.querySelector('.td-tipo');
+            const tdNum = tr.querySelector('.td-num');
+            const tdAzioni = tr.querySelector('.td-azioni');
+
+            const valTipo = tdTipo.textContent.trim();
+            const valNum = tdNum.textContent.trim();
+
+            tdTipo.innerHTML = `<select class="input-storico select-tipo-mod"><option value="Iscrizione Completa" ${valTipo === 'Iscrizione Completa' ? 'selected' : ''}>Iscrizione Completa</option></select>`;
+            tdNum.innerHTML = `<input type="text" class="input-storico input-num-mod" value="${valNum}">`;
+            tdAzioni.innerHTML = `<button type="button" class="btn-azione btn-salva-storico" onclick="salvaModificaStorico('${storicoId}', this)">Salva</button>`;
+        };
+
+        window.salvaModificaStorico = async function(storicoId, btn) {
+            const tr = btn.closest('tr');
+            const nuovoTipo = tr.querySelector('.select-tipo-mod').value;
+            const nuovoNum = tr.querySelector('.input-num-mod').value.trim();
+            const idPersona = document.getElementById('editIdPersona').value;
+
+            try {
+                mostraCaricamento("Salvataggio modifiche...");
+                await setDoc(doc(db, "storico", storicoId), { tipo_iscrizione: nuovoTipo, numero_identificativo: nuovoNum }, { merge: true });
+                cacheTuttiIscritti = [];
+                await caricaStoricoPersona(idPersona);
+                alert("Modifiche salvate con successo!");
+            } catch (error) {
+                alert("Errore durante il salvataggio: " + error.message);
+            } finally {
+                nascondiCaricamento();
+            }
+        };
+
+        window.eliminaRigaStorico = async function(storicoId, idPersona) {
+            if (!confirm("Sei sicuro di voler eliminare questa iscrizione dallo storico?")) return;
+            try {
+                mostraCaricamento("Eliminazione iscrizione...");
+                await deleteDoc(doc(db, "storico", storicoId));
+                cacheTuttiIscritti = [];
+                await caricaStoricoPersona(idPersona);
+                alert("Iscrizione eliminata con successo!");
+            } catch (error) {
+                alert("Errore durante l'eliminazione: " + error.message);
+            } finally {
+                nascondiCaricamento();
+            }
+        };
 
         function attivaInserimentoNuovaIscrizioneEsistente() {
             const tbody = document.getElementById('corpoTabellaStorico');
