@@ -1000,6 +1000,9 @@
             if (dizionarioComuniCatastali[codCatastale]) {
                 document.getElementById('editLuogoNascita').value = dizionarioComuniCatastali[codCatastale];
             }
+
+            // Forza il controllo duplicati in tempo reale dopo l'auto-compilazione
+            eseguiVerificaRuntime();
         }
 
         // Ascoltatore in tempo reale sul campo Codice Fiscale
