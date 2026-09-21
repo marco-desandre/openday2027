@@ -1333,7 +1333,6 @@
             document.getElementById('sidebarMenu').classList.toggle('nascosta', isUser);
             if (isUser) cambiaSezioneMenu('visualizzazione_standard');
             
-            // Ricarica lo storico dell'utente aperto se la modale è visiva per aggiornare i pulsanti Admin
             const idPersonaCorrente = document.getElementById('editIdPersona').value;
             if (idPersonaCorrente && document.getElementById('editModal').style.display === 'flex') {
                 caricaStoricoPersona(idPersonaCorrente);
@@ -1644,7 +1643,7 @@
                     let azioniHtml = '-';
                     if (modalitaCorrente === 'admin') {
                         azioniHtml = `
-                            <button type="button" class="btn-azione btn-modifica-storico" onclick="abilitaModificaStorico(this, '${st.id}')">Modifica</button>
+                            <button type="button" class="btn-azione btn-modifica-storico" onclick="abilitaModificaStorico(this, '${st.id}', '${st.anno}')">Modifica</button>
                             <button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaRigaStorico('${st.id}', '${id}')">Elimina</button>
                         `;
                     }
@@ -1658,7 +1657,6 @@
                         </tr>`;
                 });
 
-                // Calcolo consecutive
                 anniCompleteList.sort((a, b) => a - b);
                 let maxC = 0, gruppi = {};
                 anniCompleteList.forEach((a, i) => {
@@ -1679,7 +1677,7 @@
             }
         }
 
-        window.abilitaModificaStorico = function(btn, storicoId) {
+        window.abilitaModificaStorico = function(btn, storicoId, annoStorico) {
             const tr = btn.closest('tr');
             const tdTipo = tr.querySelector('.td-tipo');
             const tdNum = tr.querySelector('.td-num');
@@ -1690,17 +1688,42 @@
 
             tdTipo.innerHTML = `<select class="input-storico select-tipo-mod"><option value="Iscrizione Completa" ${valTipo === 'Iscrizione Completa' ? 'selected' : ''}>Iscrizione Completa</option></select>`;
             tdNum.innerHTML = `<input type="text" class="input-storico input-num-mod" value="${valNum}">`;
-            tdAzioni.innerHTML = `<button type="button" class="btn-azione btn-salva-storico" onclick="salvaModificaStorico('${storicoId}', this)">Salva</button>`;
+            tdAzioni.innerHTML = `<button type="button" class="btn-azione btn-salva-storico" onclick="salvaModificaStorico('${storicoId}', '${annoStorico}', this)">Salva</button>`;
         };
 
-        window.salvaModificaStorico = async function(storicoId, btn) {
+        window.salvaModificaStorico = async function(storicoId, annoStorico, btn) {
             const tr = btn.closest('tr');
             const nuovoTipo = tr.querySelector('.select-tipo-mod').value;
             const nuovoNum = tr.querySelector('.input-num-mod').value.trim();
             const idPersona = document.getElementById('editIdPersona').value;
 
+            if (!nuovoNum) {
+                alert("Inserisci un numero identificativo valido.");
+                return;
+            }
+
             try {
-                mostraCaricamento("Salvataggio modifiche...");
+                mostraCaricamento("Verifica duplicati e salvataggio...");
+                
+                // CONTROLLO DUPLICATO NUMERO IDENTIFICATIVO PER LO STESSO ANNO
+                const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoStorico))));
+                let duplicatoTrovato = false;
+                
+                snapStoricoAnno.forEach(d => {
+                    if (d.id === storicoId) return; // Salta il documento corrente che stiamo modificando
+                    let datiSto = d.data();
+                    let numEsistente = String(datiSto.numero_identificativo || "").trim();
+                    if (numEsistente !== "" && numEsistente.toLowerCase() === nuovoNum.toLowerCase()) {
+                        duplicatoTrovato = true;
+                    }
+                });
+
+                if (duplicatoTrovato) {
+                    nascondiCaricamento();
+                    alert(`⚠️ Attenzione: Il numero identificativo "${nuovoNum}" risulta già assegnato ad un altro iscritto per l'anno ${annoStorico}!`);
+                    return;
+                }
+
                 await setDoc(doc(db, "storico", storicoId), { tipo_iscrizione: nuovoTipo, numero_identificativo: nuovoNum }, { merge: true });
                 cacheTuttiIscritti = [];
                 await caricaStoricoPersona(idPersona);
@@ -1740,11 +1763,46 @@
             const tr = btn.closest('tr'), idPersona = document.getElementById('editIdPersona').value;
             const num = tr.querySelector('.input-num').value.trim();
             if (!num) return alert("Inserisci il numero identificativo.");
-            await addDoc(collection(db, "storico"), { id_persona: idPersona, anno: annoCarnevaleCorrente, tipo_iscrizione: "Iscrizione Completa", numero_identificativo: num, creato_da: aliasUtenteLoggato, creato_il: new Date().toLocaleString('it-IT') });
-            alert("Salvato!");
-            cacheTuttiIscritti = [];
-            document.getElementById('btnAggiungiIscrizione').style.display = 'block';
-            await caricaStoricoPersona(idPersona);
+
+            try {
+                mostraCaricamento("Verifica duplicati e salvataggio...");
+
+                // CONTROLLO DUPLICATO NUMERO IDENTIFICATIVO PER LO STESSO ANNO
+                const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoCarnevaleCorrente))));
+                let duplicatoTrovato = false;
+
+                snapStoricoAnno.forEach(d => {
+                    let datiSto = d.data();
+                    let numEsistente = String(datiSto.numero_identificativo || "").trim();
+                    if (numEsistente !== "" && numEsistente.toLowerCase() === num.toLowerCase()) {
+                        duplicatoTrovato = true;
+                    }
+                });
+
+                if (duplicatoTrovato) {
+                    nascondiCaricamento();
+                    alert(`⚠️ Attenzione: Il numero identificativo "${num}" è già stato registrato per l'anno ${annoCarnevaleCorrente}!`);
+                    return;
+                }
+
+                await addDoc(collection(db, "storico"), { 
+                    id_persona: idPersona, 
+                    anno: annoCarnevaleCorrente, 
+                    tipo_iscrizione: "Iscrizione Completa", 
+                    numero_identificativo: num, 
+                    creato_da: aliasUtenteLoggato, 
+                    creato_il: new Date().toLocaleString('it-IT') 
+                });
+
+                alert("Salvato!");
+                cacheTuttiIscritti = [];
+                document.getElementById('btnAggiungiIscrizione').style.display = 'block';
+                await caricaStoricoPersona(idPersona);
+            } catch (error) {
+                alert("Errore durante il salvataggio: " + error.message);
+            } finally {
+                nascondiCaricamento();
+            }
         };
 
         document.getElementById('btnChiudiX').addEventListener('click', () => modal.style.display = 'none');
