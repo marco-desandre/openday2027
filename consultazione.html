@@ -1508,20 +1508,12 @@
             document.getElementById('editGenitore2NumDoc').value = pulisciTesto(p.genitore2_num_doc);
             document.getElementById('editGenitore2ScadenzaDoc').value = formattaDataPerInputDate(p.genitore2_scadenza_doc);
 
-            // Gestione permessi Tigre e Capitano (modificabili solo se admin)
-            const isAdmin = (ruoloUtenteLoggato === 'admin');
-            const chkTigre = document.getElementById('editTigre');
-            const chkCapitano = document.getElementById('editCapitanoPiazza');
-
-            chkTigre.checked = Boolean(p.tigre);
-            chkCapitano.checked = Boolean(p.capitano_piazza);
-            
-            chkTigre.disabled = !isAdmin;
-            chkCapitano.disabled = !isAdmin;
+            document.getElementById('editTigre').checked = Boolean(p.tigre);
+            document.getElementById('editCapitanoPiazza').checked = Boolean(p.capitano_piazza);
 
             document.getElementById('btnAggiungiIscrizione').style.display = 'block';
-            document.getElementById('btnAggiungiIscrizione'].onclick = attivaInserimentoNuovaIscrizioneEsistente;
-            document.getElementById('btnEliminaAnagrafica').style.display = isAdmin ? 'block' : 'none';
+            document.getElementById('btnAggiungiIscrizione').onclick = attivaInserimentoNuovaIscrizioneEsistente;
+            document.getElementById('btnEliminaAnagrafica').style.display = (modalitaCorrente === 'admin') ? 'block' : 'none';
             document.getElementById('btnEliminaAnagrafica').onclick = () => eliminaAnagraficaCompleta(p.id);
             document.getElementById('sezioneStoricoContainer').style.display = 'block';
             
@@ -1575,58 +1567,20 @@
             const div = document.getElementById('storicoCaricamento'), tab = document.getElementById('tabellaStorico'), tbody = document.getElementById('corpoTabellaStorico');
             tbody.innerHTML = ''; tab.style.display = 'none'; div.style.display = 'block'; div.textContent = "Caricamento storico...";
             anniPresentiNellaScheda = [];
-            
-            // Reset contatori visivi
-            document.getElementById('conteggioIscrizioniScheda').textContent = "0";
-            document.getElementById('conteggioConsecutiveScheda').textContent = "0";
-
             try {
                 const snap = await getDocs(query(collection(db, "storico"), where("id_persona", "==", id)));
-                if (snap.empty) { 
-                    div.textContent = "Nessuna iscrizione passata."; 
-                    return; 
-                }
+                if (snap.empty) { div.textContent = "Nessuna iscrizione passata."; return; }
                 div.style.display = 'none'; tab.style.display = 'table';
                 
                 let docsList = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 docsList.sort((a, b) => parseInt(b.anno || 0, 10) - parseInt(a.anno || 0, 10));
 
-                let anniCompletiNum = [];
                 docsList.forEach(st => {
-                    let annoStr = String(st.anno || "").trim();
-                    let tipoStr = String(st.tipologia || st.tipo_iscrizione || st.tipo || "").trim().toLowerCase();
-                    
-                    if (annoStr) {
-                        anniPresentiNellaScheda.push(annoStr);
-                        let annoNum = parseInt(annoStr, 10);
-                        if (!isNaN(annoNum) && tipoStr === "iscrizione completa") {
-                            anniCompletiNum.push(annoNum);
-                        }
-                    }
+                    if (st.anno) anniPresentiNellaScheda.push(String(st.anno).trim());
                     tbody.innerHTML += `<tr><td>${pulisciTesto(st.anno)}</td><td>${pulisciTesto(st.tipo_iscrizione || st.tipo)}</td><td>${pulisciTesto(st.numero_identificativo)}</td><td>-</td></tr>`;
                 });
-
-                // Calcolo Totale Complete
-                let totComplete = anniCompletiNum.length;
-                document.getElementById('conteggioIscrizioniScheda').textContent = totComplete;
-
-                // Calcolo Anni Consecutive (normalizzando eventuale offset post-2022)
-                let anniNormalizzati = anniCompletiNum.map(a => a > 2022 ? a - 2 : a).sort((a, b) => a - b);
-                let maxConsecutive = 0, gruppi = {};
-                anniNormalizzati.forEach((a, i) => { 
-                    let g = a - (i + 1); 
-                    gruppi[g] = (gruppi[g] || 0) + 1; 
-                });
-                for (let g in gruppi) {
-                    if (gruppi[g] > maxConsecutive) maxConsecutive = gruppi[g];
-                }
-                document.getElementById('conteggioConsecutiveScheda').textContent = maxConsecutive;
-
-            } catch (e) { 
-                div.textContent = "Errore caricamento storico."; 
-            }
+            } catch (e) { div.textContent = "Errore caricamento storico."; }
         }
-       
 
         function attivaInserimentoNuovaIscrizioneEsistente() {
             const tbody = document.getElementById('corpoTabellaStorico');
