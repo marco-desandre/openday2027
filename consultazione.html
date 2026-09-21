@@ -463,7 +463,7 @@
                 </div>
             </div>
 
-            <!-- SEZIONE DATI GENITORI (< 18 ANNI) - DUE GENITORI -->
+            <!-- SEZIONE DATI GENITORI (VISIBILE SOLO PER MINORENNI < 18 ANNI) -->
             <div id="sezioneDatiGenitori" style="display: none; background: #fff3cd; padding: 12px; border-radius: 6px; border: 1px solid #ffeeba; margin-top: 10px; margin-bottom: 10px;">
                 <h4 style="margin-top: 0; margin-bottom: 10px; color: #856404; font-size: 14px; border-bottom: 1px solid #ffeeba; padding-bottom: 4px;">Dati Genitori / Tutori (Obbligatori per minorenni < 18 anni)</h4>
                 
@@ -986,7 +986,6 @@
             }
         };
 
-        // Funzione automatica quando il CF principale raggiunge 16 caratteri
         function decodificaCfInCampi(cf) {
             cf = cf.trim().toUpperCase();
             if (cf.length !== 16) return;
@@ -1381,8 +1380,11 @@
                 const snap = await getDocs(query(collection(db, "storico"), where("id_persona", "==", id)));
                 if (snap.empty) { div.textContent = "Nessuna iscrizione passata."; return; }
                 div.style.display = 'none'; tab.style.display = 'table';
-                snap.forEach(d => {
-                    let st = d.data();
+                
+                let docsList = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                docsList.sort((a, b) => parseInt(b.anno || 0, 10) - parseInt(a.anno || 0, 10));
+
+                docsList.forEach(st => {
                     if (st.anno) anniPresentiNellaScheda.push(String(st.anno).trim());
                     tbody.innerHTML += `<tr><td>${pulisciTesto(st.anno)}</td><td>${pulisciTesto(st.tipo_iscrizione || st.tipo)}</td><td>${pulisciTesto(st.numero_identificativo)}</td><td>-</td></tr>`;
                 });
