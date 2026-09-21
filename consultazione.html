@@ -1234,14 +1234,31 @@
             const alias = document.getElementById('inputUserAlias').value.trim();
             const ruolo = document.getElementById('selectUserRole').value;
             const attivo = document.getElementById('selectUserStato').value === "attivo";
-            if (!email) return alert("Inserisci email.");
             
-            const docRef = id ? doc(db, "utenti", id) : doc(collection(db, "utenti"));
-            await setDoc(docRef, { email, alias, ruolo, attivo }, { merge: true });
-            
-            alert("Utente salvato!");
-            chiudiModaleUtente();
-            caricaTabellaUtenti();
+            if (!email) {
+                alert("Inserisci un indirizzo email valido.");
+                return;
+            }
+
+            try {
+                mostraCaricamento("Salvataggio utente in corso...");
+                if (id) {
+                    // Modifica utente esistente
+                    await setDoc(doc(db, "utenti", id), { email, alias, ruolo, attivo }, { merge: true });
+                } else {
+                    // Creazione nuovo utente
+                    await addDoc(collection(db, "utenti"), { email, alias, ruolo, attivo });
+                }
+                
+                alert("Utente salvato con successo!");
+                chiudiModaleUtente();
+                caricaTabellaUtenti();
+            } catch (error) {
+                console.error("Errore durante il salvataggio dell'utente:", error);
+                alert("Errore durante il salvataggio: " + error.message);
+            } finally {
+                nascondiCaricamento();
+            }
         };
 
         window.cambiaSezioneMenu = function(valore, elem) {
