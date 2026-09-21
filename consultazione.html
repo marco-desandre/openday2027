@@ -524,12 +524,34 @@
                         <input type="date" id="editGenitore1DataNascita" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;">
                     </div>
                 </div>
-                <div class="form-row" style="margin-bottom: 10px;">
+                <div class="form-row" id="gruppoGen1CF" style="margin-bottom: 5px;">
                     <div class="form-group col-large">
                         <label style="font-size: 11px;">Codice Fiscale:</label>
                         <div style="display: flex; gap: 6px;">
                             <input type="text" id="editGenitore1CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 5px; font-size: 12px; text-transform: uppercase; margin: 0;">
                             <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 11px; font-weight: bold; height: 30px;" onclick="calcolaCFGenitore(1)">Calcola CF</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Documento Genitore 1 (Gestito da Flag) -->
+                <div id="gruppoGen1Doc" style="display: none; margin-bottom: 10px;">
+                    <div class="form-row" style="margin-bottom: 0;">
+                        <div class="form-group col-medium">
+                            <label style="font-size: 11px;">Tipo Documento (Gen 1):</label>
+                            <select id="editGenitore1TipoDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                                <option value="">-- Seleziona --</option>
+                                <option value="Carta d'Identità">Carta d'Identità</option>
+                                <option value="Passaporto">Passaporto</option>
+                                <option value="Patente">Patente</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-medium">
+                            <label style="font-size: 11px;">N. Documento (Gen 1):</label>
+                            <input type="text" id="editGenitore1NumDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                        </div>
+                        <div class="form-group col-medium">
+                            <label style="font-size: 11px;">Scadenza (Gen 1):</label>
+                            <input type="date" id="editGenitore1ScadenzaDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
                         </div>
                     </div>
                 </div>
@@ -554,12 +576,34 @@
                         <input type="date" id="editGenitore2DataNascita" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;">
                     </div>
                 </div>
-                <div class="form-row" style="margin-bottom: 0;">
+                <div class="form-row" id="gruppoGen2CF" style="margin-bottom: 0;">
                     <div class="form-group col-large">
                         <label style="font-size: 11px;">Codice Fiscale:</label>
                         <div style="display: flex; gap: 6px;">
                             <input type="text" id="editGenitore2CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 5px; font-size: 12px; text-transform: uppercase; margin: 0;">
                             <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 11px; font-weight: bold; height: 30px;" onclick="calcolaCFGenitore(2)">Calcola CF</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Documento Genitore 2 (Gestito da Flag) -->
+                <div id="gruppoGen2Doc" style="display: none; margin-top: 5px; margin-bottom: 0;">
+                    <div class="form-row" style="margin-bottom: 0;">
+                        <div class="form-group col-medium">
+                            <label style="font-size: 11px;">Tipo Documento (Gen 2):</label>
+                            <select id="editGenitore2TipoDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                                <option value="">-- Seleziona --</option>
+                                <option value="Carta d'Identità">Carta d'Identità</option>
+                                <option value="Passaporto">Passaporto</option>
+                                <option value="Patente">Patente</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-medium">
+                            <label style="font-size: 11px;">N. Documento (Gen 2):</label>
+                            <input type="text" id="editGenitore2NumDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                        </div>
+                        <div class="form-group col-medium">
+                            <label style="font-size: 11px;">Scadenza (Gen 2):</label>
+                            <input type="date" id="editGenitore2ScadenzaDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
                         </div>
                     </div>
                 </div>
@@ -697,6 +741,10 @@
         function applicaConfigurazioneUI() {
             document.getElementById('gruppoCampoCodiceFiscale').style.display = configCodiceFiscale ? 'flex' : 'none';
             document.getElementById('gruppoSezioneDocumento').style.display = configDocumento ? 'block' : 'none';
+            document.getElementById('gruppoGen1CF').style.display = configCodiceFiscale ? 'flex' : 'none';
+            document.getElementById('gruppoGen2CF').style.display = configCodiceFiscale ? 'flex' : 'none';
+            document.getElementById('gruppoGen1Doc').style.display = configDocumento ? 'block' : 'none';
+            document.getElementById('gruppoGen2Doc').style.display = configDocumento ? 'block' : 'none';
         }
         applicaConfigurazioneUI();
 
@@ -759,11 +807,17 @@
             { id: 'genitore1_luogo_nascita', titolo: 'Luogo Nascita Genitore 1', default: false },
             { id: 'genitore1_data_nascita', titolo: 'Data Nascita Genitore 1', default: false },
             { id: 'genitore1_codice_fiscale', titolo: 'CF Genitore 1', default: false, formatter: val => pulisciTesto(val).toUpperCase() },
+            { id: 'genitore1_tipo_doc', titolo: 'Tipo Doc Gen 1', default: false },
+            { id: 'genitore1_num_doc', titolo: 'N. Doc Gen 1', default: false },
+            { id: 'genitore1_scadenza_doc', titolo: 'Scadenza Doc Gen 1', default: false },
             { id: 'genitore2_cognome', titolo: 'Cognome Genitore 2', default: false, formatter: val => formattaCognome(val) },
             { id: 'genitore2_nome', titolo: 'Nome Genitore 2', default: false },
             { id: 'genitore2_luogo_nascita', titolo: 'Luogo Nascita Genitore 2', default: false },
             { id: 'genitore2_data_nascita', titolo: 'Data Nascita Genitore 2', default: false },
             { id: 'genitore2_codice_fiscale', titolo: 'CF Genitore 2', default: false, formatter: val => pulisciTesto(val).toUpperCase() },
+            { id: 'genitore2_tipo_doc', titolo: 'Tipo Doc Gen 2', default: false },
+            { id: 'genitore2_num_doc', titolo: 'N. Doc Gen 2', default: false },
+            { id: 'genitore2_scadenza_doc', titolo: 'Scadenza Doc Gen 2', default: false },
             { id: 'tigre', titolo: 'Tigre', default: false, formatter: val => val ? 'Si' : 'No' },
             { id: 'capitano_piazza', titolo: 'Capitano Piazza', default: false, formatter: val => val ? 'Si' : 'No' },
             { id: 'tipo_iscrizione', titolo: 'Tipo Iscrizione', default: true, richiedeAnnoSpecifico: true },
@@ -1380,12 +1434,18 @@
             document.getElementById('editGenitore1LuogoNascita').value = pulisciTesto(p.genitore1_luogo_nascita);
             document.getElementById('editGenitore1DataNascita').value = formattaDataPerInputDate(p.genitore1_data_nascita);
             document.getElementById('editGenitore1CodiceFiscale').value = pulisciTesto(p.genitore1_codice_fiscale || p.genitore_codice_fiscale).toUpperCase();
+            document.getElementById('editGenitore1TipoDoc').value = pulisciTesto(p.genitore1_tipo_doc);
+            document.getElementById('editGenitore1NumDoc').value = pulisciTesto(p.genitore1_num_doc);
+            document.getElementById('editGenitore1ScadenzaDoc').value = formattaDataPerInputDate(p.genitore1_scadenza_doc);
             
             document.getElementById('editGenitore2Cognome').value = pulisciTesto(p.genitore2_cognome);
             document.getElementById('editGenitore2Nome').value = pulisciTesto(p.genitore2_nome);
             document.getElementById('editGenitore2LuogoNascita').value = pulisciTesto(p.genitore2_luogo_nascita);
             document.getElementById('editGenitore2DataNascita').value = formattaDataPerInputDate(p.genitore2_data_nascita);
             document.getElementById('editGenitore2CodiceFiscale').value = pulisciTesto(p.genitore2_codice_fiscale).toUpperCase();
+            document.getElementById('editGenitore2TipoDoc').value = pulisciTesto(p.genitore2_tipo_doc);
+            document.getElementById('editGenitore2NumDoc').value = pulisciTesto(p.genitore2_num_doc);
+            document.getElementById('editGenitore2ScadenzaDoc').value = formattaDataPerInputDate(p.genitore2_scadenza_doc);
 
             document.getElementById('editTigre').checked = Boolean(p.tigre);
             document.getElementById('editCapitanoPiazza').checked = Boolean(p.capitano_piazza);
@@ -1412,6 +1472,8 @@
             document.getElementById('editTipoDocumento').value = "";
             document.getElementById('editNumeroDocumento').value = "";
             document.getElementById('editScadenzaDocumento').value = "";
+            document.getElementById('editGenitore1TipoDoc').value = "";
+            document.getElementById('editGenitore2TipoDoc').value = "";
             document.getElementById('editEtaDisplay').value = "";
             document.getElementById('messaggioRuntimeDuplicato').textContent = "";
             document.getElementById('sezioneDatiGenitori').style.display = 'none';
@@ -1504,12 +1566,18 @@
                 genitore1_luogo_nascita: document.getElementById('editGenitore1LuogoNascita').value.trim(),
                 genitore1_data_nascita: document.getElementById('editGenitore1DataNascita').value.trim(),
                 genitore1_codice_fiscale: document.getElementById('editGenitore1CodiceFiscale').value.trim().toUpperCase(),
+                genitore1_tipo_doc: document.getElementById('editGenitore1TipoDoc').value.trim(),
+                genitore1_num_doc: document.getElementById('editGenitore1NumDoc').value.trim().toUpperCase(),
+                genitore1_scadenza_doc: document.getElementById('editGenitore1ScadenzaDoc').value.trim(),
 
                 genitore2_cognome: document.getElementById('editGenitore2Cognome').value.trim().toUpperCase(),
                 genitore2_nome: document.getElementById('editGenitore2Nome').value.trim(),
                 genitore2_luogo_nascita: document.getElementById('editGenitore2LuogoNascita').value.trim(),
                 genitore2_data_nascita: document.getElementById('editGenitore2DataNascita').value.trim(),
                 genitore2_codice_fiscale: document.getElementById('editGenitore2CodiceFiscale').value.trim().toUpperCase(),
+                genitore2_tipo_doc: document.getElementById('editGenitore2TipoDoc').value.trim(),
+                genitore2_num_doc: document.getElementById('editGenitore2NumDoc').value.trim().toUpperCase(),
+                genitore2_scadenza_doc: document.getElementById('editGenitore2ScadenzaDoc').value.trim(),
 
                 tigre: document.getElementById('editTigre').checked,
                 capitano_piazza: document.getElementById('editCapitanoPiazza').checked
