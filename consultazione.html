@@ -129,10 +129,6 @@
         tr:hover { background-color: #f1f1f1; cursor: pointer; }
         tr:nth-child(even) { background-color: #fafafa; }
         
-        .filtro-colonna-container { padding: 8px 10px; background: #ffffff; border-bottom: 2px solid #dee2e6; }
-        .filtro-colonna { width: 100%; padding: 6px 8px; font-size: 12px; box-sizing: border-box; border: 1px solid #ced4da; border-radius: 4px; outline: none; background: #fff; color: #333; transition: border-color 0.2s; }
-        .filtro-colonna:focus { border-color: #007BFF; box-shadow: 0 0 0 2px rgba(0,123,255,0.15); }
-
         #messaggioGuida { font-size: 14px; color: #666; text-align: center; margin: 20px 0; font-style: italic; }
         .box-contatore { font-size: 14px; color: #333; margin-bottom: 10px; font-weight: bold; }
         
@@ -917,7 +913,14 @@
             alert(`Anno carnevale aggiornato a ${annoCarnevaleCorrente}!`);
         };
 
-        // Dizionario Comuni Catastali esteso per calcolo CF affidabile
+        // Dizionari catastali e comuni
+        const dizionarioComuniCatastali = {
+            "L219": "Torino", "H501": "Roma", "F205": "Milano", "F839": "Napoli",
+            "E379": "Ivrea", "C652": "Chivasso", "C722": "Ciriè", "L872": "Vigliano",
+            "A859": "Biella", "L750": "Vercelli", "A479": "Asti", "A182": "Alessandria",
+            "D205": "Cuneo", "F952": "Novara", "L746": "Verbania", "D969": "Genova",
+            "A944": "Bologna", "D612": "Firenze", "L736": "Venezia"
+        };
         const dizionarioNomiComuni = {
             "TORINO": "L219", "ROMA": "H501", "MILANO": "F205", "NAPOLI": "F839",
             "IVREA": "E379", "CHIVASSO": "C652", "CIRIE'": "C722", "CIRIE": "C722",
@@ -951,7 +954,7 @@
             let mCod = { '01': 'A', '02': 'B', '03': 'C', '04': 'D', '05': 'E', '06': 'H', '07': 'L', '08': 'M', '09': 'P', '10': 'R', '11': 'S', '12': 'T' };
             let mese = mCod[pData[1]] || 'A';
             let giorno = String(parseInt(pData[2], 10)).padStart(2, '0');
-            let codCat = dizionarioNomiComuni[luogo] || "H501"; // Fallback a Roma se non trovato nel dizionario rapido
+            let codCat = dizionarioNomiComuni[luogo] || "H501";
 
             let cfParz = partCog + partNom + anno + mese + giorno + codCat;
             const vPari = {'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'A':0,'B':1,'C':2,'D':3,'E':4,'F':5,'G':6,'H':7,'I':8,'J':9,'K':10,'L':11,'M':12,'N':13,'O':14,'P':15,'Q':16,'R':17,'S':18,'T':19,'U':20,'V':21,'W':22,'X':23,'Y':24,'Z':25};
@@ -964,8 +967,48 @@
                 if (i % 2 === 0) somma += vDisp[c] || 0;
                 else somma += vPari[c] || 0;
             }
-            document.getElementById('editCodiceFiscale').value = cfParz + rCar[somma % 26];
+            const cfTotale = cfParz + rCar[somma % 26];
+            document.getElementById('editCodiceFiscale').value = cfTotale;
+            decodificaCfInCampi(cfTotale);
         };
+
+        // Funzione automatica quando il CF raggiunge 16 caratteri
+        function decodificaCfInCampi(cf) {
+            cf = cf.trim().toUpperCase();
+            if (cf.length !== 16) return;
+
+            const annoCar = cf.substring(6, 8);
+            const meseCar = cf.substring(8, 9);
+            let giornoCar = parseInt(cf.substring(9, 11), 10);
+            
+            let annoNum = parseInt(annoCar, 10);
+            const annoCorrente2CIF = new Date().getFullYear() % 100;
+            let secolo = annoNum <= annoCorrente2CIF ? 2000 : 1900;
+            let annoNascita = secolo + annoNum;
+
+            const mesiCodice = { 'A': '01', 'B': '02', 'C': '03', 'D': '04', 'E': '05', 'H': '06', 'L': '07', 'M': '08', 'P': '09', 'R': '10', 'S': '11', 'T': '12' };
+            let meseNum = mesiCodice[meseCar] || '01';
+
+            if (giornoCar > 40) giornoCar -= 40;
+            let giornoStr = String(giornoCar).padStart(2, '0');
+
+            const dataNascitaIso = `${annoNascita}-${meseNum}-${giornoStr}`;
+            document.getElementById('editDataNascita').value = dataNascitaIso;
+            calcolaEImpostaEta(dataNascitaIso);
+
+            const codCatastale = cf.substring(11, 15);
+            if (dizionarioComuniCatastali[codCatastale]) {
+                document.getElementById('editLuogoNascita').value = dizionarioComuniCatastali[codCatastale];
+            }
+        }
+
+        // Ascoltatore in tempo reale sul campo Codice Fiscale
+        document.getElementById('editCodiceFiscale').addEventListener('input', function(e) {
+            let val = e.target.value.trim().toUpperCase();
+            if (val.length === 16) {
+                decodificaCfInCampi(val);
+            }
+        });
 
         window.calcolaCFGenitore = function(numGen) {
             const cognome = document.getElementById(`editGenitore${numGen}Cognome`).value.trim().toUpperCase();
