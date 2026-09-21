@@ -1567,19 +1567,123 @@
             const div = document.getElementById('storicoCaricamento'), tab = document.getElementById('tabellaStorico'), tbody = document.getElementById('corpoTabellaStorico');
             tbody.innerHTML = ''; tab.style.display = 'none'; div.style.display = 'block'; div.textContent = "Caricamento storico...";
             anniPresentiNellaScheda = [];
+            
+            // Reset contatori visivi
+            document.getElementById('conteggioIscrizioniScheda').textContent = "0";
+            document.getElementById('conteggioConsecutiveScheda').textContent = "0";
+
             try {
                 const snap = await getDocs(query(collection(db, "storico"), where("id_persona", "==", id)));
-                if (snap.empty) { div.textContent = "Nessuna iscrizione passata."; return; }
+                if (snap.empty) { 
+                    div.textContent = "Nessuna iscrizione passata."; 
+                    return; 
+                }
                 div.style.display = 'none'; tab.style.display = 'table';
                 
                 let docsList = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 docsList.sort((a, b) => parseInt(b.anno || 0, 10) - parseInt(a.anno || 0, 10));
 
+                let anniCompletiNum = [];
                 docsList.forEach(st => {
-                    if (st.anno) anniPresentiNellaScheda.push(String(st.anno).trim());
+                    let annoStr = String(st.anno || "").trim();
+                    let tipoStr = String(st.tipologia || st.tipo_iscrizione || st.tipo || "").trim().toLowerCase();
+                    
+                    if (annoStr) {
+                        anniPresentiNellaScheda.push(annoStr);
+                        let annoNum = parseInt(annoStr, 10);
+                        if (!isNaN(annoNum) && tipoStr === "iscrizione completa") {
+                            anniCompletiNum.push(annoNum);
+                        }
+                    }
                     tbody.innerHTML += `<tr><td>${pulisciTesto(st.anno)}</td><td>${pulisciTesto(st.tipo_iscrizione || st.tipo)}</td><td>${pulisciTesto(st.numero_identificativo)}</td><td>-</td></tr>`;
                 });
-            } catch (e) { div.textContent = "Errore caricamento storico."; }
+
+                // Calcolo Totale Complete
+                let totComplete = anniCompletiNum.length;
+                document.getElementById('conteggioIscrizioniScheda').textContent = totComplete;
+
+                // Calcolo Anni Consecutive (normalizzando eventuale offset post-2022)
+                let anniNormalizzati = anniCompletiNum.map(a => a > 2022 ? a - 2 : a).sort((a, b) => a - b);
+                let maxConsecutive = 0, gruppi = {};
+                anniNormalizzati.forEach((a, i) => { 
+                    let g = a - (i + 1); 
+                    gruppi[g] = (gruppi[g] || 0) + 1; 
+                });
+                for (let g in gruppi) {
+                    if (gruppi[g] > maxConsecutive) maxConsecutive = gruppi[g];
+                }
+                document.getElementById('conteggioConsecutiveScheda').textContent = maxConsecutive;
+
+            } catch (e) { 
+                div.textContent = "Errore caricamento storico."; 
+            }
+        }
+
+        async function apriModaleEsistente(p) {
+            document.getElementById('modalTitle').textContent = "Scheda Iscritto e Storico";
+            document.getElementById('editIdPersona').value = p.id;
+            document.getElementById('editCognome').value = pulisciTesto(p.cognome);
+            document.getElementById('editNome').value = pulisciTesto(p.nome);
+            document.getElementById('editCodiceFiscale').value = pulisciTesto(p.codice_fiscale || p.codiceFiscale).toUpperCase();
+            document.getElementById('editLuogoNascita').value = pulisciTesto(p.luogo_nascita || p.luogoNascita);
+            
+            let dtNascita = formattaDataPerInputDate(p.data_nascita);
+            document.getElementById('editDataNascita').value = dtNascita;
+            calcolaEImpostaEta(dtNascita);
+
+            document.getElementById('editIndirizzo').value = pulisciTesto(p.indirizzo);
+            document.getElementById('editCitta').value = pulisciTesto(p.citta);
+            document.getElementById('editCap').value = pulisciTesto(p.cap);
+            document.getElementById('editProvincia').value = pulisciTesto(p.provincia);
+            document.getElementById('editTelefono').value = pulisciTesto(p.telefono);
+            document.getElementById('editMail').value = pulisciTesto(p.mail || p.email);
+            
+            document.getElementById('editTipoDocumento').value = mappaTipoDocumento(p.tipo_documento);
+            document.getElementById('editNumeroDocumento').value = pulisciTesto(p.numero_documento);
+            document.getElementById('editScadenzaDocumento').value = formattaDataPerInputDate(p.scadenza_documento);
+
+            document.getElementById('editGenitore1Cognome').value = pulisciTesto(p.genitore1_cognome || p.genitore_cognome);
+            document.getElementById('editGenitore1Nome').value = pulisciTesto(p.genitore1_nome || p.genitore_nome);
+            document.getElementById('editGenitore1LuogoNascita').value = pulisciTesto(p.genitore1_luogo_nascita);
+            document.getElementById('editGenitore1DataNascita').value = formattaDataPerInputDate(p.genitore1_data_nascita);
+            document.getElementById('editGenitore1CodiceFiscale').value = pulisciTesto(p.genitore1_codice_fiscale || p.genitore_codice_fiscale).toUpperCase();
+            document.getElementById('editGenitore1TipoDoc').value = mappaTipoDocumento(p.genitore1_tipo_doc);
+            document.getElementById('editGenitore1NumDoc').value = pulisciTesto(p.genitore1_num_doc);
+            document.getElementById('editGenitore1ScadenzaDoc').value = formattaDataPerInputDate(p.genitore1_scadenza_doc);
+            
+            document.getElementById('editGenitore2Cognome').value = pulisciTesto(p.genitore2_cognome);
+            document.getElementById('editGenitore2Nome').value = pulisciTesto(p.genitore2_nome);
+            document.getElementById('editGenitore2LuogoNascita').value = pulisciTesto(p.genitore2_luogo_nascita);
+            document.getElementById('editGenitore2DataNascita').value = formattaDataPerInputDate(p.genitore2_data_nascita);
+            document.getElementById('editGenitore2CodiceFiscale').value = pulisciTesto(p.genitore2_codice_fiscale).toUpperCase();
+            document.getElementById('editGenitore2TipoDoc').value = mappaTipoDocumento(p.genitore2_tipo_doc);
+            document.getElementById('editGenitore2NumDoc').value = pulisciTesto(p.genitore2_num_doc);
+            document.getElementById('editGenitore2ScadenzaDoc').value = formattaDataPerInputDate(p.genitore2_scadenza_doc);
+
+            // Gestione permessi Tigre e Capitano (modificabili solo se admin)
+            const isAdmin = (ruoloUtenteLoggato === 'admin');
+            const chkTigre = document.getElementById('editTigre');
+            const chkCapitano = document.getElementById('editCapitanoPiazza');
+
+            chkTigre.checked = Boolean(p.tigre);
+            chkCapitano.checked = Boolean(p.capitano_piazza);
+            
+            chkTigre.disabled = !isAdmin;
+            chkCapitano.disabled = !isAdmin;
+
+            document.getElementById('btnAggiungiIscrizione').style.display = 'block';
+            document.getElementById('btnAggiungiIscrizione'].onclick = attivaInserimentoNuovaIscrizioneEsistente;
+            document.getElementById('btnEliminaAnagrafica').style.display = isAdmin ? 'block' : 'none';
+            document.getElementById('btnEliminaAnagrafica').onclick = () => eliminaAnagraficaCompleta(p.id);
+            document.getElementById('sezioneStoricoContainer').style.display = 'block';
+            
+            const btnSalva = document.getElementById('btnSalva');
+            btnSalva.textContent = "Salva Modifiche Anagrafica";
+            btnSalva.onclick = gestisciSalvataggioEsistente;
+
+            modal.style.display = 'flex';
+            controllaCampiVuoti();
+            await caricaStoricoPersona(p.id);
         }
 
         function attivaInserimentoNuovaIscrizioneEsistente() {
