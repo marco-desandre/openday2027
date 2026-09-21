@@ -787,13 +787,12 @@
             return str.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
         }
 
-        // Funzione di mappatura per convertire codici o stringhe salvate nel formato del menu a tendina
         function mappaTipoDocumento(valore) {
             const valStr = String(valore || "").trim();
             if (valStr === "1") return "Passaporto";
             if (valStr === "2") return "Patente";
             if (valStr === "3") return "Carta di identità";
-            return valStr; // Se è già testuale o vuoto
+            return valStr;
         }
 
         const DEFINIZIONE_COLONNE = [
@@ -1029,7 +1028,6 @@
             alert("Configurazione salvata con successo!");
         };
 
-        // Dizionari catastali e comuni
         const dizionarioComuniCatastali = {
             "L219": "Torino", "H501": "Roma", "F205": "Milano", "F839": "Napoli",
             "E379": "Ivrea", "C652": "Chivasso", "C722": "Ciriè", "L872": "Vigliano",
@@ -1186,7 +1184,7 @@
                     }
                 }
                 risultati.sort((a, b) => a.cognome.localeCompare(b.cognome));
-                let html = `<h2>Onorificenze: ${titoloSezione}</h2><div class="box-contatore" style="display:block;">Trovati: ${risultati.length}</div><div class="table-responsive"><table><thead><tr><th>Cognome</th><th>Nome</th><th>Città</th><th>Telefono</th><th>Valore</th></tr></thead><tbody>`;
+                let html = `<h2>Onorificenze: ${titoloSezione}</h2><div class="box-contatore" style="display:block;">Trovati: ${risultati.length}</div><div class="table-responsive"><thead><tr><th>Cognome</th><th>Nome</th><th>Città</th><th>Telefono</th><th>Valore</th></tr></thead><tbody>`;
                 if (risultati.length === 0) html += `<tr><td colspan="5" style="text-align:center;">Nessun risultato.</td></tr>`;
                 else risultati.forEach(r => html += `<tr><td>${r.cognome}</td><td>${r.nome}</td><td>${r.citta}</td><td>${r.telefono}</td><td><strong>${r.valore}</strong></td></tr>`);
                 container.innerHTML = html + `</tbody></table></div>`;
@@ -1214,20 +1212,17 @@
                     return; 
                 }
 
-                // Raccogliamo i documenti in un array per poterli ordinare
                 let utentiList = [];
                 snap.forEach(docSnap => {
                     utentiList.push({ id: docSnap.id, ...docSnap.data() });
                 });
 
-                // Ordinamento alfabetico per alias (gestendo eventuali alias vuoti o maiuscole/minuscole)
                 utentiList.sort((a, b) => {
                     const aliasA = (a.alias || a.email || "").trim().toLowerCase();
                     const aliasB = (b.alias || b.email || "").trim().toLowerCase();
                     return aliasA.localeCompare(aliasB);
                 });
 
-                // Renderizziamo la tabella con gli utenti ordinati
                 utentiList.forEach(u => {
                     const attivo = u.attivo !== false;
                     tbody.innerHTML += `
@@ -1236,7 +1231,11 @@
                             <td><strong>${pulisciTesto(u.alias)}</strong></td>
                             <td>${pulisciTesto(u.ruolo)}</td>
                             <td>${attivo ? 'Attivo' : 'Disabilitato'}</td>
-                            <td><button type="button" class="btn-azione btn-modifica-storico" onclick="modificaUtente('${u.id}', '${u.email}', '${u.alias || ''}', '${u.ruolo}', ${attivo})">Modifica</button></td>
+                            <td>
+                                <button type="button" class="btn-azione btn-modifica-storico" onclick="modificaUtente('${u.id}', '${u.email}', '${u.alias || ''}', '${u.ruolo}', ${attivo})">Modifica</button>
+                                <button type="button" class="btn-azione ${attivo ? 'btn-modifica-storico' : 'btn-salva-storico'}" style="background-color: ${attivo ? '#ff851b' : '#28a745'}; color: white;" onclick="toggleStatoUtente('${u.id}', ${attivo})">${attivo ? 'Disabilita' : 'Abilita'}</button>
+                                <button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaUtenteSistema('${u.id}', '${u.email}')">Elimina</button>
+                            </td>
                         </tr>`;
                 });
             } catch (e) { 
@@ -1255,6 +1254,36 @@
         window.chiudiModaleUtente = () => document.getElementById('userModal').style.display = 'none';
         window.modificaUtente = (id, email, alias, ruolo, attivo) => apriModaleUtente(id, email, alias, ruolo, attivo);
 
+        window.toggleStatoUtente = async function(id, statoAttuale) {
+            const nuovoStato = !statoAttuale;
+            const conferma = confirm(`Sei sicuro di voler ${nuovoStato ? 'abilitare' : 'disabilitare'} questo utente?`);
+            if (!conferma) return;
+            try {
+                mostraCaricamento("Aggiornamento stato utente...");
+                await setDoc(doc(db, "utenti", id), { attivo: nuovoStato }, { merge: true });
+                caricaTabellaUtenti();
+            } catch (error) {
+                alert("Errore durante l'aggiornamento dello stato: " + error.message);
+            } finally {
+                nascondiCaricamento();
+            }
+        };
+
+        window.eliminaUtenteSistema = async function(id, email) {
+            const conferma = confirm(`Sei sicuro di voler eliminare definitivamente l'utente ${email}?`);
+            if (!conferma) return;
+            try {
+                mostraCaricamento("Eliminazione utente in corso...");
+                await deleteDoc(doc(db, "utenti", id));
+                alert("Utente eliminato con successo!");
+                caricaTabellaUtenti();
+            } catch (error) {
+                alert("Errore durante l'eliminazione: " + error.message);
+            } finally {
+                nascondiCaricamento();
+            }
+        };
+
         window.salvaUtenteSistema = async function() {
             const id = document.getElementById('editUserId').value.trim();
             const email = document.getElementById('inputUserEmail').value.trim().toLowerCase();
@@ -1270,10 +1299,8 @@
             try {
                 mostraCaricamento("Salvataggio utente in corso...");
                 if (id) {
-                    // Modifica utente esistente
                     await setDoc(doc(db, "utenti", id), { email, alias, ruolo, attivo }, { merge: true });
                 } else {
-                    // Creazione nuovo utente
                     await addDoc(collection(db, "utenti"), { email, alias, ruolo, attivo });
                 }
                 
