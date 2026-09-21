@@ -335,7 +335,20 @@
                         <input type="number" id="inputAnnoCarnevale" value="2027">
                     </div>
                 </div>
-                <button type="button" class="btn-salva" style="max-width: 200px; margin-top: 10px;" onclick="salvaAnnoCarnevale()">Salva Anno</button>
+
+                <h4 style="color: #007BFF; border-bottom: 2px solid #007BFF; padding-bottom: 5px; margin-top: 25px;">Campi Obbligatori / Visibili Scheda Anagrafica</h4>
+                <div style="display: flex; gap: 30px; margin: 15px 0;">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="configFlagCodiceFiscale">
+                        <label for="configFlagCodiceFiscale">Abilita campo Codice Fiscale</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="configFlagDocumento">
+                        <label for="configFlagDocumento">Abilita sezione Documento d'Identità</label>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-salva" style="max-width: 200px; margin-top: 10px;" onclick="salvaConfigurazioneSistema()">Salva Configurazione</button>
 
                 <h4 style="color: #007BFF; border-bottom: 2px solid #007BFF; padding-bottom: 5px; margin-top: 35px;">Gestione Utenti</h4>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
@@ -402,8 +415,8 @@
                 </div>
             </div>
 
-            <!-- RIGA 2: Codice Fiscale / Pulsante Calcola CF -->
-            <div class="form-row">
+            <!-- RIGA 2: Codice Fiscale / Pulsante Calcola CF (Gestito da Flag) -->
+            <div class="form-row" id="gruppoCampoCodiceFiscale">
                 <div class="form-group col-large">
                     <label>Codice Fiscale:</label>
                     <div style="display: flex; gap: 8px;">
@@ -460,6 +473,30 @@
                 <div class="form-group col-medium">
                     <label>Mail:</label>
                     <input type="email" id="editMail" class="campo-controllo" placeholder="es. nome@email.it">
+                </div>
+            </div>
+
+            <!-- SEZIONE DOCUMENTO D'IDENTITÀ (GESTITO DA FLAG) -->
+            <div id="gruppoSezioneDocumento" style="display: none; background: #e7f5ff; padding: 12px; border-radius: 6px; border: 1px solid #74c0fc; margin-top: 10px; margin-bottom: 10px;">
+                <h4 style="margin-top: 0; margin-bottom: 10px; color: #1864ab; font-size: 14px; border-bottom: 1px solid #74c0fc; padding-bottom: 4px;">Documento d'Identità</h4>
+                <div class="form-row" style="margin-bottom: 0;">
+                    <div class="form-group col-medium">
+                        <label style="font-size: 11px;">Tipo Documento:</label>
+                        <select id="editTipoDocumento" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
+                            <option value="">-- Seleziona --</option>
+                            <option value="Carta d'Identità">Carta d'Identità</option>
+                            <option value="Passaporto">Passaporto</option>
+                            <option value="Patente">Patente</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-medium">
+                        <label style="font-size: 11px;">Numero:</label>
+                        <input type="text" id="editNumeroDocumento" placeholder="es. AB12345CD" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
+                    </div>
+                    <div class="form-group col-medium">
+                        <label style="font-size: 11px;">Data di Scadenza:</label>
+                        <input type="date" id="editScadenzaDocumento" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
+                    </div>
                 </div>
             </div>
 
@@ -649,8 +686,19 @@
         let anniPresentiNellaScheda = [];
         let cacheTuttiIscritti = [];
         let annoCarnevaleCorrente = localStorage.getItem('anno_carnevale_corrente') || "2027";
+        
+        let configCodiceFiscale = localStorage.getItem('config_cf') !== 'false';
+        let configDocumento = localStorage.getItem('config_doc') === 'true';
 
         document.getElementById('inputAnnoCarnevale').value = annoCarnevaleCorrente;
+        document.getElementById('configFlagCodiceFiscale').checked = configCodiceFiscale;
+        document.getElementById('configFlagDocumento').checked = configDocumento;
+
+        function applicaConfigurazioneUI() {
+            document.getElementById('gruppoCampoCodiceFiscale').style.display = configCodiceFiscale ? 'flex' : 'none';
+            document.getElementById('gruppoSezioneDocumento').style.display = configDocumento ? 'block' : 'none';
+        }
+        applicaConfigurazioneUI();
 
         window.mostraCaricamento = function(messaggio = "Elaborazione in corso...") {
             document.getElementById('loaderText').textContent = messaggio;
@@ -703,6 +751,9 @@
             { id: 'provincia', titolo: 'Provincia', default: false },
             { id: 'telefono', titolo: 'Telefono', default: true },
             { id: 'mail', titolo: 'Mail', default: false },
+            { id: 'tipo_documento', titolo: 'Tipo Documento', default: false },
+            { id: 'numero_documento', titolo: 'N. Documento', default: false },
+            { id: 'scadenza_documento', titolo: 'Scadenza Documento', default: false, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
             { id: 'genitore1_cognome', titolo: 'Cognome Genitore 1', default: false, formatter: val => formattaCognome(val) },
             { id: 'genitore1_nome', titolo: 'Nome Genitore 1', default: false },
             { id: 'genitore1_luogo_nascita', titolo: 'Luogo Nascita Genitore 1', default: false },
@@ -903,6 +954,16 @@
             localStorage.setItem('anno_carnevale_corrente', annoCarnevaleCorrente);
             popolaSelectAnniFiltro();
             alert(`Anno carnevale aggiornato a ${annoCarnevaleCorrente}!`);
+        };
+
+        window.salvaConfigurazioneSistema = function() {
+            salvaAnnoCarnevale();
+            configCodiceFiscale = document.getElementById('configFlagCodiceFiscale').checked;
+            configDocumento = document.getElementById('configFlagDocumento').checked;
+            localStorage.setItem('config_cf', configCodiceFiscale);
+            localStorage.setItem('config_doc', configDocumento);
+            applicaConfigurazioneUI();
+            alert("Configurazione salvata con successo!");
         };
 
         // Dizionari catastali e comuni
@@ -1310,6 +1371,10 @@
             document.getElementById('editTelefono').value = pulisciTesto(p.telefono);
             document.getElementById('editMail').value = pulisciTesto(p.mail || p.email);
             
+            document.getElementById('editTipoDocumento').value = pulisciTesto(p.tipo_documento);
+            document.getElementById('editNumeroDocumento').value = pulisciTesto(p.numero_documento);
+            document.getElementById('editScadenzaDocumento').value = formattaDataPerInputDate(p.scadenza_documento);
+
             document.getElementById('editGenitore1Cognome').value = pulisciTesto(p.genitore1_cognome || p.genitore_cognome);
             document.getElementById('editGenitore1Nome').value = pulisciTesto(p.genitore1_nome || p.genitore_nome);
             document.getElementById('editGenitore1LuogoNascita').value = pulisciTesto(p.genitore1_luogo_nascita);
@@ -1344,6 +1409,9 @@
             document.getElementById('modalTitle').textContent = "Crea Nuovo Utente in Anagrafica";
             document.getElementById('editIdPersona').value = "";
             document.querySelectorAll('.campo-controllo, .campo-controllo-genitore').forEach(c => c.value = "");
+            document.getElementById('editTipoDocumento').value = "";
+            document.getElementById('editNumeroDocumento').value = "";
+            document.getElementById('editScadenzaDocumento').value = "";
             document.getElementById('editEtaDisplay').value = "";
             document.getElementById('messaggioRuntimeDuplicato').textContent = "";
             document.getElementById('sezioneDatiGenitori').style.display = 'none';
@@ -1427,6 +1495,10 @@
                 telefono: document.getElementById('editTelefono').value.trim(),
                 mail: document.getElementById('editMail').value.trim(),
                 
+                tipo_documento: document.getElementById('editTipoDocumento').value.trim(),
+                numero_documento: document.getElementById('editNumeroDocumento').value.trim().toUpperCase(),
+                scadenza_documento: document.getElementById('editScadenzaDocumento').value.trim(),
+
                 genitore1_cognome: document.getElementById('editGenitore1Cognome').value.trim().toUpperCase(),
                 genitore1_nome: document.getElementById('editGenitore1Nome').value.trim(),
                 genitore1_luogo_nascita: document.getElementById('editGenitore1LuogoNascita').value.trim(),
