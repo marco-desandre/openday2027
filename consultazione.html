@@ -1348,7 +1348,11 @@
                     snapStorico.forEach(d => {
                         let st = d.data();
                         if (!mappa[st.id_persona]) mappa[st.id_persona] = [];
-                        mappa[st.id_persona].push({ anno: String(st.anno || ""), tipo: String(st.tipo_iscrizione || st.tipo || ""), numero_identificativo: String(st.numero_identificativo || "") });
+                        mappa[st.id_persona].push({ 
+                            anno: String(st.anno || ""), 
+                            tipo_iscrizione: String(st.tipo_iscrizione || st.tipo || ""), 
+                            numero_identificativo: String(st.numero_identificativo || "") 
+                        });
                     });
                     snapAnag.forEach(d => cacheTuttiIscritti.push({ id: d.id, ...d.data(), iscrizioni: mappa[d.id] || [] }));
                 }
@@ -1356,7 +1360,12 @@
                 cacheTuttiIscritti.forEach(p => {
                     p.iscrizioni.forEach(i => {
                         if (annoSelezionato === "tutti" || i.anno === annoSelezionato) {
-                            risultati.push({ ...p, tipo_iscrizione: i.tipo, numero_identificativo: i.numero_identificativo });
+                            risultati.push({ 
+                                ...p, 
+                                anno: i.anno,
+                                tipo_iscrizione: i.tipo_iscrizione, 
+                                numero_identificativo: i.numero_identificativo 
+                            });
                         }
                     });
                 });
