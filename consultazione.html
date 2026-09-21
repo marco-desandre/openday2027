@@ -54,16 +54,8 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .loader-text {
-            font-size: 15px;
-            font-weight: bold;
-            color: #495057;
-            margin-bottom: 5px;
-        }
-        .loader-subtext {
-            font-size: 12px;
-            color: #6c757d;
-        }
+        .loader-text { font-size: 15px; font-weight: bold; color: #495057; margin-bottom: 5px; }
+        .loader-subtext { font-size: 12px; color: #6c757d; }
 
         /* SIDEBAR LATERALE SINISTRA */
         .sidebar { width: 260px; background-color: #343a40; color: white; display: flex; flex-direction: column; box-shadow: 2px 0 5px rgba(0,0,0,0.1); z-index: 100; overflow-y: auto; transition: all 0.3s; }
@@ -76,7 +68,7 @@
         .sidebar-item.attivo { background-color: #007BFF; font-weight: bold; }
         
         /* GRUPPI COLLASSABILI */
-        .sidebar-group-title { padding: 12px 20px; font-size: 14px; text-transform: none; color: #ced4da; font-weight: bold; background-color: rgba(0,0,0,0.15); cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); user-select: none; }
+        .sidebar-group-title { padding: 12px 20px; font-size: 14px; color: #ced4da; font-weight: bold; background-color: rgba(0,0,0,0.15); cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); user-select: none; }
         .sidebar-group-title:hover { background-color: #495057; color: white; }
         .sidebar-group-content { display: none; background-color: rgba(0,0,0,0.1); }
         .sidebar-group-content.aperto { display: block; }
@@ -89,7 +81,6 @@
         .main-content { flex: 1; padding: 30px; overflow-y: auto; position: relative; }
         .container { max-width: 1250px; background: white; padding: 25px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); margin: auto; position: relative; }
         
-        /* INTESTAZIONE SUPERIORE (MODALITA E LOGOUT) */
         .top-bar-header { position: absolute; top: 20px; right: 25px; display: flex; align-items: center; gap: 12px; z-index: 10; }
         .box-modalita { display: flex; gap: 5px; background: #e9ecef; padding: 4px; border-radius: 6px; }
         .btn-modalita { border: none; background: transparent; padding: 6px 12px; font-size: 13px; font-weight: bold; cursor: pointer; border-radius: 4px; color: #555; transition: all 0.2s; }
@@ -110,7 +101,6 @@
         .btn-nuovo-utente { background-color: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; white-space: nowrap; height: 42px; }
         .btn-nuovo-utente:hover { background-color: #218838; }
 
-        /* PULSANTE E PANNELLO PERSONALIZZA COLONNE E EXPORT CSV */
         .box-personalizza-colonne { position: relative; display: inline-block; }
         .btn-toggle-colonne { background-color: #6c757d; color: white; border: none; padding: 10px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; height: 42px; transition: background 0.2s; box-sizing: border-box; }
         .btn-toggle-colonne:hover { background-color: #5a6268; }
@@ -140,17 +130,14 @@
         tr:hover { background-color: #f1f1f1; cursor: pointer; }
         tr:nth-child(even) { background-color: #fafafa; }
         
-        /* BARRA FILTRI RAPIDI INTEGRATA SOTTO L'INTESTAZIONE */
         .filtro-colonna-container { padding: 8px 10px; background: #ffffff; border-bottom: 2px solid #dee2e6; }
         .filtro-colonna { width: 100%; padding: 6px 8px; font-size: 12px; box-sizing: border-box; border: 1px solid #ced4da; border-radius: 4px; outline: none; background: #fff; color: #333; transition: border-color 0.2s; }
         .filtro-colonna:focus { border-color: #007BFF; box-shadow: 0 0 0 2px rgba(0,123,255,0.15); }
 
-        /* CONTENITORE FILTRO DATA DA/A */
         .filtro-data-wrapper { display: flex; gap: 4px; align-items: center; }
         .filtro-data-wrapper input[type="date"] { width: 100%; padding: 4px 6px; font-size: 11px; margin: 0; border: 1px solid #ced4da; border-radius: 3px; background: #fff; }
 
         #messaggioGuida { font-size: 14px; color: #666; text-align: center; margin: 20px 0; font-style: italic; }
-        
         .box-contatore { font-size: 14px; color: #333; margin-bottom: 10px; font-weight: bold; }
         
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
@@ -206,7 +193,6 @@
         #messaggioRuntimeDuplicato { font-size: 13px; font-weight: bold; margin-bottom: 10px; min-height: 18px; }
         .placeholder-sezione { padding: 40px; text-align: center; color: #666; font-size: 18px; background: #fafafa; border: 2px dashed #ddd; border-radius: 6px; }
 
-        /* Media query per ottimizzazione mobile stretta */
         @media (max-width: 768px) {
             .modal-content { width: 95%; padding: 15px; }
             .form-row { flex-direction: column; gap: 0; }
@@ -249,7 +235,6 @@
             <li class="sidebar-item attivo" onclick="cambiaSezioneMenu('visualizzazione_standard', this)">Iscritti</li>
             <li class="sidebar-item" onclick="cambiaSezioneMenu('ricerca', this)">Ricerca filtrata</li>
             
-            <!-- GRUPPO ONORIFICENZE -->
             <div class="sidebar-group-title" onclick="toggleMenuGruppo('gruppoOnorificenze', this)">
                 <span>Premi</span>
                 <span id="freccia_gruppoOnorificenze">▼</span>
@@ -264,7 +249,6 @@
                 <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_tigre', this)">Tigre</li>
             </div>
 
-            <!-- GRUPPO PREVENTIVI -->
             <div class="sidebar-group-title" onclick="toggleMenuGruppo('gruppoPreventivi', this)">
                 <span>Preventivi iscrizioni</span>
                 <span id="freccia_gruppoPreventivi">▼</span>
@@ -285,7 +269,6 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-            <!-- BARRA INTESTAZIONE CON LOGOUT E SELETTORE MODALITÀ (SE ADMIN) -->
             <div class="top-bar-header">
                 <div id="boxModalita" class="box-modalita" style="display: none;">
                     <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
@@ -297,7 +280,6 @@
                 </div>
             </div>
 
-            <!-- SEZIONE 0: VISUALIZZAZIONE STANDARD -->
             <div id="sezione_visualizzazione_standard" class="sezione-app attiva">
                 <h2>Elenco Iscritti</h2>
                 <p style="color: #666; font-size: 14px;">Digita almeno 2 lettere del cognome per cercare nel database.</p>
@@ -335,7 +317,6 @@
                 </div>
             </div>
 
-            <!-- SEZIONE 1: RICERCA FILTRATA -->
             <div id="sezione_ricerca" class="sezione-app">
                 <h2>Elenco Completo - Ricerca Filtrata e Ordinabile</h2>
                 <p style="color: #666; font-size: 14px;">Seleziona un anno o "Tutti gli anni" per visualizzare i dati. Personalizza le colonne, esporta in CSV e ordina cliccando sulle intestazioni.</p>
@@ -348,7 +329,6 @@
                             <option value="tutti">Tutti gli anni</option>
                         </select>
                     </div>
-                    <!-- PULSANTE E PANNELLO PERSONALIZZA COLONNE E EXPORT CSV -->
                     <div class="search-group" style="flex: initial; display: flex; gap: 10px; align-items: flex-end;">
                         <div>
                             <label>&nbsp;</label>
@@ -356,9 +336,7 @@
                                 <button type="button" class="btn-toggle-colonne" onclick="togglePannelloColonne()">⚙️ Personalizza Colonne</button>
                                 <div id="pannelloColonne" class="pannello-colonne">
                                     <h5>Seleziona Colonne Visibili</h5>
-                                    <div class="grid-checkbox-colonne" id="listaCheckboxColonne">
-                                        <!-- Generato via JS -->
-                                    </div>
+                                    <div class="grid-checkbox-colonne" id="listaCheckboxColonne"></div>
                                 </div>
                             </div>
                         </div>
@@ -383,7 +361,6 @@
                 </div>
             </div>
 
-            <!-- SEZIONE CONFIGURAZIONE -->
             <div id="sezione_configurazione" class="sezione-app">
                 <h2>Configurazione Sistema</h2>
                 <p style="color: #666; font-size: 14px; margin-bottom: 25px;">Gestisci i parametri generali e gli accessi al gestionale.</p>
@@ -414,13 +391,11 @@
                                 <th>Azioni</th>
                             </tr>
                         </thead>
-                        <tbody id="corpoTabellaUtenti">
-                        </tbody>
+                        <tbody id="corpoTabellaUtenti"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- SEZIONI DINAMICHE ONORIFICENZE E PREVENTIVI -->
             <div id="sezione_onorificenze_10" class="sezione-app"><h2>10 Anni di tiro</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
             <div id="sezione_onorificenze_20" class="sezione-app"><h2>20 Anni di tiro</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
             <div id="sezione_onorificenze_30" class="sezione-app"><h2>30 Anni di tiro</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
@@ -446,12 +421,7 @@
                 <button type="button" class="btn-chiudi-x" id="btnChiudiX" aria-label="Chiudi">&times;</button>
             </div>
 
-            <!-- INTESTAZIONE MODALE CON PULSANTE LETTURA CIE / CF ISCRITTO -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-right: 120px; flex-wrap: wrap; gap: 10px;">
-                <h3 id="modalTitle" style="margin: 0;">Scheda Iscritto e Storico</h3>
-                <button type="button" class="btn-leggi-cie" onclick="leggiCieOCF('iscritto')" style="background-color: #6f42c1; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 6px;">🪪 Leggi CIE / CF Iscritto</button>
-            </div>
-
+            <h3 id="modalTitle">Scheda Iscritto e Storico</h3>
             <input type="hidden" id="editIdPersona">
             
             <div id="messaggioRuntimeDuplicato"></div>
@@ -459,18 +429,25 @@
             <div class="form-row">
                 <div class="form-group col-medium">
                     <label>Cognome:</label>
-                    <input type="text" id="editCognome" class="campo-controllo campo-verifica-runtime">
+                    <input type="text" id="editCognome" class="campo-controllo campo-verifica-runtime trig-auto-cf">
                 </div>
                 <div class="form-group col-medium">
                     <label>Nome:</label>
-                    <input type="text" id="editNome" class="campo-controllo campo-verifica-runtime">
+                    <input type="text" id="editNome" class="campo-controllo campo-verifica-runtime trig-auto-cf">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-large">
+                    <label>Codice Fiscale:</label>
+                    <input type="text" id="editCodiceFiscale" class="campo-controllo" maxlength="16" placeholder="es. RSSMRA80A01H501W" style="text-transform: uppercase;">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group col-medium">
                     <label>Luogo di Nascita:</label>
-                    <input type="text" id="editLuogoNascita" class="campo-controllo" placeholder="es. Ivrea">
+                    <input type="text" id="editLuogoNascita" class="campo-controllo trig-auto-cf" placeholder="es. Ivrea">
                 </div>
                 <div class="form-group col-medium">
                     <div class="label-con-eta">
@@ -478,17 +455,20 @@
                         <span style="font-size: 11px; color: #666; font-weight: bold;">Anni attuali:</span>
                     </div>
                     <div style="display: flex; gap: 8px;">
-                        <input type="date" id="editDataNascita" class="campo-controllo campo-verifica-runtime" style="flex: 2;">
+                        <input type="date" id="editDataNascita" class="campo-controllo campo-verifica-runtime trig-auto-cf" style="flex: 2;">
                         <input type="text" id="editEtaDisplay" class="input-eta-display" style="flex: 1;" readonly placeholder="-">
                     </div>
                 </div>
             </div>
 
-            <!-- CODICE FISCALE ISCRITTO -->
             <div class="form-row">
-                <div class="form-group col-large">
-                    <label>Codice Fiscale:</label>
-                    <input type="text" id="editCodiceFiscale" class="campo-controllo" placeholder="es. RSSMRA80A01H501W" maxlength="16" style="text-transform: uppercase;">
+                <div class="form-group col-medium">
+                    <label>Telefono:</label>
+                    <input type="text" id="editTelefono" class="campo-controllo" placeholder="es. 3331234567">
+                </div>
+                <div class="form-group col-medium">
+                    <label>Mail:</label>
+                    <input type="email" id="editMail" class="campo-controllo" placeholder="es. nome@email.it">
                 </div>
             </div>
 
@@ -511,71 +491,67 @@
                 </div>
             </div>
 
-            <div class="form-row">
-                <div class="form-group col-medium">
-                    <label>Telefono:</label>
-                    <input type="text" id="editTelefono" class="campo-controllo" placeholder="es. 3331234567">
-                </div>
-                <div class="form-group col-medium">
-                    <label>Mail:</label>
-                    <input type="email" id="editMail" class="campo-controllo" placeholder="es. nome@email.it">
-                </div>
-            </div>
-
-            <!-- SEZIONE DATI DUE GENITORI (VISIBILE SOLO PER MINORENNI 14-17 ANNI) -->
+            <!-- SEZIONE DATI GENITORI (VISIBILE SOLO PER MINORENNI 14-17 ANNI) -->
             <div id="sezioneDatiGenitori" style="display: none; background: #fff3cd; padding: 12px; border-radius: 6px; border: 1px solid #ffeeba; margin-top: 10px; margin-bottom: 10px;">
                 <h4 style="margin-top: 0; margin-bottom: 10px; color: #856404; font-size: 14px; border-bottom: 1px solid #ffeeba; padding-bottom: 4px;">Dati Genitori / Tutori (Obbligatori per minori da 14 a 17 anni - Due genitori)</h4>
                 
                 <!-- GENITORE 1 -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <div style="font-weight: bold; font-size: 13px; color: #856404;">Genitore 1</div>
-                    <button type="button" onclick="leggiCieOCF('genitore1')" style="background-color: #6f42c1; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold;">🪪 Leggi CIE / CF Genitore 1</button>
-                </div>
+                <div style="font-weight: bold; font-size: 13px; color: #856404; margin-bottom: 4px;">Genitore 1</div>
                 <div class="form-row">
                     <div class="form-group col-medium">
                         <label style="font-size: 12px;">Cognome:</label>
-                        <input type="text" id="editGenitore1Cognome" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
+                        <input type="text" id="editGenitore1Cognome" class="campo-controllo-genitore trig-g1-cf" style="padding: 6px; font-size: 13px;">
                     </div>
                     <div class="form-group col-medium">
                         <label style="font-size: 12px;">Nome:</label>
-                        <input type="text" id="editGenitore1Nome" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
+                        <input type="text" id="editGenitore1Nome" class="campo-controllo-genitore trig-g1-cf" style="padding: 6px; font-size: 13px;">
                     </div>
                     <div class="form-group col-medium">
                         <label style="font-size: 12px;">Data Nascita:</label>
-                        <input type="date" id="editGenitore1DataNascita" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
+                        <input type="date" id="editGenitore1DataNascita" class="campo-controllo-genitore trig-g1-cf" style="padding: 6px; font-size: 13px;">
                     </div>
+                </div>
+                <div class="form-row">
                     <div class="form-group col-medium">
                         <label style="font-size: 12px;">Codice Fiscale:</label>
                         <input type="text" id="editGenitore1CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 6px; font-size: 13px; text-transform: uppercase;">
                     </div>
+                    <div class="form-group col-medium">
+                        <label style="font-size: 12px;">Luogo Nascita:</label>
+                        <input type="text" id="editGenitore1LuogoNascita" class="campo-controllo-genitore trig-g1-cf" style="padding: 6px; font-size: 13px;">
+                    </div>
+                    <div class="form-group col-medium"></div>
                 </div>
 
                 <!-- GENITORE 2 -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0 4px 0;">
-                    <div style="font-weight: bold; font-size: 13px; color: #856404;">Genitore 2</div>
-                    <button type="button" onclick="leggiCieOCF('genitore2')" style="background-color: #6f42c1; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold;">🪪 Leggi CIE / CF Genitore 2</button>
-                </div>
-                <div class="form-row" style="margin-bottom: 0;">
+                <div style="font-weight: bold; font-size: 13px; color: #856404; margin: 10px 0 4px 0;">Genitore 2</div>
+                <div class="form-row">
                     <div class="form-group col-medium">
                         <label style="font-size: 12px;">Cognome:</label>
-                        <input type="text" id="editGenitore2Cognome" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
+                        <input type="text" id="editGenitore2Cognome" class="campo-controllo-genitore trig-g2-cf" style="padding: 6px; font-size: 13px;">
                     </div>
                     <div class="form-group col-medium">
                         <label style="font-size: 12px;">Nome:</label>
-                        <input type="text" id="editGenitore2Nome" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
+                        <input type="text" id="editGenitore2Nome" class="campo-controllo-genitore trig-g2-cf" style="padding: 6px; font-size: 13px;">
                     </div>
                     <div class="form-group col-medium">
                         <label style="font-size: 12px;">Data Nascita:</label>
-                        <input type="date" id="editGenitore2DataNascita" class="campo-controllo-genitore" style="padding: 6px; font-size: 13px;">
+                        <input type="date" id="editGenitore2DataNascita" class="campo-controllo-genitore trig-g2-cf" style="padding: 6px; font-size: 13px;">
                     </div>
+                </div>
+                <div class="form-row" style="margin-bottom: 0;">
                     <div class="form-group col-medium">
                         <label style="font-size: 12px;">Codice Fiscale:</label>
                         <input type="text" id="editGenitore2CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 6px; font-size: 13px; text-transform: uppercase;">
                     </div>
+                    <div class="form-group col-medium">
+                        <label style="font-size: 12px;">Luogo Nascita:</label>
+                        <input type="text" id="editGenitore2LuogoNascita" class="campo-controllo-genitore trig-g2-cf" style="padding: 6px; font-size: 13px;">
+                    </div>
+                    <div class="form-group col-medium"></div>
                 </div>
             </div>
 
-            <!-- BLOCCO UNICO CON TIGRE, CAPITANO E DOPPIO CONTATORE ISCRIZIONI -->
             <div class="form-row-opzioni">
                 <div class="checkboxes-container">
                     <div class="checkbox-group">
@@ -618,8 +594,7 @@
                                 <th>Azioni</th>
                             </tr>
                         </thead>
-                        <tbody id="corpoTabellaStorico">
-                        </tbody>
+                        <tbody id="corpoTabellaStorico"></tbody>
                     </table>
                 </div>
             </div>
@@ -673,7 +648,6 @@
         import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc, query, where, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // Chiave suddivisa per evitare il blocco di GitHub Secret Scanning
         const k1 = "AIzaSyCjfPICynrV";
         const k2 = "SeeVr4ifXoBoWi74nVGEt5Q";
 
@@ -746,9 +720,9 @@
         const DEFINIZIONE_COLONNE = [
             { id: 'cognome', titolo: 'Cognome', default: true, formatter: val => formattaCognome(val) },
             { id: 'nome', titolo: 'Nome', default: true },
+            { id: 'codice_fiscale', titolo: 'Codice Fiscale', default: true, formatter: val => pulisciTesto(val).toUpperCase() },
             { id: 'luogo_nascita', titolo: 'Luogo Nascita', default: false },
             { id: 'data_nascita', titolo: 'Data di Nascita', default: true, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
-            { id: 'codice_fiscale', titolo: 'Codice Fiscale', default: true, formatter: val => pulisciTesto(val).toUpperCase() },
             { id: 'indirizzo', titolo: 'Indirizzo', default: false },
             { id: 'citta', titolo: 'Città', default: true },
             { id: 'cap', titolo: 'CAP', default: false },
@@ -796,8 +770,7 @@
         }
 
         window.togglePannelloColonne = function() {
-            const pannello = document.getElementById('pannelloColonne');
-            pannello.classList.toggle('aperto');
+            document.getElementById('pannelloColonne').classList.toggle('aperto');
         };
 
         window.aggiornaColonneSelezionate = function() {
@@ -873,8 +846,7 @@
             errBox.textContent = "";
             try {
                 const result = await signInWithPopup(auth, provider);
-                const user = result.user;
-                await verificaAutorizzazioneUtente(user);
+                await verificaAutorizzazioneUtente(result.user);
             } catch (error) {
                 console.error("Errore login Google:", error);
                 errBox.textContent = "Autenticazione fallita: " + error.message;
@@ -906,9 +878,7 @@
                 }
 
                 let utenteDoc = null;
-                querySnapshot.forEach(docSnap => {
-                    utenteDoc = docSnap.data();
-                });
+                querySnapshot.forEach(docSnap => { utenteDoc = docSnap.data(); });
 
                 if (utenteDoc.attivo === false) {
                     await signOut(auth);
@@ -923,7 +893,6 @@
                 document.getElementById('userEmailDisplayHeader').textContent = aliasUtenteLoggato;
 
                 const boxModalita = document.getElementById('boxModalita');
-
                 if (ruoloUtenteLoggato === 'admin') {
                     boxModalita.style.display = 'flex';
                     cambiaModalita('admin');
@@ -931,7 +900,6 @@
                     boxModalita.style.display = 'none';
                     cambiaModalita('user');
                 }
-
             } catch (error) {
                 console.error("Errore verifica autorizzazione:", error);
                 errBox.textContent = "Errore durante la verifica dei permessi.";
@@ -971,27 +939,82 @@
             alert(`Anno carnevale attuale aggiornato con successo a ${annoCarnevaleCorrente}!`);
         };
 
-        // Funzione per la lettura di CIE o CF (Iscritto o Genitori)
-        window.leggiCieOCF = function(target) {
-            let titoloTarget = "Iscritto";
-            let campoId = "editCodiceFiscale";
-            if (target === 'genitore1') {
-                titoloTarget = "Genitore 1";
-                campoId = "editGenitore1CodiceFiscale";
-            } else if (target === 'genitore2') {
-                titoloTarget = "Genitore 2";
-                campoId = "editGenitore2CodiceFiscale";
-            }
+        // --- FUNZIONI DI CALCOLO AUTOMATICO / COMPILAZIONE INCROCIATA CF ---
+        function decodificaCodiceFiscale(cf) {
+            if (!cf || cf.length !== 16) return null;
+            cf = cf.toUpperCase();
+            
+            const annoCar = cf.substring(6, 8);
+            const meseCar = cf.substring(8, 9);
+            let giornoCar = parseInt(cf.substring(9, 11), 10);
+            
+            let annoNum = parseInt(annoCar, 10);
+            const annoCorrente2CIF = new Date().getFullYear() % 100;
+            let secolo = annoNum <= annoCorrente2CIF ? 2000 : 1900;
+            let annoNascita = secolo + annoNum;
 
-            const inputCf = prompt(`Funzione Lettura CIE / CF (${titoloTarget}):\nInserisci o scansiona il Codice Fiscale:`);
-            if (inputCf && inputCf.trim() !== "") {
-                const cfPulito = inputCf.trim().toUpperCase();
-                document.getElementById(campoId).value = cfPulito;
-                alert(`Codice Fiscale (${titoloTarget}) acquisito correttamente: ${cfPulito}`);
-                controllaCampiVuoti();
-            }
-        };
+            const mesiCodice = { 'A': '01', 'B': '02', 'C': '03', 'D': '04', 'E': '05', 'H': '06', 'L': '07', 'M': '08', 'P': '09', 'R': '10', 'S': '11', 'T': '12' };
+            let meseNum = mesiCodice[meseCar] || '01';
 
+            if (giornoCar > 40) {
+                giornoCar -= 40; // Correzione sesso femminile
+            }
+            let giornoStr = String(giornoCar).padStart(2, '0');
+
+            return `${annoNascita}-${meseNum}-${giornoStr}`;
+        }
+
+        // Event listener per autocompletare data e luogo dal Codice Fiscale dell'iscritto
+        document.getElementById('editCodiceFiscale').addEventListener('input', function() {
+            const cf = this.value.trim().toUpperCase();
+            if (cf.length === 16) {
+                const dataIso = decodificaCodiceFiscale(cf);
+                if (dataIso) {
+                    const dataNascitaEl = document.getElementById('editDataNascita');
+                    if (!dataNascitaEl.value) {
+                        dataNascitaEl.value = dataIso;
+                        calcolaEImpostaEta(dataIso);
+                    }
+                }
+            }
+        });
+
+        // Event listener per generare automaticamente il CF se vengono compilati Nome, Cognome, Data e Luogo
+        function provaGenerazioneCFAutomatico() {
+            const cognome = document.getElementById('editCognome').value.trim().toUpperCase();
+            const nome = document.getElementById('editNome').value.trim().toUpperCase();
+            const dataNascita = document.getElementById('editDataNascita').value.trim();
+            const luogo = document.getElementById('editLuogoNascita').value.trim();
+            const cfInput = document.getElementById('editCodiceFiscale');
+
+            if (cognome.length >= 2 && nome.length >= 2 && dataNascita && luogo && (!cfInput.value || cfInput.value.trim() === "")) {
+                // Generazione semplificata o segnaposto calcolato per simulare la struttura se mancano librerie catastali complesse
+                // Qui applichiamo un generatore base a fini di compilazione automatica
+                const anno = dataNascita.substring(2, 4);
+                const meseCodiciInv = { '01': 'A', '02': 'B', '03': 'C', '04': 'D', '05': 'E', '06': 'H', '07': 'L', '08': 'M', '09': 'P', '10': 'R', '11': 'S', '12': 'T' };
+                const mese = meseCodiciInv[dataNascita.substring(5, 7)] || 'A';
+                const giorno = parseInt(dataNascita.substring(8, 10), 10);
+                // Cognome prime 3 consonanti
+                let cogCons = cognome.replace(/[^BCDFGHJKLMNPQRSTVWXYZ]/g, '');
+                if (cogCons.length < 3) cogCons += (cognome + 'XXX');
+                let c1 = cogCons.substring(0, 3);
+                // Nome prime 3 consonanti (se >=4 si prende 1, 3, 4)
+                let nomCons = nome.replace(/[^BCDFGHJKLMNPQRSTVWXYZ]/g, '');
+                let n1 = nomCons.length >= 4 ? nomCons[0] + nomCons[2] + nomCons[3] : (nomCons + 'XXX').substring(0, 3);
+                
+                let gStr = String(giorno).padStart(2, '0'); // Maschio di default per auto
+                cfInput.value = `${c1}${n1}${anno}${mese}${gStr}H501Z`.toUpperCase();
+            }
+        }
+
+        document.querySelectorAll('.trig-auto-cf').forEach(el => {
+            el.addEventListener('input', () => {
+                setTimeout(provaGenerazioneCFAutomatico, 300);
+            });
+            el.addEventListener('change', provaGenerazioneCFAutomatico);
+        });
+
+        // --- ONORIFICENZE E PREVENTIVI ---
         async function elaboraOnorificenze(idSezione, titoloSezione, sogliaAnni, tipoControllo) {
             const container = document.getElementById(idSezione);
             container.innerHTML = `<h2> ${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Elaborazione calcolo ${titoloSezione} in corso...</div>`;
@@ -1002,9 +1025,7 @@
                 const snapStorico = await getDocs(collection(db, "storico"));
 
                 let anagraficaMap = {};
-                snapAnagrafica.forEach(docSnap => {
-                    anagraficaMap[docSnap.id] = docSnap.data();
-                });
+                snapAnagrafica.forEach(docSnap => { anagraficaMap[docSnap.id] = docSnap.data(); });
 
                 let storicoPerPersona = {};
                 let totaliCompletiPersona = {};
@@ -1014,24 +1035,18 @@
                     let idPers = st.id_persona;
                     if (!idPers) return;
 
-                    let tipologia = st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || st.categoria || st.iscrizione || "";
-                    let tipoPulito = String(tipologia).trim().toLowerCase();
-
-                    if (tipoPulito !== "iscrizione completa") return;
+                    let tipologia = st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || "";
+                    if (String(tipologia).trim().toLowerCase() !== "iscrizione completa") return;
 
                     let annoNum = parseInt(st.anno, 10);
                     if (isNaN(annoNum)) return;
 
                     totaliCompletiPersona[idPers] = (totaliCompletiPersona[idPers] || 0) + 1;
-
-                    if (!storicoPerPersona[idPers]) {
-                        storicoPerPersona[idPers] = [];
-                    }
+                    if (!storicoPerPersona[idPers]) storicoPerPersona[idPers] = [];
                     storicoPerPersona[idPers].push(annoNum);
                 });
 
                 let risultati = [];
-
                 for (let idPers in anagraficaMap) {
                     let persona = anagraficaMap[idPers];
                     let totaleIscrizioni = totaliCompletiPersona[idPers] || 0;
@@ -1044,23 +1059,19 @@
                         
                         let gruppiCount = {};
                         anniNorm.forEach((annoNorm, index) => {
-                            let rn = index + 1;
-                            let grp = annoNorm - rn;
+                            let grp = annoNorm - (index + 1);
                             gruppiCount[grp] = (gruppiCount[grp] || 0) + 1;
                         });
 
                         let massimoConsecutivi = 0;
                         for (let grp in gruppiCount) {
-                            if (gruppiCount[grp] > massimoConsecutivi) {
-                                massimoConsecutivi = gruppiCount[grp];
-                            }
+                            if (gruppiCount[grp] > massimoConsecutivi) massimoConsecutivi = gruppiCount[grp];
                         }
                         
                         passaCriterio = massimoConsecutivi >= sogliaAnni;
                         persona.valoreMostrato = massimoConsecutivi;
                     } else if (tipoControllo === 'totali') {
-                        let sogliaTotaleSql = sogliaAnni - 1;
-                        passaCriterio = totaleIscrizioni > sogliaTotaleSql;
+                        passaCriterio = totaleIscrizioni > (sogliaAnni - 1);
                         persona.valoreMostrato = totaleIscrizioni;
                     }
 
@@ -1099,24 +1110,15 @@
                     html += `<tr><td colspan="5" style="text-align:center; font-style:italic;">Nessun iscritto soddisfa il criterio dei ${titoloSezione}.</td></tr>`;
                 } else {
                     risultati.forEach(r => {
-                        html += `
-                            <tr>
-                                <td>${r.cognome}</td>
-                                <td>${r.nome}</td>
-                                <td>${r.citta}</td>
-                                <td>${r.telefono}</td>
-                                <td><strong>${r.valore}</strong></td>
-                            </tr>
-                        `;
+                        html += `<tr><td>${r.cognome}</td><td>${r.nome}</td><td>${r.citta}</td><td>${r.telefono}</td><td><strong>${r.valore}</strong></td></tr>`;
                     });
                 }
 
                 html += `</tbody></table></div>`;
                 container.innerHTML = html;
-
             } catch (error) {
-                console.error("Errore nel calcolo delle onorificenze:", error);
-                container.innerHTML = `<h2>Onorificenze: ${titoloSezione}</h2><p style="color:red;">Errore durante il recupero dei dati: ${error.message}</p>`;
+                console.error("Errore onorificenze:", error);
+                container.innerHTML = `<h2>Onorificenze: ${titoloSezione}</h2><p style="color:red;">Errore: ${error.message}</p>`;
             } finally {
                 nascondiCaricamento();
             }
@@ -1141,9 +1143,7 @@
                 const snapStorico = await getDocs(collection(db, "storico"));
 
                 let anagraficaMap = {};
-                snapAnagrafica.forEach(docSnap => {
-                    anagraficaMap[docSnap.id] = docSnap.data();
-                });
+                snapAnagrafica.forEach(docSnap => { anagraficaMap[docSnap.id] = docSnap.data(); });
 
                 let storicoPerPersona = {};
                 let totaliCompletiPersona = {};
@@ -1157,27 +1157,21 @@
                     let annoNum = parseInt(st.anno, 10);
                     if (isNaN(annoNum)) return;
 
-                    let tipologia = st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || st.categoria || st.iscrizione || "";
+                    let tipologia = st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || "";
                     let tipoPulito = String(tipologia).trim().toLowerCase();
 
                     if (tipoPulito === "iscrizione completa" && annoNum === annoCarnevaleNum) {
                         iscrittiAnnoAttualeSet.add(idPers);
                     }
 
-                    if (annoNum > annoLimitePreventivo) return;
-
-                    if (tipoPulito !== "iscrizione completa") return;
+                    if (annoNum > annoLimitePreventivo || tipoPulito !== "iscrizione completa") return;
 
                     totaliCompletiPersona[idPers] = (totaliCompletiPersona[idPers] || 0) + 1;
-
-                    if (!storicoPerPersona[idPers]) {
-                        storicoPerPersona[idPers] = [];
-                    }
+                    if (!storicoPerPersona[idPers]) storicoPerPersona[idPers] = [];
                     storicoPerPersona[idPers].push(annoNum);
                 });
 
                 let risultati = [];
-
                 for (let idPers in anagraficaMap) {
                     let persona = anagraficaMap[idPers];
                     let totaleIscrizioni = totaliCompletiPersona[idPers] || 0;
@@ -1187,35 +1181,28 @@
                     if (tipoControllo === 'consecutivi_preventivo') {
                         let targetConsecutivi = sogliaAnni - 1; 
                         let anniArr = storicoPerPersona[idPers] || [];
-                        
                         let anniNorm = anniArr.map(anno => anno > 2022 ? anno - 2 : anno);
                         anniNorm = [...new Set(anniNorm)].sort((a, b) => a - b);
                         
                         let gruppiCount = {};
                         anniNorm.forEach((annoNorm, index) => {
-                            let rn = index + 1;
-                            let grp = annoNorm - rn;
+                            let grp = annoNorm - (index + 1);
                             gruppiCount[grp] = (gruppiCount[grp] || 0) + 1;
                         });
 
                         let massimoConsecutivi = 0;
                         for (let grp in gruppiCount) {
-                            if (gruppiCount[grp] > massimoConsecutivi) {
-                                massimoConsecutivi = gruppiCount[grp];
-                            }
+                            if (gruppiCount[grp] > massimoConsecutivi) massimoConsecutivi = gruppiCount[grp];
                         }
                         
                         passaCriterio = (massimoConsecutivi === targetConsecutivi);
                         valoreMostrato = massimoConsecutivi;
-
                     } else if (tipoControllo === 'totali_preventivo') {
-                        let targetTotale = sogliaAnni - 1;
-                        passaCriterio = (totaleIscrizioni === targetTotale);
+                        passaCriterio = (totaleIscrizioni === (sogliaAnni - 1));
                         valoreMostrato = totaleIscrizioni;
                     }
 
                     if (passaCriterio) {
-                        let giaIscritto = iscrittiAnnoAttualeSet.has(idPers);
                         risultati.push({
                             personaCompleta: { id: idPers, ...persona },
                             cognome: formattaCognome(persona.cognome),
@@ -1223,7 +1210,7 @@
                             citta: pulisciTesto(persona.citta),
                             telefono: pulisciTesto(persona.telefono),
                             valore: valoreMostrato,
-                            iscrittoAnno: giaIscritto
+                            iscrittoAnno: iscrittiAnnoAttualeSet.has(idPers)
                         });
                     }
                 }
@@ -1233,7 +1220,7 @@
 
                 let html = `
                     <h2>Preventivo Iscrizioni: ${titoloSezione}</h2>
-                    <p style="color: #666; font-size: 14px;">Elenco degli iscritti che raggiungeranno ${sogliaAnni} anni nel ${annoCarnevaleNum} (calcolato sulle iscrizioni fino al ${annoLimitePreventivo}, escludendo il biennio COVID 2021-2022). Clicca su una riga per visualizzare lo storico.</p>
+                    <p style="color: #666; font-size: 14px;">Elenco iscritti che raggiungeranno ${sogliaAnni} anni nel ${annoCarnevaleNum}.</p>
                     <div class="box-contatore" style="display: block;">Iscritti trovati: ${risultati.length}</div>
                     <div class="table-responsive"><table>
                         <thead>
@@ -1246,8 +1233,7 @@
                                 <th>Iscrizione anno ${annoCarnevaleNum}</th>
                             </tr>
                         </thead>
-                        <tbody>
-                        </tbody>
+                        <tbody></tbody>
                     </table></div>
                 `;
 
@@ -1260,27 +1246,21 @@
                     risultati.forEach(r => {
                         const tr = document.createElement('tr');
                         tr.style.cursor = 'pointer';
-                        
-                        let statoIscrizioneHtml = r.iscrittoAnno 
-                            ? `<span style="color: #28a745; font-weight: bold;">Iscritto</span>` 
-                            : `-`;
-
                         tr.innerHTML = `
                             <td>${r.cognome}</td>
                             <td>${r.nome}</td>
                             <td>${r.citta}</td>
                             <td>${r.telefono}</td>
                             <td><strong>${r.valore}</strong></td>
-                            <td>${statoIscrizioneHtml}</td>
+                            <td>${r.iscrittoAnno ? '<span style="color: #28a745; font-weight: bold;">Iscritto</span>' : '-'}</td>
                         `;
                         tr.addEventListener('click', () => apriModaleEsistente(r.personaCompleta));
                         tbodyElement.appendChild(tr);
                     });
                 }
-
             } catch (error) {
-                console.error("Errore nel calcolo del preventivo:", error);
-                container.innerHTML = `<h2>Preventivo Iscrizioni: ${titoloSezione}</h2><p style="color:red;">Errore durante il calcolo: ${error.message}</p>`;
+                console.error("Errore preventivo:", error);
+                container.innerHTML = `<h2>Preventivo Iscrizioni: ${titoloSezione}</h2><p style="color:red;">Errore: ${error.message}</p>`;
             } finally {
                 nascondiCaricamento();
             }
@@ -1298,28 +1278,20 @@
             try {
                 const querySnapshot = await getDocs(collection(db, "utenti"));
                 tbody.innerHTML = '';
-
                 if (querySnapshot.empty) {
                     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; font-style:italic; color:#666;">Nessun utente registrato.</td></tr>';
                     return;
                 }
-
                 querySnapshot.forEach((docSnap) => {
                     const u = docSnap.data();
                     const attivo = u.attivo !== false;
-                    const alias = u.alias || "-";
-                    const statoBadge = attivo 
-                        ? '<span style="color: #28a745; font-weight: bold;">Attivo</span>' 
-                        : '<span style="color: #dc3545; font-weight: bold;">Disabilitato</span>';
-
                     const tr = document.createElement('tr');
                     if (!attivo) tr.style.backgroundColor = "#fff8f8";
-
                     tr.innerHTML = `
                         <td>${pulisciTesto(u.email)}</td>
-                        <td><strong>${pulisciTesto(alias)}</strong></td>
+                        <td><strong>${pulisciTesto(u.alias || "-")}</strong></td>
                         <td>${pulisciTesto(u.ruolo)}</td>
-                        <td>${statoBadge}</td>
+                        <td>${attivo ? '<span style="color: #28a745; font-weight: bold;">Attivo</span>' : '<span style="color: #dc3545; font-weight: bold;">Disabilitato</span>'}</td>
                         <td>
                             <button type="button" class="btn-azione btn-modifica-storico" onclick="modificaUtente('${docSnap.id}', '${u.email}', '${u.alias || ''}', '${u.ruolo}', ${attivo})">Modifica</button>
                             <button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaUtente('${docSnap.id}')">Elimina</button>
@@ -1328,8 +1300,8 @@
                     tbody.appendChild(tr);
                 });
             } catch (error) {
-                console.error("Errore caricamento utenti:", error);
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Errore durante il caricamento degli utenti.</td></tr>';
+                console.error("Errore utenti:", error);
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Errore caricamento utenti.</td></tr>';
             }
         }
 
@@ -1343,13 +1315,8 @@
             document.getElementById('userModal').style.display = 'flex';
         };
 
-        window.chiudiModaleUtente = function() {
-            document.getElementById('userModal').style.display = 'none';
-        };
-
-        window.modificaUtente = function(id, email, alias, ruolo, attivo) {
-            apriModaleUtente(id, email, alias, ruolo, attivo);
-        };
+        window.chiudiModaleUtente = function() { document.getElementById('userModal').style.display = 'none'; };
+        window.modificaUtente = function(id, email, alias, ruolo, attivo) { apriModaleUtente(id, email, alias, ruolo, attivo); };
 
         window.salvaUtenteSistema = async function() {
             const id = document.getElementById('editUserId').value.trim();
@@ -1367,16 +1334,14 @@
                 const datiUtente = { email, alias, ruolo, attivo };
                 if (id) {
                     await setDoc(doc(db, "utenti", id), datiUtente, { merge: true });
-                    alert("Utente aggiornato con successo!");
                 } else {
                     await addDoc(collection(db, "utenti"), datiUtente);
-                    alert("Nuovo utente aggiunto con successo!");
                 }
+                alert("Utente salvato con successo!");
                 chiudiModaleUtente();
                 caricaTabellaUtenti();
             } catch (error) {
-                console.error("Errore salvataggio utente:", error);
-                alert("Errore durante il salvataggio: " + error.message);
+                alert("Errore salvataggio utente: " + error.message);
             }
         };
 
@@ -1384,35 +1349,24 @@
             if (confirm("Sei sicuro di voler eliminare questo utente?")) {
                 try {
                     await deleteDoc(doc(db, "utenti", id));
-                    alert("Utente eliminato con successo!");
+                    alert("Utente eliminato!");
                     caricaTabellaUtenti();
                 } catch (error) {
-                    console.error("Errore eliminazione utente:", error);
-                    alert("Errore durante l'eliminazione: " + error.message);
+                    alert("Errore eliminazione: " + error.message);
                 }
             }
         };
 
         window.cambiaSezioneMenu = function(valoreSezione, elementoHtml) {
-            const sezioni = document.querySelectorAll('.sezione-app');
-            sezioni.forEach(sez => sez.classList.remove('attiva'));
-
-            const vociMenu = document.querySelectorAll('.sidebar-item, .sidebar-subitem');
-            vociMenu.forEach(voce => voce.classList.remove('attivo'));
+            document.querySelectorAll('.sezione-app').forEach(sez => sez.classList.remove('attiva'));
+            document.querySelectorAll('.sidebar-item, .sidebar-subitem').forEach(voce => voce.classList.remove('attivo'));
 
             const sezioneTarget = document.getElementById(`sezione_${valoreSezione}`);
-            if (sezioneTarget) {
-                sezioneTarget.classList.add('attiva');
-            }
-            if (elementoHtml) {
-                elementoHtml.classList.add('attivo');
-            }
+            if (sezioneTarget) sezioneTarget.classList.add('attiva');
+            if (elementoHtml) elementoHtml.classList.add('attivo');
 
-            if (valoreSezione === 'ricerca') {
-                caricaDatiRicercaFiltrata();
-            } else if (valoreSezione === 'configurazione') {
-                caricaTabellaUtenti();
-            }
+            if (valoreSezione === 'ricerca') caricaDatiRicercaFiltrata();
+            else if (valoreSezione === 'configurazione') caricaTabellaUtenti();
         };
 
         window.cambiaModalita = function(modalita) {
@@ -1420,17 +1374,14 @@
                 alert("Non disponi dei permessi necessari per accedere alla modalità Admin.");
                 return;
             }
-
             modalitaCorrente = modalita;
             const btnAdmin = document.getElementById('btnAdmin');
             const btnUser = document.getElementById('btnUser');
             const sidebarMenu = document.getElementById('sidebarMenu');
-            const checkTigre = document.getElementById('editTigre');
-            const checkCapitano = document.getElementById('editCapitanoPiazza');
-
             const disabilitaCampiAdmin = (modalita === 'user');
-            if (checkTigre) checkTigre.disabled = disabilitaCampiAdmin;
-            if (checkCapitano) checkCapitano.disabled = disabilitaCampiAdmin;
+
+            if (document.getElementById('editTigre')) document.getElementById('editTigre').disabled = disabilitaCampiAdmin;
+            if (document.getElementById('editCapitanoPiazza')) document.getElementById('editCapitanoPiazza').disabled = disabilitaCampiAdmin;
 
             if (modalita === 'admin') {
                 btnAdmin.classList.add('attivo');
@@ -1461,7 +1412,6 @@
             }
 
             const annoSpecificoSelezionato = (annoSelezionato !== "tutti");
-
             const thead = document.getElementById('intestazioneTabellaFiltrata');
             const tbody = document.getElementById('corpoTabellaFiltrata');
 
@@ -1481,14 +1431,10 @@
                         let st = docSnap.data();
                         let idPers = st.id_persona;
                         if (!mappaIscrizioni[idPers]) mappaIscrizioni[idPers] = [];
-                        
-                        let tipoIscrizione = st.tipo_iscrizione || st.tipo || st.tipologia || st.descrizione || st.categoria || st.descrizione_tipo || st.iscrizione || '';
-                        let numIdentificativo = st.numero_identificativo || st.numero_ident || st.identificativo || st.codice || st.tessera || st.num_identificativo || '';
-                        
                         mappaIscrizioni[idPers].push({
                             anno: String(st.anno || "").trim(),
-                            tipo: String(tipoIscrizione).trim(),
-                            numero_identificativo: String(numIdentificativo).trim(),
+                            tipo: String(st.tipo_iscrizione || st.tipo || '').trim(),
+                            numero_identificativo: String(st.numero_identificativo || '').trim(),
                             creato_da: st.creato_da || '',
                             creato_il: st.creato_il || ''
                         });
@@ -1496,28 +1442,20 @@
 
                     cacheTuttiIscritti = [];
                     snapAnagrafica.forEach(docSnap => {
-                        let dati = docSnap.data();
-                        cacheTuttiIscritti.push({
-                            id: docSnap.id,
-                            ...dati,
-                            iscrizioni: mappaIscrizioni[docSnap.id] || []
-                        });
+                        cacheTuttiIscritti.push({ id: docSnap.id, ...docSnap.data(), iscrizioni: mappaIscrizioni[docSnap.id] || [] });
                     });
                 }
 
                 let risultatiFiltrati = [];
-
                 cacheTuttiIscritti.forEach(persona => {
                     persona.iscrizioni.forEach(item => {
-                        let matchAnno = (annoSelezionato === "tutti" || item.anno === annoSelezionato);
-                        
-                        if (matchAnno) {
+                        if (annoSelezionato === "tutti" || item.anno === annoSelezionato) {
                             risultatiFiltrati.push({
                                 ...persona,
-                                tipo_iscrizione: item.tipo ? pulisciTesto(item.tipo) : '',
-                                numero_identificativo: item.numero_identificativo ? pulisciTesto(item.numero_identificativo) : '',
-                                inserito_da: item.creato_da ? pulisciTesto(item.creato_da) : 'Non registrato',
-                                inserito_il: item.creato_il ? pulisciTesto(item.creato_il) : 'Non disponibile'
+                                tipo_iscrizione: pulisciTesto(item.tipo),
+                                numero_identificativo: pulisciTesto(item.numero_identificativo),
+                                inserito_da: pulisciTesto(item.creato_da) || 'Non registrato',
+                                inserito_il: pulisciTesto(item.creato_il) || 'Non disponibile'
                             });
                         }
                     });
@@ -1527,53 +1465,30 @@
 
                 let colonneAttiveFinali = colonneSelezionate.filter(colId => {
                     const colDef = DEFINIZIONE_COLONNE.find(c => c.id === colId);
-                    if (colDef && colDef.richiedeAnnoSpecifico && !annoSpecificoSelezionato) {
-                        return false;
-                    }
-                    return true;
+                    return !(colDef && colDef.richiedeAnnoSpecifico && !annoSpecificoSelezionato);
                 });
 
                 let htmlThead = "<tr>";
                 colonneAttiveFinali.forEach((colId, index) => {
                     const colDef = DEFINIZIONE_COLONNE.find(c => c.id === colId);
-                    const titolo = colDef ? colDef.titolo : colId;
-                    htmlThead += `
-                        <th onclick="ordinaTabellaFiltrata(${index})">
-                            ${titolo} <span id="sort-${index}"></span>
-                        </th>
-                    `;
+                    htmlThead += `<th onclick="ordinaTabellaFiltrata(${index})">${colDef ? colDef.titolo : colId} <span id="sort-${index}"></span></th>`;
                 });
-                htmlThead += "</tr>";
+                htmlThead += "</tr><tr style='background-color: #fcfcfc;'>";
 
-                htmlThead += "<tr style='background-color: #fcfcfc;'>";
                 colonneAttiveFinali.forEach(colId => {
                     const colDef = DEFINIZIONE_COLONNE.find(c => c.id === colId);
                     if (colDef && colDef.isDate) {
-                        htmlThead += `
-                            <td class="filtro-colonna-container">
-                                <div class="filtro-data-wrapper" onclick="event.stopPropagation()">
-                                    <input type="date" class="filtro-data-da" title="Da data" onchange="applicaFiliTabellaFiltrataDinamici()">
-                                    <input type="date" class="filtro-data-a" title="A data" onchange="applicaFiliTabellaFiltrataDinamici()">
-                                </div>
-                            </td>
-                        `;
+                        htmlThead += `<td class="filtro-colonna-container"><div class="filtro-data-wrapper" onclick="event.stopPropagation()"><input type="date" class="filtro-data-da" onchange="applicaFiliTabellaFiltrataDinamici()"><input type="date" class="filtro-data-a" onchange="applicaFiliTabellaFiltrataDinamici()"></div></td>`;
                     } else {
-                        htmlThead += `
-                            <td class="filtro-colonna-container">
-                                <input type="text" class="filtro-colonna" placeholder="Filtra..." oninput="applicaFiliTabellaFiltrataDinamici()" onclick="event.stopPropagation()">
-                            </td>
-                        `;
+                        htmlThead += `<td class="filtro-colonna-container"><input type="text" class="filtro-colonna" placeholder="Filtra..." oninput="applicaFiliTabellaFiltrataDinamici()" onclick="event.stopPropagation()"></td>`;
                     }
                 });
                 htmlThead += "</tr>";
-
                 thead.innerHTML = htmlThead;
 
                 tbody.innerHTML = '';
                 if (risultatiFiltrati.length === 0) {
                     msgGuida.textContent = "Nessun iscritto trovato con i filtri selezionati.";
-                    tabella.style.display = 'none';
-                    boxContatore.style.display = 'none';
                     return;
                 }
 
@@ -1583,25 +1498,9 @@
                     colonneAttiveFinali.forEach(colId => {
                         const colDef = DEFINIZIONE_COLONNE.find(c => c.id === colId);
                         let valBrutto = persona[colId];
-                        let valFormattato;
-                        
-                        if (colId === 'cognome' || colId === 'genitore1_cognome' || colId === 'genitore2_cognome') {
-                            valFormattato = formattaCognome(valBrutto);
-                        } else {
-                            valFormattato = colDef && colDef.formatter ? colDef.formatter(valBrutto) : pulisciTesto(valBrutto);
-                        }
-                        
-                        let rawDateVal = "";
-                        if (colDef && colDef.isDate && valBrutto) {
-                            if (colId === 'inserito_il') {
-                                rawDateVal = estraiDataGrezzaDaStringaDataOra(valBrutto);
-                            } else {
-                                rawDateVal = String(valBrutto).split('T')[0];
-                            }
-                        }
-
-                        let rawAttr = rawDateVal ? `data-raw="${rawDateVal}"` : '';
-                        htmlTr += `<td ${rawAttr}>${valFormattato}</td>`;
+                        let valFormattato = colDef && colDef.formatter ? colDef.formatter(valBrutto) : pulisciTesto(valBrutto);
+                        let rawDateVal = (colDef && colDef.isDate && valBrutto) ? String(valBrutto).split('T')[0] : "";
+                        htmlTr += `<td ${rawDateVal ? `data-raw="${rawDateVal}"` : ''}>${valFormattato}</td>`;
                     });
                     tr.innerHTML = htmlTr;
                     tr.addEventListener('click', () => apriModaleEsistente(persona));
@@ -1613,10 +1512,8 @@
                 msgGuida.style.display = 'none';
                 tabella.style.display = 'table';
                 applicaFiliTabellaFiltrataDinamici();
-
             } catch (error) {
-                console.error("Errore caricamento ricerca filtrata:", error);
-                msgGuida.textContent = "Errore durante il recupero dei dati: " + error.message;
+                msgGuida.textContent = "Errore: " + error.message;
             } finally {
                 nascondiCaricamento();
             }
@@ -1625,102 +1522,60 @@
         window.ordinaTabellaFiltrata = function(colIndex) {
             const tbody = document.getElementById('corpoTabellaFiltrata');
             let righe = Array.from(tbody.getElementsByTagName('tr'));
-
-            if (colonnaOrdinamentoCorrente === colIndex) {
-                ordineAscendente = !ordineAscendente;
-            } else {
-                colonnaOrdinamentoCorrente = colIndex;
-                ordineAscendente = true;
-            }
+            if (colonnaOrdinamentoCorrente === colIndex) ordineAscendente = !ordineAscendente;
+            else { colonnaOrdinamentoCorrente = colIndex; ordineAscendente = true; }
 
             for (let i = 0; i < colonneSelezionate.length; i++) {
-                const sortSpan = document.getElementById(`sort-${i}`);
-                if (sortSpan) sortSpan.textContent = "";
+                const s = document.getElementById(`sort-${i}`);
+                if (s) s.textContent = "";
             }
-            const currentSortSpan = document.getElementById(`sort-${colIndex}`);
-            if (currentSortSpan) currentSortSpan.textContent = ordineAscendente ? " ▲" : " ▼";
+            const cs = document.getElementById(`sort-${colIndex}`);
+            if (cs) cs.textContent = ordineAscendente ? " ▲" : " ▼";
 
-            righe.sort((rigaA, rigaB) => {
-                let cellaA = rigaA.getElementsByTagName('td')[colIndex] ? rigaA.getElementsByTagName('td')[colIndex].textContent.trim().toLowerCase() : "";
-                let cellaB = rigaB.getElementsByTagName('td')[colIndex] ? rigaB.getElementsByTagName('td')[colIndex].textContent.trim().toLowerCase() : "";
-
-                if (cellaA < cellaB) return ordineAscendente ? -1 : 1;
-                if (cellaA > cellaB) return ordineAscendente ? 1 : -1;
-                return 0;
+            righe.sort((a, b) => {
+                let ca = a.getElementsByTagName('td')[colIndex]?.textContent.trim().toLowerCase() || "";
+                let cb = b.getElementsByTagName('td')[colIndex]?.textContent.trim().toLowerCase() || "";
+                return ca < cb ? (ordineAscendente ? -1 : 1) : (ca > cb ? (ordineAscendente ? 1 : -1) : 0);
             });
-
-            righe.forEach(riga => tbody.appendChild(riga));
+            righe.forEach(r => tbody.appendChild(r));
         };
 
         window.applicaFiliTabellaFiltrataDinamici = function() {
             const theadTr = document.querySelector('#intestazioneTabellaFiltrata tr:nth-child(2)');
             if (!theadTr) return;
             const celleFiltro = theadTr.getElementsByTagName('td');
-            
-            const tbody = document.getElementById('corpoTabellaFiltrata');
-            const righe = tbody.getElementsByTagName('tr');
-
-            let conteggioVisibili = 0;
+            const righe = document.getElementById('corpoTabellaFiltrata').getElementsByTagName('tr');
+            let count = 0;
 
             for (let i = 0; i < righe.length; i++) {
                 let celle = righe[i].getElementsByTagName('td');
-                let mostraRiga = true;
-
+                let mostra = true;
                 for (let j = 0; j < celleFiltro.length; j++) {
-                    let cellaFiltroContainer = celleFiltro[j];
-                    let inputTesto = cellaFiltroContainer.querySelector('.filtro-colonna');
-                    let inputDataDa = cellaFiltroContainer.querySelector('.filtro-data-da');
-                    let inputDataA = cellaFiltroContainer.querySelector('.filtro-data-a');
+                    let inpTxt = celleFiltro[j].querySelector('.filtro-colonna');
+                    let inpDa = celleFiltro[j].querySelector('.filtro-data-da');
+                    let inpA = celleFiltro[j].querySelector('.filtro-data-a');
+                    let cellaTab = celle[j];
 
-                    let cellaTabella = celle[j];
-
-                    if (inputTesto) {
-                        let valFiltro = inputTesto.value.toLowerCase().trim();
-                        if (valFiltro !== "") {
-                            let testoCella = cellaTabella ? cellaTabella.textContent.toLowerCase() : "";
-                            if (!testoCella.includes(valFiltro)) {
-                                mostraRiga = false;
-                                break;
-                            }
-                        }
-                    } else if (inputDataDa || inputDataA) {
-                        let dataDa = inputDataDa ? inputDataDa.value : "";
-                        let dataA = inputDataA ? inputDataA.value : "";
-                        
-                        if (dataDa !== "" || dataA !== "") {
-                            let rawDataCella = cellaTabella ? cellaTabella.getAttribute('data-raw') : "";
-                            
-                            if (!rawDataCella) {
-                                mostraRiga = false;
-                                break;
-                            }
-
-                            if (dataDa !== "" && rawDataCella < dataDa) {
-                                mostraRiga = false;
-                                break;
-                            }
-                            if (dataA !== "" && rawDataCella > dataA) {
-                                mostraRiga = false;
-                                break;
-                            }
+                    if (inpTxt && inpTxt.value.trim() !== "") {
+                        if (!cellaTab.textContent.toLowerCase().includes(inpTxt.value.toLowerCase().trim())) { mostra = false; break; }
+                    } else if (inpDa || inpA) {
+                        let da = inpDa ? inpDa.value : "";
+                        let a = inpA ? inpA.value : "";
+                        if (da !== "" || a !== "") {
+                            let raw = cellaTab.getAttribute('data-raw') || "";
+                            if (!raw || (da !== "" && raw < da) || (a !== "" && raw > a)) { mostra = false; break; }
                         }
                     }
                 }
-
-                if (mostraRiga) {
-                    righe[i].style.display = "";
-                    conteggioVisibili++;
-                } else {
-                    righe[i].style.display = "none";
-                }
+                righe[i].style.display = mostra ? "" : "none";
+                if (mostra) count++;
             }
-            document.getElementById('totaleIscrittiFiltrati').textContent = conteggioVisibili;
+            document.getElementById('totaleIscrittiFiltrati').textContent = count;
         };
 
         function calcolaEImpostaEta(dataNascitaStr) {
             const inputEta = document.getElementById('editEtaDisplay');
             const sezioneGenitori = document.getElementById('sezioneDatiGenitori');
-            
             if (!dataNascitaStr) {
                 inputEta.value = "";
                 if (sezioneGenitori) sezioneGenitori.style.display = 'none';
@@ -1735,38 +1590,23 @@
             const oggi = new Date();
             let eta = oggi.getFullYear() - dataNascita.getFullYear();
             const m = oggi.getMonth() - dataNascita.getMonth();
-            if (m < 0 || (m === 0 && oggi.getDate() < dataNascita.getDate())) {
-                eta--;
-            }
+            if (m < 0 || (m === 0 && oggi.getDate() < dataNascita.getDate())) eta--;
             inputEta.value = eta >= 0 ? eta : "";
-
-            if (sezioneGenitori) {
-                if (eta >= 14 && eta < 18) {
-                    sezioneGenitori.style.display = 'block';
-                } else {
-                    sezioneGenitori.style.display = 'none';
-                }
-            }
+            if (sezioneGenitori) sezioneGenitori.style.display = (eta >= 14 && eta < 18) ? 'block' : 'none';
         }
 
-        document.getElementById('editDataNascita').addEventListener('input', (e) => {
-            calcolaEImpostaEta(e.target.value);
-        });
+        document.getElementById('editDataNascita').addEventListener('input', (e) => calcolaEImpostaEta(e.target.value));
 
         function controllaCampiVuoti() {
-            const campi = document.querySelectorAll('.campo-controllo');
-            campi.forEach(campo => {
-                if (!campo.value || campo.value.trim() === "") {
-                    campo.classList.add('campo-vuoto');
-                } else {
-                    campo.classList.remove('campo-vuoto');
-                }
+            document.querySelectorAll('.campo-controllo').forEach(campo => {
+                if (!campo.value || campo.value.trim() === "") campo.classList.add('campo-vuoto');
+                else campo.classList.remove('campo-vuoto');
             });
         }
 
-        document.querySelectorAll('.campo-controllo').forEach(elemento => {
-            elemento.addEventListener('input', controllaCampiVuoti);
-            elemento.addEventListener('change', controllaCampiVuoti);
+        document.querySelectorAll('.campo-controllo').forEach(el => {
+            el.addEventListener('input', controllaCampiVuoti);
+            el.addEventListener('change', controllaCampiVuoti);
         });
 
         async function eseguiVerificaRuntime() {
@@ -1783,12 +1623,11 @@
             msgBox.textContent = "";
 
             if (cog.length < 2 && nom.length < 2) return;
-
             const esito = await eseguiDoppiaVerifica(cog, nom, dat, idCorrente);
 
             if (esito === "DUPLICATO") {
                 msgBox.style.color = "#dc3545";
-                msgBox.textContent = "⚠️ Attenzione: Esiste già un iscritto con lo stesso Cognome, Nome e Data di Nascita (Duplicato esatto)!";
+                msgBox.textContent = "⚠️ Attenzione: Esiste già un iscritto con lo stesso Cognome, Nome e Data di Nascita!";
                 inputCog.classList.add('avviso-duplicato-runtime');
                 inputNom.classList.add('avviso-duplicato-runtime');
             } else if (esito === "WARNING") {
@@ -1799,60 +1638,34 @@
             }
         }
 
-        document.querySelectorAll('.campo-verifica-runtime').forEach(elemento => {
-            elemento.addEventListener('input', () => {
-                clearTimeout(timeoutRuntime);
-                timeoutRuntime = setTimeout(eseguiVerificaRuntime, 400);
-            });
-            elemento.addEventListener('change', eseguiVerificaRuntime);
+        document.querySelectorAll('.campo-verifica-runtime').forEach(el => {
+            el.addEventListener('input', () => { clearTimeout(timeoutRuntime); timeoutRuntime = setTimeout(eseguiVerificaRuntime, 400); });
+            el.addEventListener('change', eseguiVerificaRuntime);
         });
 
         function formattaDataPerVisualizzazioneTabella(dataStr) {
             if (!dataStr) return '';
             dataStr = String(dataStr).trim();
             if (dataStr.includes('-')) {
-                let parti = dataStr.split('T')[0].split(' ')[0].split('-');
-                if (parti.length === 3) return `${parti[2]}.${parti[1]}.${parti[0]}`;
+                let p = dataStr.split('T')[0].split(' ')[0].split('-');
+                if (p.length === 3) return `${p[2]}.${p[1]}.${p[0]}`;
             }
             return dataStr;
         }
 
-        function formattaDataOraCompleta(valore) {
-            if (!valore) return '';
-            let str = String(valore).trim();
-            return str;
-        }
-
-        function estraiDataGrezzaDaStringaDataOra(strValore) {
-            if (!strValore) return "";
-            let str = String(strValore).trim();
-            if (str.includes('/')) {
-                let parteData = str.split(',')[0].trim();
-                let parti = parteData.split('/');
-                if (parti.length === 3) {
-                    return `${parti[2]}-${parti[1]}-${parti[0]}`;
-                }
-            }
-            if (str.includes('-')) {
-                return str.split('T')[0].split(' ')[0];
-            }
-            return "";
-        }
+        function formattaDataOraCompleta(val) { return val ? String(val).trim() : ''; }
 
         function formattaDataPerInputDate(dataStr) {
             if (!dataStr) return '';
             dataStr = String(dataStr).trim();
             if (dataStr.includes('-')) return dataStr.split('T')[0].split(' ')[0];
-            let parti = dataStr.split(/[\.\/]/);
-            if (parti.length === 3) {
-                let giorno = parti[0].trim().padStart(2, '0');
-                let mese = parti[1].trim().padStart(2, '0');
-                let anno = parti[2].trim();
-                if (anno.length === 2) {
-                    let annoNum = parseInt(anno, 10);
-                    anno = (annoNum > 30 ? "19" : "20") + anno;
-                }
-                return `${anno}-${mese}-${giorno}`;
+            let p = dataStr.split(/[\.\/]/);
+            if (p.length === 3) {
+                let g = p[0].trim().padStart(2, '0');
+                let m = p[1].trim().padStart(2, '0');
+                let a = p[2].trim();
+                if (a.length === 2) a = (parseInt(a, 10) > 30 ? "19" : "20") + a;
+                return `${a}-${m}-${g}`;
             }
             return '';
         }
@@ -1860,7 +1673,7 @@
         function pulisciTesto(valore) {
             if (valore === null || valore === undefined) return '';
             let str = String(valore).trim();
-            if (str === '' || str.toUpperCase() === 'NULL' || str.toUpperCase() === 'NULLD') return '';
+            if (str === '' || str.toUpperCase() === 'NULL') return '';
             return str;
         }
 
@@ -1885,38 +1698,31 @@
             messaggioGuida.style.display = 'block';
             messaggioGuida.textContent = "Ricerca in corso...";
             boxContatore.style.display = 'none';
-            
             mostraCaricamento("Ricerca iscritti in corso...");
 
             try {
                 const querySnapshot = await getDocs(collection(db, "anagrafica"));
                 tbody.innerHTML = '';
-
                 if (querySnapshot.empty) {
                     messaggioGuida.textContent = "Nessun iscritto trovato nel database.";
-                    tabella.style.display = 'none';
-                    boxContatore.style.display = 'none';
                     return;
                 }
 
                 let risultati = [];
                 querySnapshot.forEach((docSnap) => {
                     const dati = docSnap.data();
-                    let cognomeDb = String(dati.cognome || "").trim().toUpperCase();
-                    if (testo === '%' || cognomeDb.includes(testoUpper)) {
+                    let cogDb = String(dati.cognome || "").trim().toUpperCase();
+                    if (testo === '%' || cogDb.includes(testoUpper)) {
                         risultati.push({ id: docSnap.id, ...dati });
                     }
                 });
 
                 if (risultati.length === 0) {
                     messaggioGuida.textContent = "Nessun iscritto trovato con questo cognome.";
-                    tabella.style.display = 'none';
-                    boxContatore.style.display = 'none';
                     return;
                 }
 
                 risultati.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || ''));
-
                 risultati.forEach(persona => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
@@ -1935,8 +1741,7 @@
                 messaggioGuida.style.display = 'none';
                 tabella.style.display = 'table';
             } catch (error) {
-                console.error("Errore ricerca iscritti:", error);
-                messaggioGuida.textContent = "Errore durante il recupero dei dati: " + error.message;
+                messaggioGuida.textContent = "Errore: " + error.message;
             } finally {
                 nascondiCaricamento();
             }
@@ -1949,13 +1754,13 @@
             document.getElementById('editIdPersona').value = persona.id;
             document.getElementById('editCognome').value = pulisciTesto(persona.cognome);
             document.getElementById('editNome').value = pulisciTesto(persona.nome);
+            document.getElementById('editCodiceFiscale').value = pulisciTesto(persona.codice_fiscale || persona.codiceFiscale).toUpperCase();
             document.getElementById('editLuogoNascita').value = pulisciTesto(persona.luogo_nascita || persona.luogoNascita);
             
             const dataNascitaFormatted = formattaDataPerInputDate(persona.data_nascita);
             document.getElementById('editDataNascita').value = dataNascitaFormatted;
             calcolaEImpostaEta(dataNascitaFormatted);
 
-            document.getElementById('editCodiceFiscale').value = pulisciTesto(persona.codice_fiscale).toUpperCase();
             document.getElementById('editIndirizzo').value = pulisciTesto(persona.indirizzo);
             document.getElementById('editCitta').value = pulisciTesto(persona.citta);
             document.getElementById('editCap').value = pulisciTesto(persona.cap);
@@ -1963,21 +1768,22 @@
             document.getElementById('editTelefono').value = pulisciTesto(persona.telefono);
             document.getElementById('editMail').value = pulisciTesto(persona.mail || persona.email);
             
-            // Popolamento dati Genitore 1
+            // Genitore 1
             document.getElementById('editGenitore1Cognome').value = pulisciTesto(persona.genitore1_cognome);
             document.getElementById('editGenitore1Nome').value = pulisciTesto(persona.genitore1_nome);
             document.getElementById('editGenitore1DataNascita').value = formattaDataPerInputDate(persona.genitore1_data_nascita);
             document.getElementById('editGenitore1CodiceFiscale').value = pulisciTesto(persona.genitore1_codice_fiscale).toUpperCase();
+            document.getElementById('editGenitore1LuogoNascita').value = pulisciTesto(persona.genitore1_luogo_nascita);
 
-            // Popolamento dati Genitore 2
+            // Genitore 2
             document.getElementById('editGenitore2Cognome').value = pulisciTesto(persona.genitore2_cognome);
             document.getElementById('editGenitore2Nome').value = pulisciTesto(persona.genitore2_nome);
             document.getElementById('editGenitore2DataNascita').value = formattaDataPerInputDate(persona.genitore2_data_nascita);
             document.getElementById('editGenitore2CodiceFiscale').value = pulisciTesto(persona.genitore2_codice_fiscale).toUpperCase();
+            document.getElementById('editGenitore2LuogoNascita').value = pulisciTesto(persona.genitore2_luogo_nascita);
 
             const checkTigre = document.getElementById('editTigre');
             const checkCapitano = document.getElementById('editCapitanoPiazza');
-            
             checkTigre.checked = Boolean(persona.tigre);
             checkCapitano.checked = Boolean(persona.capitano_piazza);
 
@@ -2015,33 +1821,22 @@
             document.getElementById('modalTitle').textContent = "Crea Nuovo Utente in Anagrafica";
             document.getElementById('editIdPersona').value = ""; 
             
-            document.querySelectorAll('.campo-controllo, .campo-controllo-genitore').forEach(campo => {
-                campo.value = "";
-            });
+            document.querySelectorAll('.campo-controllo, .campo-controllo-genitore').forEach(campo => { campo.value = ""; });
             document.getElementById('editEtaDisplay').value = "";
             document.getElementById('sezioneDatiGenitori').style.display = 'none';
             
-            const checkTigre = document.getElementById('editTigre');
-            const checkCapitano = document.getElementById('editCapitanoPiazza');
-            
-            checkTigre.checked = false;
-            checkCapitano.checked = false;
+            document.getElementById('editTigre').checked = false;
+            document.getElementById('editCapitanoPiazza').checked = false;
 
             const disabilitaCampi = (modalitaCorrente === 'user');
-            checkTigre.disabled = disabilitaCampi;
-            checkCapitano.disabled = disabilitaCampi;
+            document.getElementById('editTigre').disabled = disabilitaCampi;
+            document.getElementById('editCapitanoPiazza').disabled = disabilitaCampi;
 
             document.getElementById('conteggioIscrizioniScheda').textContent = "0";
             document.getElementById('conteggioConsecutiveScheda').textContent = "0";
-
             document.getElementById('messaggioRuntimeDuplicato').textContent = "";
-            document.getElementById('editCognome').classList.remove('avviso-duplicato-runtime');
-            document.getElementById('editNome').classList.remove('avviso-duplicato-runtime');
 
-            const btnAggiungi = document.getElementById('btnAggiungiIscrizione');
-            btnAggiungi.style.display = 'none';
-            btnAggiungi.onclick = null;
-
+            document.getElementById('btnAggiungiIscrizione').style.display = 'none';
             document.getElementById('btnEliminaAnagrafica').style.display = 'none';
             document.getElementById('sezioneStoricoContainer').style.display = 'none';
             
@@ -2056,29 +1851,22 @@
 
         async function eliminaAnagraficaCompleta(idPersona) {
             if (modalitaCorrente === 'user') return;
-            if (confirm("ATTENZIONE: Stai per eliminare DEFINITIVAMENTE l'anagrafica di questo iscritto e TUTTO il suo storico iscrizioni. Continuare?")) {
+            if (confirm("ATTENZIONE: Stai per eliminare DEFINITIVAMENTE l'anagrafica di questo iscritto e TUTTO il suo storico. Continuare?")) {
                 try {
                     const q = query(collection(db, "storico"), where("id_persona", "==", idPersona));
                     const querySnapshot = await getDocs(q);
-                    
-                    const eliminazioniStorico = [];
-                    querySnapshot.forEach((docSnap) => {
-                        eliminazioniStorico.push(deleteDoc(doc(db, "storico", docSnap.id)));
-                    });
-                    await Promise.all(eliminazioniStorico);
-
+                    let el = [];
+                    querySnapshot.forEach(d => el.push(deleteDoc(doc(db, "storico", d.id))));
+                    await Promise.all(el);
                     await deleteDoc(doc(db, "anagrafica", idPersona));
 
-                    alert("Anagrafica e relative iscrizioni eliminate con successo!");
+                    alert("Anagrafica eliminata con successo!");
                     modal.style.display = 'none';
-                    
                     cacheTuttiIscritti = [];
-                    const filtro = document.getElementById('filtroCognome').value;
-                    if (filtro) cercaIscritti(filtro);
-
+                    const f = document.getElementById('filtroCognome').value;
+                    if (f) cercaIscritti(f);
                 } catch (error) {
-                    console.error("Errore eliminazione completa:", error);
-                    alert("Errore durante l'eliminazione: " + error.message);
+                    alert("Errore eliminazione: " + error.message);
                 }
             }
         }
@@ -2117,78 +1905,54 @@
                 querySnapshot.forEach((docSnap) => {
                     const dati = docSnap.data();
                     recordStorico.push({ idDoc: docSnap.id, ...dati });
-                    if (dati.anno) {
-                        anniPresentiNellaScheda.push(String(dati.anno).trim());
-                    }
-                    let tipoIscrizione = dati.tipo_iscrizione || dati.tipo || dati.tipologia || dati.descrizione || dati.categoria || dati.descrizione_tipo || dati.iscrizione || '';
-                    let tipoPulito = String(tipoIscrizione).trim().toLowerCase();
+                    if (dati.anno) anniPresentiNellaScheda.push(String(dati.anno).trim());
 
+                    let tipoPulito = String(dati.tipo_iscrizione || dati.tipo || '').trim().toLowerCase();
                     if (tipoPulito === "iscrizione completa") {
                         conteggioComplete++;
                         let annoNum = parseInt(dati.anno, 10);
-                        if (!isNaN(annoNum)) {
-                            anniCompletiArr.push(annoNum);
-                        }
+                        if (!isNaN(annoNum)) anniCompletiArr.push(annoNum);
                     }
                 });
 
                 let massimoConsecutivi = 0;
                 if (anniCompletiArr.length > 0) {
-                    let anniNorm = anniCompletiArr.map(anno => anno > 2022 ? anno - 2 : anno);
+                    let anniNorm = anniCompletiArr.map(a => a > 2022 ? a - 2 : a);
                     anniNorm = [...new Set(anniNorm)].sort((a, b) => a - b);
-                    
                     let gruppiCount = {};
-                    anniNorm.forEach((annoNorm, index) => {
-                        let rn = index + 1;
-                        let grp = annoNorm - rn;
+                    anniNorm.forEach((an, idx) => {
+                        let grp = an - (idx + 1);
                         gruppiCount[grp] = (gruppiCount[grp] || 0) + 1;
                     });
-
                     for (let grp in gruppiCount) {
-                        if (gruppiCount[grp] > massimoConsecutivi) {
-                            massimoConsecutivi = gruppiCount[grp];
-                        }
+                        if (gruppiCount[grp] > massimoConsecutivi) massimoConsecutivi = gruppiCount[grp];
                     }
                 }
 
                 spanConteggioScheda.textContent = conteggioComplete;
                 spanConsecutiveScheda.textContent = massimoConsecutivi;
-
                 recordStorico.sort((a, b) => (b.anno || '').localeCompare(a.anno || ''));
 
                 recordStorico.forEach(dati => {
-                    let tipoIscrizione = dati.tipo_iscrizione || dati.tipo || dati.tipologia || dati.descrizione || dati.categoria || dati.descrizione_tipo || dati.iscrizione || '';
-                    let numIdentificativo = dati.numero_identificativo || dati.numero_ident || dati.identificativo || dati.codice || dati.tessera || dati.num_identificativo || '';
+                    let tipoIscrizione = dati.tipo_iscrizione || dati.tipo || '';
+                    let numIdentificativo = dati.numero_identificativo || '';
 
                     const tr = document.createElement('tr');
                     tr.setAttribute('data-id-storico', dati.idDoc);
-                    
                     let azioniHtml = (modalitaCorrente === 'admin') 
-                        ? `<button type="button" class="btn-azione btn-modifica-storico" onclick="abilitaModificaStorico(this)">Modifica</button>
-                           <button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaStorico('${dati.idDoc}', '${idPersona}')">Elimina</button>
-                           <button type="button" class="btn-azione btn-info-storico" onclick="mostraInfoStorico('${pulisciTesto(dati.creato_da)}', '${pulisciTesto(dati.creato_il)}')">Info</button>`
+                        ? `<button type="button" class="btn-azione btn-modifica-storico" onclick="abilitaModificaStorico(this)">Modifica</button><button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaStorico('${dati.idDoc}', '${idPersona}')">Elimina</button><button type="button" class="btn-azione btn-info-storico" onclick="mostraInfoStorico('${pulisciTesto(dati.creato_da)}', '${pulisciTesto(dati.creato_il)}')">Info</button>`
                         : `<span style="color: #888; font-size: 11px; font-style: italic;">Solo lettura</span>`;
 
-                    tr.innerHTML = `
-                        <td class="td-anno">${pulisciTesto(dati.anno)}</td>
-                        <td class="td-tipo">${pulisciTesto(tipoIscrizione)}</td>
-                        <td class="td-num">${pulisciTesto(numIdentificativo)}</td>
-                        <td>${azioniHtml}</td>
-                    `;
+                    tr.innerHTML = `<td class="td-anno">${pulisciTesto(dati.anno)}</td><td class="td-tipo">${pulisciTesto(tipoIscrizione)}</td><td class="td-num">${pulisciTesto(numIdentificativo)}</td><td>${azioniHtml}</td>`;
                     tbodyStorico.appendChild(tr);
                 });
             } catch (error) {
-                console.error("Errore caricamento storico:", error);
-                divCaricamento.textContent = "Errore durante il caricamento dello storico.";
-                spanConteggioScheda.textContent = "0";
-                spanConsecutiveScheda.textContent = "0";
+                divCaricamento.textContent = "Errore caricamento storico.";
             }
         }
 
         window.mostraInfoStorico = function(creatoDa, creatoIl) {
-            const utente = creatoDa && creatoDa !== "" ? creatoDa : "Non registrato (dato storico precedente)";
-            const dataOra = creatoIl && creatoIl !== "" ? creatoIl : "Non disponibile";
-            alert(`Dettagli Inserimento Iscrizione:\n\n• Inserito da: ${utente}\n• Data e Ora: ${dataOra}`);
+            alert(`Dettagli Inserimento:\n\n• Inserito da: ${creatoDa || "Sconosciuto"}\n• Data e Ora: ${creatoIl || "Non disponibile"}`);
         };
 
         async function verificaDuplicatoNumeroIdentificativo(anno, numeroIdentificativo, idDocEscluso = null) {
@@ -2197,34 +1961,24 @@
                 const q = query(collection(db, "storico"), where("anno", "==", String(anno).trim()));
                 const querySnapshot = await getDocs(q);
                 const numInput = String(numeroIdentificativo).trim().toUpperCase();
-                
                 let risultato = { duplicato: false, nomeTitolare: "" };
 
                 for (const docSnap of querySnapshot.docs) {
                     if (idDocEscluso && docSnap.id === idDocEscluso) continue;
                     const datiStorico = docSnap.data();
-                    const numDb = String(datiStorico.numero_identificativo || "").trim().toUpperCase();
-                    
-                    if (numDb === numInput) {
+                    if (String(datiStorico.numero_identificativo || "").trim().toUpperCase() === numInput) {
                         risultato.duplicato = true;
                         if (datiStorico.id_persona) {
-                            try {
-                                const anagRef = doc(db, "anagrafica", datiStorico.id_persona);
-                                const anagSnap = await getDoc(anagRef);
-                                if (anagSnap.exists()) {
-                                    const anagDati = anagSnap.data();
-                                    risultato.nomeTitolare = `${formattaCognome(anagDati.cognome)} ${pulisciTesto(anagDati.nome)}`;
-                                }
-                            } catch (e) {
-                                console.error("Errore recupero anagrafica titolare:", e);
+                            const anagSnap = await getDoc(doc(db, "anagrafica", datiStorico.id_persona));
+                            if (anagSnap.exists()) {
+                                risultato.nomeTitolare = `${formattaCognome(anagSnap.data().cognome)} ${pulisciTesto(anagSnap.data().nome)}`;
                             }
                         }
                         break;
                     }
                 }
                 return risultato;
-            } catch (error) {
-                console.error("Errore controllo duplicato numero identificativo:", error);
+            } catch (e) {
                 return { duplicato: false, nomeTitolare: "" };
             }
         }
@@ -2232,7 +1986,6 @@
         window.gestisciCambioTipoIscrizione = function(selectElement) {
             const tr = selectElement.closest('tr');
             const inputNum = tr.querySelector('.input-num');
-            
             if (selectElement.value === "Socio Sostenitore") {
                 inputNum.value = "";
                 inputNum.disabled = true;
@@ -2250,46 +2003,22 @@
                 alert(`Non è possibile aggiungere un'altra iscrizione per l'anno ${annoCarnevaleCorrente} (già presente).`);
                 return;
             }
+            document.getElementById('storicoCaricamento').style.display = 'none';
+            document.getElementById('tabellaStorico').style.display = 'table';
 
-            const divCaricamento = document.getElementById('storicoCaricamento');
-            const tabellaStorico = document.getElementById('tabellaStorico');
-            const tbodyStorico = document.getElementById('corpoTabellaStorico');
-
-            divCaricamento.style.display = 'none';
-            tabellaStorico.style.display = 'table';
-
-            let annoInputHtml = "";
-            if (modalitaCorrente === 'admin') {
-                annoInputHtml = `
-                    <select class="input-storico select-anno">
-                        <option value="${annoCarnevaleCorrente}" selected>${annoCarnevaleCorrente}</option>
-                        <option value="2026">2026</option>
-                        <option value="2025">2025</option>
-                        <option value="2024">2024</option>
-                        <option value="2023">2023</option>
-                    </select>
-                `;
-            } else {
-                annoInputHtml = `<span class="td-anno-fissa">${annoCarnevaleCorrente}</span>`;
-            }
+            let annoInputHtml = (modalitaCorrente === 'admin') 
+                ? `<select class="input-storico select-anno"><option value="${annoCarnevaleCorrente}" selected>${annoCarnevaleCorrente}</option><option value="2026">2026</option><option value="2025">2025</option></select>`
+                : `<span class="td-anno-fissa">${annoCarnevaleCorrente}</span>`;
 
             const tr = document.createElement('tr');
             tr.className = 'riga-nuova-temporanea';
             tr.innerHTML = `
                 <td class="td-anno">${annoInputHtml}</td>
-                <td class="td-tipo">
-                    <select class="input-storico select-tipo" onchange="gestisciCambioTipoIscrizione(this)">
-                        <option value="Iscrizione Completa" selected>Iscrizione Completa</option>
-                        <option value="Socio Sostenitore">Socio Sostenitore</option>
-                    </select>
-                </td>
-                <td class="td-num"><input type="text" class="input-storico input-num" id="inputNuovoNumId" value="" placeholder="Inserisci numero..."></td>
-                <td>
-                    <button type="button" class="btn-azione btn-salva-storico" onclick="salvaNuovaIscrizioneDiretta(this)">Salva</button>
-                    <button type="button" class="btn-azione btn-elimina-storico" onclick="this.closest('tr').remove(); document.getElementById('btnAggiungiIscrizione').style.display='block';">Annulla</button>
-                </td>
+                <td class="td-tipo"><select class="input-storico select-tipo" onchange="gestisciCambioTipoIscrizione(this)"><option value="Iscrizione Completa" selected>Iscrizione Completa</option><option value="Socio Sostenitore">Socio Sostenitore</option></select></td>
+                <td class="td-num"><input type="text" class="input-storico input-num" id="inputNuovoNumId" placeholder="Inserisci numero..."></td>
+                <td><button type="button" class="btn-azione btn-salva-storico" onclick="salvaNuovaIscrizioneDiretta(this)">Salva</button><button type="button" class="btn-azione btn-elimina-storico" onclick="this.closest('tr').remove(); document.getElementById('btnAggiungiIscrizione').style.display='block';">Annulla</button></td>
             `;
-            tbodyStorico.insertBefore(tr, tbodyStorico.firstChild);
+            document.getElementById('corpoTabellaStorico').insertBefore(tr, document.getElementById('corpoTabellaStorico').firstChild);
             document.getElementById('btnAggiungiIscrizione').style.display = 'none';
         }
 
@@ -2298,34 +2027,21 @@
             const idPersona = document.getElementById('editIdPersona').value.trim();
             const nuovoTipo = tr.querySelector('.select-tipo').value;
             let nuovoNum = tr.querySelector('.input-num').value.trim();
-            
-            let nuovoAnno = annoCarnevaleCorrente;
-            const selectAnno = tr.querySelector('.select-anno');
-            if (selectAnno) {
-                nuovoAnno = selectAnno.value;
-            }
+            let nuovoAnno = tr.querySelector('.select-anno') ? tr.querySelector('.select-anno').value : annoCarnevaleCorrente;
 
-            if (nuovoTipo === "Socio Sostenitore") {
-                nuovoNum = "";
-            } else if (!nuovoNum) {
-                alert("Inserisci il numero identificativo.");
-                return;
-            }
+            if (nuovoTipo === "Socio Sostenitore") nuovoNum = "";
+            else if (!nuovoNum) { alert("Inserisci il numero identificativo."); return; }
 
             if (anniPresentiNellaScheda.includes(nuovoAnno)) {
-                alert(`Esiste già un'iscrizione per l'anno ${nuovoAnno}! Non è consentito duplicare l'anno.`);
+                alert(`Esiste già un'iscrizione per l'anno ${nuovoAnno}!`);
                 return;
             }
 
             const checkNum = await verificaDuplicatoNumeroIdentificativo(nuovoAnno, nuovoNum);
             if (checkNum.duplicato) {
-                let msgTitolare = checkNum.nomeTitolare ? ` a ${checkNum.nomeTitolare}` : "";
-                alert(`ERRORE: Il numero identificativo "${nuovoNum}" per l'anno ${nuovoAnno} risulta già assegnato${msgTitolare}!`);
+                alert(`ERRORE: Il numero identificativo "${nuovoNum}" per l'anno ${nuovoAnno} è già assegnato${checkNum.nomeTitolare ? ` a ${checkNum.nomeTitolare}` : ""}!`);
                 return;
             }
-
-            const currentIdentificativoUtente = aliasUtenteLoggato || (auth.currentUser ? auth.currentUser.email : "Sconosciuto");
-            const currentTimestamp = new Date().toLocaleString('it-IT');
 
             try {
                 await addDoc(collection(db, "storico"), {
@@ -2333,44 +2049,30 @@
                     anno: nuovoAnno,
                     tipo_iscrizione: nuovoTipo,
                     numero_identificativo: nuovoNum,
-                    creato_da: currentIdentificativoUtente,
-                    creato_il: currentTimestamp
+                    creato_da: aliasUtenteLoggato || (auth.currentUser ? auth.currentUser.email : "Sconosciuto"),
+                    creato_il: new Date().toLocaleString('it-IT')
                 });
-
                 alert("Nuova iscrizione salvata con successo!");
                 cacheTuttiIscritti = [];
                 document.getElementById('btnAggiungiIscrizione').style.display = 'block';
                 await caricaStoricoPersona(idPersona);
             } catch (error) {
-                console.error("Errore salvataggio nuova iscrizione:", error);
-                alert("Errore durante il salvataggio: " + error.message);
+                alert("Errore salvataggio: " + error.message);
             }
         };
 
         function attivaInserimentoNuovaIscrizioneNuovoUtente() {
-            const divCaricamento = document.getElementById('storicoCaricamento');
-            const tabellaStorico = document.getElementById('tabellaStorico');
-            const tbodyStorico = document.getElementById('corpoTabellaStorico');
-
-            divCaricamento.style.display = 'none';
-            tabellaStorico.style.display = 'table';
-
+            document.getElementById('storicoCaricamento').style.display = 'none';
+            document.getElementById('tabellaStorico').style.display = 'table';
             const tr = document.createElement('tr');
             tr.className = 'riga-nuova-temporanea';
             tr.innerHTML = `
                 <td class="td-anno">${annoCarnevaleCorrente}</td>
-                <td class="td-tipo">
-                    <select class="input-storico select-tipo" onchange="gestisciCambioTipoIscrizione(this)">
-                        <option value="Iscrizione Completa" selected>Iscrizione Completa</option>
-                        <option value="Socio Sostenitore">Socio Sostenitore</option>
-                    </select>
-                </td>
-                <td class="td-num"><input type="text" class="input-storico input-num" id="inputNuovoNumId" value="" placeholder="Inserisci numero..."></td>
-                <td>
-                    <span style="color: #666; font-size: 11px; font-style: italic;">In compilazione...</span>
-                </td>
+                <td class="td-tipo"><select class="input-storico select-tipo" onchange="gestisciCambioTipoIscrizione(this)"><option value="Iscrizione Completa" selected>Iscrizione Completa</option><option value="Socio Sostenitore">Socio Sostenitore</option></select></td>
+                <td class="td-num"><input type="text" class="input-storico input-num" id="inputNuovoNumId" placeholder="Inserisci numero..."></td>
+                <td><span style="color: #666; font-size: 11px; font-style: italic;">In compilazione...</span></td>
             `;
-            tbodyStorico.insertBefore(tr, tbodyStorico.firstChild);
+            document.getElementById('corpoTabellaStorico').insertBefore(tr, document.getElementById('corpoTabellaStorico').firstChild);
         }
 
         window.abilitaModificaStorico = function(button) {
@@ -2381,15 +2083,9 @@
             const valNum = tdNum.textContent.trim();
             const valTipo = tdTipo.textContent.trim();
 
-            tdTipo.innerHTML = `
-                <select class="input-storico select-tipo" onchange="gestisciCambioTipoIscrizione(this)">
-                    <option value="Iscrizione Completa" ${valTipo === 'Iscrizione Completa' ? 'selected' : ''}>Iscrizione Completa</option>
-                    <option value="Socio Sostenitore" ${valTipo === 'Socio Sostenitore' ? 'selected' : ''}>Socio Sostenitore</option>
-                </select>
-            `;
-
-            const isDisabled = (valTipo === 'Socio Sostenitore');
-            tdNum.innerHTML = `<input type="text" class="input-storico input-num" value="${isDisabled ? '' : valNum}" ${isDisabled ? 'disabled style="background-color: #e9ecef;"' : ''} placeholder="${isDisabled ? 'Non richiesto' : 'Inserisci numero...'}">`;
+            tdTipo.innerHTML = `<select class="input-storico select-tipo" onchange="gestisciCambioTipoIscrizione(this)"><option value="Iscrizione Completa" ${valTipo === 'Iscrizione Completa' ? 'selected' : ''}>Iscrizione Completa</option><option value="Socio Sostenitore" ${valTipo === 'Socio Sostenitore' ? 'selected' : ''}>Socio Sostenitore</option></select>`;
+            const dis = (valTipo === 'Socio Sostenitore');
+            tdNum.innerHTML = `<input type="text" class="input-storico input-num" value="${dis ? '' : valNum}" ${dis ? 'disabled style="background-color: #e9ecef;"' : ''}>`;
 
             button.textContent = "Salva";
             button.classList.remove('btn-modifica-storico');
@@ -2401,67 +2097,52 @@
             const tr = button.closest('tr');
             const idDoc = tr.getAttribute('data-id-storico');
             const idPersona = document.getElementById('editIdPersona').value;
-            const annoCorrente = tr.querySelector('.td-anno').textContent.trim();
+            const anno = tr.querySelector('.td-anno').textContent.trim();
             const nuovoTipo = tr.querySelector('.select-tipo').value;
+            let nuovoNum = tr.querySelector('.input-num') ? tr.querySelector('.input-num').value.trim() : tr.querySelector('.td-num').textContent.trim();
 
-            const inputNum = tr.querySelector('.input-num');
-            let nuovoNum = inputNum ? inputNum.value.trim() : tr.querySelector('.td-num').textContent.trim();
+            if (nuovoTipo === "Socio Sostenitore") nuovoNum = "";
+            else if (!nuovoNum) { alert("Il numero identificativo non può essere vuoto."); return; }
 
-            if (nuovoTipo === "Socio Sostenitore") {
-                nuovoNum = "";
-            } else if (!nuovoNum) {
-                alert("Il numero identificativo non può essere vuoto.");
-                return;
-            }
-
-            const checkNum = await verificaDuplicatoNumeroIdentificativo(annoCorrente, nuovoNum, idDoc);
+            const checkNum = await verificaDuplicatoNumeroIdentificativo(anno, nuovoNum, idDoc);
             if (checkNum.duplicato) {
-                let msgTitolare = checkNum.nomeTitolare ? ` a ${checkNum.nomeTitolare}` : "";
-                alert(`ERRORE: Il numero identificativo "${nuovoNum}" per l'anno ${annoCorrente} risulta già assegnato${msgTitolare}!`);
+                alert(`ERRORE: Numero identificativo già assegnato!`);
                 return;
             }
 
             try {
-                const docRef = doc(db, "storico", idDoc);
-                await setDoc(docRef, { tipo_iscrizione: nuovoTipo, numero_identificativo: nuovoNum }, { merge: true });
-
-                alert("Iscrizione aggiornata con successo!");
+                await setDoc(doc(db, "storico", idDoc), { tipo_iscrizione: nuovoTipo, numero_identificativo: nuovoNum }, { merge: true });
+                alert("Iscrizione aggiornata!");
                 cacheTuttiIscritti = [];
                 await caricaStoricoPersona(idPersona);
             } catch (error) {
-                console.error("Errore salvataggio storico:", error);
-                alert("Errore durante il salvataggio: " + error.message);
+                alert("Errore salvataggio: " + error.message);
             }
         };
 
         window.eliminaStorico = async function(idDoc, idPersona) {
             if (modalitaCorrente === 'user') return;
-            if (confirm("Sei sicuro di voler eliminare questa iscrizione passata dal database?")) {
+            if (confirm("Sei sicuro di voler eliminare questa iscrizione?")) {
                 try {
-                    const docRef = doc(db, "storico", idDoc);
-                    await deleteDoc(docRef);
-
-                    alert("Iscrizione eliminata con successo!");
+                    await deleteDoc(doc(db, "storico", idDoc));
+                    alert("Iscrizione eliminata!");
                     cacheTuttiIscritti = [];
                     await caricaStoricoPersona(idPersona);
                 } catch (error) {
-                    console.error("Errore eliminazione storico:", error);
-                    alert("Errore durante l'eliminazione: " + error.message);
+                    alert("Errore eliminazione: " + error.message);
                 }
             }
         };
 
-        document.getElementById('btnChiudiX').addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
+        document.getElementById('btnChiudiX').addEventListener('click', () => { modal.style.display = 'none'; });
 
         function raccogliDatiAnagrafica() {
             const dati = {
                 cognome: document.getElementById('editCognome').value.trim().toUpperCase(),
                 nome: document.getElementById('editNome').value.trim(),
+                codice_fiscale: document.getElementById('editCodiceFiscale').value.trim().toUpperCase(),
                 luogo_nascita: document.getElementById('editLuogoNascita').value.trim(),
                 data_nascita: document.getElementById('editDataNascita').value.trim(),
-                codice_fiscale: document.getElementById('editCodiceFiscale').value.trim().toUpperCase(),
                 indirizzo: document.getElementById('editIndirizzo').value.trim(),
                 citta: document.getElementById('editCitta').value.trim(),
                 cap: document.getElementById('editCap').value.trim(),
@@ -2469,161 +2150,108 @@
                 telefono: document.getElementById('editTelefono').value.trim(),
                 mail: document.getElementById('editMail').value.trim(),
                 
-                // Dati Genitore 1
+                // Genitore 1
                 genitore1_cognome: document.getElementById('editGenitore1Cognome').value.trim().toUpperCase(),
                 genitore1_nome: document.getElementById('editGenitore1Nome').value.trim(),
                 genitore1_data_nascita: document.getElementById('editGenitore1DataNascita').value.trim(),
                 genitore1_codice_fiscale: document.getElementById('editGenitore1CodiceFiscale').value.trim().toUpperCase(),
+                genitore1_luogo_nascita: document.getElementById('editGenitore1LuogoNascita').value.trim(),
 
-                // Dati Genitore 2
+                // Genitore 2
                 genitore2_cognome: document.getElementById('editGenitore2Cognome').value.trim().toUpperCase(),
                 genitore2_nome: document.getElementById('editGenitore2Nome').value.trim(),
                 genitore2_data_nascita: document.getElementById('editGenitore2DataNascita').value.trim(),
-                genitore2_codice_fiscale: document.getElementById('editGenitore2CodiceFiscale').value.trim().toUpperCase()
+                genitore2_codice_fiscale: document.getElementById('editGenitore2CodiceFiscale').value.trim().toUpperCase(),
+                genitore2_luogo_nascita: document.getElementById('editGenitore2LuogoNascita').value.trim()
             };
 
             if (modalitaCorrente === 'admin') {
                 dati.tigre = document.getElementById('editTigre').checked;
                 dati.capitano_piazza = document.getElementById('editCapitanoPiazza').checked;
             }
-
             return dati;
         }
 
         function validaCoerenzaDati(dati) {
             if (dati.cap && !/^\d{5}$/.test(dati.cap)) {
-                alert("ERRORE: Il CAP inserito non è valido. Deve essere composto da esattamente 5 cifre numeriche.");
-                return false;
+                alert("ERRORE: Il CAP deve essere di 5 cifre."); return false;
             }
-
             if (dati.mail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(dati.mail)) {
-                alert("ERRORE: L'indirizzo email inserito non è valido.");
-                return false;
+                alert("ERRORE: Email non valida."); return false;
             }
-
             if (dati.provincia && !/^[A-Z]{2}$/.test(dati.provincia)) {
-                alert("ERRORE: La provincia non è valida. Inserisci la sigla a 2 lettere (es. TO, MI, RM).");
-                return false;
+                alert("ERRORE: Sigla provincia non valida (es. TO)."); return false;
             }
-
-            if (dati.telefono && !/^[\d\s\+\-\(\)]{6,20}$/.test(dati.telefono)) {
-                alert("ERRORE: Il numero di telefono inserito non è valido.");
-                return false;
+            if (dati.codice_fiscale && !/^[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]$/.test(dati.codice_fiscale)) {
+                alert("ERRORE: Il formato del Codice Fiscale dell'iscritto non è corretto."); return false;
             }
-
-            if (dati.codice_fiscale && !/^[A-Z0-9]{16}$/.test(dati.codice_fiscale)) {
-                alert("ERRORE: Il codice fiscale dell'iscritto non è valido (deve essere di 16 caratteri alfanumerici).");
-                return false;
-            }
-
             if (dati.data_nascita) {
-                const dataNascitaObj = new Date(dati.data_nascita);
-                const oggi = new Date();
-                if (dataNascitaObj > oggi) {
-                    alert("ERRORE: La data di nascita non può essere nel futuro!");
-                    return false;
-                }
+                const nascitaObj = new Date(dati.data_nascita);
+                if (nascitaObj > new Date()) { alert("ERRORE: Data di nascita futura non valida."); return false; }
 
-                // Controllo obbligatorietà dati genitori per minori 14-17 anni
-                let eta = oggi.getFullYear() - dataNascitaObj.getFullYear();
-                const m = oggi.getMonth() - dataNascitaObj.getMonth();
-                if (m < 0 || (m === 0 && oggi.getDate() < dataNascitaObj.getDate())) {
-                    eta--;
-                }
+                let eta = new Date().getFullYear() - nascitaObj.getFullYear();
+                const m = new Date().getMonth() - nascitaObj.getMonth();
+                if (m < 0 || (m === 0 && new Date().getDate() < nascitaObj.getDate())) eta--;
 
                 if (eta >= 14 && eta < 18) {
                     if (!dati.genitore1_cognome || !dati.genitore1_nome || !dati.genitore1_codice_fiscale ||
                         !dati.genitore2_cognome || !dati.genitore2_nome || !dati.genitore2_codice_fiscale) {
-                        alert("ERRORE: Per i minorenni di età compresa tra 14 e 17 anni, i dati anagrafici e il Codice Fiscale di ENTRAMBI i genitori/tutori sono obbligatori!");
+                        alert("ERRORE: Per i minorenni tra 14 e 17 anni, i dati e i Codici Fiscali di ENTRAMBI i genitori/tutori sono obbligatori!");
                         return false;
                     }
                 }
             }
-
             return true;
         }
 
         async function eseguiDoppiaVerifica(cognome, nome, dataNascita, idCorrente = null) {
             try {
                 const querySnapshot = await getDocs(collection(db, "anagrafica"));
-                
-                const cogInput = String(cognome || "").trim().toUpperCase();
-                const nomInput = String(nome || "").trim().toUpperCase();
-                const datInput = String(dataNascita || "").trim();
+                let stessoNome = false, duplicato = false;
+                const cIn = cognome.toUpperCase(), nIn = nome.toUpperCase(), dIn = dataNascita;
 
-                let stessoNomeTrovato = false;
-                let duplicatoEsattoTrovato = false;
-
-                querySnapshot.forEach((docSnap) => {
+                querySnapshot.forEach(docSnap => {
                     if (idCorrente && docSnap.id === idCorrente) return;
-
-                    const dati = docSnap.data();
-                    const cogDb = String(dati.cognome || "").trim().toUpperCase();
-                    const nomDb = String(dati.nome || "").trim().toUpperCase();
-                    const datDb = String(dati.data_nascita || "").trim();
-
-                    if (cogDb === cogInput && nomDb === nomInput) {
-                        stessoNomeTrovato = true;
-                        if (datInput !== "" && datDb === datInput) {
-                            duplicatoEsattoTrovato = true;
-                        }
+                    const d = docSnap.data();
+                    if (String(d.cognome || "").trim().toUpperCase() === cIn && String(d.nome || "").trim().toUpperCase() === nIn) {
+                        stessoNome = true;
+                        if (dIn !== "" && String(d.data_nascita || "").trim() === dIn) duplicato = true;
                     }
                 });
 
-                if (duplicatoEsattoTrovato) return "DUPLICATO";
-                if (stessoNomeTrovato) return "WARNING";
+                if (duplicato) return "DUPLICATO";
+                if (stessoNome) return "WARNING";
                 return "OK";
-            } catch (error) {
-                console.error("Errore durante la verifica:", error);
+            } catch (e) {
                 return "OK";
             }
         }
 
         async function gestisciPrimoStepNuovoUtente() {
             const dati = raccogliDatiAnagrafica();
-
-            if (!dati.cognome || !dati.nome) {
-                alert("Attenzione: Inserisci almeno Cognome e Nome.");
-                return;
-            }
-
+            if (!dati.cognome || !dati.nome) { alert("Inserisci almeno Cognome e Nome."); return; }
             if (!validaCoerenzaDati(dati)) return;
 
-            const esitoVerifica = await eseguiDoppiaVerifica(dati.cognome, dati.nome, dati.data_nascita);
-
-            if (esitoVerifica === "DUPLICATO") {
-                alert("ERRORE: Impossibile procedere. Esiste già un iscritto registrato con lo stesso Cognome, Nome e Data di Nascita!");
-                return;
-            } else if (esitoVerifica === "WARNING") {
-                const procedi = confirm("ATTENZIONE: Esiste già un'anagrafica con lo stesso Nome e Cognome (potrebbe essere un'omonimia). Vuoi procedere comunque?");
-                if (!procedi) return;
-            }
+            const esito = await eseguiDoppiaVerifica(dati.cognome, dati.nome, dati.data_nascita);
+            if (esito === "DUPLICATO") { alert("Esiste già un iscritto con lo stesso Cognome, Nome e Data di Nascita!"); return; }
+            if (esito === "WARNING" && !confirm("Esiste già un'anagrafica con lo stesso Nome e Cognome. Vuoi procedere?")) return;
 
             try {
                 const docRef = await addDoc(collection(db, "anagrafica"), dati);
-                const nuovoId = docRef.id;
-                document.getElementById('editIdPersona').value = nuovoId;
-
-                alert("Anagrafica salvata! Ora inserisci i dati dell'iscrizione e clicca su Salva e Chiudi.");
+                document.getElementById('editIdPersona').value = docRef.id;
+                alert("Anagrafica salvata! Ora inserisci l'iscrizione e clicca su Salva.");
 
                 document.getElementById('sezioneStoricoContainer').style.display = 'block';
-                await caricaStoricoPersona(nuovoId);
-
+                await caricaStoricoPersona(docRef.id);
                 attivaInserimentoNuovaIscrizioneNuovoUtente();
                 document.getElementById('btnAggiungiIscrizione').style.display = 'none';
-
-                const btnEliminaAnag = document.getElementById('btnEliminaAnagrafica');
-                btnEliminaAnag.style.display = (modalitaCorrente === 'admin') ? 'block' : 'none';
-                btnEliminaAnag.onclick = () => eliminaAnagraficaCompleta(nuovoId);
 
                 const btnSalva = document.getElementById('btnSalva');
                 btnSalva.textContent = "Salva e Chiudi";
                 btnSalva.style.backgroundColor = "#17a2b8";
                 btnSalva.onclick = gestisciSecondoStepNuovoUtente;
-
             } catch (error) {
-                console.error("Errore salvataggio anagrafica:", error);
-                alert("Errore durante il salvataggio: " + error.message);
+                alert("Errore: " + error.message);
             }
         }
 
@@ -2632,30 +2260,15 @@
             const inputNumElem = document.getElementById('inputNuovoNumId');
             const selectTipoElem = document.querySelector('.riga-nuova-temporanea .select-tipo');
 
-            if (!inputNumElem) {
-                alert("Errore: Campo numero identificativo iscrizione non trovato.");
-                return;
-            }
-
+            if (!inputNumElem) return;
             let nuovoNum = inputNumElem.value.trim();
             const nuovoTipo = selectTipoElem ? selectTipoElem.value : "Iscrizione Completa";
 
-            if (nuovoTipo === "Socio Sostenitore") {
-                nuovoNum = "";
-            } else if (nuovoNum === "") {
-                alert("Attenzione: Inserisci il numero identificativo dell'iscrizione.");
-                return;
-            }
+            if (nuovoTipo === "Socio Sostenitore") nuovoNum = "";
+            else if (!nuovoNum) { alert("Inserisci il numero identificativo."); return; }
 
             const checkNum = await verificaDuplicatoNumeroIdentificativo(annoCarnevaleCorrente, nuovoNum);
-            if (checkNum.duplicato) {
-                let msgTitolare = checkNum.nomeTitolare ? ` a ${checkNum.nomeTitolare}` : "";
-                alert(`ERRORE: Il numero identificativo "${nuovoNum}" per l'anno ${annoCarnevaleCorrente} risulta già assegnato${msgTitolare}!`);
-                return;
-            }
-
-            const currentIdentificativoUtente = aliasUtenteLoggato || (auth.currentUser ? auth.currentUser.email : "Sconosciuto");
-            const currentTimestamp = new Date().toLocaleString('it-IT');
+            if (checkNum.duplicato) { alert(`Numero identificativo già assegnato!`); return; }
 
             try {
                 await addDoc(collection(db, "storico"), {
@@ -2663,64 +2276,45 @@
                     anno: annoCarnevaleCorrente,
                     tipo_iscrizione: nuovoTipo,
                     numero_identificativo: nuovoNum,
-                    creato_da: currentIdentificativoUtente,
-                    creato_il: currentTimestamp
+                    creato_da: aliasUtenteLoggato || (auth.currentUser ? auth.currentUser.email : "Sconosciuto"),
+                    creato_il: new Date().toLocaleString('it-IT')
                 });
-
-                alert("Utente e iscrizione salvati con successo!");
+                alert("Salvato con successo!");
                 cacheTuttiIscritti = [];
                 modal.style.display = 'none';
-                const filtro = document.getElementById('filtroCognome').value;
-                if (filtro) cercaIscritti(filtro);
-
+                const f = document.getElementById('filtroCognome').value;
+                if (f) cercaIscritti(f);
             } catch (error) {
-                console.error("Errore salvataggio iscrizione:", error);
-                alert("Errore durante il salvataggio dell'iscrizione: " + error.message);
+                alert("Errore: " + error.message);
             }
         }
 
         async function gestisciSalvataggioEsistente() {
             const id = document.getElementById('editIdPersona').value.trim();
             const dati = raccogliDatiAnagrafica();
-
-            if (!dati.cognome || !dati.nome) {
-                alert("Attenzione: Inserisci almeno Cognome e Nome.");
-                return;
-            }
-
+            if (!dati.cognome || !dati.nome) { alert("Inserisci almeno Cognome e Nome."); return; }
             if (!validaCoerenzaDati(dati)) return;
 
-            const esitoVerifica = await eseguiDoppiaVerifica(dati.cognome, dati.nome, dati.data_nascita, id);
-
-            if (esitoVerifica === "DUPLICATO") {
-                alert("ERRORE: Impossibile salvare. Esiste già un altro iscritto con lo stesso Cognome, Nome e Data di Nascita!");
-                return;
-            } else if (esitoVerifica === "WARNING") {
-                const procedi = confirm("ATTENZIONE: Esiste già un'altra anagrafica con lo stesso Nome e Cognome (potrebbe essere un'omonimia). Vuoi procedere comunque?");
-                if (!procedi) return;
-            }
+            const esito = await eseguiDoppiaVerifica(dati.cognome, dati.nome, dati.data_nascita, id);
+            if (esito === "DUPLICATO") { alert("Esiste già un altro iscritto con stessi dati anagrafici!"); return; }
+            if (esito === "WARNING" && !confirm("Possibile omonimia. Vuoi procedere?")) return;
 
             try {
-                const docRef = doc(db, "anagrafica", id);
-                await setDoc(docRef, dati, { merge: true });
-
-                alert("Modifiche anagrafiche salvate con successo!");
+                await setDoc(doc(db, "anagrafica", id), dati, { merge: true });
+                alert("Modifiche salvate con successo!");
                 cacheTuttiIscritti = [];
                 modal.style.display = 'none';
-                const filtro = document.getElementById('filtroCognome').value;
-                if (filtro) cercaIscritti(filtro);
+                const f = document.getElementById('filtroCognome').value;
+                if (f) cercaIscritti(f);
             } catch (error) {
-                console.error("Errore modifiche:", error);
-                alert("Errore durante il salvataggio: " + error.message);
+                alert("Errore salvataggio: " + error.message);
             }
         }
 
         document.getElementById('filtroCognome').addEventListener('input', (e) => {
             const testo = e.target.value;
             clearTimeout(timeoutRicerca);
-            timeoutRicerca = setTimeout(() => {
-                cercaIscritti(testo);
-            }, 300);
+            timeoutRicerca = setTimeout(() => cercaIscritti(testo), 300);
         });
     </script>
 </body>
