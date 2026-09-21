@@ -1226,7 +1226,10 @@
             const ruolo = document.getElementById('selectUserRole').value;
             const attivo = document.getElementById('selectUserStato').value === "attivo";
             if (!email) return alert("Inserisci email.");
-            await setDoc(doc(db, "utenti", id || doc(collection(db, "utenti")).id), { email, alias, ruolo, attivo }, { merge: true });
+            
+            const docRef = id ? doc(db, "utenti", id) : doc(collection(db, "utenti"));
+            await setDoc(docRef, { email, alias, ruolo, attivo }, { merge: true });
+            
             alert("Utente salvato!");
             chiudiModaleUtente();
             caricaTabellaUtenti();
