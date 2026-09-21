@@ -381,11 +381,11 @@
             <div id="sezione_onorificenze_capitani" class="sezione-app"><h2>Capitani di Piazza</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
             <div id="sezione_onorificenze_tigre" class="sezione-app"><h2>Tigre</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
 
-            <div id="sezione_preventivo_10" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 10</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
-            <div id="sezione_preventivo_20" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 20</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
-            <div id="sezione_preventivo_30" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 30</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
-            <div id="sezione_preventivo_40" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 40</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
-            <div id="sezione_preventivo_50" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 50</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_preventivo_10" class="sezione-app"><h2>Preventivo Iscrizioni: 10 Anni</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_preventivo_20" class="sezione-app"><h2>Preventivo Iscrizioni: 20 Anni</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_preventivo_30" class="sezione-app"><h2>Preventivo Iscrizioni: 30 Anni</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_preventivo_40" class="sezione-app"><h2>Preventivo Iscrizioni: 40 Anni</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_preventivo_50" class="sezione-app"><h2>Preventivo Iscrizioni: 50 Anni</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
 
         </div>
     </main>
@@ -1199,7 +1199,60 @@
         window.caricaElenco40Anni = () => elaboraOnorificenze('sezione_onorificenze_40', '40 Anni', 40, 'totali');
         window.caricaElenco50Anni = () => elaboraOnorificenze('sezione_onorificenze_50', '50 Anni', 50, 'totali');
 
-        window.caricaPreventivo10 = () => {}; window.caricaPreventivo20 = () => {}; window.caricaPreventivo30 = () => {}; window.caricaPreventivo40 = () => {}; window.caricaPreventivo50 = () => {};
+        async function elaboraPreventivoIscrizioni(idSezione, titoloSezione, sogliaAnni, tipoControllo) {
+            const container = document.getElementById(idSezione);
+            container.innerHTML = `<h2>Preventivo Iscrizioni: ${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Elaborazione preventivo...</div>`;
+            mostraCaricamento(`Elaborazione Preventivo ${titoloSezione}...`);
+            try {
+                const snapAnag = await getDocs(collection(db, "anagrafica"));
+                const snapStorico = await getDocs(collection(db, "storico"));
+                let anagMap = {}, storicoMap = {}, totaleComp = {};
+                snapAnag.forEach(d => anagMap[d.id] = d.data());
+                snapStorico.forEach(d => {
+                    let st = d.data();
+                    let idPers = st.id_persona;
+                    if (!idPers) return;
+                    let tipologia = String(st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || "").trim().toLowerCase();
+                    if (tipologia !== "iscrizione completa") return;
+                    let annoNum = parseInt(st.anno, 10);
+                    if (isNaN(annoNum)) return;
+                    totaleComp[idPers] = (totaleComp[idPers] || 0) + 1;
+                    if (!storicoMap[idPers]) storicoMap[idPers] = [];
+                    storicoMap[idPers].push(annoNum);
+                });
+
+                let risultati = [];
+                for (let idPers in anagMap) {
+                    let persona = anagMap[idPers], passa = false, val = 0;
+                    if (tipoControllo === 'consecutivi') {
+                        let anni = (storicoMap[idPers] || []).map(a => a > 2022 ? a - 2 : a).sort((a, b) => a - b);
+                        let maxC = 0, gruppi = {};
+                        anni.forEach((a, i) => { let g = a - (i + 1); gruppi[g] = (gruppi[g] || 0) + 1; });
+                        for (let g in gruppi) if (gruppi[g] > maxC) maxC = gruppi[g];
+                        passa = maxC >= sogliaAnni; val = maxC;
+                    } else {
+                        let tot = totaleComp[idPers] || 0;
+                        passa = tot >= sogliaAnni; val = tot;
+                    }
+                    if (passa) {
+                        risultati.push({ cognome: formattaCognome(persona.cognome), nome: pulisciTesto(persona.nome), citta: pulisciTesto(persona.citta), telefono: pulisciTesto(persona.telefono), valore: val });
+                    }
+                }
+                risultati.sort((a, b) => a.cognome.localeCompare(b.cognome));
+                let html = `<h2>Preventivo Iscrizioni: ${titoloSezione}</h2><div class="box-contatore" style="display:block;">Totale preventivo: ${risultati.length}</div><div class="table-responsive"><table><thead><tr><th>Cognome</th><th>Nome</th><th>Città</th><th>Telefono</th><th>Anni Validi</th></tr></thead><tbody>`;
+                if (risultati.length === 0) html += `<tr><td colspan="5" style="text-align:center;">Nessun risultato per il preventivo.</td></tr>`;
+                else risultati.forEach(r => html += `<tr><td>${r.cognome}</td><td>${r.nome}</td><td>${r.citta}</td><td>${r.telefono}</td><td><strong>${r.valore}</strong></td></tr>`);
+                container.innerHTML = html + `</tbody></table></div>`;
+            } catch (e) {
+                container.innerHTML = `<p style="color:red;">Errore preventivo: ${e.message}</p>`;
+            } finally { nascondiCaricamento(); }
+        }
+
+        window.caricaPreventivo10 = () => elaboraPreventivoIscrizioni('sezione_preventivo_10', '10 Anni', 10, 'consecutivi');
+        window.caricaPreventivo20 = () => elaboraPreventivoIscrizioni('sezione_preventivo_20', '20 Anni', 20, 'totali');
+        window.caricaPreventivo30 = () => elaboraPreventivoIscrizioni('sezione_preventivo_30', '30 Anni', 30, 'totali');
+        window.caricaPreventivo40 = () => elaboraPreventivoIscrizioni('sezione_preventivo_40', '40 Anni', 40, 'totali');
+        window.caricaPreventivo50 = () => elaboraPreventivoIscrizioni('sezione_preventivo_50', '50 Anni', 50, 'totali');
 
         async function caricaTabellaUtenti() {
             const tbody = document.getElementById('corpoTabellaUtenti');
@@ -1705,12 +1758,11 @@
             try {
                 mostraCaricamento("Verifica duplicati e salvataggio...");
                 
-                // CONTROLLO DUPLICATO NUMERO IDENTIFICATIVO PER LO STESSO ANNO
                 const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoStorico))));
                 let duplicatoTrovato = false;
                 
                 snapStoricoAnno.forEach(d => {
-                    if (d.id === storicoId) return; // Salta il documento corrente che stiamo modificando
+                    if (d.id === storicoId) return;
                     let datiSto = d.data();
                     let numEsistente = String(datiSto.numero_identificativo || "").trim();
                     if (numEsistente !== "" && numEsistente.toLowerCase() === nuovoNum.toLowerCase()) {
@@ -1767,7 +1819,6 @@
             try {
                 mostraCaricamento("Verifica duplicati e salvataggio...");
 
-                // CONTROLLO DUPLICATO NUMERO IDENTIFICATIVO PER LO STESSO ANNO
                 const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoCarnevaleCorrente))));
                 let duplicatoTrovato = false;
 
