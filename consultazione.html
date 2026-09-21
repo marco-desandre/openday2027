@@ -1209,12 +1209,39 @@
             try {
                 const snap = await getDocs(collection(db, "utenti"));
                 tbody.innerHTML = '';
-                if (snap.empty) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Nessun utente.</td></tr>'; return; }
+                if (snap.empty) { 
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Nessun utente.</td></tr>'; 
+                    return; 
+                }
+
+                // Raccogliamo i documenti in un array per poterli ordinare
+                let utentiList = [];
                 snap.forEach(docSnap => {
-                    const u = docSnap.data(), attivo = u.attivo !== false;
-                    tbody.innerHTML += `<tr><td>${pulisciTesto(u.email)}</td><td><strong>${pulisciTesto(u.alias)}</strong></td><td>${pulisciTesto(u.ruolo)}</td><td>${attivo ? 'Attivo' : 'Disabilitato'}</td><td><button type="button" class="btn-azione btn-modifica-storico" onclick="modificaUtente('${docSnap.id}', '${u.email}', '${u.alias || ''}', '${u.ruolo}', ${attivo})">Modifica</button></td></tr>`;
+                    utentiList.push({ id: docSnap.id, ...docSnap.data() });
                 });
-            } catch (e) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Errore.</td></tr>'; }
+
+                // Ordinamento alfabetico per alias (gestendo eventuali alias vuoti o maiuscole/minuscole)
+                utentiList.sort((a, b) => {
+                    const aliasA = (a.alias || a.email || "").trim().toLowerCase();
+                    const aliasB = (b.alias || b.email || "").trim().toLowerCase();
+                    return aliasA.localeCompare(aliasB);
+                });
+
+                // Renderizziamo la tabella con gli utenti ordinati
+                utentiList.forEach(u => {
+                    const attivo = u.attivo !== false;
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${pulisciTesto(u.email)}</td>
+                            <td><strong>${pulisciTesto(u.alias)}</strong></td>
+                            <td>${pulisciTesto(u.ruolo)}</td>
+                            <td>${attivo ? 'Attivo' : 'Disabilitato'}</td>
+                            <td><button type="button" class="btn-azione btn-modifica-storico" onclick="modificaUtente('${u.id}', '${u.email}', '${u.alias || ''}', '${u.ruolo}', ${attivo})">Modifica</button></td>
+                        </tr>`;
+                });
+            } catch (e) { 
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Errore caricamento utenti.</td></tr>'; 
+            }
         }
 
         window.apriModaleUtente = (id = "", email = "", alias = "", ruolo = "User", attivo = true) => {
