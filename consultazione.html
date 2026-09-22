@@ -2272,6 +2272,11 @@
             document.getElementById('editTigre').checked = Boolean(p.tigre);
             document.getElementById('editCapitanoPiazza').checked = Boolean(p.capitano_piazza);
 
+            // Disabilita i flag per gli utenti standard (User)
+            const isUserMode = (modalitaCorrente === 'user');
+            document.getElementById('editTigre').disabled = isUserMode;
+            document.getElementById('editCapitanoPiazza').disabled = isUserMode;
+
             document.getElementById('btnAggiungiIscrizione').style.display = 'block';
             document.getElementById('btnAggiungiIscrizione').onclick = attivaInserimentoNuovaIscrizioneEsistente;
             document.getElementById('btnEliminaAnagrafica').style.display = (modalitaCorrente === 'admin') ? 'block' : 'none';
@@ -2288,7 +2293,6 @@
         }
 
         document.getElementById('btnNuovoUtente').addEventListener('click', async () => {
-            // TRACCIAMENTO LOG APERTURA NUOVA ANAGRAFICA
             await registraLog("Apertura Anagrafica", "Nuova Anagrafica");
 
             document.getElementById('modalTitle').textContent = "Crea Nuovo Utente in Anagrafica";
@@ -2302,8 +2306,14 @@
             document.getElementById('editEtaDisplay').value = "";
             document.getElementById('messaggioRuntimeDuplicato').textContent = "";
             document.getElementById('sezioneDatiGenitori').style.display = 'none';
+            
             document.getElementById('editTigre').checked = false;
             document.getElementById('editCapitanoPiazza').checked = false;
+            
+            // Disabilita i flag per gli utenti standard (User)
+            const isUserMode = (modalitaCorrente === 'user');
+            document.getElementById('editTigre').disabled = isUserMode;
+            document.getElementById('editCapitanoPiazza').disabled = isUserMode;
             
             ['iscritto', 'gen1', 'gen2'].forEach(sogg => {
                 for (let i = 1; i <= 2; i++) {
@@ -2614,7 +2624,9 @@
         });
 
         function raccogliDatiAnagrafica() {
-            return {
+            const isUserMode = (modalitaCorrente === 'user');
+            
+            let dati = {
                 cognome: document.getElementById('editCognome').value.trim().toUpperCase(),
                 nome: document.getElementById('editNome').value.trim(),
                 codice_fiscale: document.getElementById('editCodiceFiscale').value.trim().toUpperCase(),
@@ -2659,8 +2671,10 @@
                 tigre: document.getElementById('editTigre').checked,
                 capitano_piazza: document.getElementById('editCapitanoPiazza').checked
             };
-        }
 
+            return dati;
+        }
+		
         async function gestisciPrimoStepNuovoUtente() {
             const dati = raccogliDatiAnagrafica();
             if (!dati.cognome || !dati.nome) return alert("Inserisci Cognome e Nome.");
