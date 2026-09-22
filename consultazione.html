@@ -1137,51 +1137,132 @@
 
         async function elaboraOnorificenze(idSezione, titoloSezione, sogliaAnni, tipoControllo) {
             const container = document.getElementById(idSezione);
-            container.innerHTML = `<h2>${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Elaborazione...</div>`;
+            container.innerHTML = `<h2> ${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Elaborazione calcolo ${titoloSezione} in corso...</div>`;
             mostraCaricamento(`Elaborazione ${titoloSezione}...`);
+            
             try {
-                const snapAnag = await getDocs(collection(db, "anagrafica"));
+                const snapAnagrafica = await getDocs(collection(db, "anagrafica"));
                 const snapStorico = await getDocs(collection(db, "storico"));
-                let anagMap = {}, storicoMap = {}, totaleComp = {};
-                snapAnag.forEach(d => anagMap[d.id] = d.data());
-                snapStorico.forEach(d => {
-                    let st = d.data();
+
+                let anagraficaMap = {};
+                snapAnagrafica.forEach(docSnap => {
+                    anagraficaMap[docSnap.id] = docSnap.data();
+                });
+
+                let storicoPerPersona = {};
+                let totaliCompletiPersona = {};
+
+                snapStorico.forEach(docSnap => {
+                    let st = docSnap.data();
                     let idPers = st.id_persona;
                     if (!idPers) return;
-                    let tipologia = String(st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || "").trim().toLowerCase();
-                    if (tipologia !== "iscrizione completa") return;
+
+                    let tipologia = st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || st.categoria || st.iscrizione || "";
+                    let tipoPulito = String(tipologia).trim().toLowerCase();
+
+                    if (tipoPulito !== "iscrizione completa") return;
+
                     let annoNum = parseInt(st.anno, 10);
                     if (isNaN(annoNum)) return;
-                    totaleComp[idPers] = (totaleComp[idPers] || 0) + 1;
-                    if (!storicoMap[idPers]) storicoMap[idPers] = [];
-                    storicoMap[idPers].push(annoNum);
+
+                    totaliCompletiPersona[idPers] = (totaliCompletiPersona[idPers] || 0) + 1;
+
+                    if (!storicoPerPersona[idPers]) {
+                        storicoPerPersona[idPers] = [];
+                    }
+                    storicoPerPersona[idPers].push(annoNum);
                 });
 
                 let risultati = [];
-                for (let idPers in anagMap) {
-                    let persona = anagMap[idPers], passa = false, val = 0;
+
+                for (let idPers in anagraficaMap) {
+                    let persona = anagraficaMap[idPers];
+                    let totaleIscrizioni = totaliCompletiPersona[idPers] || 0;
+                    let passaCriterio = false;
+
                     if (tipoControllo === 'consecutivi') {
-                        let anni = (storicoMap[idPers] || []).map(a => a > 2022 ? a - 2 : a).sort((a, b) => a - b);
-                        let maxC = 0, gruppi = {};
-                        anni.forEach((a, i) => { let g = a - (i + 1); gruppi[g] = (gruppi[g] || 0) + 1; });
-                        for (let g in gruppi) if (gruppi[g] > maxC) maxC = gruppi[g];
-                        passa = maxC >= sogliaAnni; val = maxC;
-                    } else {
-                        let tot = totaleComp[idPers] || 0;
-                        passa = tot > sogliaAnni - 1; val = tot;
+                        let anniArr = storicoPerPersona[idPers] || [];
+                        let anniNorm = anniArr.map(anno => anno > 2022 ? anno - 2 : anno);
+                        anniNorm = [...new Set(anniNorm)].sort((a, b) => a - b);
+                        
+                        let gruppiCount = {};
+                        anniNorm.forEach((annoNorm, index) => {
+                            let rn = index + 1;
+                            let grp = annoNorm - rn;
+                            gruppiCount[grp] = (gruppiCount[grp] || 0) + 1;
+                        });
+
+                        let massimoConsecutivi = 0;
+                        for (let grp in gruppiCount) {
+                            if (gruppiCount[grp] > massimoConsecutivi) {
+                                massimoConsecutivi = gruppiCount[grp];
+                            }
+                        }
+                        
+                        passaCriterio = massimoConsecutivi >= sogliaAnni;
+                        persona.valoreMostrato = massimoConsecutivi;
+                    } else if (tipoControllo === 'totali') {
+                        let sogliaTotaleSql = sogliaAnni - 1;
+                        passaCriterio = totaleIscrizioni > sogliaTotaleSql;
+                        persona.valoreMostrato = totaleIscrizioni;
                     }
-                    if (passa) {
-                        risultati.push({ cognome: formattaCognome(persona.cognome), nome: pulisciTesto(persona.nome), citta: pulisciTesto(persona.citta), telefono: pulisciTesto(persona.telefono), valore: val });
+
+                    if (passaCriterio) {
+                        risultati.push({
+                            cognome: formattaCognome(persona.cognome),
+                            nome: pulisciTesto(persona.nome),
+                            citta: pulisciTesto(persona.citta),
+                            telefono: pulisciTesto(persona.telefono),
+                            valore: persona.valoreMostrato
+                        });
                     }
                 }
+
                 risultati.sort((a, b) => a.cognome.localeCompare(b.cognome));
-                let html = `<h2>Onorificenze: ${titoloSezione}</h2><div class="box-contatore" style="display:block;">Trovati: ${risultati.length}</div><div class="table-responsive"><table><thead><tr><th>Cognome</th><th>Nome</th><th>Città</th><th>Telefono</th><th>Valore</th></tr></thead><tbody>`;
-                if (risultati.length === 0) html += `<tr><td colspan="5" style="text-align:center;">Nessun risultato.</td></tr>`;
-                else risultati.forEach(r => html += `<tr><td>${r.cognome}</td><td>${r.nome}</td><td>${r.citta}</td><td>${r.telefono}</td><td><strong>${r.valore}</strong></td></tr>`);
-                container.innerHTML = html + `</tbody></table></div>`;
-            } catch (e) {
-                container.innerHTML = `<p style="color:red;">Errore: ${e.message}</p>`;
-            } finally { nascondiCaricamento(); }
+                let etichettaColonnaValore = tipoControllo === 'consecutivi' ? 'Anni Consecutivi' : 'Totale Iscrizioni';
+
+                let html = `
+                    <h2>Onorificenze: ${titoloSezione}</h2>
+                    <p style="color: #666; font-size: 14px;">Elenco estratto in tempo reale applicando i criteri.</p>
+                    <div class="box-contatore" style="display: block;">Iscritti trovati: ${risultati.length}</div>
+                    <div class="table-responsive"><table>
+                        <thead>
+                            <tr>
+                                <th>Cognome</th>
+                                <th>Nome</th>
+                                <th>Città</th>
+                                <th>Telefono</th>
+                                <th>${etichettaColonnaValore}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                if (risultati.length === 0) {
+                    html += `<tr><td colspan="5" style="text-align:center; font-style:italic;">Nessun iscritto soddisfa il criterio dei ${titoloSezione}.</td></tr>`;
+                } else {
+                    risultati.forEach(r => {
+                        html += `
+                            <tr>
+                                <td>${r.cognome}</td>
+                                <td>${r.nome}</td>
+                                <td>${r.citta}</td>
+                                <td>${r.telefono}</td>
+                                <td><strong>${r.valore}</strong></td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                html += `</tbody></table></div>`;
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error("Errore nel calcolo delle onorificenze:", error);
+                container.innerHTML = `<h2>Onorificenze: ${titoloSezione}</h2><p style="color:red;">Errore durante il recupero dei dati: ${error.message}</p>`;
+            } finally {
+                nascondiCaricamento();
+            }
         }
 
         window.caricaElenco10Anni = () => elaboraOnorificenze('sezione_onorificenze_10', '10 Anni', 10, 'consecutivi');
@@ -1192,17 +1273,18 @@
 
         async function elaboraPreventivoIscrizioni(idSezione, titoloSezione, sogliaAnni, tipoControllo) {
             const container = document.getElementById(idSezione);
-            container.innerHTML = `<h2>Preventivo Iscrizioni: ${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Elaborazione preventivo...</div>`;
-            mostraCaricamento(`Elaborazione Preventivo ${titoloSezione}...`);
+            container.innerHTML = `<h2>Preventivo Iscrizioni: ${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Elaborazione preventivo ${titoloSezione} in corso...</div>`;
+            mostraCaricamento(`Calcolo ${titoloSezione}...`);
+            
             try {
                 const annoCarnevaleNum = parseInt(annoCarnevaleCorrente, 10) || 2027;
                 const annoLimitePreventivo = annoCarnevaleNum - 1;
 
-                const snapAnag = await getDocs(collection(db, "anagrafica"));
+                const snapAnagrafica = await getDocs(collection(db, "anagrafica"));
                 const snapStorico = await getDocs(collection(db, "storico"));
 
                 let anagraficaMap = {};
-                snapAnag.forEach(docSnap => {
+                snapAnagrafica.forEach(docSnap => {
                     anagraficaMap[docSnap.id] = docSnap.data();
                 });
 
@@ -1226,6 +1308,7 @@
                     }
 
                     if (annoNum > annoLimitePreventivo) return;
+
                     if (tipoPulito !== "iscrizione completa") return;
 
                     totaliCompletiPersona[idPers] = (totaliCompletiPersona[idPers] || 0) + 1;
@@ -1293,7 +1376,7 @@
 
                 let html = `
                     <h2>Preventivo Iscrizioni: ${titoloSezione}</h2>
-                    <p style="color: #666; font-size: 14px;">Elenco degli iscritti che raggiungeranno ${sogliaAnni} anni nel ${annoCarnevaleNum} (calcolato sulle iscrizioni fino al ${annoLimitePreventivo}, escludendo il biennio COVID 2021-2022)[cite: 3]. Clicca su una riga per visualizzare lo storico[cite: 3].</p>
+                    <p style="color: #666; font-size: 14px;">Elenco degli iscritti che raggiungeranno ${sogliaAnni} anni nel ${annoCarnevaleNum} (calcolato sulle iscrizioni fino al ${annoLimitePreventivo}, escludendo il biennio COVID 2021-2022). Clicca su una riga per visualizzare lo storico.</p>
                     <div class="box-contatore" style="display: block;">Iscritti trovati: ${risultati.length}</div>
                     <div class="table-responsive"><table>
                         <thead>
@@ -1338,16 +1421,19 @@
                     });
                 }
 
-            } catch (e) {
-                container.innerHTML = `<p style="color:red;">Errore preventivo: ${e.message}</p>`;
-            } finally { nascondiCaricamento(); }
+            } catch (error) {
+                console.error("Errore nel calcolo del preventivo:", error);
+                container.innerHTML = `<h2>Preventivo Iscrizioni: ${titoloSezione}</h2><p style="color:red;">Errore durante il calcolo: ${error.message}</p>`;
+            } finally {
+                nascondiCaricamento();
+            }
         }
 
-        window.caricaPreventivo10 = () => elaboraPreventivoIscrizioni('sezione_preventivo_10', 'Preventivo 10', 10, 'consecutivi_preventivo');
-        window.caricaPreventivo20 = () => elaboraPreventivoIscrizioni('sezione_preventivo_20', 'Preventivo 20', 20, 'totali_preventivo');
-        window.caricaPreventivo30 = () => elaboraPreventivoIscrizioni('sezione_preventivo_30', 'Preventivo 30', 30, 'totali_preventivo');
-        window.caricaPreventivo40 = () => elaboraPreventivoIscrizioni('sezione_preventivo_40', 'Preventivo 40', 40, 'totali_preventivo');
-        window.caricaPreventivo50 = () => elaboraPreventivoIscrizioni('sezione_preventivo_50', 'Preventivo 50', 50, 'totali_preventivo');
+        window.caricaPreventivo10 = function() { elaboraPreventivoIscrizioni('sezione_preventivo_10', 'Preventivo 10', 10, 'consecutivi_preventivo'); };
+        window.caricaPreventivo20 = function() { elaboraPreventivoIscrizioni('sezione_preventivo_20', 'Preventivo 20', 20, 'totali_preventivo'); };
+        window.caricaPreventivo30 = function() { elaboraPreventivoIscrizioni('sezione_preventivo_30', 'Preventivo 30', 30, 'totali_preventivo'); };
+        window.caricaPreventivo40 = function() { elaboraPreventivoIscrizioni('sezione_preventivo_40', 'Preventivo 40', 40, 'totali_preventivo'); };
+        window.caricaPreventivo50 = function() { elaboraPreventivoIscrizioni('sezione_preventivo_50', 'Preventivo 50', 50, 'totali_preventivo'); };
 
         async function caricaTabellaUtenti() {
             const tbody = document.getElementById('corpoTabellaUtenti');
