@@ -1533,7 +1533,7 @@
             if (val.length === 16) decodificaCfInCampi(val);
         });
 
-        async function elaboraOnorificenze(idSezione, titoloSezione, sogliaAnni, tipoControllo) {
+       async function elaboraOnorificenze(idSezione, titoloSezione, sogliaAnni, tipoControllo, limiteMax = null) {
             const container = document.getElementById(idSezione);
             container.innerHTML = `<h2> ${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Elaborazione calcolo ${titoloSezione} in corso...</div>`;
             mostraCaricamento(`Elaborazione ${titoloSezione}...`);
@@ -1577,6 +1577,7 @@
                     let persona = anagraficaMap[idPers];
                     let totaleIscrizioni = totaliCompletiPersona[idPers] || 0;
                     let passaCriterio = false;
+                    let valoreCalcolato = 0;
 
                     if (tipoControllo === 'consecutivi') {
                         let anniArr = storicoPerPersona[idPers] || [];
@@ -1597,15 +1598,20 @@
                             }
                         }
                         
-                        passaCriterio = massimoConsecutivi >= sogliaAnni;
-                        persona.valoreMostrato = massimoConsecutivi;
+                        valoreCalcolato = massimoConsecutivi;
                     } else if (tipoControllo === 'totali') {
-                        let sogliaTotaleSql = sogliaAnni - 1;
-                        passaCriterio = totaleIscrizioni > sogliaTotaleSql;
-                        persona.valoreMostrato = totaleIscrizioni;
+                        valoreCalcolato = totaleIscrizioni;
+                    }
+
+                    // Verifica della soglia minima e dell'eventuale limite massimo (< limiteMax)
+                    if (valoreCalcolato >= sogliaAnni) {
+                        if (limiteMax === null || valoreCalcolato < limiteMax) {
+                            passaCriterio = true;
+                        }
                     }
 
                     if (passaCriterio) {
+                        persona.valoreMostrato = valoreCalcolato;
                         risultati.push({
                             cognome: formattaCognome(persona.cognome),
                             nome: pulisciTesto(persona.nome),
@@ -1662,12 +1668,12 @@
                 nascondiCaricamento();
             }
         }
-
-        window.caricaElenco10Anni = () => elaboraOnorificenze('sezione_onorificenze_10', '10 Anni', 10, 'consecutivi');
-        window.caricaElenco20Anni = () => elaboraOnorificenze('sezione_onorificenze_20', '20 Anni', 20, 'totali');
-        window.caricaElenco30Anni = () => elaboraOnorificenze('sezione_onorificenze_30', '30 Anni', 30, 'totali');
-        window.caricaElenco40Anni = () => elaboraOnorificenze('sezione_onorificenze_40', '40 Anni', 40, 'totali');
-        window.caricaElenco50Anni = () => elaboraOnorificenze('sezione_onorificenze_50', '50 Anni', 50, 'totali');
+		
+        window.caricaElenco10Anni = () => elaboraOnorificenze('sezione_onorificenze_10', '10 Anni', 10, 'consecutivi', 20);
+        window.caricaElenco20Anni = () => elaboraOnorificenze('sezione_onorificenze_20', '20 Anni', 20, 'totali', 30);
+        window.caricaElenco30Anni = () => elaboraOnorificenze('sezione_onorificenze_30', '30 Anni', 30, 'totali', 40);
+        window.caricaElenco40Anni = () => elaboraOnorificenze('sezione_onorificenze_40', '40 Anni', 40, 'totali', 50);
+        window.caricaElenco50Anni = () => elaboraOnorificenze('sezione_onorificenze_50', '50 Anni', 50, 'totali', null);
 
         async function elaboraPreventivoIscrizioni(idSezione, titoloSezione, sogliaAnni, tipoControllo) {
             const container = document.getElementById(idSezione);
