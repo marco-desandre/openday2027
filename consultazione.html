@@ -615,7 +615,7 @@
                         <label style="font-size: 11px;">Codice Fiscale:</label>
                         <div style="display: flex; gap: 6px;">
                             <input type="text" id="editGenitore1CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 5px; font-size: 12px; text-transform: uppercase; margin: 0;">
-                            <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 11px; font-weight: bold; height: 30px;" onclick="calcolaCFGenitore(1)">Calcola CF</button>
+                            <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 11px; font-weight: bold; height: 30px;" onclick="calcolaCFGenitore(1)">Calcola</button>
                         </div>
                     </div>
                 </div>
@@ -698,7 +698,7 @@
                         <label style="font-size: 11px;">Codice Fiscale:</label>
                         <div style="display: flex; gap: 6px;">
                             <input type="text" id="editGenitore2CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 5px; font-size: 12px; text-transform: uppercase; margin: 0;">
-                            <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 11px; font-weight: bold; height: 30px;" onclick="calcolaCFGenitore(2)">Calcola CF</button>
+                            <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 11px; font-weight: bold; height: 30px;" onclick="calcolaCFGenitore(2)">Calcola</button>
                         </div>
                     </div>
                 </div>
@@ -1647,6 +1647,7 @@
         };
 
 		let dizionarioComuniCatastali = {};
+		let dizionarioNomiComuni = {}; // <-- Aggiunto per il calcolo del CF
 		let dizionarioCaricato = false;
 		
 		async function caricaDizionarioComuni() {
@@ -1654,14 +1655,20 @@
 				const response = await fetch('./comuni_catastali.json');
 				if (response.ok) {
 					dizionarioComuniCatastali = await response.json();
+					
+					// Crea automaticamente la mappa inversa (Nome Comune -> Codice Catastale)
+					for (let [codice, nome] of Object.entries(dizionarioComuniCatastali)) {
+						dizionarioNomiComuni[nome.toUpperCase()] = codice;
+					}
+
 					dizionarioCaricato = true;
+					console.log("Dizionari comuni caricati e indicizzati con successo.");
 				}
 			} catch (e) {
 				console.error("Impossibile caricare il dizionario dei comuni:", e);
 			}
 		}
 
-		// Avvia il caricamento non appena parte lo script
 		caricaDizionarioComuni();
 
         function calcolaCodiceFiscaleGenerico(cognome, nome, luogo, dataNascita) {
@@ -1678,8 +1685,8 @@
             if (pData.length !== 3) return null;
             let anno = pData[0].substring(2, 4);
             let mCod = { '01': 'A', '02': 'B', '03': 'C', '04': 'D', '05': 'E', '06': 'H', '07': 'L', '08': 'M', '09': 'P', '10': 'R', '11': 'S', '12': 'T' };
-            let mese = mCod[pData[1]] || 'A';
-            let giorno = String(parseInt(pData[2], 10)).padStart(2, '0');
+            let mese = mCod[pData[1]] || 'A';                               // Mese corretto (indice 1)
+            let giorno = String(parseInt(pData[2], 10)).padStart(2, '0');  // Giorno corretto (indice 2)
             let codCat = dizionarioNomiComuni[luogo.toUpperCase()] || "H501";
 
             let cfParz = partCog + partNom + anno + mese + giorno + codCat;
