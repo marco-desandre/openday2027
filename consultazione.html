@@ -2350,6 +2350,9 @@
                 
                 // Sblocca la sezione storico e mostra il pulsante per aggiungere l'iscrizione
                 document.getElementById('sezioneStoricoContainer').style.display = 'block';
+                document.getElementById('btnAggiungiIscrizione').style.display = 'block'; // <-- Mostra il pulsante
+                document.getElementById('btnAggiungiIscrizione').onclick = attivaInserimentoNuovaIscrizioneEsistente; // <-- Assegna l'azione
+                
                 await caricaStoricoPersona(docRef.id);
 
                 // Cambia il testo del pulsante principale per le future modifiche
