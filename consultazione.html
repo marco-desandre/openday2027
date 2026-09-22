@@ -2368,60 +2368,60 @@
 		}
 		
 		// Funzione di supporto per nascondere il numero se selezioni Socio Sostenitore
-				window.gestisciVisibilitaNumeroIscrizione = function(selectElem) {
-					const tr = selectElem.closest('tr');
-					const inputNum = tr.querySelector('.input-num');
-					if (selectElem.value === "Socio Sostenitore") {
-						inputNum.value = "";
-						inputNum.disabled = true;
-						inputNum.placeholder = "Non richiesto";
-						inputNum.style.backgroundColor = "#e9ecef";
-					} else {
-						inputNum.disabled = false;
-						inputNum.placeholder = "Numero...";
-						inputNum.style.backgroundColor = "#fff";
-					}
-				};
-
-				window.salvaNuovaIscrizioneDiretta = async function(btn) {
-			const tr = btn.closest('tr');
-			const idPersona = document.getElementById('editIdPersona').value;
-			const selectTipo = tr.querySelector('select');
-			const tipoScelto = selectTipo ? selectTipo.value : "NON TROVATO";
-			
-			const inputNum = tr.querySelector('input');
-			const num = inputNum ? inputNum.value.trim() : "NON TROVATO";
-			
-			// Mostra cosa sta leggendo esattamente il codice
-			alert("DEBUG -> Tipo scelto: [" + tipoScelto + "] | Num: [" + num + "]");
-
-			if (tipoScelto !== "Socio Sostenitore" && !num) {
-				return alert("Inserisci il numero identificativo.");
-			}
-
-			try {
-				mostraCaricamento("Salvataggio in corso...");
-
-				await addDoc(collection(db, "storico"), { 
-					id_persona: idPersona, 
-					anno: String(annoCarnevaleCorrente), 
-					tipo_iscrizione: tipoScelto, 
-					tipologia: tipoScelto, 
-					numero_identificativo: tipoScelto === "Socio Sostenitore" ? "N/D" : num, 
-					creato_da: aliasUtenteLoggato, 
-					creato_il: new Date().toLocaleString('it-IT') 
-				});
-
-				alert("Iscrizione salvata con successo!");
-				cacheTuttiIscritti = [];
-				document.getElementById('btnAggiungiIscrizione').style.display = 'block';
-				await caricaStoricoPersona(idPersona);
-			} (catch error) {
-				alert("Errore durante il salvataggio: " + error.message);
-			} finally {
-				nascondiCaricamento();
+		window.gestisciVisibilitaNumeroIscrizione = function(selectElem) {
+			const tr = selectElem.closest('tr');
+			const inputNum = tr.querySelector('.input-num');
+			if (selectElem.value === "Socio Sostenitore") {
+				inputNum.value = "";
+				inputNum.disabled = true;
+				inputNum.placeholder = "Non richiesto";
+				inputNum.style.backgroundColor = "#e9ecef";
+			} else {
+				inputNum.disabled = false;
+				inputNum.placeholder = "Numero...";
+				inputNum.style.backgroundColor = "#fff";
 			}
 		};
+
+        window.salvaNuovaIscrizioneDiretta = async function(btn) {
+    const tr = btn.closest('tr');
+    const idPersona = document.getElementById('editIdPersona').value;
+    const selectTipo = tr.querySelector('select');
+    const tipoScelto = selectTipo ? selectTipo.value : "NON TROVATO";
+    
+    const inputNum = tr.querySelector('input');
+    const num = inputNum ? inputNum.value.trim() : "NON TROVATO";
+    
+    // Mostra cosa sta leggendo esattamente il codice
+    alert("DEBUG -> Tipo scelto: [" + tipoScelto + "] | Num: [" + num + "]");
+
+    if (tipoScelto !== "Socio Sostenitore" && !num) {
+        return alert("Inserisci il numero identificativo.");
+    }
+
+    try {
+        mostraCaricamento("Salvataggio in corso...");
+
+        await addDoc(collection(db, "storico"), { 
+            id_persona: idPersona, 
+            anno: String(annoCarnevaleCorrente), 
+            tipo_iscrizione: tipoScelto, 
+            tipologia: tipoScelto, 
+            numero_identificativo: tipoScelto === "Socio Sostenitore" ? "N/D" : num, 
+            creato_da: aliasUtenteLoggato, 
+            creato_il: new Date().toLocaleString('it-IT') 
+        });
+
+        alert("Iscrizione salvata con successo!");
+        cacheTuttiIscritti = [];
+        document.getElementById('btnAggiungiIscrizione').style.display = 'block';
+        await caricaStoricoPersona(idPersona);
+    } (catch error) {
+        alert("Errore durante il salvataggio: " + error.message);
+    } finally {
+        nascondiCaricamento();
+    }
+};
 
         document.getElementById('btnChiudiX').addEventListener('click', () => {
             fermaWebcam();
