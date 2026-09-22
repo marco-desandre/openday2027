@@ -2310,7 +2310,6 @@
             document.getElementById('editTigre').checked = false;
             document.getElementById('editCapitanoPiazza').checked = false;
             
-            // Disabilita i flag per gli utenti standard (User)
             const isUserMode = (modalitaCorrente === 'user');
             document.getElementById('editTigre').disabled = isUserMode;
             document.getElementById('editCapitanoPiazza').disabled = isUserMode;
@@ -2329,12 +2328,43 @@
             document.getElementById('conteggioConsecutiveScheda').textContent = "0";
             
             const btnSalva = document.getElementById('btnSalva');
-            btnSalva.textContent = "Salva Anagrafica";
-            btnSalva.onclick = gestisciPrimoStepNuovoUtente;
+            btnSalva.textContent = "Crea Anagrafica"; // <-- Testo modificato
+            btnSalva.onclick = gestisciCreazioneNuovaAnagrafica; // <-- Nuova funzione dedicata
+            
             modal.style.display = 'flex';
             controllaCampiVuoti();
         });
+		
+		async function gestisciCreazioneNuovaAnagrafica() {
+            const dati = raccogliDatiAnagrafica();
+            if (!dati.cognome || !dati.nome) return alert("Inserisci Cognome e Nome.");
+            
+            try {
+                mostraCaricamento("Creazione anagrafica in corso...");
+                const docRef = await addDoc(collection(db, "anagrafica"), dati);
+                document.getElementById('editIdPersona').value = docRef.id;
 
+                await registraLog("Modifica Anagrafica", `Nuova: ${dati.cognome} ${dati.nome}`);
+                
+                alert("Anagrafica creata con successo! Ora puoi inserire l'iscrizione nello storico sottostante.");
+                
+                // Sblocca la sezione storico e mostra il pulsante per aggiungere l'iscrizione
+                document.getElementById('sezioneStoricoContainer').style.display = 'block';
+                await caricaStoricoPersona(docRef.id);
+
+                // Cambia il testo del pulsante principale per le future modifiche
+                const btnSalva = document.getElementById('btnSalva');
+                btnSalva.textContent = "Salva Modifiche Anagrafica";
+                btnSalva.onclick = gestisciSalvataggioEsistente;
+                
+                cacheTuttiIscritti = [];
+            } catch (error) {
+                alert("Errore durante la creazione: " + error.message);
+            } finally {
+                nascondiCaricamento();
+            }
+        }
+		
         async function eliminaAnagraficaCompleta(id) {
             if (confirm("Eliminare definitivamente l'anagrafica, lo storico e i documenti associati?")) {
                 try {
