@@ -84,8 +84,8 @@
         .grid-checkbox-colonne input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
 
         input[type="text"], input[type="date"], input[type="email"], input[type="number"], select { 
-			width: 100%; padding: 7px 10px; margin: 2px 0 5px 0 !important; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; 
-		}
+            width: 100%; padding: 10px; margin: 4px 0 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 15px; 
+        }
 
         .campo-vuoto { border: 2px solid #dc3545 !important; background-color: #fff8f8; }
 
@@ -105,10 +105,10 @@
         .modal-content h3 { margin-top: 0; color: #007BFF; }
         .modal-content h4 { margin-top: 25px; color: #333; border-bottom: 2px solid #007BFF; padding-bottom: 5px; }
         
-        .form-row { display: flex; gap: 15px; margin-bottom: 2px !important; }
-        .form-group { flex: 1; display: flex; flex-direction: column; margin-bottom: 2px; }
-        .form-group label { font-size: 12px; font-weight: bold; color: #444; margin-bottom: 0px; }
-		
+        .form-row { display: flex; gap: 15px; margin-bottom: 5px; }
+        .form-group { flex: 1; display: flex; flex-direction: column; }
+        .form-group label { font-size: 13px; font-weight: bold; color: #444; margin-bottom: 2px; }
+        
         .form-row-opzioni { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; background: #f8f9fa; padding: 12px 20px; border-radius: 6px; border: 1px solid #e9ecef; flex-wrap: wrap; gap: 15px; }
         .checkboxes-container { display: flex; gap: 30px; align-items: center; }
         .checkbox-group { display: flex; align-items: center; gap: 8px; cursor: pointer; }
@@ -153,7 +153,7 @@
         .placeholder-sezione { padding: 40px; text-align: center; color: #666; font-size: 18px; background: #fafafa; border: 2px dashed #ddd; border-radius: 6px; }
 
         /* ACCORDION / SEZIONI COLLASSABILI */
-        .collapsible-header { background: #e7f5ff; padding: 8px 12px; border-radius: 6px; border: 1px solid #74c0fc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; font-weight: bold; color: #1864ab; font-size: 13px; margin-top: 6px; }
+        .collapsible-header { background: #e7f5ff; padding: 10px 15px; border-radius: 6px; border: 1px solid #74c0fc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; font-weight: bold; color: #1864ab; font-size: 14px; margin-top: 10px; }
         .collapsible-header:hover { background: #d0ebff; }
         .collapsible-content { display: none; background: #f8f9fa; padding: 12px; border: 1px solid #ced4da; border-top: none; border-radius: 0 0 6px 6px; margin-bottom: 10px; }
         .collapsible-content.aperto { display: block; }
@@ -544,178 +544,176 @@
                 </div>
             </div>
 
-            <!-- DATI GENITORI (DIVISI IN DUE PANNELLI) -->
-			<div id="sezioneDatiGenitori" style="display: none; margin-top: 10px; margin-bottom: 10px;">
-				<h4 style="margin-top: 0; margin-bottom: 10px; color: #856404; font-size: 14px; border-bottom: 2px solid #ffeeba; padding-bottom: 4px;">Dati Genitori / Tutori (Obbligatori per minorenni < 18 anni)</h4>
-				
-				<!-- PANNELLO GENITORE 1 -->
-				<div style="background: #fff3cd; padding: 10px; border-radius: 6px; border: 1px solid #ffeeba; margin-bottom: 10px;">
-					<p style="font-size: 13px; font-weight: bold; color: #856404; margin: 0 0 5px 0;">Genitore 1</p>
-					<div class="form-row">
-						<div class="form-group col-medium"><label style="font-size: 11px;">Cognome:</label><input type="text" id="editGenitore1Cognome" class="campo-controllo-genitore"></div>
-						<div class="form-group col-medium"><label style="font-size: 11px;">Nome:</label><input type="text" id="editGenitore1Nome" class="campo-controllo-genitore"></div>
-						<div class="form-group col-medium"><label style="font-size: 11px;">Luogo Nascita:</label><input type="text" id="editGenitore1LuogoNascita" class="campo-controllo-genitore"></div>
-						<div class="form-group col-medium"><label style="font-size: 11px;">Data Nascita:</label><input type="date" id="editGenitore1DataNascita" class="campo-controllo-genitore"></div>
-					</div>
-					<div class="form-row" id="gruppoGen1CF" style="margin-bottom: 5px;">
-						<div class="form-group col-large">
-							<label style="font-size: 11px;">Codice Fiscale:</label>
-							<div style="display: flex; gap: 6px;">
-								<input type="text" id="editGenitore1CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="text-transform: uppercase; margin: 0;">
-								<button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 11px; font-weight: bold; height: 34px;" onclick="calcolaCFGenitore(1)">Calcola CF</button>
-							</div>
-						</div>
-					</div>
+            <!-- DATI GENITORI -->
+            <div id="sezioneDatiGenitori" style="display: none; background: #fff3cd; padding: 12px; border-radius: 6px; border: 1px solid #ffeeba; margin-top: 10px; margin-bottom: 10px;">
+                <h4 style="margin-top: 0; margin-bottom: 10px; color: #856404; font-size: 14px; border-bottom: 1px solid #ffeeba; padding-bottom: 4px;">Dati Genitori / Tutori (Obbligatori per minorenni < 18 anni)</h4>
+                
+                <!-- GENITORE 1 -->
+                <p style="font-size: 13px; font-weight: bold; color: #856404; margin: 5px 0;">Genitore 1</p>
+                <div class="form-row">
+                    <div class="form-group col-medium"><label style="font-size: 11px;">Cognome:</label><input type="text" id="editGenitore1Cognome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                    <div class="form-group col-medium"><label style="font-size: 11px;">Nome:</label><input type="text" id="editGenitore1Nome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                    <div class="form-group col-medium"><label style="font-size: 11px;">Luogo Nascita:</label><input type="text" id="editGenitore1LuogoNascita" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                    <div class="form-group col-medium"><label style="font-size: 11px;">Data Nascita:</label><input type="date" id="editGenitore1DataNascita" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                </div>
+                <div class="form-row" id="gruppoGen1CF" style="margin-bottom: 5px;">
+                    <div class="form-group col-large">
+                        <label style="font-size: 11px;">Codice Fiscale:</label>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" id="editGenitore1CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 5px; font-size: 12px; text-transform: uppercase; margin: 0;">
+                            <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 11px; font-weight: bold; height: 30px;" onclick="calcolaCFGenitore(1)">Calcola CF</button>
+                        </div>
+                    </div>
+                </div>
 
-					<!-- DOCUMENTO GENITORE 1 -->
-					<div id="gruppoGen1Doc" style="display: none; margin-top: 5px;">
-						<div class="collapsible-header" style="background: #fff9db; border-color: #f59f00; color: #b7791f;" onclick="toggleCollapsible('corpoDocGen1', this)">
-							<span>🪪 Documento d'Identità (Genitore 1)</span>
-							<span>▼</span>
-						</div>
-						<div id="corpoDocGen1" class="collapsible-content" style="background: #fffdf5;">
-							<div class="form-row" style="margin-bottom: 5px;">
-								<div class="form-group col-medium">
-									<label style="font-size: 11px;">Tipo Documento:</label>
-									<select id="editGenitore1TipoDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
-										<option value="">-- Seleziona --</option>
-										<option value="Passaporto">Passaporto</option>
-										<option value="Patente">Patente</option>
-										<option value="Carta di identità">Carta di identità</option>
-									</select>
-								</div>
-								<div class="form-group col-medium">
-									<label style="font-size: 11px;">N. Documento:</label>
-									<input type="text" id="editGenitore1NumDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
-								</div>
-								<div class="form-group col-medium">
-									<label style="font-size: 11px;">Scadenza:</label>
-									<input type="date" id="editGenitore1ScadenzaDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
-								</div>
-							</div>
+                <!-- DOCUMENTO GENITORE 1 (COLLAPSIBLE) -->
+                <div id="gruppoGen1Doc" style="display: none; margin-bottom: 10px;">
+                    <div class="collapsible-header" style="background: #fff9db; border-color: #f59f00; color: #b7791f;" onclick="toggleCollapsible('corpoDocGen1', this)">
+                        <span>🪪 Documento d'Identità (Genitore 1)</span>
+                        <span>▼</span>
+                    </div>
+                    <div id="corpoDocGen1" class="collapsible-content" style="background: #fffdf5;">
+                        <div class="form-row" style="margin-bottom: 10px;">
+                            <div class="form-group col-medium">
+                                <label style="font-size: 11px;">Tipo Documento:</label>
+                                <select id="editGenitore1TipoDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                                    <option value="">-- Seleziona --</option>
+                                    <option value="Passaporto">Passaporto</option>
+                                    <option value="Patente">Patente</option>
+                                    <option value="Carta di identità">Carta di identità</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-medium">
+                                <label style="font-size: 11px;">N. Documento:</label>
+                                <input type="text" id="editGenitore1NumDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                            </div>
+                            <div class="form-group col-medium">
+                                <label style="font-size: 11px;">Scadenza:</label>
+                                <input type="date" id="editGenitore1ScadenzaDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                            </div>
+                        </div>
 
-							<!-- Immagini Gen 1 -->
-							<div style="margin-top: 8px; border-top: 1px dashed #f59f00; padding-top: 8px;">
-								<label style="font-size: 11px; font-weight: bold; color: #b7791f;">Immagine 1 (Fronte):</label>
-								<div style="display: flex; gap: 6px; align-items: center; margin-top: 3px; flex-wrap: wrap;">
-									<button type="button" class="btn-azione" style="background-color: #007bff; padding: 4px 8px; font-size: 11px;" onclick="avviaWebcam('gen1', 1)">📷 Webcam</button>
-									<label class="btn-azione" style="background-color: #17a2b8; padding: 4px 8px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
-										📂 Carica <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen1', 1, this)">
-									</label>
-								</div>
-								<div style="margin-top: 5px;">
-									<div id="boxAnteprima_gen1_1" style="display: none;">
-										<a id="linkAnteprima_gen1_1" href="#" target="_blank" style="font-size: 11px; color: #007bff; text-decoration: underline; display: block;">Visualizza Immagine 1</a>
-										<button type="button" class="btn-azione btn-elimina-storico" style="padding: 2px 6px; font-size: 10px;" onclick="rimuoviFileDocumento('gen1', 1)">Rimuovi</button>
-									</div>
-									<input type="hidden" id="editUrl_gen1_1">
-								</div>
-							</div>
+                        <!-- IMMAGINE 1 (Gen 1) -->
+                        <div style="margin-top: 10px; border-top: 1px dashed #f59f00; padding-top: 10px;">
+                            <label style="font-size: 12px; font-weight: bold; color: #b7791f;">Immagine 1 (Fronte):</label>
+                            <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
+                                <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('gen1', 1)">📷 Webcam</button>
+                                <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
+                                    📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen1', 1, this)">
+                                </label>
+                            </div>
+                            <div style="margin-top: 8px;">
+                                <div id="boxAnteprima_gen1_1" style="display: none;">
+                                    <a id="linkAnteprima_gen1_1" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 1</a>
+                                    <button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('gen1', 1)">Rimuovi</button>
+                                </div>
+                                <input type="hidden" id="editUrl_gen1_1">
+                            </div>
+                        </div>
 
-							<div style="margin-top: 8px; border-top: 1px dashed #f59f00; padding-top: 8px;">
-								<label style="font-size: 11px; font-weight: bold; color: #b7791f;">Immagine 2 (Retro):</label>
-								<div style="display: flex; gap: 6px; align-items: center; margin-top: 3px; flex-wrap: wrap;">
-									<button type="button" class="btn-azione" style="background-color: #007bff; padding: 4px 8px; font-size: 11px;" onclick="avviaWebcam('gen1', 2)">📷 Webcam</button>
-									<label class="btn-azione" style="background-color: #17a2b8; padding: 4px 8px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
-										📂 Carica <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen1', 2, this)">
-									</label>
-								</div>
-								<div style="margin-top: 5px;">
-									<div id="boxAnteprima_gen1_2" style="display: none;">
-										<a id="linkAnteprima_gen1_2" href="#" target="_blank" style="font-size: 11px; color: #007bff; text-decoration: underline; display: block;">Visualizza Immagine 2</a>
-										<button type="button" class="btn-azione btn-elimina-storico" style="padding: 2px 6px; font-size: 10px;" onclick="rimuoviFileDocumento('gen1', 2)">Rimuovi</button>
-									</div>
-									<input type="hidden" id="editUrl_gen1_2">
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
+                        <!-- IMMAGINE 2 (Gen 1) -->
+                        <div style="margin-top: 10px; border-top: 1px dashed #f59f00; padding-top: 10px;">
+                            <label style="font-size: 12px; font-weight: bold; color: #b7791f;">Immagine 2 (Retro):</label>
+                            <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
+                                <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('gen1', 2)">📷 Webcam</button>
+                                <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
+                                    📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen1', 2, this)">
+                                </label>
+                            </div>
+                            <div style="margin-top: 8px;">
+                                <div id="boxAnteprima_gen1_2" style="display: none;">
+                                    <a id="linkAnteprima_gen1_2" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 2</a>
+                                    <button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('gen1', 2)">Rimuovi</button>
+                                </div>
+                                <input type="hidden" id="editUrl_gen1_2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-				<!-- PANNELLO GENITORE 2 -->
-				<div style="background: #fff3cd; padding: 10px; border-radius: 6px; border: 1px solid #ffeeba;">
-					<p style="font-size: 13px; font-weight: bold; color: #856404; margin: 0 0 5px 0;">Genitore 2</p>
-					<div class="form-row">
-						<div class="form-group col-medium"><label style="font-size: 11px;">Cognome:</label><input type="text" id="editGenitore2Cognome" class="campo-controllo-genitore"></div>
-						<div class="form-group col-medium"><label style="font-size: 11px;">Nome:</label><input type="text" id="editGenitore2Nome" class="campo-controllo-genitore"></div>
-						<div class="form-group col-medium"><label style="font-size: 11px;">Luogo Nascita:</label><input type="text" id="editGenitore2LuogoNascita" class="campo-controllo-genitore"></div>
-						<div class="form-group col-medium"><label style="font-size: 11px;">Data Nascita:</label><input type="date" id="editGenitore2DataNascita" class="campo-controllo-genitore"></div>
-					</div>
-					<div class="form-row" id="gruppoGen2CF" style="margin-bottom: 5px;">
-						<div class="form-group col-large">
-							<label style="font-size: 11px;">Codice Fiscale:</label>
-							<div style="display: flex; gap: 6px;">
-								<input type="text" id="editGenitore2CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="text-transform: uppercase; margin: 0;">
-								<button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 11px; font-weight: bold; height: 34px;" onclick="calcolaCFGenitore(2)">Calcola CF</button>
-							</div>
-						</div>
-					</div>
+                <!-- GENITORE 2 -->
+                <p style="font-size: 13px; font-weight: bold; color: #856404; margin: 15px 0 5px 0;">Genitore 2</p>
+                <div class="form-row">
+                    <div class="form-group col-medium"><label style="font-size: 11px;">Cognome:</label><input type="text" id="editGenitore2Cognome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                    <div class="form-group col-medium"><label style="font-size: 11px;">Nome:</label><input type="text" id="editGenitore2Nome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                    <div class="form-group col-medium"><label style="font-size: 11px;">Luogo Nascita:</label><input type="text" id="editGenitore2LuogoNascita" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                    <div class="form-group col-medium"><label style="font-size: 11px;">Data Nascita:</label><input type="date" id="editGenitore2DataNascita" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                </div>
+                <div class="form-row" id="gruppoGen2CF" style="margin-bottom: 0;">
+                    <div class="form-group col-large">
+                        <label style="font-size: 11px;">Codice Fiscale:</label>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" id="editGenitore2CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 5px; font-size: 12px; text-transform: uppercase; margin: 0;">
+                            <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 11px; font-weight: bold; height: 30px;" onclick="calcolaCFGenitore(2)">Calcola CF</button>
+                        </div>
+                    </div>
+                </div>
 
-					<!-- DOCUMENTO GENITORE 2 -->
-					<div id="gruppoGen2Doc" style="display: none; margin-top: 5px;">
-						<div class="collapsible-header" style="background: #fff9db; border-color: #f59f00; color: #b7791f;" onclick="toggleCollapsible('corpoDocGen2', this)">
-							<span>🪪 Documento d'Identità (Genitore 2)</span>
-							<span>▼</span>
-						</div>
-						<div id="corpoDocGen2" class="collapsible-content" style="background: #fffdf5;">
-							<div class="form-row" style="margin-bottom: 5px;">
-								<div class="form-group col-medium">
-									<label style="font-size: 11px;">Tipo Documento:</label>
-									<select id="editGenitore2TipoDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
-										<option value="">-- Seleziona --</option>
-										<option value="Passaporto">Passaporto</option>
-										<option value="Patente">Patente</option>
-										<option value="Carta di identità">Carta di identità</option>
-									</select>
-								</div>
-								<div class="form-group col-medium">
-									<label style="font-size: 11px;">N. Documento:</label>
-									<input type="text" id="editGenitore2NumDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
-								</div>
-								<div class="form-group col-medium">
-									<label style="font-size: 11px;">Scadenza:</label>
-									<input type="date" id="editGenitore2ScadenzaDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
-								</div>
-							</div>
+                <!-- DOCUMENTO GENITORE 2 (COLLAPSIBLE) -->
+                <div id="gruppoGen2Doc" style="display: none; margin-top: 5px; margin-bottom: 0;">
+                    <div class="collapsible-header" style="background: #fff9db; border-color: #f59f00; color: #b7791f;" onclick="toggleCollapsible('corpoDocGen2', this)">
+                        <span>🪪 Documento d'Identità (Genitore 2)</span>
+                        <span>▼</span>
+                    </div>
+                    <div id="corpoDocGen2" class="collapsible-content" style="background: #fffdf5;">
+                        <div class="form-row" style="margin-bottom: 10px;">
+                            <div class="form-group col-medium">
+                                <label style="font-size: 11px;">Tipo Documento:</label>
+                                <select id="editGenitore2TipoDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                                    <option value="">-- Seleziona --</option>
+                                    <option value="Passaporto">Passaporto</option>
+                                    <option value="Patente">Patente</option>
+                                    <option value="Carta di identità">Carta di identità</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-medium">
+                                <label style="font-size: 11px;">N. Documento:</label>
+                                <input type="text" id="editGenitore2NumDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                            </div>
+                            <div class="form-group col-medium">
+                                <label style="font-size: 11px;">Scadenza:</label>
+                                <input type="date" id="editGenitore2ScadenzaDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                            </div>
+                        </div>
 
-							<!-- Immagini Gen 2 -->
-							<div style="margin-top: 8px; border-top: 1px dashed #f59f00; padding-top: 8px;">
-								<label style="font-size: 11px; font-weight: bold; color: #b7791f;">Immagine 1 (Fronte):</label>
-								<div style="display: flex; gap: 6px; align-items: center; margin-top: 3px; flex-wrap: wrap;">
-									<button type="button" class="btn-azione" style="background-color: #007bff; padding: 4px 8px; font-size: 11px;" onclick="avviaWebcam('gen2', 1)">📷 Webcam</button>
-									<label class="btn-azione" style="background-color: #17a2b8; padding: 4px 8px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
-										📂 Carica <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen2', 1, this)">
-									</label>
-								</div>
-								<div style="margin-top: 5px;">
-									<div id="boxAnteprima_gen2_1" style="display: none;">
-										<a id="linkAnteprima_gen2_1" href="#" target="_blank" style="font-size: 11px; color: #007bff; text-decoration: underline; display: block;">Visualizza Immagine 1</a>
-										<button type="button" class="btn-azione btn-elimina-storico" style="padding: 2px 6px; font-size: 10px;" onclick="rimuoviFileDocumento('gen2', 1)">Rimuovi</button>
-									</div>
-									<input type="hidden" id="editUrl_gen2_1">
-								</div>
-							</div>
+                        <!-- IMMAGINE 1 (Gen 2) -->
+                        <div style="margin-top: 10px; border-top: 1px dashed #f59f00; padding-top: 10px;">
+                            <label style="font-size: 12px; font-weight: bold; color: #b7791f;">Immagine 1 (Fronte):</label>
+                            <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
+                                <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('gen2', 1)">📷 Webcam</button>
+                                <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
+                                    📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen2', 1, this)">
+                                </label>
+                            </div>
+                            <div style="margin-top: 8px;">
+                                <div id="boxAnteprima_gen2_1" style="display: none;">
+                                    <a id="linkAnteprima_gen2_1" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 1</a>
+                                    <button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('gen2', 1)">Rimuovi</button>
+                                </div>
+                                <input type="hidden" id="editUrl_gen2_1">
+                            </div>
+                        </div>
 
-							<div style="margin-top: 8px; border-top: 1px dashed #f59f00; padding-top: 8px;">
-								<label style="font-size: 11px; font-weight: bold; color: #b7791f;">Immagine 2 (Retro):</label>
-								<div style="display: flex; gap: 6px; align-items: center; margin-top: 3px; flex-wrap: wrap;">
-									<button type="button" class="btn-azione" style="background-color: #007bff; padding: 4px 8px; font-size: 11px;" onclick="avviaWebcam('gen2', 2)">📷 Webcam</button>
-									<label class="btn-azione" style="background-color: #17a2b8; padding: 4px 8px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
-										📂 Carica <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen2', 2, this)">
-									</label>
-								</div>
-								<div style="margin-top: 5px;">
-									<div id="boxAnteprima_gen2_2" style="display: none;">
-										<a id="linkAnteprima_gen2_2" href="#" target="_blank" style="font-size: 11px; color: #007bff; text-decoration: underline; display: block;">Visualizza Immagine 2</a>
-										<button type="button" class="btn-azione btn-elimina-storico" style="padding: 2px 6px; font-size: 10px;" onclick="rimuoviFileDocumento('gen2', 2)">Rimuovi</button>
-									</div>
-									<input type="hidden" id="editUrl_gen2_2">
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
+                        <!-- IMMAGINE 2 (Gen 2) -->
+                        <div style="margin-top: 10px; border-top: 1px dashed #f59f00; padding-top: 10px;">
+                            <label style="font-size: 12px; font-weight: bold; color: #b7791f;">Immagine 2 (Retro):</label>
+                            <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
+                                <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('gen2', 2)">📷 Webcam</button>
+                                <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
+                                    📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen2', 2, this)">
+                                </label>
+                            </div>
+                            <div style="margin-top: 8px;">
+                                <div id="boxAnteprima_gen2_2" style="display: none;">
+                                    <a id="linkAnteprima_gen2_2" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 2</a>
+                                    <button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('gen2', 2)">Rimuovi</button>
+                                </div>
+                                <input type="hidden" id="editUrl_gen2_2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Box Webcam Condiviso -->
             <div id="boxContainerWebcamGenerale" style="display: none; margin-top: 15px; background: #fff; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
@@ -2248,90 +2246,61 @@
         }
 
         window.abilitaModificaStorico = function(btn, storicoId, annoStorico) {
-			const tr = btn.closest('tr');
-			const tdTipo = tr.querySelector('.td-tipo');
-			const tdNum = tr.querySelector('.td-num');
-			const tdAzioni = tr.querySelector('.td-azioni');
+            const tr = btn.closest('tr');
+            const tdTipo = tr.querySelector('.td-tipo');
+            const tdNum = tr.querySelector('.td-num');
+            const tdAzioni = tr.querySelector('.td-azioni');
 
-			const valTipo = tdTipo.textContent.trim();
-			const valNum = tdNum.textContent.trim();
+            const valTipo = tdTipo.textContent.trim();
+            const valNum = tdNum.textContent.trim();
 
-			tdTipo.innerHTML = `
-				<select class="input-storico select-tipo-mod" onchange="gestisciVisibilitaNumeroModifica(this)">
-					<option value="Iscrizione Completa" ${valTipo === 'Iscrizione Completa' ? 'selected' : ''}>Iscrizione Completa</option>
-					<option value="Socio Sostenitore" ${valTipo === 'Socio Sostenitore' ? 'selected' : ''}>Socio Sostenitore</option>
-				</select>
-			`;
-			
-			const disabilitaNum = valTipo === 'Socio Sostenitore';
-			tdNum.innerHTML = `<input type="text" class="input-storico input-num-mod" value="${valNum}" ${disabilitaNum ? 'disabled style="background-color: #e9ecef;"' : ''}>`;
-			tdAzioni.innerHTML = `<button type="button" class="btn-azione btn-salva-storico" onclick="salvaModificaStorico('${storicoId}', '${annoStorico}', this)">Salva</button>`;
-		};
-		
-		window.gestisciVisibilitaNumeroModifica = function(selectElem) {
-			const tr = selectElem.closest('tr');
-			const inputNum = tr.querySelector('.input-num-mod');
-			if (selectElem.value === "Socio Sostenitore") {
-				inputNum.value = "";
-				inputNum.disabled = true;
-				inputNum.style.backgroundColor = "#e9ecef";
-			} else {
-				inputNum.disabled = false;
-				inputNum.style.backgroundColor = "#fff";
-			}
-		};
+            tdTipo.innerHTML = `<select class="input-storico select-tipo-mod"><option value="Iscrizione Completa" ${valTipo === 'Iscrizione Completa' ? 'selected' : ''}>Iscrizione Completa</option></select>`;
+            tdNum.innerHTML = `<input type="text" class="input-storico input-num-mod" value="${valNum}">`;
+            tdAzioni.innerHTML = `<button type="button" class="btn-azione btn-salva-storico" onclick="salvaModificaStorico('${storicoId}', '${annoStorico}', this)">Salva</button>`;
+        };
 
         window.salvaModificaStorico = async function(storicoId, annoStorico, btn) {
-			const tr = btn.closest('tr');
-			const nuovoTipo = tr.querySelector('.select-tipo-mod').value;
-			const inputNumMod = tr.querySelector('.input-num-mod');
-			const nuovoNum = inputNumMod ? inputNumMod.value.trim() : "";
-			const idPersona = document.getElementById('editIdPersona').value;
+            const tr = btn.closest('tr');
+            const nuovoTipo = tr.querySelector('.select-tipo-mod').value;
+            const nuovoNum = tr.querySelector('.input-num-mod').value.trim();
+            const idPersona = document.getElementById('editIdPersona').value;
 
-			// Se è iscrizione completa il numero è obbligatorio, se è socio sostenitore mettiamo N/D
-			if (nuovoTipo === "Iscrizione Completa" && !nuovoNum) {
-				alert("Inserisci un numero identificativo valido.");
-				return;
-			}
+            if (!nuovoNum) {
+                alert("Inserisci un numero identificativo valido.");
+                return;
+            }
 
-			try {
-				mostraCaricamento("Verifica duplicati e salvataggio...");
-				
-				if (nuovoTipo === "Iscrizione Completa" && nuovoNum) {
-					const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoStorico))));
-					let duplicatoTrovato = false;
-					
-					snapStoricoAnno.forEach(d => {
-						if (d.id === storicoId) return;
-						let datiSto = d.data();
-						let numEsistente = String(datiSto.numero_identificativo || "").trim();
-						if (numEsistente !== "" && numEsistente.toLowerCase() === nuovoNum.toLowerCase()) {
-							duplicatoTrovato = true;
-						}
-					});
+            try {
+                mostraCaricamento("Verifica duplicati e salvataggio...");
+                
+                const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoStorico))));
+                let duplicatoTrovato = false;
+                
+                snapStoricoAnno.forEach(d => {
+                    if (d.id === storicoId) return;
+                    let datiSto = d.data();
+                    let numEsistente = String(datiSto.numero_identificativo || "").trim();
+                    if (numEsistente !== "" && numEsistente.toLowerCase() === nuovoNum.toLowerCase()) {
+                        duplicatoTrovato = true;
+                    }
+                });
 
-					if (duplicatoTrovato) {
-						nascondiCaricamento();
-						alert(`⚠️ Attenzione: Il numero identificativo "${nuovoNum}" risulta già assegnato ad un altro iscritto per l'anno ${annoStorico}!`);
-						return;
-					}
-				}
+                if (duplicatoTrovato) {
+                    nascondiCaricamento();
+                    alert(`⚠️ Attenzione: Il numero identificativo "${nuovoNum}" risulta già assegnato ad un altro iscritto per l'anno ${annoStorico}!`);
+                    return;
+                }
 
-				await setDoc(doc(db, "storico", storicoId), { 
-					tipo_iscrizione: nuovoTipo, 
-					tipologia: nuovoTipo,
-					numero_identificativo: nuovoTipo === "Socio Sostenitore" ? "N/D" : nuovoNum 
-				}, { merge: true });
-				
-				cacheTuttiIscritti = [];
-				await caricaStoricoPersona(idPersona);
-				alert("Modifiche salvate con successo!");
-			} catch (error) {
-				alert("Errore durante il salvataggio: " + error.message);
-			} finally {
-				nascondiCaricamento();
-			}
-		};
+                await setDoc(doc(db, "storico", storicoId), { tipo_iscrizione: nuovoTipo, numero_identificativo: nuovoNum }, { merge: true });
+                cacheTuttiIscritti = [];
+                await caricaStoricoPersona(idPersona);
+                alert("Modifiche salvate con successo!");
+            } catch (error) {
+                alert("Errore durante il salvataggio: " + error.message);
+            } finally {
+                nascondiCaricamento();
+            }
+        };
 
         window.eliminaRigaStorico = async function(storicoId, idPersona) {
             if (!confirm("Sei sicuro di voler eliminare questa iscrizione dallo storico?")) return;
@@ -2349,79 +2318,58 @@
         };
 
         function attivaInserimentoNuovaIscrizioneEsistente() {
-			const tbody = document.getElementById('corpoTabellaStorico');
-			document.getElementById('tabellaStorico').style.display = 'table';
-			const tr = document.createElement('tr');
-			tr.innerHTML = `
-				<td>${annoCarnevaleCorrente}</td>
-				<td>
-					<select class="input-storico select-tipo" onchange="gestisciVisibilitaNumeroIscrizione(this)">
-						<option value="Iscrizione Completa">Iscrizione Completa</option>
-						<option value="Socio Sostenitore">Socio Sostenitore</option>
-					</select>
-				</td>
-				<td><input type="text" class="input-storico input-num" id="inputNuovoNumId" placeholder="Numero..."></td>
-				<td><button type="button" class="btn-azione btn-salva-storico" onclick="salvaNuovaIscrizioneDiretta(this)">Salva</button></td>
-			`;
-			tbody.insertBefore(tr, tbody.firstChild);
-			document.getElementById('btnAggiungiIscrizione').style.display = 'none';
-		}
-		
-		// Funzione di supporto per nascondere il numero se selezioni Socio Sostenitore
-		window.gestisciVisibilitaNumeroIscrizione = function(selectElem) {
-			const tr = selectElem.closest('tr');
-			const inputNum = tr.querySelector('.input-num');
-			if (selectElem.value === "Socio Sostenitore") {
-				inputNum.value = "";
-				inputNum.disabled = true;
-				inputNum.placeholder = "Non richiesto";
-				inputNum.style.backgroundColor = "#e9ecef";
-			} else {
-				inputNum.disabled = false;
-				inputNum.placeholder = "Numero...";
-				inputNum.style.backgroundColor = "#fff";
-			}
-		};
+            const tbody = document.getElementById('corpoTabellaStorico');
+            document.getElementById('tabellaStorico').style.display = 'table';
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${annoCarnevaleCorrente}</td><td><select class="input-storico select-tipo"><option value="Iscrizione Completa">Iscrizione Completa</option></select></td><td><input type="text" class="input-storico input-num" id="inputNuovoNumId" placeholder="Numero..."></td><td><button type="button" class="btn-azione btn-salva-storico" onclick="salvaNuovaIscrizioneDiretta(this)">Salva</button></td>`;
+            tbody.insertBefore(tr, tbody.firstChild);
+            document.getElementById('btnAggiungiIscrizione').style.display = 'none';
+        }
 
         window.salvaNuovaIscrizioneDiretta = async function(btn) {
-    const tr = btn.closest('tr');
-    const idPersona = document.getElementById('editIdPersona').value;
-    const selectTipo = tr.querySelector('select');
-    const tipoScelto = selectTipo ? selectTipo.value : "NON TROVATO";
-    
-    const inputNum = tr.querySelector('input');
-    const num = inputNum ? inputNum.value.trim() : "NON TROVATO";
-    
-    // Mostra cosa sta leggendo esattamente il codice
-    alert("DEBUG -> Tipo scelto: [" + tipoScelto + "] | Num: [" + num + "]");
+            const tr = btn.closest('tr'), idPersona = document.getElementById('editIdPersona').value;
+            const num = tr.querySelector('.input-num').value.trim();
+            if (!num) return alert("Inserisci il numero identificativo.");
 
-    if (tipoScelto !== "Socio Sostenitore" && !num) {
-        return alert("Inserisci il numero identificativo.");
-    }
+            try {
+                mostraCaricamento("Verifica duplicati e salvataggio...");
 
-    try {
-        mostraCaricamento("Salvataggio in corso...");
+                const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoCarnevaleCorrente))));
+                let duplicatoTrovato = false;
 
-        await addDoc(collection(db, "storico"), { 
-            id_persona: idPersona, 
-            anno: String(annoCarnevaleCorrente), 
-            tipo_iscrizione: tipoScelto, 
-            tipologia: tipoScelto, 
-            numero_identificativo: tipoScelto === "Socio Sostenitore" ? "N/D" : num, 
-            creato_da: aliasUtenteLoggato, 
-            creato_il: new Date().toLocaleString('it-IT') 
-        });
+                snapStoricoAnno.forEach(d => {
+                    let datiSto = d.data();
+                    let numEsistente = String(datiSto.numero_identificativo || "").trim();
+                    if (numEsistente !== "" && numEsistente.toLowerCase() === num.toLowerCase()) {
+                        duplicatoTrovato = true;
+                    }
+                });
 
-        alert("Iscrizione salvata con successo!");
-        cacheTuttiIscritti = [];
-        document.getElementById('btnAggiungiIscrizione').style.display = 'block';
-        await caricaStoricoPersona(idPersona);
-    } (catch error) {
-        alert("Errore durante il salvataggio: " + error.message);
-    } finally {
-        nascondiCaricamento();
-    }
-};
+                if (duplicatoTrovato) {
+                    nascondiCaricamento();
+                    alert(`⚠️ Attenzione: Il numero identificativo "${num}" è già stato registrato per l'anno ${annoCarnevaleCorrente}!`);
+                    return;
+                }
+
+                await addDoc(collection(db, "storico"), { 
+                    id_persona: idPersona, 
+                    anno: annoCarnevaleCorrente, 
+                    tipo_iscrizione: "Iscrizione Completa", 
+                    numero_identificativo: num, 
+                    creato_da: aliasUtenteLoggato, 
+                    creato_il: new Date().toLocaleString('it-IT') 
+                });
+
+                alert("Salvato!");
+                cacheTuttiIscritti = [];
+                document.getElementById('btnAggiungiIscrizione').style.display = 'block';
+                await caricaStoricoPersona(idPersona);
+            } catch (error) {
+                alert("Errore durante il salvataggio: " + error.message);
+            } finally {
+                nascondiCaricamento();
+            }
+        };
 
         document.getElementById('btnChiudiX').addEventListener('click', () => {
             fermaWebcam();
