@@ -905,8 +905,8 @@
         import { initializeApp, getApps, initializeApp as initializeSecondaryApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc, query, where, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getStorage, ref as storageRefFn, uploadString, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-        import { getDatabase, ref as dbRefFn, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getStorage, ref as storageRef, uploadString, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+        import { getDatabase, ref as dbRef, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 		
         const k1 = "AIzaSyCjfPICynrV";
         const k2 = "SeeVr4ifXoBoWi74nVGEt5Q";
@@ -947,6 +947,7 @@
         document.getElementById('configFlagDocumento').checked = configDocumento;
 
 // Configurazione e inizializzazione del database secondario Ticket Dispenser
+        // Configurazione e inizializzazione del database secondario Ticket Dispenser
         const ticketDispenserConfig = {
             databaseURL: "https://ticketdispensertuchini-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "ticketdispensertuchini"
@@ -997,8 +998,8 @@
                     }
                 });
 
-                // Scrittura sul nodo dedicato del DB secondario
-                await set(ref(dbTicket, 'prelazioni_corvidoro'), mappaAbilitati);
+                // Scrittura sul nodo dedicato del DB secondario usando l'alias corretto dbRef
+                await set(dbRef(dbTicket, 'prelazioni_corvidoro'), mappaAbilitati);
 
                 nascondiCaricamento();
                 alert("✅ Esportazione completata con successo! L'elenco è ora sincronizzato sul Ticket Dispenser.");
@@ -1008,7 +1009,6 @@
                 alert("Errore durante l'esportazione: " + error.message);
             }
         };
-
 	
 		// FUNZIONE DI EXPORT SU CSV DELLE PRELAZIONI
 		window.esportaPrelazioniCSV = function() {
