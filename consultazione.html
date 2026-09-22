@@ -2377,10 +2377,13 @@
         window.salvaNuovaIscrizioneDiretta = async function(btn) {
 			const tr = btn.closest('tr');
 			const idPersona = document.getElementById('editIdPersona').value;
-			const tipoScelto = tr.querySelector('.select-tipo').value; // "Iscrizione Completa" o "Socio Sostenitore"
-			const inputNumElem = tr.querySelector('.input-num');
-			const num = tipoScelto === "Socio Sostenitore" ? "N/D" : (inputNumElem ? inputNumElem.value.trim() : "");
+			const selectTipo = tr.querySelector('.select-tipo');
+			const tipoScelto = selectTipo ? selectTipo.value : "Iscrizione Completa";
 			
+			const inputNum = tr.querySelector('.input-num');
+			const num = inputNum ? inputNum.value.trim() : "";
+			
+			// Controlla il numero solo se è un'Iscrizione Completa
 			if (tipoScelto === "Iscrizione Completa" && !num) {
 				return alert("Inserisci il numero identificativo.");
 			}
@@ -2388,7 +2391,8 @@
 			try {
 				mostraCaricamento("Verifica duplicati e salvataggio...");
 
-				if (tipoScelto === "Iscrizione Completa") {
+				// Eseguiamo il controllo duplicati solo se c'è un numero identificativo valido
+				if (tipoScelto === "Iscrizione Completa" && num) {
 					const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoCarnevaleCorrente))));
 					let duplicatoTrovato = false;
 
@@ -2407,13 +2411,13 @@
 					}
 				}
 
-				// Salvataggio su Firestore con i campi standardizzati
+				// Salvataggio su Firestore
 				await addDoc(collection(db, "storico"), { 
 					id_persona: idPersona, 
 					anno: String(annoCarnevaleCorrente), 
 					tipo_iscrizione: tipoScelto, 
-					tipologia: tipoScelto, // Salviamo entrambi per massima compatibilità con le vecchie query
-					numero_identificativo: num, 
+					tipologia: tipoScelto, 
+					numero_identificativo: tipoScelto === "Socio Sostenitore" ? "N/D" : num, 
 					creato_da: aliasUtenteLoggato, 
 					creato_il: new Date().toLocaleString('it-IT') 
 				});
