@@ -6,6 +6,27 @@
     <style>
         body { font-family: Arial, sans-serif; margin: 0; background-color: #f4f4f9; display: flex; height: 100vh; overflow: hidden; }
         
+        /* SCHERMATA DI LOGIN */
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #343a40; display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .login-card { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-align: center; width: 380px; }
+        .login-card h2 { margin-bottom: 10px; color: #333; }
+        .login-card p { color: #666; font-size: 14px; margin-bottom: 25px; }
+        .btn-google { background-color: #4285F4; color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; transition: background 0.2s; }
+        .btn-google:hover { background-color: #3367D6; }
+        .login-error { color: #dc3545; font-size: 13px; margin-top: 15px; font-weight: bold; min-height: 18px; }
+
+        /* OVERLAY DI CARICAMENTO GLOBALE */
+        #loadingOverlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(52, 58, 64, 0.7); backdrop-filter: blur(4px); z-index: 10000;
+            justify-content: center; align-items: center; flex-direction: column; color: white; font-family: Arial, sans-serif;
+        }
+        .loader-box { background: white; padding: 30px 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center; color: #333; width: 300px; }
+        .spinner-cerchio { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #007BFF; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loader-text { font-size: 15px; font-weight: bold; color: #495057; margin-bottom: 5px; }
+        .loader-subtext { font-size: 12px; color: #6c757d; }
+
         /* SIDEBAR LATERALE SINISTRA */
         .sidebar { width: 260px; background-color: #343a40; color: white; display: flex; flex-direction: column; box-shadow: 2px 0 5px rgba(0,0,0,0.1); z-index: 100; overflow-y: auto; transition: all 0.3s; }
         .sidebar.nascosta { display: none; }
@@ -15,8 +36,7 @@
         .sidebar-item:hover { background-color: #495057; }
         .sidebar-item.attivo { background-color: #007BFF; font-weight: bold; }
         
-        /* GRUPPI COLLASSABILI */
-        .sidebar-group-title { padding: 12px 20px; font-size: 14px; text-transform: none; color: #ced4da; font-weight: bold; background-color: rgba(0,0,0,0.15); cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); user-select: none; }
+        .sidebar-group-title { padding: 12px 20px; font-size: 14px; color: #ced4da; font-weight: bold; background-color: rgba(0,0,0,0.15); cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); user-select: none; }
         .sidebar-group-title:hover { background-color: #495057; color: white; }
         .sidebar-group-content { display: none; background-color: rgba(0,0,0,0.1); }
         .sidebar-group-content.aperto { display: block; }
@@ -27,59 +47,76 @@
 
         /* CONTENUTO PRINCIPALE */
         .main-content { flex: 1; padding: 30px; overflow-y: auto; position: relative; }
-        .container { max-width: 1050px; background: white; padding: 25px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); margin: auto; position: relative; }
+        .container { max-width: 1250px; background: white; padding: 25px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); margin: auto; position: relative; }
         
-        .box-modalita { position: absolute; top: 25px; right: 25px; display: flex; gap: 5px; background: #e9ecef; padding: 4px; border-radius: 6px; z-index: 10; }
+        .top-bar-header { position: absolute; top: 20px; right: 25px; display: flex; align-items: center; gap: 12px; z-index: 10; }
+        .box-modalita { display: flex; gap: 5px; background: #e9ecef; padding: 4px; border-radius: 6px; }
         .btn-modalita { border: none; background: transparent; padding: 6px 12px; font-size: 13px; font-weight: bold; cursor: pointer; border-radius: 4px; color: #555; transition: all 0.2s; }
         .btn-modalita.attivo { background-color: #007BFF; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         
+        .user-info-box { display: flex; align-items: center; gap: 10px; background: #e9ecef; padding: 4px 10px; border-radius: 6px; }
+        .user-email-text { font-size: 13px; font-weight: bold; color: #495057; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .btn-logout { background: #dc3545; color: white; border: none; padding: 6px 12px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
+        .btn-logout:hover { background: #c82333; }
+
         .sezione-app { display: none; }
         .sezione-app.attiva { display: block; }
 
-        .search-row { display: flex; gap: 15px; align-items: flex-end; margin-bottom: 15px; flex-wrap: wrap; }
+        .search-row { display: flex; gap: 15px; align-items: flex-end; margin-bottom: 20px; flex-wrap: wrap; }
         .search-group { flex: 1; min-width: 220px; }
         .search-group input[type="text"] { margin-bottom: 0; }
         
         .btn-nuovo-utente { background-color: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; white-space: nowrap; height: 42px; }
         .btn-nuovo-utente:hover { background-color: #218838; }
 
+        .box-personalizza-colonne { position: relative; display: inline-block; }
+        .btn-toggle-colonne { background-color: #6c757d; color: white; border: none; padding: 10px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; height: 42px; transition: background 0.2s; box-sizing: border-box; }
+        .btn-toggle-colonne:hover { background-color: #5a6268; }
+        
+        .btn-export-csv { background-color: #17a2b8; color: white; border: none; padding: 10px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; height: 42px; transition: background 0.2s; box-sizing: border-box; text-decoration: none; }
+        .btn-export-csv:hover { background-color: #138496; }
+
+        .pannello-colonne { display: none; position: absolute; top: 48px; left: 0; background: white; border: 1px solid #ced4da; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 6px; padding: 15px; z-index: 50; width: 300px; max-height: 350px; overflow-y: auto; }
+        .pannello-colonne.aperto { display: block; }
+        .pannello-colonne h5 { margin: 0 0 10px 0; color: #333; font-size: 14px; border-bottom: 1px solid #dee2e6; padding-bottom: 8px; }
+        .grid-checkbox-colonne { display: flex; flex-direction: column; gap: 8px; }
+        .grid-checkbox-colonne label { font-size: 13px; color: #333; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .grid-checkbox-colonne input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+
         input[type="text"], input[type="date"], input[type="email"], input[type="number"], select { 
-            width: 100%; padding: 10px; margin: 4px 0 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 15px; 
-        }
+			width: 100%; padding: 7px 10px; margin: 2px 0 5px 0 !important; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; 
+		}
 
         .campo-vuoto { border: 2px solid #dc3545 !important; background-color: #fff8f8; }
-        .avviso-duplicato-runtime { border: 2px solid #ffc107 !important; background-color: #fffdf0 !important; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 13px; }
-        th { background-color: #007BFF; color: white; cursor: pointer; user-select: none; }
-        th:hover { background-color: #0056b3; }
+        .table-responsive { width: 100%; overflow-x: auto; border: 1px solid #dee2e6; border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; white-space: nowrap; background: white; }
+        th, td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #f1f1f1; padding: 12px 15px; text-align: left; font-size: 13px; }
+        th { background-color: #f8f9fa; color: #495057; font-weight: bold; cursor: pointer; user-select: none; position: relative; border-bottom: 2px solid #dee2e6; }
+        th:hover { background-color: #e9ecef; color: #007BFF; }
         tr:hover { background-color: #f1f1f1; cursor: pointer; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        #messaggioGuida { font-size: 14px; color: #666; text-align: center; margin: 20px 0; font-style: italic; }
+        tr:nth-child(even) { background-color: #fafafa; }
         
+        #messaggioGuida { font-size: 14px; color: #666; text-align: center; margin: 20px 0; font-style: italic; }
         .box-contatore { font-size: 14px; color: #333; margin-bottom: 10px; font-weight: bold; }
-
-        .filtro-colonna { width: 100%; padding: 5px; font-size: 12px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 3px; cursor: text; color: #333; background: #fff; }
         
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-        .modal-content { background-color: white; padding: 30px; border-radius: 8px; width: 850px; max-height: 90vh; overflow-y: auto; box-shadow: 0px 4px 15px rgba(0,0,0,0.2); position: relative; }
+        .modal-content { background-color: white; padding: 30px; border-radius: 8px; width: 950px; max-height: 90vh; overflow-y: auto; box-shadow: 0px 4px 15px rgba(0,0,0,0.2); position: relative; }
         .modal-content h3 { margin-top: 0; color: #007BFF; }
         .modal-content h4 { margin-top: 25px; color: #333; border-bottom: 2px solid #007BFF; padding-bottom: 5px; }
         
-        .form-row { display: flex; gap: 15px; margin-bottom: 5px; }
-        .form-group { flex: 1; display: flex; flex-direction: column; }
-        .form-group label { font-size: 13px; font-weight: bold; color: #444; margin-bottom: 2px; }
-        
-        /* BLOCCO RIGA OPZIONI E ISCRIZIONI COMPLETE AFFIANCATE */
+        .form-row { display: flex; gap: 15px; margin-bottom: 2px !important; }
+        .form-group { flex: 1; display: flex; flex-direction: column; margin-bottom: 2px; }
+        .form-group label { font-size: 12px; font-weight: bold; color: #444; margin-bottom: 0px; }
+		
         .form-row-opzioni { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; background: #f8f9fa; padding: 12px 20px; border-radius: 6px; border: 1px solid #e9ecef; flex-wrap: wrap; gap: 15px; }
         .checkboxes-container { display: flex; gap: 30px; align-items: center; }
         .checkbox-group { display: flex; align-items: center; gap: 8px; cursor: pointer; }
         .checkbox-group input[type="checkbox"] { width: 18px; height: 18px; margin: 0; cursor: pointer; }
         .checkbox-group label { font-size: 14px; font-weight: bold; color: #333; cursor: pointer; margin: 0; }
         
-        .totale-iscrizioni-inline { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: bold; color: #333; }
-        .badge-conteggio { background-color: #007BFF; color: white; padding: 4px 12px; border-radius: 4px; font-size: 15px; }
+        .totale-iscrizioni-inline { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: bold; color: #333; }
+        .badge-conteggio { background-color: #007BFF; color: white; padding: 4px 10px; border-radius: 4px; font-size: 14px; }
 
         .label-con-eta { display: flex; justify-content: space-between; align-items: center; }
         .input-eta-display { background-color: #e9ecef !important; color: #495057; font-weight: bold; text-align: center; cursor: not-allowed; }
@@ -89,7 +126,6 @@
         .col-large { flex: 2; }
 
         .header-modale-actions { position: absolute; top: 20px; right: 20px; display: flex; align-items: center; gap: 10px; }
-        
         .btn-chiudi-x { background: none; border: none; font-size: 24px; font-weight: bold; color: #666; cursor: pointer; line-height: 1; }
         .btn-chiudi-x:hover { color: #000; }
         
@@ -107,27 +143,66 @@
         .btn-modifica-storico:hover { background-color: #e0a800; }
         .btn-elimina-storico { background-color: #dc3545; }
         .btn-elimina-storico:hover { background-color: #c82333; }
+        .btn-info-storico { background-color: #17a2b8; font-weight: bold; }
+        .btn-info-storico:hover { background-color: #138496; }
         .btn-salva-storico { background-color: #28a745; }
         .input-storico, .select-storico { width: 90% !important; padding: 5px !important; margin: 0 !important; font-size: 12px !important; }
 
         #storicoCaricamento { font-size: 14px; color: #666; font-style: italic; margin: 10px 0; }
         #messaggioRuntimeDuplicato { font-size: 13px; font-weight: bold; margin-bottom: 10px; min-height: 18px; }
-        
         .placeholder-sezione { padding: 40px; text-align: center; color: #666; font-size: 18px; background: #fafafa; border: 2px dashed #ddd; border-radius: 6px; }
+
+        /* ACCORDION / SEZIONI COLLASSABILI */
+        .collapsible-header { background: #e7f5ff; padding: 8px 12px; border-radius: 6px; border: 1px solid #74c0fc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; font-weight: bold; color: #1864ab; font-size: 13px; margin-top: 6px; }
+        .collapsible-header:hover { background: #d0ebff; }
+        .collapsible-content { display: none; background: #f8f9fa; padding: 12px; border: 1px solid #ced4da; border-top: none; border-radius: 0 0 6px 6px; margin-bottom: 10px; }
+        .collapsible-content.aperto { display: block; }
+
+        @media (max-width: 768px) {
+            .modal-content { width: 95%; padding: 15px; }
+            .form-row { flex-direction: column; gap: 0; }
+        }
     </style>
 </head>
 <body>
 
+    <!-- OVERLAY SCHERMATA DI LOGIN -->
+    <div id="loginOverlay">
+        <div class="login-card">
+            <h2>Gestionale Iscritti</h2>
+            <p>Accedi con il tuo account Google autorizzato</p>
+            <button type="button" class="btn-google" onclick="eseguiLoginGoogle()">
+                <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                </svg>
+                Accedi con Google
+            </button>
+            <div id="loginError" class="login-error"></div>
+        </div>
+    </div>
+
+    <!-- OVERLAY DI CARICAMENTO -->
+    <div id="loadingOverlay">
+        <div class="loader-box">
+            <div class="spinner-cerchio"></div>
+            <div id="loaderText" class="loader-text">Elaborazione in corso...</div>
+            <div class="loader-subtext">Attendere prego</div>
+        </div>
+    </div>
+
     <!-- MENU LATERALE SINISTRO -->
     <nav id="sidebarMenu" class="sidebar">
-        <div class="sidebar-header">Gestionale</div>
+        <div class="sidebar-header">Tuchini del Borghetto</div>
         <ul class="sidebar-menu">
-            <li class="sidebar-item attivo" onclick="cambiaSezioneMenu('visualizzazione_standard', this)">Visualizzazione standard</li>
+            <li class="sidebar-item attivo" onclick="cambiaSezioneMenu('visualizzazione_standard', this)">Iscritti</li>
             <li class="sidebar-item" onclick="cambiaSezioneMenu('ricerca', this)">Ricerca filtrata</li>
             
-            <!-- GRUPPO ONORIFICENZE -->
+            <!-- GRUPPO PREMI -->
             <div class="sidebar-group-title" onclick="toggleMenuGruppo('gruppoOnorificenze', this)">
-                <span>Onorificenze</span>
+                <span>Premi</span>
                 <span id="freccia_gruppoOnorificenze">▼</span>
             </div>
             <div id="gruppoOnorificenze" class="sidebar-group-content">
@@ -140,17 +215,17 @@
                 <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_tigre', this)">Tigre</li>
             </div>
 
-            <!-- GRUPPO PREVENTIVI -->
+            <!-- GRUPPO PREVENTIVI ISCRIZIONI -->
             <div class="sidebar-group-title" onclick="toggleMenuGruppo('gruppoPreventivi', this)">
                 <span>Preventivi iscrizioni</span>
                 <span id="freccia_gruppoPreventivi">▼</span>
             </div>
             <div id="gruppoPreventivi" class="sidebar-group-content">
-                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('preventivo_10', this)">Preventivo 10</li>
-                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('preventivo_20', this)">Preventivo 20</li>
-                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('preventivo_30', this)">Preventivo 30</li>
-                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('preventivo_40', this)">Preventivo 40</li>
-                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('preventivo_50', this)">Preventivo 50</li>
+                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('preventivo_10', this); caricaPreventivo10();">Preventivo 10</li>
+                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('preventivo_20', this); caricaPreventivo20();">Preventivo 20</li>
+                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('preventivo_30', this); caricaPreventivo30();">Preventivo 30</li>
+                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('preventivo_40', this); caricaPreventivo40();">Preventivo 40</li>
+                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('preventivo_50', this); caricaPreventivo50();">Preventivo 50</li>
             </div>
 
             <div style="margin-top: auto; border-top: 1px solid #454d55;"></div>
@@ -161,15 +236,21 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-            <div class="box-modalita">
-                <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
-                <button type="button" id="btnUser" class="btn-modalita" onclick="cambiaModalita('user')">User</button>
+            <div class="top-bar-header">
+                <div id="boxModalita" class="box-modalita" style="display: none;">
+                    <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
+                    <button type="button" id="btnUser" class="btn-modalita" onclick="cambiaModalita('user')">User</button>
+                </div>
+                <div class="user-info-box">
+                    <span id="userEmailDisplayHeader" class="user-email-text"></span>
+                    <button type="button" class="btn-logout" onclick="eseguiLogout()">Esci</button>
+                </div>
             </div>
 
             <!-- SEZIONE 0: VISUALIZZAZIONE STANDARD -->
             <div id="sezione_visualizzazione_standard" class="sezione-app attiva">
-                <h2>Elenco Iscritti - Visualizzazione Standard</h2>
-                <p style="color: #666; font-size: 14px;">Digita almeno 2 lettere del cognome per cercare nel database (oppure <kbd>%</kbd> per vederli tutti).</p>
+                <h2>Elenco Iscritti</h2>
+                <p style="color: #666; font-size: 14px;">Digita almeno 2 lettere del cognome per cercare nel database.</p>
                 
                 <div class="search-row">
                     <div class="search-group">
@@ -177,7 +258,7 @@
                         <input type="text" id="filtroCognome" placeholder="Digita per cercare...">
                     </div>
                     <div>
-                        <button type="button" id="btnNuovoUtente" class="btn-nuovo-utente">+ Nuovo Utente</button>
+                        <button type="button" id="btnNuovoUtente" class="btn-nuovo-utente">+ Nuova Anagrafica</button>
                     </div>
                 </div>
                 
@@ -187,45 +268,52 @@
 
                 <div id="messaggioGuida">Inizia a digitare nel campo sopra per visualizzare gli iscritti.</div>
 
-                <table id="tabellaIscritti" style="display: none;">
-                    <thead>
-                        <tr>
-                            <th>Cognome</th>
-                            <th>Nome</th>
-                            <th>Data di Nascita</th>
-                            <th>Città</th>
-                            <th>Telefono</th>
-                        </tr>
-                    </thead>
-                    <tbody id="corpoTabella">
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table id="tabellaIscritti" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Cognome</th>
+                                <th>Nome</th>
+                                <th>Codice Fiscale</th>
+                                <th>Data di Nascita</th>
+                                <th>Città</th>
+                                <th>Telefono</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoTabella">
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- SEZIONE 1: RICERCA FILTRATA -->
             <div id="sezione_ricerca" class="sezione-app">
                 <h2>Elenco Completo - Ricerca Filtrata e Ordinabile</h2>
-                <p style="color: #666; font-size: 14px;">Filtra per anno e tipo di iscrizione, ordina cliccando sulle intestazioni o filtra digitando nelle caselle sotto i titoli.</p>
+                <p style="color: #666; font-size: 14px;">Seleziona un anno o "Tutti gli anni" per visualizzare i dati. Personalizza le colonne, esporta in CSV e ordina cliccando sulle intestazioni.</p>
                 
                 <div class="search-row">
                     <div class="search-group">
                         <label for="selezionaAnnoFiltro"><strong>Filtra per Anno:</strong></label>
                         <select id="selezionaAnnoFiltro" onchange="caricaDatiRicercaFiltrata()">
+                            <option value="" disabled selected>-- Seleziona anno --</option>
                             <option value="tutti">Tutti gli anni</option>
-                            <option value="2027">2027</option>
-                            <option value="2026">2026</option>
-                            <option value="2025">2025</option>
-                            <option value="2024">2024</option>
-                            <option value="2023">2023</option>
                         </select>
                     </div>
-                    <div class="search-group">
-                        <label for="selezionaTipoFiltro"><strong>Filtra per Tipo Iscrizione:</strong></label>
-                        <select id="selezionaTipoFiltro" onchange="caricaDatiRicercaFiltrata()">
-                            <option value="tutti">Tutti i tipi</option>
-                            <option value="Iscrizione Completa">Iscrizione Completa</option>
-                            <option value="Socio Sostenitore">Socio Sostenitore</option>
-                        </select>
+                    <div class="search-group" style="flex: initial; display: flex; gap: 10px; align-items: flex-end;">
+                        <div>
+                            <label>&nbsp;</label>
+                            <div class="box-personalizza-colonne">
+                                <button type="button" class="btn-toggle-colonne" onclick="togglePannelloColonne()">⚙️ Personalizza Colonne</button>
+                                <div id="pannelloColonne" class="pannello-colonne">
+                                    <h5>Seleziona Colonne Visibili</h5>
+                                    <div class="grid-checkbox-colonne" id="listaCheckboxColonne"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label>&nbsp;</label>
+                            <button type="button" class="btn-export-csv" onclick="esportaTabellaCSV()">📥 Export CSV</button>
+                        </div>
                     </div>
                 </div>
 
@@ -233,21 +321,14 @@
                     Iscritti filtrati trovati: <span id="totaleIscrittiFiltrati">0</span>
                 </div>
 
-                <div id="messaggioGuidaFiltrato" style="font-size: 14px; color: #666; text-align: center; margin: 20px 0; font-style: italic;">Caricamento dati in corso...</div>
+                <div id="messaggioGuidaFiltrato" style="font-size: 14px; color: #666; text-align: center; margin: 20px 0; font-style: italic;">Seleziona un anno nel menu sopra per visualizzare l'elenco.</div>
 
-                <table id="tabellaIscrittiFiltrata" style="display: none;">
-                    <thead>
-                        <tr>
-                            <th onclick="ordinaTabellaFiltrata(0)">Cognome <span id="sort-0"></span><input type="text" class="filtro-colonna" placeholder="Filtra..." oninput="applicaFiltriTabellaFiltrata()" onclick="event.stopPropagation()"></th>
-                            <th onclick="ordinaTabellaFiltrata(1)">Nome <span id="sort-1"></span><input type="text" class="filtro-colonna" placeholder="Filtra..." oninput="applicaFiltriTabellaFiltrata()" onclick="event.stopPropagation()"></th>
-                            <th onclick="ordinaTabellaFiltrata(2)">Data di Nascita <span id="sort-2"></span><input type="text" class="filtro-colonna" placeholder="Filtra..." oninput="applicaFiltriTabellaFiltrata()" onclick="event.stopPropagation()"></th>
-                            <th onclick="ordinaTabellaFiltrata(3)">Città <span id="sort-3"></span><input type="text" class="filtro-colonna" placeholder="Filtra..." oninput="applicaFiltriTabellaFiltrata()" onclick="event.stopPropagation()"></th>
-                            <th onclick="ordinaTabellaFiltrata(4)">Telefono <span id="sort-4"></span><input type="text" class="filtro-colonna" placeholder="Filtra..." oninput="applicaFiltriTabellaFiltrata()" onclick="event.stopPropagation()"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="corpoTabellaFiltrata">
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table id="tabellaIscrittiFiltrata" style="display: none;">
+                        <thead id="intestazioneTabellaFiltrata"></thead>
+                        <tbody id="corpoTabellaFiltrata"></tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- SEZIONE CONFIGURAZIONE -->
@@ -262,7 +343,20 @@
                         <input type="number" id="inputAnnoCarnevale" value="2027">
                     </div>
                 </div>
-                <button type="button" class="btn-salva" style="max-width: 200px; margin-top: 10px;" onclick="salvaAnnoCarnevale()">Salva Anno</button>
+
+                <h4 style="color: #007BFF; border-bottom: 2px solid #007BFF; padding-bottom: 5px; margin-top: 25px;">Campi Obbligatori / Visibili Scheda Anagrafica</h4>
+                <div style="display: flex; gap: 30px; margin: 15px 0;">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="configFlagCodiceFiscale">
+                        <label for="configFlagCodiceFiscale">Abilita campo Codice Fiscale</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="configFlagDocumento">
+                        <label for="configFlagDocumento">Abilita sezione Documento d'Identità</label>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-salva" style="max-width: 200px; margin-top: 10px;" onclick="salvaConfigurazioneSistema()">Salva Configurazione</button>
 
                 <h4 style="color: #007BFF; border-bottom: 2px solid #007BFF; padding-bottom: 5px; margin-top: 35px;">Gestione Utenti</h4>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
@@ -270,33 +364,36 @@
                     <button type="button" class="btn-nuovo-utente" style="height: 36px; font-size: 13px; padding: 0 12px;" onclick="apriModaleUtente()">+ Nuovo Utente</button>
                 </div>
                 
-                <table style="margin-top: 10px;">
-                    <thead>
-                        <tr>
-                            <th>Username / Email</th>
-                            <th>Ruolo</th>
-                            <th>Azioni</th>
-                        </tr>
-                    </thead>
-                    <tbody id="corpoTabellaUtenti">
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table style="margin-top: 10px;">
+                        <thead>
+                            <tr>
+                                <th>Username / Email</th>
+                                <th>Alias (Nome in chiaro)</th>
+                                <th>Ruolo</th>
+                                <th>Stato</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoTabellaUtenti"></tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- SEZIONI DINAMICHE ONORIFICENZE E PREVENTIVI -->
-            <div id="sezione_onorificenze_10" class="sezione-app"><h2>Onorificenze: 10 Anni</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
-            <div id="sezione_onorificenze_20" class="sezione-app"><h2>Onorificenze: 20 Anni</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
-            <div id="sezione_onorificenze_30" class="sezione-app"><h2>Onorificenze: 30 Anni</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
-            <div id="sezione_onorificenze_40" class="sezione-app"><h2>Onorificenze: 40 Anni</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
-            <div id="sezione_onorificenze_50" class="sezione-app"><h2>Onorificenze: 50 Anni</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
-            <div id="sezione_onorificenze_capitani" class="sezione-app"><h2>Onorificenze: Capitani</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
-            <div id="sezione_onorificenze_tigre" class="sezione-app"><h2>Onorificenze: Tigre</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
+            <div id="sezione_onorificenze_10" class="sezione-app"><h2>10 Anni di tiro</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_onorificenze_20" class="sezione-app"><h2>20 Anni di tiro</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_onorificenze_30" class="sezione-app"><h2>30 Anni di tiro</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_onorificenze_40" class="sezione-app"><h2>40 Anni di tiro</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_onorificenze_50" class="sezione-app"><h2>50 Anni di tiro</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_onorificenze_capitani" class="sezione-app"><h2>Capitani di Piazza</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
+            <div id="sezione_onorificenze_tigre" class="sezione-app"><h2>Tigre</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
 
-            <div id="sezione_preventivo_10" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 10</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
-            <div id="sezione_preventivo_20" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 20</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
-            <div id="sezione_preventivo_30" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 30</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
-            <div id="sezione_preventivo_40" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 40</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
-            <div id="sezione_preventivo_50" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 50</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
+            <div id="sezione_preventivo_10" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 10</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_preventivo_20" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 20</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_preventivo_30" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 30</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_preventivo_40" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 40</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_preventivo_50" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 50</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
 
         </div>
     </main>
@@ -322,6 +419,16 @@
                 <div class="form-group col-medium">
                     <label>Nome:</label>
                     <input type="text" id="editNome" class="campo-controllo campo-verifica-runtime">
+                </div>
+            </div>
+
+            <div class="form-row" id="gruppoCampoCodiceFiscale">
+                <div class="form-group col-large">
+                    <label>Codice Fiscale:</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="editCodiceFiscale" class="campo-controllo" maxlength="16" placeholder="es. RSSMRA..." style="text-transform: uppercase; margin: 4px 0 10px 0;">
+                        <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 14px; font-size: 13px; font-weight: bold; height: 42px; margin-top: 4px;" onclick="calcolaCFIsCRITTO()">Calcola CF</button>
+                    </div>
                 </div>
             </div>
 
@@ -372,27 +479,255 @@
                 </div>
             </div>
 
-            <div class="form-row">
-                <div class="form-group col-medium">
-                    <label>Tipo Documento:</label>
-                    <select id="editTipoDocumento" class="campo-controllo">
-                        <option value="">-- Seleziona Tipo Documento --</option>
-                        <option value="Passaporto">Passaporto</option>
-                        <option value="Patente">Patente</option>
-                        <option value="Carta di identità">Carta di identità</option>
-                    </select>
+            <!-- DOCUMENTO ISCRITTO (COLLAPSIBLE / MINIMIZZABILE) -->
+            <div id="gruppoSezioneDocumento" style="display: none; margin-top: 10px;">
+                <div class="collapsible-header" onclick="toggleCollapsible('corpoDocIscritto', this)">
+                    <span>🪪 Documento d'Identità (Iscritto)</span>
+                    <span>▼</span>
                 </div>
-                <div class="form-group col-medium">
-                    <label>Numero Documento:</label>
-                    <input type="text" id="editNumeroDocumento" class="campo-controllo">
-                </div>
-                <div class="form-group col-medium">
-                    <label>Scadenza Documento:</label>
-                    <input type="date" id="editScadenzaDocumento" class="campo-controllo">
+                <div id="corpoDocIscritto" class="collapsible-content">
+                    <div class="form-row" style="margin-bottom: 10px;">
+                        <div class="form-group col-medium">
+                            <label style="font-size: 11px;">Tipo Documento:</label>
+                            <select id="editTipoDocumento" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
+                                <option value="">-- Seleziona --</option>
+                                <option value="Passaporto">Passaporto</option>
+                                <option value="Patente">Patente</option>
+                                <option value="Carta di identità">Carta di identità</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-medium">
+                            <label style="font-size: 11px;">Numero:</label>
+                            <input type="text" id="editNumeroDocumento" placeholder="es. AB12345CD" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
+                        </div>
+                        <div class="form-group col-medium">
+                            <label style="font-size: 11px;">Data di Scadenza:</label>
+                            <input type="date" id="editScadenzaDocumento" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
+                        </div>
+                    </div>
+
+                    <!-- IMMAGINE 1 (Fronte) -->
+                    <div style="margin-top: 10px; border-top: 1px dashed #74c0fc; padding-top: 10px;">
+                        <label style="font-size: 12px; font-weight: bold; color: #1864ab;">Immagine 1 (Fronte):</label>
+                        <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
+                            <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('iscritto', 1)">📷 Webcam</button>
+                            <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
+                                📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('iscritto', 1, this)">
+                            </label>
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <div id="boxAnteprima_iscritto_1" style="display: none;">
+                                <a id="linkAnteprima_iscritto_1" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 1</a>
+                                <button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('iscritto', 1)">Rimuovi</button>
+                            </div>
+                            <input type="hidden" id="editUrl_iscritto_1">
+                        </div>
+                    </div>
+
+                    <!-- IMMAGINE 2 (Retro) -->
+                    <div style="margin-top: 10px; border-top: 1px dashed #74c0fc; padding-top: 10px;">
+                        <label style="font-size: 12px; font-weight: bold; color: #1864ab;">Immagine 2 (Retro):</label>
+                        <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
+                            <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('iscritto', 2)">📷 Webcam</button>
+                            <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
+                                📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('iscritto', 2, this)">
+                            </label>
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <div id="boxAnteprima_iscritto_2" style="display: none;">
+                                <a id="linkAnteprima_iscritto_2" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 2</a>
+                                <button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('iscritto', 2)">Rimuovi</button>
+                            </div>
+                            <input type="hidden" id="editUrl_iscritto_2">
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- BLOCCO UNICO CON TIGRE, CAPITANO E TOTALE ISCRIZIONI COMPLETE -->
+            <!-- DATI GENITORI (DIVISI IN DUE PANNELLI) -->
+			<div id="sezioneDatiGenitori" style="display: none; margin-top: 10px; margin-bottom: 10px;">
+				<h4 style="margin-top: 0; margin-bottom: 10px; color: #856404; font-size: 14px; border-bottom: 2px solid #ffeeba; padding-bottom: 4px;">Dati Genitori / Tutori (Obbligatori per minorenni < 18 anni)</h4>
+				
+				<!-- PANNELLO GENITORE 1 -->
+				<div style="background: #fff3cd; padding: 10px; border-radius: 6px; border: 1px solid #ffeeba; margin-bottom: 10px;">
+					<p style="font-size: 13px; font-weight: bold; color: #856404; margin: 0 0 5px 0;">Genitore 1</p>
+					<div class="form-row">
+						<div class="form-group col-medium"><label style="font-size: 11px;">Cognome:</label><input type="text" id="editGenitore1Cognome" class="campo-controllo-genitore"></div>
+						<div class="form-group col-medium"><label style="font-size: 11px;">Nome:</label><input type="text" id="editGenitore1Nome" class="campo-controllo-genitore"></div>
+						<div class="form-group col-medium"><label style="font-size: 11px;">Luogo Nascita:</label><input type="text" id="editGenitore1LuogoNascita" class="campo-controllo-genitore"></div>
+						<div class="form-group col-medium"><label style="font-size: 11px;">Data Nascita:</label><input type="date" id="editGenitore1DataNascita" class="campo-controllo-genitore"></div>
+					</div>
+					<div class="form-row" id="gruppoGen1CF" style="margin-bottom: 5px;">
+						<div class="form-group col-large">
+							<label style="font-size: 11px;">Codice Fiscale:</label>
+							<div style="display: flex; gap: 6px;">
+								<input type="text" id="editGenitore1CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="text-transform: uppercase; margin: 0;">
+								<button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 11px; font-weight: bold; height: 34px;" onclick="calcolaCFGenitore(1)">Calcola CF</button>
+							</div>
+						</div>
+					</div>
+
+					<!-- DOCUMENTO GENITORE 1 -->
+					<div id="gruppoGen1Doc" style="display: none; margin-top: 5px;">
+						<div class="collapsible-header" style="background: #fff9db; border-color: #f59f00; color: #b7791f;" onclick="toggleCollapsible('corpoDocGen1', this)">
+							<span>🪪 Documento d'Identità (Genitore 1)</span>
+							<span>▼</span>
+						</div>
+						<div id="corpoDocGen1" class="collapsible-content" style="background: #fffdf5;">
+							<div class="form-row" style="margin-bottom: 5px;">
+								<div class="form-group col-medium">
+									<label style="font-size: 11px;">Tipo Documento:</label>
+									<select id="editGenitore1TipoDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+										<option value="">-- Seleziona --</option>
+										<option value="Passaporto">Passaporto</option>
+										<option value="Patente">Patente</option>
+										<option value="Carta di identità">Carta di identità</option>
+									</select>
+								</div>
+								<div class="form-group col-medium">
+									<label style="font-size: 11px;">N. Documento:</label>
+									<input type="text" id="editGenitore1NumDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+								</div>
+								<div class="form-group col-medium">
+									<label style="font-size: 11px;">Scadenza:</label>
+									<input type="date" id="editGenitore1ScadenzaDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+								</div>
+							</div>
+
+							<!-- Immagini Gen 1 -->
+							<div style="margin-top: 8px; border-top: 1px dashed #f59f00; padding-top: 8px;">
+								<label style="font-size: 11px; font-weight: bold; color: #b7791f;">Immagine 1 (Fronte):</label>
+								<div style="display: flex; gap: 6px; align-items: center; margin-top: 3px; flex-wrap: wrap;">
+									<button type="button" class="btn-azione" style="background-color: #007bff; padding: 4px 8px; font-size: 11px;" onclick="avviaWebcam('gen1', 1)">📷 Webcam</button>
+									<label class="btn-azione" style="background-color: #17a2b8; padding: 4px 8px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
+										📂 Carica <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen1', 1, this)">
+									</label>
+								</div>
+								<div style="margin-top: 5px;">
+									<div id="boxAnteprima_gen1_1" style="display: none;">
+										<a id="linkAnteprima_gen1_1" href="#" target="_blank" style="font-size: 11px; color: #007bff; text-decoration: underline; display: block;">Visualizza Immagine 1</a>
+										<button type="button" class="btn-azione btn-elimina-storico" style="padding: 2px 6px; font-size: 10px;" onclick="rimuoviFileDocumento('gen1', 1)">Rimuovi</button>
+									</div>
+									<input type="hidden" id="editUrl_gen1_1">
+								</div>
+							</div>
+
+							<div style="margin-top: 8px; border-top: 1px dashed #f59f00; padding-top: 8px;">
+								<label style="font-size: 11px; font-weight: bold; color: #b7791f;">Immagine 2 (Retro):</label>
+								<div style="display: flex; gap: 6px; align-items: center; margin-top: 3px; flex-wrap: wrap;">
+									<button type="button" class="btn-azione" style="background-color: #007bff; padding: 4px 8px; font-size: 11px;" onclick="avviaWebcam('gen1', 2)">📷 Webcam</button>
+									<label class="btn-azione" style="background-color: #17a2b8; padding: 4px 8px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
+										📂 Carica <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen1', 2, this)">
+									</label>
+								</div>
+								<div style="margin-top: 5px;">
+									<div id="boxAnteprima_gen1_2" style="display: none;">
+										<a id="linkAnteprima_gen1_2" href="#" target="_blank" style="font-size: 11px; color: #007bff; text-decoration: underline; display: block;">Visualizza Immagine 2</a>
+										<button type="button" class="btn-azione btn-elimina-storico" style="padding: 2px 6px; font-size: 10px;" onclick="rimuoviFileDocumento('gen1', 2)">Rimuovi</button>
+									</div>
+									<input type="hidden" id="editUrl_gen1_2">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- PANNELLO GENITORE 2 -->
+				<div style="background: #fff3cd; padding: 10px; border-radius: 6px; border: 1px solid #ffeeba;">
+					<p style="font-size: 13px; font-weight: bold; color: #856404; margin: 0 0 5px 0;">Genitore 2</p>
+					<div class="form-row">
+						<div class="form-group col-medium"><label style="font-size: 11px;">Cognome:</label><input type="text" id="editGenitore2Cognome" class="campo-controllo-genitore"></div>
+						<div class="form-group col-medium"><label style="font-size: 11px;">Nome:</label><input type="text" id="editGenitore2Nome" class="campo-controllo-genitore"></div>
+						<div class="form-group col-medium"><label style="font-size: 11px;">Luogo Nascita:</label><input type="text" id="editGenitore2LuogoNascita" class="campo-controllo-genitore"></div>
+						<div class="form-group col-medium"><label style="font-size: 11px;">Data Nascita:</label><input type="date" id="editGenitore2DataNascita" class="campo-controllo-genitore"></div>
+					</div>
+					<div class="form-row" id="gruppoGen2CF" style="margin-bottom: 5px;">
+						<div class="form-group col-large">
+							<label style="font-size: 11px;">Codice Fiscale:</label>
+							<div style="display: flex; gap: 6px;">
+								<input type="text" id="editGenitore2CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="text-transform: uppercase; margin: 0;">
+								<button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 11px; font-weight: bold; height: 34px;" onclick="calcolaCFGenitore(2)">Calcola CF</button>
+							</div>
+						</div>
+					</div>
+
+					<!-- DOCUMENTO GENITORE 2 -->
+					<div id="gruppoGen2Doc" style="display: none; margin-top: 5px;">
+						<div class="collapsible-header" style="background: #fff9db; border-color: #f59f00; color: #b7791f;" onclick="toggleCollapsible('corpoDocGen2', this)">
+							<span>🪪 Documento d'Identità (Genitore 2)</span>
+							<span>▼</span>
+						</div>
+						<div id="corpoDocGen2" class="collapsible-content" style="background: #fffdf5;">
+							<div class="form-row" style="margin-bottom: 5px;">
+								<div class="form-group col-medium">
+									<label style="font-size: 11px;">Tipo Documento:</label>
+									<select id="editGenitore2TipoDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+										<option value="">-- Seleziona --</option>
+										<option value="Passaporto">Passaporto</option>
+										<option value="Patente">Patente</option>
+										<option value="Carta di identità">Carta di identità</option>
+									</select>
+								</div>
+								<div class="form-group col-medium">
+									<label style="font-size: 11px;">N. Documento:</label>
+									<input type="text" id="editGenitore2NumDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+								</div>
+								<div class="form-group col-medium">
+									<label style="font-size: 11px;">Scadenza:</label>
+									<input type="date" id="editGenitore2ScadenzaDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+								</div>
+							</div>
+
+							<!-- Immagini Gen 2 -->
+							<div style="margin-top: 8px; border-top: 1px dashed #f59f00; padding-top: 8px;">
+								<label style="font-size: 11px; font-weight: bold; color: #b7791f;">Immagine 1 (Fronte):</label>
+								<div style="display: flex; gap: 6px; align-items: center; margin-top: 3px; flex-wrap: wrap;">
+									<button type="button" class="btn-azione" style="background-color: #007bff; padding: 4px 8px; font-size: 11px;" onclick="avviaWebcam('gen2', 1)">📷 Webcam</button>
+									<label class="btn-azione" style="background-color: #17a2b8; padding: 4px 8px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
+										📂 Carica <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen2', 1, this)">
+									</label>
+								</div>
+								<div style="margin-top: 5px;">
+									<div id="boxAnteprima_gen2_1" style="display: none;">
+										<a id="linkAnteprima_gen2_1" href="#" target="_blank" style="font-size: 11px; color: #007bff; text-decoration: underline; display: block;">Visualizza Immagine 1</a>
+										<button type="button" class="btn-azione btn-elimina-storico" style="padding: 2px 6px; font-size: 10px;" onclick="rimuoviFileDocumento('gen2', 1)">Rimuovi</button>
+									</div>
+									<input type="hidden" id="editUrl_gen2_1">
+								</div>
+							</div>
+
+							<div style="margin-top: 8px; border-top: 1px dashed #f59f00; padding-top: 8px;">
+								<label style="font-size: 11px; font-weight: bold; color: #b7791f;">Immagine 2 (Retro):</label>
+								<div style="display: flex; gap: 6px; align-items: center; margin-top: 3px; flex-wrap: wrap;">
+									<button type="button" class="btn-azione" style="background-color: #007bff; padding: 4px 8px; font-size: 11px;" onclick="avviaWebcam('gen2', 2)">📷 Webcam</button>
+									<label class="btn-azione" style="background-color: #17a2b8; padding: 4px 8px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
+										📂 Carica <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen2', 2, this)">
+									</label>
+								</div>
+								<div style="margin-top: 5px;">
+									<div id="boxAnteprima_gen2_2" style="display: none;">
+										<a id="linkAnteprima_gen2_2" href="#" target="_blank" style="font-size: 11px; color: #007bff; text-decoration: underline; display: block;">Visualizza Immagine 2</a>
+										<button type="button" class="btn-azione btn-elimina-storico" style="padding: 2px 6px; font-size: 10px;" onclick="rimuoviFileDocumento('gen2', 2)">Rimuovi</button>
+									</div>
+									<input type="hidden" id="editUrl_gen2_2">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+            <!-- Box Webcam Condiviso -->
+            <div id="boxContainerWebcamGenerale" style="display: none; margin-top: 15px; background: #fff; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                <p style="margin: 0 0 5px 0; font-size: 12px; font-weight: bold;" id="titoloWebcamAttiva">Acquisizione Webcam</p>
+                <video id="webcamVideo" autoplay playsinline style="width: 100%; max-width: 320px; display: block; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 5px;"></video>
+                <canvas id="webcamCanvas" style="display: none;"></canvas>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" class="btn-azione" style="background-color: #28a745; padding: 6px 12px; font-size: 12px;" onclick="scattaFotoWebcam()">📸 Scatta e Salva</button>
+                    <button type="button" class="btn-azione" style="background-color: #dc3545; padding: 6px 12px; font-size: 12px;" onclick="fermaWebcam()">❌ Annulla</button>
+                </div>
+            </div>
+
             <div class="form-row-opzioni">
                 <div class="checkboxes-container">
                     <div class="checkbox-group">
@@ -404,9 +739,15 @@
                         <label for="editCapitanoPiazza">Capitano di Piazza</label>
                     </div>
                 </div>
-                <div class="totale-iscrizioni-inline">
-                    <span>Totale Iscrizioni Complete:</span>
-                    <span id="conteggioIscrizioniScheda" class="badge-conteggio">0</span>
+                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                    <div class="totale-iscrizioni-inline">
+                        <span>Tot. Complete:</span>
+                        <span id="conteggioIscrizioniScheda" class="badge-conteggio">0</span>
+                    </div>
+                    <div class="totale-iscrizioni-inline">
+                        <span>Consecutive:</span>
+                        <span id="conteggioConsecutiveScheda" class="badge-conteggio" style="background-color: #17a2b8;">0</span>
+                    </div>
                 </div>
             </div>
 
@@ -419,18 +760,19 @@
                 <h4>Storico Iscrizioni Anni Passati</h4>
                 <div id="storicoCaricamento">Seleziona un iscritto...</div>
                 
-                <table id="tabellaStorico" style="display: none;">
-                    <thead>
-                        <tr>
-                            <th>Anno</th>
-                            <th>Tipo Iscrizione</th>
-                            <th>N. Identificativo</th>
-                            <th>Azioni</th>
-                        </tr>
-                    </thead>
-                    <tbody id="corpoTabellaStorico">
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table id="tabellaStorico" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Anno</th>
+                                <th>Tipo Iscrizione</th>
+                                <th>N. Identificativo</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoTabellaStorico"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -451,10 +793,23 @@
             </div>
 
             <div class="form-group" style="margin-top: 10px;">
+                <label>Alias (Nome in chiaro):</label>
+                <input type="text" id="inputUserAlias" placeholder="es. Marco De Sandre">
+            </div>
+
+            <div class="form-group" style="margin-top: 10px;">
                 <label>Ruolo:</label>
                 <select id="selectUserRole">
                     <option value="Admin">Admin</option>
                     <option value="User" selected>User</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-top: 10px;">
+                <label>Stato Accesso:</label>
+                <select id="selectUserStato">
+                    <option value="attivo" selected>Attivo (Consentito)</option>
+                    <option value="disabilitato">Disabilitato (Bloccato)</option>
                 </select>
             </div>
 
@@ -467,8 +822,9 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc, query, where, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getStorage, ref, uploadString, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
-        // Chiave suddivisa per evitare il blocco di GitHub Secret Scanning
         const k1 = "AIzaSyCjfPICynrV";
         const k2 = "SeeVr4ifXoBoWi74nVGEt5Q";
 
@@ -483,17 +839,414 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
+        const storage = getStorage(app);
+        const provider = new GoogleAuthProvider();
 
         let timeoutRicerca = null;
         let timeoutRuntime = null;
-        let modalitaCorrente = 'admin';
+        let modalitaCorrente = 'user';
+        let ruoloUtenteLoggato = 'user'; 
+        let aliasUtenteLoggato = ''; 
         let anniPresentiNellaScheda = [];
         let cacheTuttiIscritti = [];
-        let colonnaOrdinamentoCorrente = -1;
-        let ordineAscendente = true;
         let annoCarnevaleCorrente = localStorage.getItem('anno_carnevale_corrente') || "2027";
+        let streamWebcam = null;
+        
+        // Parametri attivi webcam in corso
+        let targetWebcamSoggetto = null; // 'iscritto', 'gen1', 'gen2'
+        let targetWebcamSlot = 1;       // 1 o 2
+        
+        let configCodiceFiscale = localStorage.getItem('config_cf') !== 'false';
+        let configDocumento = localStorage.getItem('config_doc') === 'true';
 
         document.getElementById('inputAnnoCarnevale').value = annoCarnevaleCorrente;
+        document.getElementById('configFlagCodiceFiscale').checked = configCodiceFiscale;
+        document.getElementById('configFlagDocumento').checked = configDocumento;
+
+        function applicaConfigurazioneUI() {
+            document.getElementById('gruppoCampoCodiceFiscale').style.display = configCodiceFiscale ? 'flex' : 'none';
+            document.getElementById('gruppoSezioneDocumento').style.display = configDocumento ? 'block' : 'none';
+            document.getElementById('gruppoGen1CF').style.display = configCodiceFiscale ? 'flex' : 'none';
+            document.getElementById('gruppoGen2CF').style.display = configCodiceFiscale ? 'flex' : 'none';
+            document.getElementById('gruppoGen1Doc').style.display = configDocumento ? 'block' : 'none';
+            document.getElementById('gruppoGen2Doc').style.display = configDocumento ? 'block' : 'none';
+        }
+        applicaConfigurazioneUI();
+
+        window.toggleCollapsible = function(idContenuto, headerElement) {
+            const contenuto = document.getElementById(idContenuto);
+            const freccia = headerElement.querySelector('span:last-child');
+            if (contenuto.classList.contains('aperto')) {
+                contenuto.classList.remove('aperto');
+                freccia.textContent = "▼";
+            } else {
+                contenuto.classList.add('aperto');
+                freccia.textContent = "▲";
+            }
+        };
+
+        window.mostraCaricamento = function(messaggio = "Elaborazione in corso...") {
+            document.getElementById('loaderText').textContent = messaggio;
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        };
+
+        window.nascondiCaricamento = function() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        };
+
+        window.avviaWebcam = async function(soggetto, slot) {
+            targetWebcamSoggetto = soggetto;
+            targetWebcamSlot = slot;
+            try {
+                streamWebcam = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } } });
+                const video = document.getElementById('webcamVideo');
+                video.srcObject = streamWebcam;
+                document.getElementById('titoloWebcamAttiva').textContent = `Acquisizione Webcam (${soggetto.toUpperCase()} - Immagine ${slot})`;
+                document.getElementById('boxContainerWebcamGenerale').style.display = 'block';
+            } catch (err) {
+                alert("Impossibile accedere alla webcam: " + err.message);
+            }
+        };
+
+        window.scattaFotoWebcam = async function() {
+            const video = document.getElementById('webcamVideo');
+            const canvas = document.getElementById('webcamCanvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            const base64Image = canvas.toDataURL('image/jpeg', 0.7);
+            fermaWebcam();
+
+            let idPersona = document.getElementById('editIdPersona').value;
+            if (!idPersona) {
+                idPersona = "temp_" + Date.now();
+                document.getElementById('editIdPersona').value = idPersona;
+            }
+            
+            try {
+                mostraCaricamento(`Caricamento foto su Storage...`);
+                const storageRef = ref(storage, `documenti_iscritti/${idPersona}_${targetWebcamSoggetto}_img${targetWebcamSlot}.jpg`);
+                await uploadString(storageRef, base64Image, 'data_url');
+                const downloadUrl = await getDownloadURL(storageRef);
+                
+                document.getElementById(`editUrl_${targetWebcamSoggetto}_${targetWebcamSlot}`).value = downloadUrl;
+                const link = document.getElementById(`linkAnteprima_${targetWebcamSoggetto}_${targetWebcamSlot}`);
+                link.href = downloadUrl;
+                link.textContent = `Visualizza Immagine ${targetWebcamSlot} (Webcam)`;
+                document.getElementById(`boxAnteprima_${targetWebcamSoggetto}_${targetWebcamSlot}`).style.display = 'block';
+                
+                alert("Immagine caricata con successo!");
+            } catch (error) {
+                alert("Errore durante l'upload: " + error.message);
+            } finally {
+                nascondiCaricamento();
+            }
+        };
+
+        window.caricaFileLocale = async function(soggetto, slot, inputElement) {
+            const file = inputElement.files[0];
+            if (!file) return;
+
+            let idPersona = document.getElementById('editIdPersona').value;
+            if (!idPersona) {
+                idPersona = "temp_" + Date.now();
+                document.getElementById('editIdPersona').value = idPersona;
+            }
+
+            const estensione = file.name.split('.').pop();
+            try {
+                mostraCaricamento(`Caricamento file su Storage...`);
+                const storageRef = ref(storage, `documenti_iscritti/${idPersona}_${soggetto}_img${slot}.${estensione}`);
+                
+                await uploadBytes(storageRef, file);
+                const downloadUrl = await getDownloadURL(storageRef);
+
+                document.getElementById(`editUrl_${soggetto}_${slot}`).value = downloadUrl;
+                const link = document.getElementById(`linkAnteprima_${soggetto}_${slot}`);
+                link.href = downloadUrl;
+                link.textContent = `Visualizza Immagine ${slot} (${file.name})`;
+                document.getElementById(`boxAnteprima_${soggetto}_${slot}`).style.display = 'block';
+
+                alert("File caricato con successo!");
+            } catch (error) {
+                alert("Errore durante il caricamento del file: " + error.message);
+            } finally {
+                nascondiCaricamento();
+                inputElement.value = "";
+            }
+        };
+
+        window.fermaWebcam = function() {
+            if (streamWebcam) {
+                streamWebcam.getTracks().forEach(track => track.stop());
+                streamWebcam = null;
+            }
+            document.getElementById('boxContainerWebcamGenerale').style.display = 'none';
+        };
+
+        window.rimuoviFileDocumento = async function(soggetto, slot) {
+            if (!confirm("Vuoi rimuovere questo documento?")) return;
+            let idPersona = document.getElementById('editIdPersona').value;
+            
+            try {
+                mostraCaricamento("Eliminazione file...");
+                if (idPersona) {
+                    for (let ext of ['jpg', 'pdf', 'png', 'jpeg']) {
+                        await deleteObject(ref(storage, `documenti_iscritti/${idPersona}_${soggetto}_img${slot}.${ext}`)).catch(() => {});
+                    }
+                }
+                document.getElementById(`editUrl_${soggetto}_${slot}`).value = "";
+                document.getElementById(`boxAnteprima_${soggetto}_${slot}`).style.display = 'none';
+                alert("Documento rimosso con successo!");
+            } catch (error) {
+                alert("Errore durante la rimozione: " + error.message);
+            } finally {
+                nascondiCaricamento();
+            }
+        };
+
+        function popolaSelectAnniFiltro() {
+            const selectAnno = document.getElementById('selezionaAnnoFiltro');
+            const annoSelezionatoPrecedente = selectAnno.value;
+            
+            selectAnno.innerHTML = `
+                <option value="" disabled selected>-- Seleziona anno --</option>
+                <option value="tutti">Tutti gli anni</option>
+            `;
+
+            const annoMax = parseInt(annoCarnevaleCorrente, 10) || 2027;
+            for (let anno = annoMax; anno >= 1964; anno--) {
+                const opt = document.createElement('option');
+                opt.value = String(anno);
+                opt.textContent = anno;
+                selectAnno.appendChild(opt);
+            }
+
+            if (annoSelezionatoPrecedente && annoSelezionatoPrecedente !== "") {
+                selectAnno.value = annoSelezionatoPrecedente;
+            }
+        }
+
+        popolaSelectAnniFiltro();
+
+        function formattaCognome(valore) {
+            let str = pulisciTesto(valore);
+            if (!str) return '';
+            return str.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
+        }
+
+        function mappaTipoDocumento(valore) {
+            const valStr = String(valore || "").trim();
+            if (valStr === "1") return "Passaporto";
+            if (valStr === "2") return "Patente";
+            if (valStr === "3") return "Carta di identità";
+            return valStr;
+        }
+
+        const DEFINIZIONE_COLONNE = [
+            { id: 'cognome', titolo: 'Cognome', default: true, formatter: val => formattaCognome(val) },
+            { id: 'nome', titolo: 'Nome', default: true },
+            { id: 'codice_fiscale', titolo: 'Codice Fiscale', default: true, formatter: val => pulisciTesto(val).toUpperCase() },
+            { id: 'luogo_nascita', titolo: 'Luogo Nascita', default: false },
+            { id: 'data_nascita', titolo: 'Data di Nascita', default: true, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
+            { id: 'indirizzo', titolo: 'Indirizzo', default: false },
+            { id: 'citta', titolo: 'Città', default: true },
+            { id: 'cap', titolo: 'CAP', default: false },
+            { id: 'provincia', titolo: 'Provincia', default: false },
+            { id: 'telefono', titolo: 'Telefono', default: true },
+            { id: 'mail', titolo: 'Mail', default: false },
+            { id: 'tipo_documento', titolo: 'Tipo Documento', default: false, formatter: val => mappaTipoDocumento(val) },
+            { id: 'numero_documento', titolo: 'N. Documento', default: false },
+            { id: 'scadenza_documento', titolo: 'Scadenza Documento', default: false, isDate: true, formatter: val => formattaDataPerVisualizzazioneTabella(val) },
+            { id: 'genitore1_cognome', titolo: 'Cognome Genitore 1', default: false, formatter: val => formattaCognome(val) },
+            { id: 'genitore1_nome', titolo: 'Nome Genitore 1', default: false },
+            { id: 'genitore1_luogo_nascita', titolo: 'Luogo Nascita Genitore 1', default: false },
+            { id: 'genitore1_data_nascita', titolo: 'Data Nascita Genitore 1', default: false },
+            { id: 'genitore1_codice_fiscale', titolo: 'CF Genitore 1', default: false, formatter: val => pulisciTesto(val).toUpperCase() },
+            { id: 'genitore1_tipo_doc', titolo: 'Tipo Doc Gen 1', default: false, formatter: val => mappaTipoDocumento(val) },
+            { id: 'genitore1_num_doc', titolo: 'N. Doc Gen 1', default: false },
+            { id: 'genitore1_scadenza_doc', titolo: 'Scadenza Doc Gen 1', default: false },
+            { id: 'genitore2_cognome', titolo: 'Cognome Genitore 2', default: false, formatter: val => formattaCognome(val) },
+            { id: 'genitore2_nome', titolo: 'Nome Genitore 2', default: false },
+            { id: 'genitore2_luogo_nascita', titolo: 'Luogo Nascita Genitore 2', default: false },
+            { id: 'genitore2_data_nascita', titolo: 'Data Nascita Genitore 2', default: false },
+            { id: 'genitore2_codice_fiscale', titolo: 'CF Genitore 2', default: false, formatter: val => pulisciTesto(val).toUpperCase() },
+            { id: 'genitore2_tipo_doc', titolo: 'Tipo Doc Gen 2', default: false, formatter: val => mappaTipoDocumento(val) },
+            { id: 'genitore2_num_doc', titolo: 'N. Doc Gen 2', default: false },
+            { id: 'genitore2_scadenza_doc', titolo: 'Scadenza Doc Gen 2', default: false },
+            { id: 'tigre', titolo: 'Tigre', default: false, formatter: val => val ? 'Si' : 'No' },
+            { id: 'capitano_piazza', titolo: 'Capitano Piazza', default: false, formatter: val => val ? 'Si' : 'No' },
+            { id: 'tipo_iscrizione', titolo: 'Tipo Iscrizione', default: true, richiedeAnnoSpecifico: true },
+            { id: 'numero_identificativo', titolo: 'Numero Identificativo', default: false, richiedeAnnoSpecifico: true },
+            { id: 'inserito_da', titolo: 'Inserito da', default: false, richiedeAnnoSpecifico: true },
+            { id: 'inserito_il', titolo: 'Inserito il', default: false, isDate: true, richiedeAnnoSpecifico: true, formatter: val => formattaDataOraCompleta(val) }
+        ];
+
+        let colonneSelezionate = JSON.parse(localStorage.getItem('colonne_visibili_ricerca')) || DEFINIZIONE_COLONNE.filter(c => c.default).map(c => c.id);
+
+        function inizializzaPannelloColonne() {
+            const container = document.getElementById('listaCheckboxColonne');
+            container.innerHTML = '';
+            
+            const annoSelezionato = document.getElementById('selezionaAnnoFiltro').value;
+            const annoSpecificoSelezionato = (annoSelezionato && annoSelezionato !== "" && annoSelezionato !== "tutti");
+
+            DEFINIZIONE_COLONNE.forEach(col => {
+                const isDisabled = col.richiedeAnnoSpecifico && !annoSpecificoSelezionato;
+                const isChecked = colonneSelezionate.includes(col.id) && !isDisabled;
+                
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <label style="${isDisabled ? 'color: #adb5bd; cursor: not-allowed;' : ''}">
+                        <input type="checkbox" value="${col.id}" ${isChecked ? 'checked' : ''} ${isDisabled ? 'disabled' : ''} onchange="aggiornaColonneSelezionate()">
+                        ${col.titolo} ${isDisabled ? '<small style="font-size:11px; color:#6c757d;">(solo anno specifico)</small>' : ''}
+                    </label>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        window.togglePannelloColonne = function() {
+            document.getElementById('pannelloColonne').classList.toggle('aperto');
+        };
+
+        window.aggiornaColonneSelezionate = function() {
+            const checkboxes = document.querySelectorAll('#listaCheckboxColonne input[type="checkbox"]');
+            colonneSelezionate = [];
+            checkboxes.forEach(cb => {
+                if (cb.checked && !cb.disabled) colonneSelezionate.push(cb.value);
+            });
+            localStorage.setItem('colonne_visibili_ricerca', JSON.stringify(colonneSelezionate));
+            caricaDatiRicercaFiltrata();
+        };
+
+        window.esportaTabellaCSV = function() {
+            const tbody = document.getElementById('corpoTabellaFiltrata');
+            const righe = Array.from(tbody.getElementsByTagName('tr'));
+            
+            const theadTr = document.querySelector('#intestazioneTabellaFiltrata tr:nth-child(1)');
+            if (!theadTr) {
+                alert("Nessun dato da esportare.");
+                return;
+            }
+            
+            const ths = theadTr.getElementsByTagName('th');
+            let intestazioni = [];
+            for (let th of ths) {
+                let testoTh = th.textContent.replace(/[▲▼]/g, "").trim();
+                intestazioni.push('"' + testoTh.replace(/"/g, '""') + '"');
+            }
+            
+            let csvRows = [intestazioni.join(";")];
+            
+            righe.forEach(riga => {
+                if (riga.style.display !== "none") {
+                    let celle = riga.getElementsByTagName('td');
+                    let rigaDati = [];
+                    for (let cella of celle) {
+                        let testoCella = cella.textContent.trim();
+                        rigaDati.push('"' + testoCella.replace(/"/g, '""') + '"');
+                    }
+                    csvRows.push(rigaDati.join(";"));
+                }
+            });
+            
+            if (csvRows.length <= 1) {
+                alert("Non ci sono righe visibili da esportare con i filtri attuali.");
+                return;
+            }
+            
+            const csvString = csvRows.join("\n");
+            const blob = new Blob(["\ufeff" + csvString], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            
+            const annoSelezionato = document.getElementById('selezionaAnnoFiltro').value || "tutti";
+            link.setAttribute("href", url);
+            link.setAttribute("download", `iscritti_carnevale_${annoSelezionato}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
+        document.addEventListener('click', function(event) {
+            const box = document.querySelector('.box-personalizza-colonne');
+            if (box && !box.contains(event.target)) {
+                document.getElementById('pannelloColonne').classList.remove('aperto');
+            }
+        });
+
+        inizializzaPannelloColonne();
+
+        window.eseguiLoginGoogle = async function() {
+            const errBox = document.getElementById('loginError');
+            errBox.textContent = "";
+            try {
+                const result = await signInWithPopup(auth, provider);
+                await verificaAutorizzazioneUtente(result.user);
+            } catch (error) {
+                errBox.textContent = "Autenticazione fallita: " + error.message;
+            }
+        };
+
+        window.eseguiLogout = async function() {
+            try {
+                await signOut(auth);
+                document.getElementById('loginOverlay').style.display = 'flex';
+            } catch (error) {
+                console.error("Errore logout:", error);
+            }
+        };
+
+        async function verificaAutorizzazioneUtente(user) {
+            const errBox = document.getElementById('loginError');
+            const emailUser = user.email.trim().toLowerCase();
+
+            try {
+                const querySnapshot = await getDocs(query(collection(db, "utenti"), where("email", "==", emailUser)));
+
+                if (querySnapshot.empty) {
+                    await signOut(auth);
+                    errBox.textContent = `Accesso negato: L'indirizzo ${emailUser} non è registrato.`;
+                    return;
+                }
+
+                let utenteDoc = null;
+                querySnapshot.forEach(docSnap => { utenteDoc = docSnap.data(); });
+
+                if (utenteDoc.attivo === false) {
+                    await signOut(auth);
+                    errBox.textContent = "Accesso negato: Account disabilitato.";
+                    return;
+                }
+
+                ruoloUtenteLoggato = (utenteDoc.ruolo || 'User').toLowerCase();
+                aliasUtenteLoggato = utenteDoc.alias ? utenteDoc.alias.trim() : user.email;
+
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('userEmailDisplayHeader').textContent = aliasUtenteLoggato;
+
+                const boxModalita = document.getElementById('boxModalita');
+                if (ruoloUtenteLoggato === 'admin') {
+                    boxModalita.style.display = 'flex';
+                    cambiaModalita('admin');
+                } else {
+                    boxModalita.style.display = 'none';
+                    cambiaModalita('user');
+                }
+            } catch (error) {
+                errBox.textContent = "Errore verifica permessi.";
+                await signOut(auth);
+            }
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) await verificaAutorizzazioneUtente(user);
+            else document.getElementById('loginOverlay').style.display = 'flex';
+        });
 
         window.toggleMenuGruppo = function(idGruppo, elemento) {
             const contenuto = document.getElementById(idGruppo);
@@ -509,19 +1262,143 @@
 
         window.salvaAnnoCarnevale = function() {
             const valInput = document.getElementById('inputAnnoCarnevale').value.trim();
-            if (!valInput || isNaN(valInput)) {
-                alert("Inserisci un anno valido.");
-                return;
-            }
+            if (!valInput || isNaN(valInput)) { alert("Inserisci un anno valido."); return; }
             annoCarnevaleCorrente = valInput;
             localStorage.setItem('anno_carnevale_corrente', annoCarnevaleCorrente);
-            alert(`Anno carnevale attuale aggiornato con successo a ${annoCarnevaleCorrente}!`);
+            popolaSelectAnniFiltro();
+            alert(`Anno carnevale aggiornato a ${annoCarnevaleCorrente}!`);
         };
 
-        // FUNZIONE GENERICA DI ELABORAZIONE ONORIFICENZE (Replicando la vista SQL OW_Iscrizioni)
+        window.salvaConfigurazioneSistema = function() {
+            salvaAnnoCarnevale();
+            configCodiceFiscale = document.getElementById('configFlagCodiceFiscale').checked;
+            configDocumento = document.getElementById('configFlagDocumento').checked;
+            localStorage.setItem('config_cf', configCodiceFiscale);
+            localStorage.setItem('config_doc', configDocumento);
+            applicaConfigurazioneUI();
+            alert("Configurazione salvata con successo!");
+        };
+
+        const dizionarioComuniCatastali = {
+            "L219": "Torino", "H501": "Roma", "F205": "Milano", "F839": "Napoli",
+            "E379": "Ivrea", "C652": "Chivasso", "C722": "Ciriè", "L872": "Vigliano",
+            "A859": "Biella", "L750": "Vercelli", "A479": "Asti", "A182": "Alessandria",
+            "D205": "Cuneo", "F952": "Novara", "L746": "Verbania", "D969": "Genova",
+            "A944": "Bologna", "D612": "Firenze", "L736": "Venezia"
+        };
+        const dizionarioNomiComuni = {
+            "TORINO": "L219", "ROMA": "H501", "MILANO": "F205", "NAPOLI": "F839",
+            "IVREA": "E379", "CHIVASSO": "C652", "CIRIE'": "C722", "CIRIE": "C722",
+            "VIGLIANO": "L872", "BIELLA": "A859", "VERCELLI": "L750", "ASTI": "A479",
+            "ALESSANDRIA": "A182", "CUNEO": "D205", "NOVARA": "F952", "VERBANIA": "L746",
+            "GENOVA": "D969", "BOLOGNA": "A944", "FIRENZE": "D612", "VENEZIA": "L736"
+        };
+
+        function calcolaCodiceFiscaleGenerico(cognome, nome, luogo, dataNascita) {
+            if (!cognome || !nome || !luogo || !dataNascita) return null;
+            function estraiCv(str) {
+                const pulita = str.replace(/[^A-Z]/g, '');
+                return { c: pulita.replace(/[AEIOU]/g, ''), v: pulita.replace(/[^AEIOU]/g, '') };
+            }
+            let cog = estraiCv(cognome), partCog = (cog.c + cog.v + 'XXX').substring(0, 3);
+            let nom = estraiCv(nome);
+            let partNom = nom.c.length >= 4 ? nom.c[0] + nom.c[2] + nom.c[3] : (nom.c + nom.v + 'XXX').substring(0, 3);
+            
+            let pData = dataNascita.split('-');
+            if (pData.length !== 3) return null;
+            let anno = pData[0].substring(2, 4);
+            let mCod = { '01': 'A', '02': 'B', '03': 'C', '04': 'D', '05': 'E', '06': 'H', '07': 'L', '08': 'M', '09': 'P', '10': 'R', '11': 'S', '12': 'T' };
+            let mese = mCod[pData[1]] || 'A';
+            let giorno = String(parseInt(pData[2], 10)).padStart(2, '0');
+            let codCat = dizionarioNomiComuni[luogo.toUpperCase()] || "H501";
+
+            let cfParz = partCog + partNom + anno + mese + giorno + codCat;
+            const vPari = {'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'A':0,'B':1,'C':2,'D':3,'E':4,'F':5,'G':6,'H':7,'I':8,'J':9,'K':10,'L':11,'M':12,'N':13,'O':14,'P':15,'Q':16,'R':17,'S':18,'T':19,'U':20,'V':21,'W':22,'X':23,'Y':24,'Z':25};
+            const vDisp = {'0':1,'1':0,'2':5,'3':7,'4':9,'5':13,'6':15,'7':17,'8':19,'9':21,'A':1,'B':0,'C':5,'D':7,'E':9,'F':13,'G':15,'H':17,'I':19,'J':21,'K':2,'L':4,'M':18,'N':20,'O':11,'P':3,'Q':6,'R':8,'S':12,'T':14,'U':16,'V':10,'W':22,'X':25,'Y':24,'Z':23};
+            const rCar = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+            let somma = 0;
+            for (let i = 0; i < 15; i++) {
+                let c = cfParz[i];
+                if (i % 2 === 0) somma += vDisp[c] || 0;
+                else somma += vPari[c] || 0;
+            }
+            return cfParz + rCar[somma % 26];
+        }
+
+        window.calcolaCFIsCRITTO = function() {
+            const cognome = document.getElementById('editCognome').value.trim().toUpperCase();
+            const nome = document.getElementById('editNome').value.trim().toUpperCase();
+            const luogo = document.getElementById('editLuogoNascita').value.trim().toUpperCase();
+            const dataNascita = document.getElementById('editDataNascita').value.trim();
+
+            if (!cognome || !nome || !luogo || !dataNascita) {
+                alert("Compila Cognome, Nome, Luogo e Data di Nascita per calcolare il Codice Fiscale.");
+                return;
+            }
+            let cf = calcolaCodiceFiscaleGenerico(cognome, nome, luogo, dataNascita);
+            if (cf) {
+                document.getElementById('editCodiceFiscale').value = cf;
+                decodificaCfInCampi(cf);
+            }
+        };
+
+        window.calcolaCFGenitore = function(numGen) {
+            const cognome = document.getElementById(`editGenitore${numGen}Cognome`).value.trim().toUpperCase();
+            const nome = document.getElementById(`editGenitore${numGen}Nome`).value.trim().toUpperCase();
+            const luogo = document.getElementById(`editGenitore${numGen}LuogoNascita`).value.trim().toUpperCase();
+            const dataNascita = document.getElementById(`editGenitore${numGen}DataNascita`).value.trim();
+
+            if (!cognome || !nome || !luogo || !dataNascita) {
+                alert(`Compila Cognome, Nome, Luogo e Data di Nascita del Genitore ${numGen} per calcolare il Codice Fiscale.`);
+                return;
+            }
+            let cf = calcolaCodiceFiscaleGenerico(cognome, nome, luogo, dataNascita);
+            if (cf) {
+                document.getElementById(`editGenitore${numGen}CodiceFiscale`).value = cf;
+            }
+        };
+
+        function decodificaCfInCampi(cf) {
+            cf = cf.trim().toUpperCase();
+            if (cf.length !== 16) return;
+
+            const annoCar = cf.substring(6, 8);
+            const meseCar = cf.substring(8, 9);
+            let giornoCar = parseInt(cf.substring(9, 11), 10);
+            
+            let annoNum = parseInt(annoCar, 10);
+            const annoCorrente2CIF = new Date().getFullYear() % 100;
+            let secolo = annoNum <= annoCorrente2CIF ? 2000 : 1900;
+            let annoNascita = secolo + annoNum;
+
+            const mesiCodice = { 'A': '01', 'B': '02', 'C': '03', 'D': '04', 'E': '05', 'H': '06', 'L': '07', 'M': '08', 'P': '09', 'R': '10', 'S': '11', 'T': '12' };
+            let meseNum = mesiCodice[meseCar] || '01';
+
+            if (giornoCar > 40) giornoCar -= 40;
+            let giornoStr = String(giornoCar).padStart(2, '0');
+
+            const dataNascitaIso = `${annoNascita}-${meseNum}-${giornoStr}`;
+            document.getElementById('editDataNascita').value = dataNascitaIso;
+            calcolaEImpostaEta(dataNascitaIso);
+
+            const codCatastale = cf.substring(11, 15);
+            if (dizionarioComuniCatastali[codCatastale]) {
+                document.getElementById('editLuogoNascita').value = dizionarioComuniCatastali[codCatastale];
+            }
+
+            eseguiVerificaRuntime();
+        }
+
+        document.getElementById('editCodiceFiscale').addEventListener('input', function(e) {
+            let val = e.target.value.trim().toUpperCase();
+            if (val.length === 16) decodificaCfInCampi(val);
+        });
+
         async function elaboraOnorificenze(idSezione, titoloSezione, sogliaAnni, tipoControllo) {
             const container = document.getElementById(idSezione);
-            container.innerHTML = `<h2>Onorificenze: ${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Elaborazione calcolo ${titoloSezione} in corso...</div>`;
+            container.innerHTML = `<h2> ${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Elaborazione calcolo ${titoloSezione} in corso...</div>`;
+            mostraCaricamento(`Elaborazione ${titoloSezione}...`);
             
             try {
                 const snapAnagrafica = await getDocs(collection(db, "anagrafica"));
@@ -561,7 +1438,6 @@
                 for (let idPers in anagraficaMap) {
                     let persona = anagraficaMap[idPers];
                     let totaleIscrizioni = totaliCompletiPersona[idPers] || 0;
-
                     let passaCriterio = false;
 
                     if (tipoControllo === 'consecutivi') {
@@ -593,7 +1469,7 @@
 
                     if (passaCriterio) {
                         risultati.push({
-                            cognome: pulisciTesto(persona.cognome),
+                            cognome: formattaCognome(persona.cognome),
                             nome: pulisciTesto(persona.nome),
                             citta: pulisciTesto(persona.citta),
                             telefono: pulisciTesto(persona.telefono),
@@ -603,14 +1479,13 @@
                 }
 
                 risultati.sort((a, b) => a.cognome.localeCompare(b.cognome));
-
                 let etichettaColonnaValore = tipoControllo === 'consecutivi' ? 'Anni Consecutivi' : 'Totale Iscrizioni';
 
                 let html = `
                     <h2>Onorificenze: ${titoloSezione}</h2>
-                    <p style="color: #666; font-size: 14px;">Elenco estratto in tempo reale applicando i criteri della vista SQL [OW_Iscrizioni].</p>
+                    <p style="color: #666; font-size: 14px;">Elenco estratto in tempo reale applicando i criteri.</p>
                     <div class="box-contatore" style="display: block;">Iscritti trovati: ${risultati.length}</div>
-                    <table>
+                    <div class="table-responsive"><table>
                         <thead>
                             <tr>
                                 <th>Cognome</th>
@@ -639,902 +1514,919 @@
                     });
                 }
 
-                html += `</tbody></table>`;
+                html += `</tbody></table></div>`;
                 container.innerHTML = html;
 
             } catch (error) {
                 console.error("Errore nel calcolo delle onorificenze:", error);
                 container.innerHTML = `<h2>Onorificenze: ${titoloSezione}</h2><p style="color:red;">Errore durante il recupero dei dati: ${error.message}</p>`;
+            } finally {
+                nascondiCaricamento();
             }
         }
 
-        window.caricaElenco10Anni = function() { elaboraOnorificenze('sezione_onorificenze_10', '10 Anni', 10, 'consecutivi'); };
-        window.caricaElenco20Anni = function() { elaboraOnorificenze('sezione_onorificenze_20', '20 Anni', 20, 'totali'); };
-        window.caricaElenco30Anni = function() { elaboraOnorificenze('sezione_onorificenze_30', '30 Anni', 30, 'totali'); };
-        window.caricaElenco40Anni = function() { elaboraOnorificenze('sezione_onorificenze_40', '40 Anni', 40, 'totali'); };
-        window.caricaElenco50Anni = function() { elaboraOnorificenze('sezione_onorificenze_50', '50 Anni', 50, 'totali'); };
+        window.caricaElenco10Anni = () => elaboraOnorificenze('sezione_onorificenze_10', '10 Anni', 10, 'consecutivi');
+        window.caricaElenco20Anni = () => elaboraOnorificenze('sezione_onorificenze_20', '20 Anni', 20, 'totali');
+        window.caricaElenco30Anni = () => elaboraOnorificenze('sezione_onorificenze_30', '30 Anni', 30, 'totali');
+        window.caricaElenco40Anni = () => elaboraOnorificenze('sezione_onorificenze_40', '40 Anni', 40, 'totali');
+        window.caricaElenco50Anni = () => elaboraOnorificenze('sezione_onorificenze_50', '50 Anni', 50, 'totali');
+
+        async function elaboraPreventivoIscrizioni(idSezione, titoloSezione, sogliaAnni, tipoControllo) {
+            const container = document.getElementById(idSezione);
+            container.innerHTML = `<h2>Preventivo Iscrizioni: ${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Elaborazione preventivo ${titoloSezione} in corso...</div>`;
+            mostraCaricamento(`Calcolo ${titoloSezione}...`);
+            
+            try {
+                const annoCarnevaleNum = parseInt(annoCarnevaleCorrente, 10) || 2027;
+                const annoLimitePreventivo = annoCarnevaleNum - 1;
+
+                const snapAnagrafica = await getDocs(collection(db, "anagrafica"));
+                const snapStorico = await getDocs(collection(db, "storico"));
+
+                let anagraficaMap = {};
+                snapAnagrafica.forEach(docSnap => {
+                    anagraficaMap[docSnap.id] = docSnap.data();
+                });
+
+                let storicoPerPersona = {};
+                let totaliCompletiPersona = {};
+                let iscrittiAnnoAttualeSet = new Set();
+
+                snapStorico.forEach(docSnap => {
+                    let st = docSnap.data();
+                    let idPers = st.id_persona;
+                    if (!idPers) return;
+
+                    let annoNum = parseInt(st.anno, 10);
+                    if (isNaN(annoNum)) return;
+
+                    let tipologia = st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || st.categoria || st.iscrizione || "";
+                    let tipoPulito = String(tipologia).trim().toLowerCase();
+
+                    if (tipoPulito === "iscrizione completa" && annoNum === annoCarnevaleNum) {
+                        iscrittiAnnoAttualeSet.add(idPers);
+                    }
+
+                    if (annoNum > annoLimitePreventivo) return;
+
+                    if (tipoPulito !== "iscrizione completa") return;
+
+                    totaliCompletiPersona[idPers] = (totaliCompletiPersona[idPers] || 0) + 1;
+
+                    if (!storicoPerPersona[idPers]) {
+                        storicoPerPersona[idPers] = [];
+                    }
+                    storicoPerPersona[idPers].push(annoNum);
+                });
+
+                let risultati = [];
+
+                for (let idPers in anagraficaMap) {
+                    let persona = anagraficaMap[idPers];
+                    let totaleIscrizioni = totaliCompletiPersona[idPers] || 0;
+                    let passaCriterio = false;
+                    let valoreMostrato = 0;
+
+                    if (tipoControllo === 'consecutivi_preventivo') {
+                        let targetConsecutivi = sogliaAnni - 1; 
+                        let anniArr = storicoPerPersona[idPers] || [];
+                        
+                        let anniNorm = anniArr.map(anno => anno > 2022 ? anno - 2 : anno);
+                        anniNorm = [...new Set(anniNorm)].sort((a, b) => a - b);
+                        
+                        let gruppiCount = {};
+                        anniNorm.forEach((annoNorm, index) => {
+                            let rn = index + 1;
+                            let grp = annoNorm - rn;
+                            gruppiCount[grp] = (gruppiCount[grp] || 0) + 1;
+                        });
+
+                        let massimoConsecutivi = 0;
+                        for (let grp in gruppiCount) {
+                            if (gruppiCount[grp] > massimoConsecutivi) {
+                                massimoConsecutivi = gruppiCount[grp];
+                            }
+                        }
+                        
+                        passaCriterio = (massimoConsecutivi === targetConsecutivi);
+                        valoreMostrato = massimoConsecutivi;
+
+                    } else if (tipoControllo === 'totali_preventivo') {
+                        let targetTotale = sogliaAnni - 1;
+                        passaCriterio = (totaleIscrizioni === targetTotale);
+                        valoreMostrato = totaleIscrizioni;
+                    }
+
+                    if (passaCriterio) {
+                        let giaIscritto = iscrittiAnnoAttualeSet.has(idPers);
+                        risultati.push({
+                            personaCompleta: { id: idPers, ...persona },
+                            cognome: formattaCognome(persona.cognome),
+                            nome: pulisciTesto(persona.nome),
+                            citta: pulisciTesto(persona.citta),
+                            telefono: pulisciTesto(persona.telefono),
+                            valore: valoreMostrato,
+                            iscrittoAnno: giaIscritto
+                        });
+                    }
+                }
+
+                risultati.sort((a, b) => a.cognome.localeCompare(b.cognome));
+                let etichettaColonnaValore = tipoControllo.includes('consecutivi') ? 'Anni Consecutivi Attuali' : 'Totale Iscrizioni Attuali';
+
+                let html = `
+                    <h2>Preventivo Iscrizioni: ${titoloSezione}</h2>
+                    <p style="color: #666; font-size: 14px;">Elenco degli iscritti che raggiungeranno ${sogliaAnni} anni nel ${annoCarnevaleNum} (calcolato sulle iscrizioni fino al ${annoLimitePreventivo}, escludendo il biennio COVID 2021-2022). Clicca su una riga per visualizzare lo storico.</p>
+                    <div class="box-contatore" style="display: block;">Iscritti trovati: ${risultati.length}</div>
+                    <div class="table-responsive"><table>
+                        <thead>
+                            <tr>
+                                <th>Cognome</th>
+                                <th>Nome</th>
+                                <th>Città</th>
+                                <th>Telefono</th>
+                                <th>${etichettaColonnaValore}</th>
+                                <th>Iscrizione anno ${annoCarnevaleNum}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table></div>
+                `;
+
+                container.innerHTML = html;
+                const tbodyElement = container.querySelector('tbody');
+
+                if (risultati.length === 0) {
+                    tbodyElement.innerHTML = `<tr><td colspan="6" style="text-align:center; font-style:italic;">Nessun iscritto rientra nel preventivo ${titoloSezione}.</td></tr>`;
+                } else {
+                    risultati.forEach(r => {
+                        const tr = document.createElement('tr');
+                        tr.style.cursor = 'pointer';
+                        
+                        let statoIscrizioneHtml = r.iscrittoAnno 
+                            ? `<span style="color: #28a745; font-weight: bold;">Iscritto</span>` 
+                            : `-`;
+
+                        tr.innerHTML = `
+                            <td>${r.cognome}</td>
+                            <td>${r.nome}</td>
+                            <td>${r.citta}</td>
+                            <td>${r.telefono}</td>
+                            <td><strong>${r.valore}</strong></td>
+                            <td>${statoIscrizioneHtml}</td>
+                        `;
+                        tr.addEventListener('click', () => apriModaleEsistente(r.personaCompleta));
+                        tbodyElement.appendChild(tr);
+                    });
+                }
+
+            } catch (error) {
+                console.error("Errore nel calcolo del preventivo:", error);
+                container.innerHTML = `<h2>Preventivo Iscrizioni: ${titoloSezione}</h2><p style="color:red;">Errore durante il calcolo: ${error.message}</p>`;
+            } finally {
+                nascondiCaricamento();
+            }
+        }
+
+        window.caricaPreventivo10 = function() { elaboraPreventivoIscrizioni('sezione_preventivo_10', 'Preventivo 10', 10, 'consecutivi_preventivo'); };
+        window.caricaPreventivo20 = function() { elaboraPreventivoIscrizioni('sezione_preventivo_20', 'Preventivo 20', 20, 'totali_preventivo'); };
+        window.caricaPreventivo30 = function() { elaboraPreventivoIscrizioni('sezione_preventivo_30', 'Preventivo 30', 30, 'totali_preventivo'); };
+        window.caricaPreventivo40 = function() { elaboraPreventivoIscrizioni('sezione_preventivo_40', 'Preventivo 40', 40, 'totali_preventivo'); };
+        window.caricaPreventivo50 = function() { elaboraPreventivoIscrizioni('sezione_preventivo_50', 'Preventivo 50', 50, 'totali_preventivo'); };
 
         async function caricaTabellaUtenti() {
             const tbody = document.getElementById('corpoTabellaUtenti');
-            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; font-style:italic; color:#666;">Caricamento utenti...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Caricamento...</td></tr>';
             try {
-                const querySnapshot = await getDocs(collection(db, "utenti"));
+                const snap = await getDocs(collection(db, "utenti"));
                 tbody.innerHTML = '';
-
-                if (querySnapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; font-style:italic; color:#666;">Nessun utente registrato.</td></tr>';
-                    return;
+                if (snap.empty) { 
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Nessun utente.</td></tr>'; 
+                    return; 
                 }
 
-                querySnapshot.forEach((docSnap) => {
-                    const u = docSnap.data();
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${pulisciTesto(u.email)}</td>
-                        <td><strong>${pulisciTesto(u.ruolo)}</strong></td>
-                        <td>
-                            <button type="button" class="btn-azione btn-modifica-storico" onclick="modificaUtente('${docSnap.id}', '${u.email}', '${u.ruolo}')">Modifica</button>
-                            <button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaUtente('${docSnap.id}')">Elimina</button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
+                let utentiList = [];
+                snap.forEach(docSnap => {
+                    utentiList.push({ id: docSnap.id, ...docSnap.data() });
                 });
-            } catch (error) {
-                console.error("Errore caricamento utenti:", error);
-                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:red;">Errore durante il caricamento degli utenti.</td></tr>';
+
+                utentiList.sort((a, b) => {
+                    const aliasA = (a.alias || a.email || "").trim().toLowerCase();
+                    const aliasB = (b.alias || b.email || "").trim().toLowerCase();
+                    return aliasA.localeCompare(aliasB);
+                });
+
+                utentiList.forEach(u => {
+                    const attivo = u.attivo !== false;
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${pulisciTesto(u.email)}</td>
+                            <td><strong>${pulisciTesto(u.alias)}</strong></td>
+                            <td>${pulisciTesto(u.ruolo)}</td>
+                            <td>${attivo ? 'Attivo' : 'Disabilitato'}</td>
+                            <td>
+                                <button type="button" class="btn-azione btn-modifica-storico" onclick="modificaUtente('${u.id}', '${u.email}', '${u.alias || ''}', '${u.ruolo}', ${attivo})">Modifica</button>
+                                <button type="button" class="btn-azione ${attivo ? 'btn-modifica-storico' : 'btn-salva-storico'}" style="background-color: ${attivo ? '#ff851b' : '#28a745'}; color: white;" onclick="toggleStatoUtente('${u.id}', ${attivo})">${attivo ? 'Disabilita' : 'Abilita'}</button>
+                                <button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaUtenteSistema('${u.id}', '${u.email}')">Elimina</button>
+                            </td>
+                        </tr>`;
+                });
+            } catch (e) { 
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Errore caricamento utenti.</td></tr>'; 
             }
         }
 
-        window.apriModaleUtente = function(id = "", email = "", ruolo = "User") {
+        window.apriModaleUtente = (id = "", email = "", alias = "", ruolo = "User", attivo = true) => {
             document.getElementById('editUserId').value = id;
             document.getElementById('inputUserEmail').value = email;
+            document.getElementById('inputUserAlias').value = alias;
             document.getElementById('selectUserRole').value = ruolo;
-            document.getElementById('userModalTitle').textContent = id ? "Modifica Utente" : "Aggiungi Nuovo Utente";
+            document.getElementById('selectUserStato').value = attivo ? "attivo" : "disabilitato";
             document.getElementById('userModal').style.display = 'flex';
         };
+        window.chiudiModaleUtente = () => document.getElementById('userModal').style.display = 'none';
+        window.modificaUtente = (id, email, alias, ruolo, attivo) => apriModaleUtente(id, email, alias, ruolo, attivo);
 
-        window.chiudiModaleUtente = function() {
-            document.getElementById('userModal').style.display = 'none';
+        window.toggleStatoUtente = async function(id, statoAttuale) {
+            const nuovoStato = !statoAttuale;
+            const conferma = confirm(`Sei sicuro di voler ${nuovoStato ? 'abilitare' : 'disabilitare'} questo utente?`);
+            if (!conferma) return;
+            try {
+                mostraCaricamento("Aggiornamento stato utente...");
+                await setDoc(doc(db, "utenti", id), { attivo: nuovoStato }, { merge: true });
+                caricaTabellaUtenti();
+            } catch (error) {
+                alert("Errore durante l'aggiornamento dello stato: " + error.message);
+            } finally {
+                nascondiCaricamento();
+            }
         };
 
-        window.modificaUtente = function(id, email, ruolo) {
-            apriModaleUtente(id, email, ruolo);
+        window.eliminaUtenteSistema = async function(id, email) {
+            const conferma = confirm(`Sei sicuro di voler eliminare definitivamente l'utente ${email}?`);
+            if (!conferma) return;
+            try {
+                mostraCaricamento("Eliminazione utente in corso...");
+                await deleteDoc(doc(db, "utenti", id));
+                alert("Utente eliminato con successo!");
+                caricaTabellaUtenti();
+            } catch (error) {
+                alert("Errore durante l'eliminazione: " + error.message);
+            } finally {
+                nascondiCaricamento();
+            }
         };
 
         window.salvaUtenteSistema = async function() {
             const id = document.getElementById('editUserId').value.trim();
-            const email = document.getElementById('inputUserEmail').value.trim();
+            const email = document.getElementById('inputUserEmail').value.trim().toLowerCase();
+            const alias = document.getElementById('inputUserAlias').value.trim();
             const ruolo = document.getElementById('selectUserRole').value;
-
-            if (!email || !email.includes('@')) {
+            const attivo = document.getElementById('selectUserStato').value === "attivo";
+            
+            if (!email) {
                 alert("Inserisci un indirizzo email valido.");
                 return;
             }
 
             try {
+                mostraCaricamento("Salvataggio utente in corso...");
                 if (id) {
-                    await setDoc(doc(db, "utenti", id), { email, ruolo }, { merge: true });
-                    alert("Utente aggiornato con successo!");
+                    await setDoc(doc(db, "utenti", id), { email, alias, ruolo, attivo }, { merge: true });
                 } else {
-                    await addDoc(collection(db, "utenti"), { email, ruolo });
-                    alert("Nuovo utente aggiunto con successo!");
+                    await addDoc(collection(db, "utenti"), { email, alias, ruolo, attivo });
                 }
+                
+                alert("Utente salvato con successo!");
                 chiudiModaleUtente();
                 caricaTabellaUtenti();
             } catch (error) {
-                console.error("Errore salvataggio utente:", error);
+                console.error("Errore durante il salvataggio dell'utente:", error);
                 alert("Errore durante il salvataggio: " + error.message);
+            } finally {
+                nascondiCaricamento();
             }
         };
 
-        window.eliminaUtente = async function(id) {
-            if (confirm("Sei sicuro di voler eliminare questo utente?")) {
-                try {
-                    await deleteDoc(doc(db, "utenti", id));
-                    alert("Utente eliminato con successo!");
-                    caricaTabellaUtenti();
-                } catch (error) {
-                    console.error("Errore eliminazione utente:", error);
-                    alert("Errore durante l'eliminazione: " + error.message);
-                }
-            }
-        };
-
-        window.cambiaSezioneMenu = function(valoreSezione, elementoHtml) {
-            const sezioni = document.querySelectorAll('.sezione-app');
-            sezioni.forEach(sez => sez.classList.remove('attiva'));
-
-            const vociMenu = document.querySelectorAll('.sidebar-item, .sidebar-subitem');
-            vociMenu.forEach(voce => voce.classList.remove('attivo'));
-
-            const sezioneTarget = document.getElementById(`sezione_${valoreSezione}`);
-            if (sezioneTarget) {
-                sezioneTarget.classList.add('attiva');
-            }
-            if (elementoHtml) {
-                elementoHtml.classList.add('attivo');
-            }
-
-            if (valoreSezione === 'ricerca') {
-                caricaDatiRicercaFiltrata();
-            } else if (valoreSezione === 'configurazione') {
-                caricaTabellaUtenti();
-            }
+        window.cambiaSezioneMenu = function(valore, elem) {
+            document.querySelectorAll('.sezione-app').forEach(s => s.classList.remove('attiva'));
+            document.querySelectorAll('.sidebar-item, .sidebar-subitem').forEach(v => v.classList.remove('attivo'));
+            const target = document.getElementById(`sezione_${valore}`);
+            if (target) target.classList.add('attiva');
+            if (elem) elem.classList.add('attivo');
+            if (valore === 'ricerca') caricaDatiRicercaFiltrata();
+            else if (valore === 'configurazione') caricaTabellaUtenti();
         };
 
         window.cambiaModalita = function(modalita) {
             modalitaCorrente = modalita;
-            const btnAdmin = document.getElementById('btnAdmin');
-            const btnUser = document.getElementById('btnUser');
-            const sidebarMenu = document.getElementById('sidebarMenu');
-
-            if (modalita === 'admin') {
-                btnAdmin.classList.add('attivo');
-                btnUser.classList.remove('attivo');
-                sidebarMenu.classList.remove('nascosta');
-            } else {
-                btnUser.classList.add('attivo');
-                btnAdmin.classList.remove('attivo');
-                sidebarMenu.classList.add('nascosta');
-                cambiaSezioneMenu('visualizzazione_standard');
+            const isUser = (modalita === 'user');
+            document.getElementById('btnAdmin').classList.toggle('attivo', !isUser);
+            document.getElementById('btnUser').classList.toggle('attivo', isUser);
+            document.getElementById('sidebarMenu').classList.toggle('nascosta', isUser);
+            if (isUser) cambiaSezioneMenu('visualizzazione_standard');
+            
+            const idPersonaCorrente = document.getElementById('editIdPersona').value;
+            if (idPersonaCorrente && document.getElementById('editModal').style.display === 'flex') {
+                caricaStoricoPersona(idPersonaCorrente);
             }
         };
 
-        async function caricaDatiRicercaFiltrata() {
+        window.caricaDatiRicercaFiltrata = async function() {
             const annoSelezionato = document.getElementById('selezionaAnnoFiltro').value;
-            const tipoSelezionato = document.getElementById('selezionaTipoFiltro').value;
-            const msgGuida = document.getElementById('messaggioGuidaFiltrato');
-            const tabella = document.getElementById('tabellaIscrittiFiltrata');
-            const tbody = document.getElementById('corpoTabellaFiltrata');
-            const boxContatore = document.getElementById('boxContatoreFiltrato');
-
-            msgGuida.style.display = 'block';
-            msgGuida.textContent = "Caricamento dati in corso...";
-            tabella.style.display = 'none';
-            boxContatore.style.display = 'none';
-
+            const msg = document.getElementById('messaggioGuidaFiltrato'), tab = document.getElementById('tabellaIscrittiFiltrata'), box = document.getElementById('boxContatoreFiltrato');
+            inizializzaPannelloColonne();
+            if (!annoSelezionato) { tab.style.display = 'none'; box.style.display = 'none'; msg.style.display = 'block'; return; }
+            msg.textContent = "Caricamento in corso...";
+            mostraCaricamento("Caricamento dati ricerca...");
             try {
                 if (cacheTuttiIscritti.length === 0) {
-                    const snapAnagrafica = await getDocs(collection(db, "anagrafica"));
-                    const snapStorico = await getDocs(collection(db, "storico"));
-
-                    let mappaIscrizioni = {};
-                    snapStorico.forEach(docSnap => {
-                        let st = docSnap.data();
-                        let idPers = st.id_persona;
-                        if (!mappaIscrizioni[idPers]) mappaIscrizioni[idPers] = [];
-                        
-                        let tipoIscrizione = st.tipo_iscrizione || st.tipo || st.tipologia || st.descrizione || st.categoria || st.descrizione_tipo || st.iscrizione || '';
-                        
-                        mappaIscrizioni[idPers].push({
-                            anno: String(st.anno || "").trim(),
-                            tipo: String(tipoIscrizione).trim()
+                    const snapAnag = await getDocs(collection(db, "anagrafica")), snapStorico = await getDocs(collection(db, "storico"));
+                    let mappa = {};
+                    snapStorico.forEach(d => {
+                        let st = d.data();
+                        if (!mappa[st.id_persona]) mappa[st.id_persona] = [];
+                        let tipoTrovato = st.tipo_iscrizione || st.tipologia || st.tipo || st.descrizione || "";
+                        mappa[st.id_persona].push({ 
+                            anno: String(st.anno || ""), 
+                            tipo_iscrizione: String(tipoTrovato), 
+                            numero_identificativo: String(st.numero_identificativo || "") 
                         });
                     });
-
-                    cacheTuttiIscritti = [];
-                    snapAnagrafica.forEach(docSnap => {
-                        let dati = docSnap.data();
-                        cacheTuttiIscritti.push({
-                            id: docSnap.id,
-                            ...dati,
-                            iscrizioni: mappaIscrizioni[docSnap.id] || []
-                        });
-                    });
+                    snapAnag.forEach(d => cacheTuttiIscritti.push({ id: d.id, ...d.data(), iscrizioni: mappa[d.id] || [] }));
                 }
-
-                let risultatiFiltrati = cacheTuttiIscritti.filter(persona => {
-                    return persona.iscrizioni.some(item => {
-                        let matchAnno = (annoSelezionato === "tutti" || item.anno === annoSelezionato);
-                        let matchTipo = (tipoSelezionato === "tutti" || item.tipo.toLowerCase() === tipoSelezionato.toLowerCase());
-                        return matchAnno && matchTipo;
+                let risultati = [];
+                cacheTuttiIscritti.forEach(p => {
+                    p.iscrizioni.forEach(i => {
+                        if (annoSelezionato === "tutti" || i.anno === annoSelezionato) {
+                            risultati.push({ 
+                                ...p, 
+                                anno: i.anno,
+                                tipo_iscrizione: i.tipo_iscrizione, 
+                                numero_identificativo: i.numero_identificativo 
+                            });
+                        }
                     });
                 });
-
-                risultatiFiltrati.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || ''));
-
+                risultati.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || ''));
+                let thead = document.getElementById('intestazioneTabellaFiltrata'), tbody = document.getElementById('corpoTabellaFiltrata');
+                let cols = colonneSelezionate.filter(c => !(DEFINIZIONE_COLONNE.find(x => x.id === c)?.richiedeAnnoSpecifico && annoSelezionato === "tutti"));
+                
+                thead.innerHTML = `<tr>${cols.map(c => `<th>${DEFINIZIONE_COLONNE.find(x => x.id === c)?.titolo || c}</th>`).join('')}</tr>`;
                 tbody.innerHTML = '';
-                if (risultatiFiltrati.length === 0) {
-                    msgGuida.textContent = "Nessun iscritto trovato con i filtri selezionati.";
-                    tabella.style.display = 'none';
-                    boxContatore.style.display = 'none';
-                    return;
-                }
-
-                risultatiFiltrati.forEach(persona => {
+                risultati.forEach(p => {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${pulisciTesto(persona.cognome)}</td>
-                        <td>${pulisciTesto(persona.nome)}</td>
-                        <td>${pulisciTesto(formattaDataPerVisualizzazioneTabella(persona.data_nascita))}</td>
-                        <td>${pulisciTesto(persona.citta)}</td>
-                        <td>${pulisciTesto(persona.telefono)}</td>
-                    `;
-                    tr.addEventListener('click', () => apriModaleEsistente(persona));
+                    tr.innerHTML = cols.map(c => {
+                        let defCol = DEFINIZIONE_COLONNE.find(x => x.id === c);
+                        let val = p[c];
+                        if (defCol && defCol.formatter) val = defCol.formatter(val);
+                        return `<td>${pulisciTesto(val)}</td>`;
+                    }).join('');
+                    tr.onclick = () => apriModaleEsistente(p);
                     tbody.appendChild(tr);
                 });
-
-                document.getElementById('totaleIscrittiFiltrati').textContent = risultatiFiltrati.length;
-                boxContatore.style.display = 'block';
-                msgGuida.style.display = 'none';
-                tabella.style.display = 'table';
-                applicaFiltriTabellaFiltrata();
-
-            } catch (error) {
-                console.error("Errore caricamento ricerca filtrata:", error);
-                msgGuida.textContent = "Errore durante il recupero dei dati: " + error.message;
-            }
-        }
-
-        window.ordinaTabellaFiltrata = function(colIndex) {
-            const tbody = document.getElementById('corpoTabellaFiltrata');
-            let righe = Array.from(tbody.getElementsByTagName('tr'));
-
-            if (colonnaOrdinamentoCorrente === colIndex) {
-                ordineAscendente = !ordineAscendente;
-            } else {
-                colonnaOrdinamentoCorrente = colIndex;
-                ordineAscendente = true;
-            }
-
-            for (let i = 0; i < 5; i++) {
-                document.getElementById(`sort-${i}`).textContent = "";
-            }
-            document.getElementById(`sort-${colIndex}`).textContent = ordineAscendente ? " ▲" : " ▼";
-
-            righe.sort((rigaA, rigaB) => {
-                let cellaA = rigaA.getElementsByTagName('td')[colIndex].textContent.trim().toLowerCase();
-                let cellaB = rigaB.getElementsByTagName('td')[colIndex].textContent.trim().toLowerCase();
-
-                if (cellaA < cellaB) return ordineAscendente ? -1 : 1;
-                if (cellaA > cellaB) return ordineAscendente ? 1 : -1;
-                return 0;
-            });
-
-            righe.forEach(riga => tbody.appendChild(riga));
+                document.getElementById('totaleIscrittiFiltrati').textContent = risultati.length;
+                box.style.display = 'block'; msg.style.display = 'none'; tab.style.display = 'table';
+            } catch (e) { msg.textContent = "Errore: " + e.message; }
+            finally { nascondiCaricamento(); }
         };
 
-        window.applicaFiltriTabellaFiltrata = function() {
-            const filtriInputs = document.querySelectorAll('#tabellaIscrittiFiltrata .filtro-colonna');
-            const tbody = document.getElementById('corpoTabellaFiltrata');
-            const righe = tbody.getElementsByTagName('tr');
-
-            let filtriValori = Array.from(filtriInputs).map(input => input.value.toLowerCase().trim());
-            let conteggioVisibili = 0;
-
-            for (let i = 0; i < righe.length; i++) {
-                let celle = righe[i].getElementsByTagName('td');
-                let mostraRiga = true;
-
-                for (let j = 0; j < filtriValori.length; j++) {
-                    if (filtriValori[j] !== "") {
-                        let testoCella = celle[j] ? celle[j].textContent.toLowerCase() : "";
-                        if (!testoCella.includes(filtriValori[j])) {
-                            mostraRiga = false;
-                            break;
-                        }
-                    }
-                }
-
-                if (mostraRiga) {
-                    righe[i].style.display = "";
-                    conteggioVisibili++;
-                } else {
-                    righe[i].style.display = "none";
-                }
-            }
-            document.getElementById('totaleIscrittiFiltrati').textContent = conteggioVisibili;
-        };
-
-        function calcolaEImpostaEta(dataNascitaStr) {
-            const inputEta = document.getElementById('editEtaDisplay');
-            if (!dataNascitaStr) {
-                inputEta.value = "";
-                return;
-            }
-            const dataNascita = new Date(dataNascitaStr);
-            if (isNaN(dataNascita.getTime())) {
-                inputEta.value = "";
-                return;
-            }
-            const oggi = new Date();
-            let eta = oggi.getFullYear() - dataNascita.getFullYear();
-            const m = oggi.getMonth() - dataNascita.getMonth();
-            if (m < 0 || (m === 0 && oggi.getDate() < dataNascita.getDate())) {
-                eta--;
-            }
+        function calcolaEImpostaEta(dataStr) {
+            const inputEta = document.getElementById('editEtaDisplay'), sezGen = document.getElementById('sezioneDatiGenitori');
+            if (!dataStr) { inputEta.value = ""; if (sezGen) sezGen.style.display = 'none'; return; }
+            let d = new Date(dataStr), oggi = new Date();
+            let eta = oggi.getFullYear() - d.getFullYear();
+            if (oggi.getMonth() < d.getMonth() || (oggi.getMonth() === d.getMonth() && oggi.getDate() < d.getDate())) eta--;
             inputEta.value = eta >= 0 ? eta : "";
+            if (sezGen) sezGen.style.display = (eta >= 0 && eta < 18) ? 'block' : 'none';
         }
 
-        document.getElementById('editDataNascita').addEventListener('input', (e) => {
+        document.getElementById('editDataNascita').addEventListener('input', e => {
             calcolaEImpostaEta(e.target.value);
+            eseguiVerificaRuntime();
         });
 
         function controllaCampiVuoti() {
-            const campi = document.querySelectorAll('.campo-controllo');
-            campi.forEach(campo => {
-                if (!campo.value || campo.value.trim() === "") {
-                    campo.classList.add('campo-vuoto');
-                } else {
-                    campo.classList.remove('campo-vuoto');
-                }
+            document.querySelectorAll('.campo-controllo').forEach(c => {
+                c.classList.toggle('campo-vuoto', !c.value || c.value.trim() === "");
             });
         }
-
-        document.querySelectorAll('.campo-controllo').forEach(elemento => {
-            elemento.addEventListener('input', controllaCampiVuoti);
-            elemento.addEventListener('change', controllaCampiVuoti);
-        });
+        document.querySelectorAll('.campo-controllo').forEach(c => { c.addEventListener('input', controllaCampiVuoti); });
 
         async function eseguiVerificaRuntime() {
             const cog = document.getElementById('editCognome').value.trim();
             const nom = document.getElementById('editNome').value.trim();
             const dat = document.getElementById('editDataNascita').value.trim();
-            const idCorrente = document.getElementById('editIdPersona').value.trim();
-            const msgBox = document.getElementById('messaggioRuntimeDuplicato');
-            const inputCog = document.getElementById('editCognome');
-            const inputNom = document.getElementById('editNome');
+            const idC = document.getElementById('editIdPersona').value.trim();
+            const msg = document.getElementById('messaggioRuntimeDuplicato');
+            
+            msg.textContent = "";
+            if (cog.length < 2 || nom.length < 2) return;
 
-            inputCog.classList.remove('avviso-duplicato-runtime');
-            inputNom.classList.remove('avviso-duplicato-runtime');
-            msgBox.textContent = "";
+            const snap = await getDocs(collection(db, "anagrafica"));
+            let omonimoTrovato = false;
+            let duplicatoEsattoTrovato = false;
 
-            if (cog.length < 2 && nom.length < 2) return;
+            snap.forEach(d => {
+                if (idC && d.id === idC) return;
+                let dt = d.data();
+                let dbCognome = String(dt.cognome || "").trim().toUpperCase();
+                let dbNome = String(dt.nome || "").trim().toUpperCase();
+                let dbData = String(dt.data_nascita || "").trim();
 
-            const esito = await eseguiDoppiaVerifica(cog, nom, dat, idCorrente);
+                if (dbCognome === cog.toUpperCase() && dbNome === nom.toUpperCase()) {
+                    omonimoTrovato = true;
+                    if (dat && dbData === dat) {
+                        duplicatoEsattoTrovato = true;
+                    }
+                }
+            });
 
-            if (esito === "DUPLICATO") {
-                msgBox.style.color = "#dc3545";
-                msgBox.textContent = "⚠️ Attenzione: Esiste già un iscritto con lo stesso Cognome, Nome e Data di Nascita (Duplicato esatto)!";
-                inputCog.classList.add('avviso-duplicato-runtime');
-                inputNom.classList.add('avviso-duplicato-runtime');
-            } else if (esito === "WARNING") {
-                msgBox.style.color = "#856404";
-                msgBox.textContent = "⚠️ Avviso: Esiste già un'anagrafica con lo stesso Nome e Cognome (Possibile omonimia).";
-                inputCog.classList.add('avviso-duplicato-runtime');
-                inputNom.classList.add('avviso-duplicato-runtime');
+            if (duplicatoEsattoTrovato) {
+                msg.style.color = "#dc3545";
+                msg.textContent = "⚠️ Attenzione: Esiste già un iscritto con lo stesso Cognome, Nome e Data di Nascita!";
+            } else if (omonimoTrovato) {
+                msg.style.color = "#ff851b";
+                msg.textContent = "ℹ️ Attenzione: Esiste già un iscritto con lo stesso Cognome e Nome (Omonimia).";
             }
         }
 
-        document.querySelectorAll('.campo-verifica-runtime').forEach(elemento => {
-            elemento.addEventListener('input', () => {
+        document.querySelectorAll('.campo-verifica-runtime').forEach(e => {
+            e.addEventListener('input', () => {
                 clearTimeout(timeoutRuntime);
                 timeoutRuntime = setTimeout(eseguiVerificaRuntime, 400);
             });
-            elemento.addEventListener('change', eseguiVerificaRuntime);
         });
 
-        function decodificaTipoDocumento(valoreDb) {
-            if (valoreDb === null || valoreDb === undefined) return "";
-            let valStr = String(valoreDb).trim();
-            if (valStr === "1") return "Passaporto";
-            if (valStr === "2") return "Patente";
-            if (valStr === "3") return "Carta di identità";
-            let valLower = valStr.toLowerCase();
-            if (valLower.includes("passaporto")) return "Passaporto";
-            if (valLower.includes("patente")) return "Patente";
-            if (valLower.includes("carta") || valLower.includes("identità") || valLower.includes("identita")) return "Carta di identità";
-            return "";
+        function formattaDataPerVisualizzazioneTabella(s) {
+            if (!s) return '';
+            let p = s.split('T')[0].split('-');
+            return p.length === 3 ? `${p[2]}.${p[1]}.${p[0]}` : s;
         }
-
-        function formattaDataPerVisualizzazioneTabella(dataStr) {
-            if (!dataStr) return '';
-            dataStr = String(dataStr).trim();
-            if (dataStr.includes('-')) {
-                let parti = dataStr.split('T')[0].split(' ')[0].split('-');
-                if (parti.length === 3) return `${parti[2]}.${parti[1]}.${parti[0]}`;
-            }
-            return dataStr;
+        function formattaDataOraCompleta(s) { return s || ''; }
+        function formattaDataPerInputDate(s) {
+            if (!s) return '';
+            s = String(s).trim();
+            if (s.includes('-')) return s.split('T')[0].split(' ')[0];
+            return s;
         }
-
-        function formattaDataPerInputDate(dataStr) {
-            if (!dataStr) return '';
-            dataStr = String(dataStr).trim();
-            if (dataStr.includes('-')) return dataStr.split('T')[0].split(' ')[0];
-            let parti = dataStr.split(/[\.\/]/);
-            if (parti.length === 3) {
-                let giorno = parti[0].trim().padStart(2, '0');
-                let mese = parti[1].trim().padStart(2, '0');
-                let anno = parti[2].trim();
-                if (anno.length === 2) {
-                    let annoNum = parseInt(anno, 10);
-                    anno = (annoNum > 30 ? "19" : "20") + anno;
-                }
-                return `${anno}-${mese}-${giorno}`;
-            }
-            return '';
-        }
-
-        function pulisciTesto(valore) {
-            if (valore === null || valore === undefined) return '';
-            let str = String(valore).trim();
-            if (str === '' || str.toUpperCase() === 'NULL' || str.toUpperCase() === 'NULLD') return '';
-            return str;
-        }
+        function pulisciTesto(v) { return (v === null || v === undefined || String(v).toUpperCase() === 'NULL') ? '' : String(v).trim(); }
 
         async function cercaIscritti(testo) {
-            const messaggioGuida = document.getElementById('messaggioGuida');
-            const tabella = document.getElementById('tabellaIscritti');
-            const tbody = document.getElementById('corpoTabella');
-            const boxContatore = document.getElementById('boxContatore');
-            const spanTotale = document.getElementById('totaleIscritti');
-
-            testo = testo.trim();
-            const testoUpper = testo.toUpperCase();
-
-            if (testo.length < 2 && testo !== '%') {
-                tabella.style.display = 'none';
-                boxContatore.style.display = 'none';
-                messaggioGuida.style.display = 'block';
-                messaggioGuida.textContent = "Digita almeno 2 lettere del cognome per cercare.";
-                return;
-            }
-
-            messaggioGuida.style.display = 'block';
-            messaggioGuida.textContent = "Ricerca in corso...";
-            boxContatore.style.display = 'none';
-
+            const msg = document.getElementById('messaggioGuida'), tab = document.getElementById('tabellaIscritti'), tbody = document.getElementById('corpoTabella'), box = document.getElementById('boxContatore');
+            testo = testo.trim().toUpperCase();
+            if (testo.length < 2) { tab.style.display = 'none'; box.style.display = 'none'; msg.style.display = 'block'; msg.textContent = "Digita almeno 2 lettere del cognome."; return; }
+            msg.textContent = "Ricerca in corso...";
+            mostraCaricamento("Ricerca iscritti in corso...");
             try {
-                const querySnapshot = await getDocs(collection(db, "anagrafica"));
+                const snap = await getDocs(collection(db, "anagrafica"));
                 tbody.innerHTML = '';
-
-                if (querySnapshot.empty) {
-                    messaggioGuida.textContent = "Nessun iscritto trovato nel database.";
-                    tabella.style.display = 'none';
-                    boxContatore.style.display = 'none';
-                    return;
-                }
-
-                let risultati = [];
-                querySnapshot.forEach((docSnap) => {
-                    const dati = docSnap.data();
-                    let cognomeDb = String(dati.cognome || "").trim().toUpperCase();
-                    if (testo === '%' || cognomeDb.includes(testoUpper)) {
-                        risultati.push({ id: docSnap.id, ...dati });
-                    }
+                let res = [];
+                snap.forEach(d => {
+                    let dt = d.data();
+                    if (String(dt.cognome || "").trim().toUpperCase().includes(testo)) res.push({ id: d.id, ...dt });
                 });
-
-                if (risultati.length === 0) {
-                    messaggioGuida.textContent = "Nessun iscritto trovato con questo cognome.";
-                    tabella.style.display = 'none';
-                    boxContatore.style.display = 'none';
-                    return;
-                }
-
-                risultati.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || ''));
-
-                risultati.forEach(persona => {
+                if (res.length === 0) { msg.textContent = "Nessun iscritto trovato."; tab.style.display = 'none'; box.style.display = 'none'; return; }
+                res.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || ''));
+                res.forEach(p => {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${pulisciTesto(persona.cognome)}</td>
-                        <td>${pulisciTesto(persona.nome)}</td>
-                        <td>${pulisciTesto(formattaDataPerVisualizzazioneTabella(persona.data_nascita))}</td>
-                        <td>${pulisciTesto(persona.citta)}</td>
-                        <td>${pulisciTesto(persona.telefono)}</td>
-                    `;
-                    tr.addEventListener('click', () => apriModaleEsistente(persona));
+                    tr.innerHTML = `<td>${formattaCognome(p.cognome)}</td><td>${pulisciTesto(p.nome)}</td><td>${pulisciTesto(p.codice_fiscale || p.codiceFiscale).toUpperCase()}</td><td>${formattaDataPerVisualizzazioneTabella(p.data_nascita)}</td><td>${pulisciTesto(p.citta)}</td><td>${pulisciTesto(p.telefono)}</td>`;
+                    tr.onclick = () => apriModaleEsistente(p);
                     tbody.appendChild(tr);
                 });
-
-                spanTotale.textContent = risultati.length;
-                boxContatore.style.display = 'block';
-                messaggioGuida.style.display = 'none';
-                tabella.style.display = 'table';
-            } catch (error) {
-                console.error("Errore ricerca iscritti:", error);
-                messaggioGuida.textContent = "Errore durante il recupero dei dati: " + error.message;
-            }
+                document.getElementById('totaleIscritti').textContent = res.length;
+                box.style.display = 'block'; msg.style.display = 'none'; tab.style.display = 'table';
+            } catch (e) { msg.textContent = "Errore: " + e.message; }
+            finally { nascondiCaricamento(); }
         }
 
         const modal = document.getElementById('editModal');
 
-        async function apriModaleEsistente(persona) {
+        async function apriModaleEsistente(p) {
             document.getElementById('modalTitle').textContent = "Scheda Iscritto e Storico";
-            document.getElementById('editIdPersona').value = persona.id;
-            document.getElementById('editCognome').value = pulisciTesto(persona.cognome);
-            document.getElementById('editNome').value = pulisciTesto(persona.nome);
-            document.getElementById('editLuogoNascita').value = pulisciTesto(persona.luogo_nascita || persona.luogoNascita);
+            document.getElementById('editIdPersona').value = p.id;
+            document.getElementById('editCognome').value = pulisciTesto(p.cognome);
+            document.getElementById('editNome').value = pulisciTesto(p.nome);
+            document.getElementById('editCodiceFiscale').value = pulisciTesto(p.codice_fiscale || p.codiceFiscale).toUpperCase();
+            document.getElementById('editLuogoNascita').value = pulisciTesto(p.luogo_nascita || p.luogoNascita);
             
-            const dataNascitaFormatted = formattaDataPerInputDate(persona.data_nascita);
-            document.getElementById('editDataNascita').value = dataNascitaFormatted;
-            calcolaEImpostaEta(dataNascitaFormatted);
+            let dtNascita = formattaDataPerInputDate(p.data_nascita);
+            document.getElementById('editDataNascita').value = dtNascita;
+            calcolaEImpostaEta(dtNascita);
 
-            document.getElementById('editIndirizzo').value = pulisciTesto(persona.indirizzo);
-            document.getElementById('editCitta').value = pulisciTesto(persona.citta);
-            document.getElementById('editCap').value = pulisciTesto(persona.cap);
-            document.getElementById('editProvincia').value = pulisciTesto(persona.provincia);
-            document.getElementById('editTelefono').value = pulisciTesto(persona.telefono);
-            document.getElementById('editMail').value = pulisciTesto(persona.mail || persona.email);
+            document.getElementById('editIndirizzo').value = pulisciTesto(p.indirizzo);
+            document.getElementById('editCitta').value = pulisciTesto(p.citta);
+            document.getElementById('editCap').value = pulisciTesto(p.cap);
+            document.getElementById('editProvincia').value = pulisciTesto(p.provincia);
+            document.getElementById('editTelefono').value = pulisciTesto(p.telefono);
+            document.getElementById('editMail').value = pulisciTesto(p.mail || p.email);
             
-            const tipoDocDb = persona.tipo_documento || persona.tipoDocumento;
-            document.getElementById('editTipoDocumento').value = decodificaTipoDocumento(tipoDocDb);
-            document.getElementById('editNumeroDocumento').value = pulisciTesto(persona.numero_documento || persona.numeroDocumento);
-            document.getElementById('editScadenzaDocumento').value = formattaDataPerInputDate(persona.scadenza_documento || persona.scadenzaDocumento);
+            document.getElementById('editTipoDocumento').value = mappaTipoDocumento(p.tipo_documento);
+            document.getElementById('editNumeroDocumento').value = pulisciTesto(p.numero_documento);
+            document.getElementById('editScadenzaDocumento').value = formattaDataPerInputDate(p.scadenza_documento);
+
+            // Caricamento URL Iscritto (compatibilità con vecchi campi singoli `immagine_documento`)
+            const urlIsc1 = p.immagine_documento_iscritto_1 || p.immagine_documento_1 || p.immagine_documento || "";
+            document.getElementById('editUrl_iscritto_1').value = urlIsc1;
+            if (urlIsc1) {
+                document.getElementById('linkAnteprima_iscritto_1').href = urlIsc1;
+                document.getElementById('boxAnteprima_iscritto_1').style.display = 'block';
+            } else {
+                document.getElementById('boxAnteprima_iscritto_1').style.display = 'none';
+            }
+
+            const urlIsc2 = p.immagine_documento_iscritto_2 || p.immagine_documento_2 || "";
+            document.getElementById('editUrl_iscritto_2').value = urlIsc2;
+            if (urlIsc2) {
+                document.getElementById('linkAnteprima_iscritto_2').href = urlIsc2;
+                document.getElementById('boxAnteprima_iscritto_2').style.display = 'block';
+            } else {
+                document.getElementById('boxAnteprima_iscritto_2').style.display = 'none';
+            }
+
+            // Genitore 1
+            document.getElementById('editGenitore1Cognome').value = pulisciTesto(p.genitore1_cognome || p.genitore_cognome);
+            document.getElementById('editGenitore1Nome').value = pulisciTesto(p.genitore1_nome || p.genitore_nome);
+            document.getElementById('editGenitore1LuogoNascita').value = pulisciTesto(p.genitore1_luogo_nascita);
+            document.getElementById('editGenitore1DataNascita').value = formattaDataPerInputDate(p.genitore1_data_nascita);
+            document.getElementById('editGenitore1CodiceFiscale').value = pulisciTesto(p.genitore1_codice_fiscale || p.genitore_codice_fiscale).toUpperCase();
+            document.getElementById('editGenitore1TipoDoc').value = mappaTipoDocumento(p.genitore1_tipo_doc);
+            document.getElementById('editGenitore1NumDoc').value = pulisciTesto(p.genitore1_num_doc);
+            document.getElementById('editGenitore1ScadenzaDoc').value = formattaDataPerInputDate(p.genitore1_scadenza_doc);
+
+            const urlGen1_1 = p.immagine_documento_gen1_1 || "";
+            document.getElementById('editUrl_gen1_1').value = urlGen1_1;
+            if (urlGen1_1) {
+                document.getElementById('linkAnteprima_gen1_1').href = urlGen1_1;
+                document.getElementById('boxAnteprima_gen1_1').style.display = 'block';
+            } else {
+                document.getElementById('boxAnteprima_gen1_1').style.display = 'none';
+            }
+
+            const urlGen1_2 = p.immagine_documento_gen1_2 || "";
+            document.getElementById('editUrl_gen1_2').value = urlGen1_2;
+            if (urlGen1_2) {
+                document.getElementById('linkAnteprima_gen1_2').href = urlGen1_2;
+                document.getElementById('boxAnteprima_gen1_2').style.display = 'block';
+            } else {
+                document.getElementById('boxAnteprima_gen1_2').style.display = 'none';
+            }
             
-            // IMPOSTAZIONE STATO CHECKBOX TIGRE E CAPITANO DI PIAZZA
-            document.getElementById('editTigre').checked = Boolean(persona.tigre);
-            document.getElementById('editCapitanoPiazza').checked = Boolean(persona.capitano_piazza);
+            // Genitore 2
+            document.getElementById('editGenitore2Cognome').value = pulisciTesto(p.genitore2_cognome);
+            document.getElementById('editGenitore2Nome').value = pulisciTesto(p.genitore2_nome);
+            document.getElementById('editGenitore2LuogoNascita').value = pulisciTesto(p.genitore2_luogo_nascita);
+            document.getElementById('editGenitore2DataNascita').value = formattaDataPerInputDate(p.genitore2_data_nascita);
+            document.getElementById('editGenitore2CodiceFiscale').value = pulisciTesto(p.genitore2_codice_fiscale).toUpperCase();
+            document.getElementById('editGenitore2TipoDoc').value = mappaTipoDocumento(p.genitore2_tipo_doc);
+            document.getElementById('editGenitore2NumDoc').value = pulisciTesto(p.genitore2_num_doc);
+            document.getElementById('editGenitore2ScadenzaDoc').value = formattaDataPerInputDate(p.genitore2_scadenza_doc);
 
-            document.getElementById('messaggioRuntimeDuplicato').textContent = "";
-            document.getElementById('editCognome').classList.remove('avviso-duplicato-runtime');
-            document.getElementById('editNome').classList.remove('avviso-duplicato-runtime');
+            const urlGen2_1 = p.immagine_documento_gen2_1 || "";
+            document.getElementById('editUrl_gen2_1').value = urlGen2_1;
+            if (urlGen2_1) {
+                document.getElementById('linkAnteprima_gen2_1').href = urlGen2_1;
+                document.getElementById('boxAnteprima_gen2_1').style.display = 'block';
+            } else {
+                document.getElementById('boxAnteprima_gen2_1').style.display = 'none';
+            }
 
-            const btnAggiungi = document.getElementById('btnAggiungiIscrizione');
-            btnAggiungi.style.display = 'block';
-            btnAggiungi.onclick = attivaInserimentoNuovaIscrizioneEsistente;
+            const urlGen2_2 = p.immagine_documento_gen2_2 || "";
+            document.getElementById('editUrl_gen2_2').value = urlGen2_2;
+            if (urlGen2_2) {
+                document.getElementById('linkAnteprima_gen2_2').href = urlGen2_2;
+                document.getElementById('boxAnteprima_gen2_2').style.display = 'block';
+            } else {
+                document.getElementById('boxAnteprima_gen2_2').style.display = 'none';
+            }
 
-            const btnEliminaAnag = document.getElementById('btnEliminaAnagrafica');
-            btnEliminaAnag.style.display = (modalitaCorrente === 'admin') ? 'block' : 'none';
-            btnEliminaAnag.onclick = () => eliminaAnagraficaCompleta(persona.id);
+            document.getElementById('editTigre').checked = Boolean(p.tigre);
+            document.getElementById('editCapitanoPiazza').checked = Boolean(p.capitano_piazza);
 
+            document.getElementById('btnAggiungiIscrizione').style.display = 'block';
+            document.getElementById('btnAggiungiIscrizione').onclick = attivaInserimentoNuovaIscrizioneEsistente;
+            document.getElementById('btnEliminaAnagrafica').style.display = (modalitaCorrente === 'admin') ? 'block' : 'none';
+            document.getElementById('btnEliminaAnagrafica').onclick = () => eliminaAnagraficaCompleta(p.id);
             document.getElementById('sezioneStoricoContainer').style.display = 'block';
-            document.getElementById('conteggioIscrizioniScheda').textContent = "...";
             
             const btnSalva = document.getElementById('btnSalva');
             btnSalva.textContent = "Salva Modifiche Anagrafica";
-            btnSalva.style.backgroundColor = "#28a745";
             btnSalva.onclick = gestisciSalvataggioEsistente;
 
             modal.style.display = 'flex';
             controllaCampiVuoti();
-            await caricaStoricoPersona(persona.id);
+            await caricaStoricoPersona(p.id);
         }
 
         document.getElementById('btnNuovoUtente').addEventListener('click', () => {
             document.getElementById('modalTitle').textContent = "Crea Nuovo Utente in Anagrafica";
-            document.getElementById('editIdPersona').value = ""; 
-            
-            document.querySelectorAll('.campo-controllo').forEach(campo => {
-                campo.value = "";
-            });
+            document.getElementById('editIdPersona').value = "";
+            document.querySelectorAll('.campo-controllo, .campo-controllo-genitore').forEach(c => c.value = "");
+            document.getElementById('editTipoDocumento').value = "";
+            document.getElementById('editNumeroDocumento').value = "";
+            document.getElementById('editScadenzaDocumento').value = "";
+            document.getElementById('editGenitore1TipoDoc').value = "";
+            document.getElementById('editGenitore2TipoDoc').value = "";
             document.getElementById('editEtaDisplay').value = "";
+            document.getElementById('messaggioRuntimeDuplicato').textContent = "";
+            document.getElementById('sezioneDatiGenitori').style.display = 'none';
             document.getElementById('editTigre').checked = false;
             document.getElementById('editCapitanoPiazza').checked = false;
-            document.getElementById('conteggioIscrizioniScheda').textContent = "0";
+            
+            // Pulisci anteprime documenti
+            ['iscritto', 'gen1', 'gen2'].forEach(sogg => {
+                for (let i = 1; i <= 2; i++) {
+                    document.getElementById(`editUrl_${sogg}_${i}`).value = "";
+                    document.getElementById(`boxAnteprima_${sogg}_${i}`).style.display = 'none';
+                }
+            });
 
-            document.getElementById('messaggioRuntimeDuplicato').textContent = "";
-            document.getElementById('editCognome').classList.remove('avviso-duplicato-runtime');
-            document.getElementById('editNome').classList.remove('avviso-duplicato-runtime');
-
-            const btnAggiungi = document.getElementById('btnAggiungiIscrizione');
-            btnAggiungi.style.display = 'none';
-            btnAggiungi.onclick = null;
-
+            document.getElementById('btnAggiungiIscrizione').style.display = 'none';
             document.getElementById('btnEliminaAnagrafica').style.display = 'none';
             document.getElementById('sezioneStoricoContainer').style.display = 'none';
+            document.getElementById('conteggioIscrizioniScheda').textContent = "0";
+            document.getElementById('conteggioConsecutiveScheda').textContent = "0";
             
             const btnSalva = document.getElementById('btnSalva');
             btnSalva.textContent = "Salva Anagrafica";
-            btnSalva.style.backgroundColor = "#28a745";
             btnSalva.onclick = gestisciPrimoStepNuovoUtente;
-
             modal.style.display = 'flex';
             controllaCampiVuoti();
         });
 
-        async function eliminaAnagraficaCompleta(idPersona) {
-            if (modalitaCorrente === 'user') return;
-            if (confirm("ATTENZIONE: Stai per eliminare DEFINITIVAMENTE l'anagrafica di questo iscritto e TUTTO il suo storico iscrizioni. Continuare?")) {
+        async function eliminaAnagraficaCompleta(id) {
+            if (confirm("Eliminare definitivamente l'anagrafica, lo storico e i documenti associati?")) {
                 try {
-                    const q = query(collection(db, "storico"), where("id_persona", "==", idPersona));
-                    const querySnapshot = await getDocs(q);
-                    
-                    const eliminazioniStorico = [];
-                    querySnapshot.forEach((docSnap) => {
-                        eliminazioniStorico.push(deleteDoc(doc(db, "storico", docSnap.id)));
-                    });
-                    await Promise.all(eliminazioniStorico);
-
-                    await deleteDoc(doc(db, "anagrafica", idPersona));
-
-                    alert("Anagrafica e relative iscrizioni eliminate con successo!");
-                    modal.style.display = 'none';
-                    
-                    cacheTuttiIscritti = [];
-                    const filtro = document.getElementById('filtroCognome').value;
-                    if (filtro) cercaIscritti(filtro);
-
-                } catch (error) {
-                    console.error("Errore eliminazione completa:", error);
-                    alert("Errore durante l'eliminazione: " + error.message);
-                }
+                    for (let sogg of ['iscritto', 'gen1', 'gen2']) {
+                        for (let i = 1; i <= 2; i++) {
+                            for (let ext of ['jpg', 'pdf', 'png', 'jpeg']) {
+                                await deleteObject(ref(storage, `documenti_iscritti/${id}_${sogg}_img${i}.${ext}`)).catch(() => {});
+                            }
+                        }
+                    }
+                } catch(e) {}
+                
+                const snap = await getDocs(query(collection(db, "storico"), where("id_persona", "==", id)));
+                await Promise.all(snap.docs.map(d => deleteDoc(doc(db, "storico", d.id))));
+                await deleteDoc(doc(db, "anagrafica", id));
+                alert("Eliminato con successo!");
+                modal.style.display = 'none';
+                cacheTuttiIscritti = [];
+                if (document.getElementById('filtroCognome').value) cercaIscritti(document.getElementById('filtroCognome').value);
             }
         }
 
-        async function caricaStoricoPersona(idPersona) {
-            const divCaricamento = document.getElementById('storicoCaricamento');
-            const tabellaStorico = document.getElementById('tabellaStorico');
-            const tbodyStorico = document.getElementById('corpoTabellaStorico');
-            const spanConteggioScheda = document.getElementById('conteggioIscrizioniScheda');
-            
-            tbodyStorico.innerHTML = '';
-            tabellaStorico.style.display = 'none';
-            divCaricamento.style.display = 'block';
-            divCaricamento.textContent = "Caricamento iscrizioni passate in corso...";
+        async function caricaStoricoPersona(id) {
+            const div = document.getElementById('storicoCaricamento'), tab = document.getElementById('tabellaStorico'), tbody = document.getElementById('corpoTabellaStorico');
+            tbody.innerHTML = ''; tab.style.display = 'none'; div.style.display = 'block'; div.textContent = "Caricamento storico...";
             anniPresentiNellaScheda = [];
+            
+            let totaleComplete = 0;
+            let anniCompleteList = [];
 
             try {
-                const q = query(collection(db, "storico"), where("id_persona", "==", idPersona));
-                const querySnapshot = await getDocs(q);
+                const snap = await getDocs(query(collection(db, "storico"), where("id_persona", "==", id)));
+                if (snap.empty) { 
+                    div.textContent = "Nessuna iscrizione passata."; 
+                    document.getElementById('conteggioIscrizioniScheda').textContent = "0";
+                    document.getElementById('conteggioConsecutiveScheda').textContent = "0";
+                    return; 
+                }
+                div.style.display = 'none'; tab.style.display = 'table';
+                
+                let docsList = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                docsList.sort((a, b) => parseInt(b.anno || 0, 10) - parseInt(a.anno || 0, 10));
 
-                if (querySnapshot.empty) {
-                    divCaricamento.textContent = "Nessuna iscrizione passata trovata per questa persona.";
-                    spanConteggioScheda.textContent = "0";
+                docsList.forEach(st => {
+                    if (st.anno) anniPresentiNellaScheda.push(String(st.anno).trim());
+                    let tipoIscrizioneVal = st.tipo_iscrizione || st.tipologia || st.tipo || st.descrizione || "";
+                    
+                    if (String(tipoIscrizioneVal).trim().toLowerCase() === "iscrizione completa") {
+                        totaleComplete++;
+                        let annoNum = parseInt(st.anno, 10);
+                        if (!isNaN(annoNum)) {
+                            anniCompleteList.push(annoNum > 2022 ? annoNum - 2 : annoNum);
+                        }
+                    }
+
+                    let azioniHtml = '-';
+                    if (modalitaCorrente === 'admin') {
+                        azioniHtml = `
+                            <button type="button" class="btn-azione btn-modifica-storico" onclick="abilitaModificaStorico(this, '${st.id}', '${st.anno}')">Modifica</button>
+                            <button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaRigaStorico('${st.id}', '${id}')">Elimina</button>
+                        `;
+                    }
+
+                    tbody.innerHTML += `
+                        <tr data-id="${st.id}">
+                            <td>${pulisciTesto(st.anno)}</td>
+                            <td class="td-tipo">${pulisciTesto(tipoIscrizioneVal)}</td>
+                            <td class="td-num">${pulisciTesto(st.numero_identificativo)}</td>
+                            <td class="td-azioni">${azioniHtml}</td>
+                        </tr>`;
+                });
+
+                anniCompleteList.sort((a, b) => a - b);
+                let maxC = 0, gruppi = {};
+                anniCompleteList.forEach((a, i) => {
+                    let g = a - (i + 1);
+                    gruppi[g] = (gruppi[g] || 0) + 1;
+                });
+                for (let g in gruppi) {
+                    if (gruppi[g] > maxC) maxC = gruppi[g];
+                }
+
+                document.getElementById('conteggioIscrizioniScheda').textContent = totaleComplete;
+                document.getElementById('conteggioConsecutiveScheda').textContent = maxC;
+
+            } catch (e) { 
+                div.textContent = "Errore caricamento storico."; 
+                document.getElementById('conteggioIscrizioniScheda').textContent = "0";
+                document.getElementById('conteggioConsecutiveScheda').textContent = "0";
+            }
+        }
+
+        window.abilitaModificaStorico = function(btn, storicoId, annoStorico) {
+			const tr = btn.closest('tr');
+			const tdTipo = tr.querySelector('.td-tipo');
+			const tdNum = tr.querySelector('.td-num');
+			const tdAzioni = tr.querySelector('.td-azioni');
+
+			const valTipo = tdTipo.textContent.trim();
+			const valNum = tdNum.textContent.trim();
+
+			tdTipo.innerHTML = `
+				<select class="input-storico select-tipo-mod" onchange="gestisciVisibilitaNumeroModifica(this)">
+					<option value="Iscrizione Completa" ${valTipo === 'Iscrizione Completa' ? 'selected' : ''}>Iscrizione Completa</option>
+					<option value="Socio Sostenitore" ${valTipo === 'Socio Sostenitore' ? 'selected' : ''}>Socio Sostenitore</option>
+				</select>
+			`;
+			
+			const disabilitaNum = valTipo === 'Socio Sostenitore';
+			tdNum.innerHTML = `<input type="text" class="input-storico input-num-mod" value="${valNum}" ${disabilitaNum ? 'disabled style="background-color: #e9ecef;"' : ''}>`;
+			tdAzioni.innerHTML = `<button type="button" class="btn-azione btn-salva-storico" onclick="salvaModificaStorico('${storicoId}', '${annoStorico}', this)">Salva</button>`;
+		};
+		
+		window.gestisciVisibilitaNumeroModifica = function(selectElem) {
+			const tr = selectElem.closest('tr');
+			const inputNum = tr.querySelector('.input-num-mod');
+			if (selectElem.value === "Socio Sostenitore") {
+				inputNum.value = "";
+				inputNum.disabled = true;
+				inputNum.style.backgroundColor = "#e9ecef";
+			} else {
+				inputNum.disabled = false;
+				inputNum.style.backgroundColor = "#fff";
+			}
+		};
+
+        window.salvaModificaStorico = async function(storicoId, annoStorico, btn) {
+            const tr = btn.closest('tr');
+            const nuovoTipo = tr.querySelector('.select-tipo-mod').value;
+            const nuovoNum = tr.querySelector('.input-num-mod').value.trim();
+            const idPersona = document.getElementById('editIdPersona').value;
+
+            if (!nuovoNum) {
+                alert("Inserisci un numero identificativo valido.");
+                return;
+            }
+
+            try {
+                mostraCaricamento("Verifica duplicati e salvataggio...");
+                
+                const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoStorico))));
+                let duplicatoTrovato = false;
+                
+                snapStoricoAnno.forEach(d => {
+                    if (d.id === storicoId) return;
+                    let datiSto = d.data();
+                    let numEsistente = String(datiSto.numero_identificativo || "").trim();
+                    if (numEsistente !== "" && numEsistente.toLowerCase() === nuovoNum.toLowerCase()) {
+                        duplicatoTrovato = true;
+                    }
+                });
+
+                if (duplicatoTrovato) {
+                    nascondiCaricamento();
+                    alert(`⚠️ Attenzione: Il numero identificativo "${nuovoNum}" risulta già assegnato ad un altro iscritto per l'anno ${annoStorico}!`);
                     return;
                 }
 
-                divCaricamento.style.display = 'none';
-                tabellaStorico.style.display = 'table';
-
-                let recordStorico = [];
-                let conteggioComplete = 0;
-
-                querySnapshot.forEach((docSnap) => {
-                    const dati = docSnap.data();
-                    recordStorico.push({ idDoc: docSnap.id, ...dati });
-                    if (dati.anno) {
-                        anniPresentiNellaScheda.push(String(dati.anno).trim());
-                    }
-                    let tipoIscrizione = dati.tipo_iscrizione || dati.tipo || dati.tipologia || dati.descrizione || dati.categoria || dati.descrizione_tipo || dati.iscrizione || '';
-                    if (String(tipoIscrizione).trim().toLowerCase() === "iscrizione completa") {
-                        conteggioComplete++;
-                    }
-                });
-
-                spanConteggioScheda.textContent = conteggioComplete;
-                recordStorico.sort((a, b) => (b.anno || '').localeCompare(a.anno || ''));
-
-                recordStorico.forEach(dati => {
-                    let tipoIscrizione = dati.tipo_iscrizione || dati.tipo || dati.tipologia || dati.descrizione || dati.categoria || dati.descrizione_tipo || dati.iscrizione || '';
-                    let numIdentificativo = dati.numero_identificativo || dati.numero_ident || dati.identificativo || dati.codice || dati.tessera || dati.num_identificativo || '';
-
-                    const tr = document.createElement('tr');
-                    tr.setAttribute('data-id-storico', dati.idDoc);
-                    
-                    let azioniHtml = (modalitaCorrente === 'admin') 
-                        ? `<button type="button" class="btn-azione btn-modifica-storico" onclick="abilitaModificaStorico(this)">Modifica</button>
-                           <button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaStorico('${dati.idDoc}', '${idPersona}')">Elimina</button>`
-                        : `<span style="color: #888; font-size: 11px; font-style: italic;">Solo lettura</span>`;
-
-                    tr.innerHTML = `
-                        <td class="td-anno">${pulisciTesto(dati.anno)}</td>
-                        <td class="td-tipo">${pulisciTesto(tipoIscrizione)}</td>
-                        <td class="td-num">${pulisciTesto(numIdentificativo)}</td>
-                        <td>${azioniHtml}</td>
-                    `;
-                    tbodyStorico.appendChild(tr);
-                });
+                await setDoc(doc(db, "storico", storicoId), { tipo_iscrizione: nuovoTipo, numero_identificativo: nuovoNum }, { merge: true });
+                cacheTuttiIscritti = [];
+                await caricaStoricoPersona(idPersona);
+                alert("Modifiche salvate con successo!");
             } catch (error) {
-                console.error("Errore caricamento storico:", error);
-                divCaricamento.textContent = "Errore durante il caricamento dello storico.";
-                spanConteggioScheda.textContent = "0";
+                alert("Errore durante il salvataggio: " + error.message);
+            } finally {
+                nascondiCaricamento();
             }
-        }
+        };
 
-        async function verificaDuplicatoNumeroIdentificativo(anno, numeroIdentificativo, idDocEscluso = null) {
+        window.eliminaRigaStorico = async function(storicoId, idPersona) {
+            if (!confirm("Sei sicuro di voler eliminare questa iscrizione dallo storico?")) return;
             try {
-                const q = query(collection(db, "storico"), where("anno", "==", String(anno).trim()));
-                const querySnapshot = await getDocs(q);
-                const numInput = String(numeroIdentificativo || "").trim().toUpperCase();
-                
-                let risultato = { duplicato: false, nomeTitolare: "" };
-
-                for (const docSnap of querySnapshot.docs) {
-                    if (idDocEscluso && docSnap.id === idDocEscluso) continue;
-                    const datiStorico = docSnap.data();
-                    const numDb = String(datiStorico.numero_identificativo || "").trim().toUpperCase();
-                    
-                    if (numDb === numInput) {
-                        risultato.duplicato = true;
-                        if (datiStorico.id_persona) {
-                            try {
-                                const anagRef = doc(db, "anagrafica", datiStorico.id_persona);
-                                const anagSnap = await getDoc(anagRef);
-                                if (anagSnap.exists()) {
-                                    const anagDati = anagSnap.data();
-                                    risultato.nomeTitolare = `${pulisciTesto(anagDati.cognome)} ${pulisciTesto(anagDati.nome)}`;
-                                }
-                            } catch (e) {
-                                console.error("Errore recupero anagrafica titolare:", e);
-                            }
-                        }
-                        break;
-                    }
-                }
-                return risultato;
+                mostraCaricamento("Eliminazione iscrizione...");
+                await deleteDoc(doc(db, "storico", storicoId));
+                cacheTuttiIscritti = [];
+                await caricaStoricoPersona(idPersona);
+                alert("Iscrizione eliminata con successo!");
             } catch (error) {
-                console.error("Errore controllo duplicato numero identificativo:", error);
-                return { duplicato: false, nomeTitolare: "" };
+                alert("Errore durante l'eliminazione: " + error.message);
+            } finally {
+                nascondiCaricamento();
             }
-        }
+        };
 
         function attivaInserimentoNuovaIscrizioneEsistente() {
-            if (modalitaCorrente === 'user' && anniPresentiNellaScheda.includes(annoCarnevaleCorrente)) {
-                alert(`Non è possibile aggiungere un'altra iscrizione per l'anno ${annoCarnevaleCorrente} (già presente).`);
-                return;
-            }
+			const tbody = document.getElementById('corpoTabellaStorico');
+			document.getElementById('tabellaStorico').style.display = 'table';
+			const tr = document.createElement('tr');
+			tr.innerHTML = `
+				<td>${annoCarnevaleCorrente}</td>
+				<td>
+					<select class="input-storico select-tipo" onchange="gestisciVisibilitaNumeroIscrizione(this)">
+						<option value="Iscrizione Completa">Iscrizione Completa</option>
+						<option value="Socio Sostenitore">Socio Sostenitore</option>
+					</select>
+				</td>
+				<td><input type="text" class="input-storico input-num" id="inputNuovoNumId" placeholder="Numero..."></td>
+				<td><button type="button" class="btn-azione btn-salva-storico" onclick="salvaNuovaIscrizioneDiretta(this)">Salva</button></td>
+			`;
+			tbody.insertBefore(tr, tbody.firstChild);
+			document.getElementById('btnAggiungiIscrizione').style.display = 'none';
+		}
+		
+		// Funzione di supporto per nascondere il numero se selezioni Socio Sostenitore
+		window.gestisciVisibilitaNumeroIscrizione = function(selectElem) {
+			const tr = selectElem.closest('tr');
+			const inputNum = tr.querySelector('.input-num');
+			if (selectElem.value === "Socio Sostenitore") {
+				inputNum.value = "";
+				inputNum.disabled = true;
+				inputNum.placeholder = "Non richiesto";
+				inputNum.style.backgroundColor = "#e9ecef";
+			} else {
+				inputNum.disabled = false;
+				inputNum.placeholder = "Numero...";
+				inputNum.style.backgroundColor = "#fff";
+			}
+		};
 
-            const divCaricamento = document.getElementById('storicoCaricamento');
-            const tabellaStorico = document.getElementById('tabellaStorico');
-            const tbodyStorico = document.getElementById('corpoTabellaStorico');
+        window.salvaNuovaIscrizioneDiretta = async function(btn) {
+			const tr = btn.closest('tr'), idPersona = document.getElementById('editIdPersona').value;
+			const tipoScelto = tr.querySelector('.select-tipo').value;
+			const num = tipoScelto === "Socio Sostenitore" ? "N/D" : tr.querySelector('.input-num').value.trim();
+			
+			if (tipoScelto === "Iscrizione Completa" && !num) {
+				return alert("Inserisci il numero identificativo.");
+			}
 
-            divCaricamento.style.display = 'none';
-            tabellaStorico.style.display = 'table';
+			try {
+				mostraCaricamento("Verifica duplicati e salvataggio...");
 
-            let annoInputHtml = "";
-            if (modalitaCorrente === 'admin') {
-                annoInputHtml = `
-                    <select class="input-storico select-anno">
-                        <option value="${annoCarnevaleCorrente}" selected>${annoCarnevaleCorrente}</option>
-                        <option value="2026">2026</option>
-                        <option value="2025">2025</option>
-                        <option value="2024">2024</option>
-                        <option value="2023">2023</option>
-                    </select>
-                `;
-            } else {
-                annoInputHtml = `<span class="td-anno-fissa">${annoCarnevaleCorrente}</span>`;
-            }
+				if (tipoScelto === "Iscrizione Completa") {
+					const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoCarnevaleCorrente))));
+					let duplicatoTrovato = false;
 
-            const tr = document.createElement('tr');
-            tr.className = 'riga-nuova-temporanea';
-            tr.innerHTML = `
-                <td class="td-anno">${annoInputHtml}</td>
-                <td class="td-tipo">
-                    <select class="input-storico select-tipo">
-                        <option value="Iscrizione Completa" selected>Iscrizione Completa</option>
-                        <option value="Socio Sostenitore">Socio Sostenitore</option>
-                    </select>
-                </td>
-                <td class="td-num"><input type="text" class="input-storico input-num" id="inputNuovoNumId" value="" placeholder="Inserisci numero..."></td>
-                <td>
-                    <button type="button" class="btn-azione btn-salva-storico" onclick="salvaNuovaIscrizioneDiretta(this)">Salva</button>
-                    <button type="button" class="btn-azione btn-elimina-storico" onclick="this.closest('tr').remove(); document.getElementById('btnAggiungiIscrizione').style.display='block';">Annulla</button>
-                </td>
-            `;
-            tbodyStorico.insertBefore(tr, tbodyStorico.firstChild);
-            document.getElementById('btnAggiungiIscrizione').style.display = 'none';
-        }
+					snapStoricoAnno.forEach(d => {
+						let datiSto = d.data();
+						let numEsistente = String(datiSto.numero_identificativo || "").trim();
+						if (numEsistente !== "" && numEsistente.toLowerCase() === num.toLowerCase()) {
+							duplicatoTrovato = true;
+						}
+					});
 
-        window.salvaNuovaIscrizioneDiretta = async function(button) {
-            const tr = button.closest('tr');
-            const idPersona = document.getElementById('editIdPersona').value.trim();
-            const nuovoTipo = tr.querySelector('.select-tipo').value;
-            const nuovoNum = tr.querySelector('.input-num').value.trim();
-            
-            let nuovoAnno = annoCarnevaleCorrente;
-            const selectAnno = tr.querySelector('.select-anno');
-            if (selectAnno) {
-                nuovoAnno = selectAnno.value;
-            }
+					if (duplicatoTrovato) {
+						nascondiCaricamento();
+						alert(`⚠️ Attenzione: Il numero identificativo "${num}" è già stato registrato per l'anno ${annoCarnevaleCorrente}!`);
+						return;
+					}
+				}
 
-            if (!nuovoNum) {
-                alert("Inserisci il numero identificativo.");
-                return;
-            }
+				await addDoc(collection(db, "storico"), { 
+					id_persona: idPersona, 
+					anno: annoCarnevaleCorrente, 
+					tipo_iscrizione: tipoScelto, 
+					numero_identificativo: num, 
+					creato_da: aliasUtenteLoggato, 
+					creato_il: new Date().toLocaleString('it-IT') 
+				});
 
-            if (anniPresentiNellaScheda.includes(nuovoAnno)) {
-                alert(`Esiste già un'iscrizione per l'anno ${nuovoAnno}! Non è consentito duplicare l'anno.`);
-                return;
-            }
-
-            const checkNum = await verificaDuplicatoNumeroIdentificativo(nuovoAnno, nuovoNum);
-            if (checkNum.duplicato) {
-                let msgTitolare = checkNum.nomeTitolare ? ` a ${checkNum.nomeTitolare}` : "";
-                alert(`ERRORE: Il numero identificativo "${nuovoNum}" per l'anno ${nuovoAnno} risulta già assegnato${msgTitolare}!`);
-                return;
-            }
-
-            try {
-                await addDoc(collection(db, "storico"), {
-                    id_persona: idPersona,
-                    anno: nuovoAnno,
-                    tipo_iscrizione: nuovoTipo,
-                    numero_identificativo: nuovoNum
-                });
-
-                alert("Nuova iscrizione salvata con successo!");
-                cacheTuttiIscritti = [];
-                document.getElementById('btnAggiungiIscrizione').style.display = 'block';
-                await caricaStoricoPersona(idPersona);
-            } catch (error) {
-                console.error("Errore salvataggio nuova iscrizione:", error);
-                alert("Errore durante il salvataggio: " + error.message);
-            }
-        };
-
-        function attivaInserimentoNuovaIscrizioneNuovoUtente() {
-            const divCaricamento = document.getElementById('storicoCaricamento');
-            const tabellaStorico = document.getElementById('tabellaStorico');
-            const tbodyStorico = document.getElementById('corpoTabellaStorico');
-
-            divCaricamento.style.display = 'none';
-            tabellaStorico.style.display = 'table';
-
-            const tr = document.createElement('tr');
-            tr.className = 'riga-nuova-temporanea';
-            tr.innerHTML = `
-                <td class="td-anno">${annoCarnevaleCorrente}</td>
-                <td class="td-tipo">
-                    <select class="input-storico select-tipo">
-                        <option value="Iscrizione Completa" selected>Iscrizione Completa</option>
-                        <option value="Socio Sostenitore">Socio Sostenitore</option>
-                    </select>
-                </td>
-                <td class="td-num"><input type="text" class="input-storico input-num" id="inputNuovoNumId" value="" placeholder="Inserisci numero..."></td>
-                <td>
-                    <span style="color: #666; font-size: 11px; font-style: italic;">In compilazione...</span>
-                </td>
-            `;
-            tbodyStorico.insertBefore(tr, tbodyStorico.firstChild);
-        }
-
-        window.abilitaModificaStorico = function(button) {
-            if (modalitaCorrente === 'user') return;
-            const tr = button.closest('tr');
-            const tdNum = tr.querySelector('.td-num');
-            const valNum = tdNum.textContent.trim();
-
-            tdNum.innerHTML = `<input type="text" class="input-storico input-num" value="${valNum}">`;
-
-            button.textContent = "Salva";
-            button.classList.remove('btn-modifica-storico');
-            button.classList.add('btn-salva-storico');
-            button.setAttribute('onclick', "salvaModificaStorico(this)");
-        };
-
-        window.salvaModificaStorico = async function(button) {
-            const tr = button.closest('tr');
-            const idDoc = tr.getAttribute('data-id-storico');
-            const idPersona = document.getElementById('editIdPersona').value;
-            const annoCorrente = tr.querySelector('.td-anno').textContent.trim();
-
-            const inputNum = tr.querySelector('.input-num');
-            const nuovoNum = inputNum ? inputNum.value.trim() : tr.querySelector('.td-num').textContent.trim();
-
-            if (!nuovoNum) {
-                alert("Il numero identificativo non può essere vuoto.");
-                return;
-            }
-
-            const checkNum = await verificaDuplicatoNumeroIdentificativo(annoCorrente, nuovoNum, idDoc);
-            if (checkNum.duplicato) {
-                let msgTitolare = checkNum.nomeTitolare ? ` a ${checkNum.nomeTitolare}` : "";
-                alert(`ERRORE: Il numero identificativo "${nuovoNum}" per l'anno ${annoCorrente} risulta già assegnato${msgTitolare}!`);
-                return;
-            }
-
-            try {
-                const docRef = doc(db, "storico", idDoc);
-                await setDoc(docRef, { numero_identificativo: nuovoNum }, { merge: true });
-
-                alert("Iscrizione aggiornata con successo!");
-                cacheTuttiIscritti = [];
-                await caricaStoricoPersona(idPersona);
-            } catch (error) {
-                console.error("Errore salvataggio storico:", error);
-                alert("Errore durante il salvataggio: " + error.message);
-            }
-        };
-
-        window.eliminaStorico = async function(idDoc, idPersona) {
-            if (modalitaCorrente === 'user') return;
-            if (confirm("Sei sicuro di voler eliminare questa iscrizione passata dal database?")) {
-                try {
-                    const docRef = doc(db, "storico", idDoc);
-                    await deleteDoc(docRef);
-
-                    alert("Iscrizione eliminata con successo!");
-                    cacheTuttiIscritti = [];
-                    await caricaStoricoPersona(idPersona);
-                } catch (error) {
-                    console.error("Errore eliminazione storico:", error);
-                    alert("Errore durante l'eliminazione: " + error.message);
-                }
-            }
-        };
+				alert("Salvato!");
+				cacheTuttiIscritti = [];
+				document.getElementById('btnAggiungiIscrizione').style.display = 'block';
+				await caricaStoricoPersona(idPersona);
+			} catch (error) {
+				alert("Errore durante il salvataggio: " + error.message);
+			} finally {
+				nascondiCaricamento();
+			}
+		};
 
         document.getElementById('btnChiudiX').addEventListener('click', () => {
+            fermaWebcam();
             modal.style.display = 'none';
         });
 
@@ -1542,6 +2434,7 @@
             return {
                 cognome: document.getElementById('editCognome').value.trim().toUpperCase(),
                 nome: document.getElementById('editNome').value.trim(),
+                codice_fiscale: document.getElementById('editCodiceFiscale').value.trim().toUpperCase(),
                 luogo_nascita: document.getElementById('editLuogoNascita').value.trim(),
                 data_nascita: document.getElementById('editDataNascita').value.trim(),
                 indirizzo: document.getElementById('editIndirizzo').value.trim(),
@@ -1550,218 +2443,65 @@
                 provincia: document.getElementById('editProvincia').value.trim().toUpperCase(),
                 telefono: document.getElementById('editTelefono').value.trim(),
                 mail: document.getElementById('editMail').value.trim(),
-                tipo_documento: document.getElementById('editTipoDocumento').value,
-                numero_documento: document.getElementById('editNumeroDocumento').value.trim(),
+                
+                tipo_documento: document.getElementById('editTipoDocumento').value.trim(),
+                numero_documento: document.getElementById('editNumeroDocumento').value.trim().toUpperCase(),
                 scadenza_documento: document.getElementById('editScadenzaDocumento').value.trim(),
+                
+                immagine_documento_iscritto_1: document.getElementById('editUrl_iscritto_1').value.trim(),
+                immagine_documento_iscritto_2: document.getElementById('editUrl_iscritto_2').value.trim(),
+
+                genitore1_cognome: document.getElementById('editGenitore1Cognome').value.trim().toUpperCase(),
+                genitore1_nome: document.getElementById('editGenitore1Nome').value.trim(),
+                genitore1_luogo_nascita: document.getElementById('editGenitore1LuogoNascita').value.trim(),
+                genitore1_data_nascita: document.getElementById('editGenitore1DataNascita').value.trim(),
+                genitore1_codice_fiscale: document.getElementById('editGenitore1CodiceFiscale').value.trim().toUpperCase(),
+                genitore1_tipo_doc: document.getElementById('editGenitore1TipoDoc').value.trim(),
+                genitore1_num_doc: document.getElementById('editGenitore1NumDoc').value.trim().toUpperCase(),
+                genitore1_scadenza_doc: document.getElementById('editGenitore1ScadenzaDoc').value.trim(),
+                immagine_documento_gen1_1: document.getElementById('editUrl_gen1_1').value.trim(),
+                immagine_documento_gen1_2: document.getElementById('editUrl_gen1_2').value.trim(),
+
+                genitore2_cognome: document.getElementById('editGenitore2Cognome').value.trim().toUpperCase(),
+                genitore2_nome: document.getElementById('editGenitore2Nome').value.trim(),
+                genitore2_luogo_nascita: document.getElementById('editGenitore2LuogoNascita').value.trim(),
+                genitore2_data_nascita: document.getElementById('editGenitore2DataNascita').value.trim(),
+                genitore2_codice_fiscale: document.getElementById('editGenitore2CodiceFiscale').value.trim().toUpperCase(),
+                genitore2_tipo_doc: document.getElementById('editGenitore2TipoDoc').value.trim(),
+                genitore2_num_doc: document.getElementById('editGenitore2NumDoc').value.trim().toUpperCase(),
+                genitore2_scadenza_doc: document.getElementById('editGenitore2ScadenzaDoc').value.trim(),
+                immagine_documento_gen2_1: document.getElementById('editUrl_gen2_1').value.trim(),
+                immagine_documento_gen2_2: document.getElementById('editUrl_gen2_2').value.trim(),
+
                 tigre: document.getElementById('editTigre').checked,
                 capitano_piazza: document.getElementById('editCapitanoPiazza').checked
             };
         }
 
-        function validaCoerenzaDati(dati) {
-            if (dati.cap && !/^\d{5}$/.test(dati.cap)) {
-                alert("ERRORE: Il CAP inserito non è valido. Deve essere composto da esattamente 5 cifre numeriche.");
-                return false;
-            }
-
-            if (dati.mail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(dati.mail)) {
-                alert("ERRORE: L'indirizzo email inserito non è valido.");
-                return false;
-            }
-
-            if (dati.provincia && !/^[A-Z]{2}$/.test(dati.provincia)) {
-                alert("ERRORE: La provincia non è valida. Inserisci la sigla a 2 lettere (es. TO, MI, RM).");
-                return false;
-            }
-
-            if (dati.telefono && !/^[\d\s\+\-\(\)]{6,20}$/.test(dati.telefono)) {
-                alert("ERRORE: Il numero di telefono inserito non è valido.");
-                return false;
-            }
-
-            if (dati.data_nascita) {
-                const dataNascitaObj = new Date(dati.data_nascita);
-                const oggi = new Date();
-                if (dataNascitaObj > oggi) {
-                    alert("ERRORE: La data di nascita non può essere nel futuro!");
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        async function eseguiDoppiaVerifica(cognome, nome, dataNascita, idCorrente = null) {
-            try {
-                const querySnapshot = await getDocs(collection(db, "anagrafica"));
-                
-                const cogInput = String(cognome || "").trim().toUpperCase();
-                const nomInput = String(nome || "").trim().toUpperCase();
-                const datInput = String(dataNascita || "").trim();
-
-                let stessoNomeTrovato = false;
-                let duplicatoEsattoTrovato = false;
-
-                querySnapshot.forEach((docSnap) => {
-                    if (idCorrente && docSnap.id === idCorrente) return;
-
-                    const dati = docSnap.data();
-                    const cogDb = String(dati.cognome || "").trim().toUpperCase();
-                    const nomDb = String(dati.nome || "").trim().toUpperCase();
-                    const datDb = String(dati.data_nascita || "").trim();
-
-                    if (cogDb === cogInput && nomDb === nomInput) {
-                        stessoNomeTrovato = true;
-                        if (datInput !== "" && datDb === datInput) {
-                            duplicatoEsattoTrovato = true;
-                        }
-                    }
-                });
-
-                if (duplicatoEsattoTrovato) return "DUPLICATO";
-                if (stessoNomeTrovato) return "WARNING";
-                return "OK";
-            } catch (error) {
-                console.error("Errore durante la verifica:", error);
-                return "OK";
-            }
-        }
-
         async function gestisciPrimoStepNuovoUtente() {
             const dati = raccogliDatiAnagrafica();
-
-            if (!dati.cognome || !dati.nome) {
-                alert("Attenzione: Inserisci almeno Cognome e Nome.");
-                return;
-            }
-
-            if (!validaCoerenzaDati(dati)) return;
-
-            const esitoVerifica = await eseguiDoppiaVerifica(dati.cognome, dati.nome, dati.data_nascita);
-
-            if (esitoVerifica === "DUPLICATO") {
-                alert("ERRORE: Impossibile procedere. Esiste già un iscritto registrato con lo stesso Cognome, Nome e Data di Nascita!");
-                return;
-            } else if (esitoVerifica === "WARNING") {
-                const procedi = confirm("ATTENZIONE: Esiste già un'anagrafica con lo stesso Nome e Cognome (potrebbe essere un'omonimia). Vuoi procedere comunque?");
-                if (!procedi) return;
-            }
-
-            try {
-                const docRef = await addDoc(collection(db, "anagrafica"), dati);
-                const nuovoId = docRef.id;
-                document.getElementById('editIdPersona').value = nuovoId;
-
-                alert("Anagrafica salvata! Ora inserisci i dati dell'iscrizione e clicca su Salva e Chiudi.");
-
-                document.getElementById('sezioneStoricoContainer').style.display = 'block';
-                await caricaStoricoPersona(nuovoId);
-
-                attivaInserimentoNuovaIscrizioneNuovoUtente();
-                document.getElementById('btnAggiungiIscrizione').style.display = 'none';
-
-                const btnEliminaAnag = document.getElementById('btnEliminaAnagrafica');
-                btnEliminaAnag.style.display = (modalitaCorrente === 'admin') ? 'block' : 'none';
-                btnEliminaAnag.onclick = () => eliminaAnagraficaCompleta(nuovoId);
-
-                const btnSalva = document.getElementById('btnSalva');
-                btnSalva.textContent = "Salva e Chiudi";
-                btnSalva.style.backgroundColor = "#17a2b8";
-                btnSalva.onclick = gestisciSecondoStepNuovoUtente;
-
-            } catch (error) {
-                console.error("Errore salvataggio anagrafica:", error);
-                alert("Errore durante il salvataggio: " + error.message);
-            }
-        }
-
-        async function gestisciSecondoStepNuovoUtente() {
-            const idPersona = document.getElementById('editIdPersona').value.trim();
-            const inputNumElem = document.getElementById('inputNuovoNumId');
-            const selectTipoElem = document.querySelector('.riga-nuova-temporanea .select-tipo');
-
-            if (!inputNumElem) {
-                alert("Errore: Campo numero identificativo iscrizione non trovato.");
-                return;
-            }
-
-            const nuovoNum = inputNumElem.value.trim();
-            const nuovoTipo = selectTipoElem ? selectTipoElem.value : "Iscrizione Completa";
-
-            if (nuovoNum === "") {
-                alert("Attenzione: Inserisci il numero identificativo dell'iscrizione.");
-                return;
-            }
-
-            const checkNum = await verificaDuplicatoNumeroIdentificativo(annoCarnevaleCorrente, nuovoNum);
-            if (checkNum.duplicato) {
-                let msgTitolare = checkNum.nomeTitolare ? ` a ${checkNum.nomeTitolare}` : "";
-                alert(`ERRORE: Il numero identificativo "${nuovoNum}" per l'anno ${annoCarnevaleCorrente} risulta già assegnato${msgTitolare}!`);
-                return;
-            }
-
-            try {
-                await addDoc(collection(db, "storico"), {
-                    id_persona: idPersona,
-                    anno: annoCarnevaleCorrente,
-                    tipo_iscrizione: nuovoTipo,
-                    numero_identificativo: nuovoNum
-                });
-
-                alert("Utente e iscrizione salvati con successo!");
-                cacheTuttiIscritti = [];
-                modal.style.display = 'none';
-                const filtro = document.getElementById('filtroCognome').value;
-                if (filtro) cercaIscritti(filtro);
-
-            } catch (error) {
-                console.error("Errore salvataggio iscrizione:", error);
-                alert("Errore durante il salvataggio dell'iscrizione: " + error.message);
-            }
+            if (!dati.cognome || !dati.nome) return alert("Inserisci Cognome e Nome.");
+            const docRef = await addDoc(collection(db, "anagrafica"), dati);
+            document.getElementById('editIdPersona').value = docRef.id;
+            alert("Anagrafica salvata!");
+            modal.style.display = 'none';
+            cacheTuttiIscritti = [];
+            cercaIscritti(dati.cognome);
         }
 
         async function gestisciSalvataggioEsistente() {
-            const id = document.getElementById('editIdPersona').value.trim();
-            const dati = raccogliDatiAnagrafica();
-
-            if (!dati.cognome || !dati.nome) {
-                alert("Attenzione: Inserisci almeno Cognome e Nome.");
-                return;
-            }
-
-            if (!validaCoerenzaDati(dati)) return;
-
-            const esitoVerifica = await eseguiDoppiaVerifica(dati.cognome, dati.nome, dati.data_nascita, id);
-
-            if (esitoVerifica === "DUPLICATO") {
-                alert("ERRORE: Impossibile salvare. Esiste già un altro iscritto con lo stesso Cognome, Nome e Data di Nascita!");
-                return;
-            } else if (esitoVerifica === "WARNING") {
-                const procedi = confirm("ATTENZIONE: Esiste già un'altra anagrafica con lo stesso Nome e Cognome (potrebbe essere un'omonimia). Vuoi procedere comunque?");
-                if (!procedi) return;
-            }
-
-            try {
-                const docRef = doc(db, "anagrafica", id);
-                await setDoc(docRef, dati, { merge: true });
-
-                alert("Modifiche anagrafiche salvate con successo!");
-                cacheTuttiIscritti = [];
-                modal.style.display = 'none';
-                const filtro = document.getElementById('filtroCognome').value;
-                if (filtro) cercaIscritti(filtro);
-            } catch (error) {
-                console.error("Errore modifiche:", error);
-                alert("Errore durante il salvataggio: " + error.message);
-            }
+            const id = document.getElementById('editIdPersona').value, dati = raccogliDatiAnagrafica();
+            if (!dati.cognome || !dati.nome) return alert("Inserisci Cognome e Nome.");
+            await setDoc(doc(db, "anagrafica", id), dati, { merge: true });
+            alert("Modifiche salvate!");
+            modal.style.display = 'none';
+            cacheTuttiIscritti = [];
+            if (document.getElementById('filtroCognome').value) cercaIscritti(document.getElementById('filtroCognome').value);
         }
 
         document.getElementById('filtroCognome').addEventListener('input', (e) => {
-            const testo = e.target.value;
             clearTimeout(timeoutRicerca);
-            timeoutRicerca = setTimeout(() => {
-                cercaIscritti(testo);
-            }, 300);
+            timeoutRicerca = setTimeout(() => cercaIscritti(e.target.value), 300);
         });
     </script>
 </body>
