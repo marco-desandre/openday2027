@@ -494,6 +494,25 @@
                         <input type="date" id="editScadenzaDocumento" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
                     </div>
                 </div>
+
+                <!-- Sezione Webcam & Storage -->
+                <div style="margin-top: 15px; border-top: 1px dashed #74c0fc; padding-top: 10px;">
+                    <label style="font-size: 12px; font-weight: bold; color: #1864ab;">Foto Documento (Webcam):</label>
+                    <div style="display: flex; gap: 10px; align-items: flex-start; margin-top: 5px;">
+                        <button type="button" id="btnAvviaWebcam" class="btn-azione" style="background-color: #007bff; padding: 6px 12px; font-size: 12px;" onclick="avviaWebcam()">📷 Avvia Webcam</button>
+                        <button type="button" id="btnScattaFoto" class="btn-azione" style="background-color: #28a745; padding: 6px 12px; font-size: 12px; display: none;" onclick="scattaFotoWebcam()">📸 Scatta e Carica</button>
+                        <button type="button" id="btnAnnullaWebcam" class="btn-azione" style="background-color: #dc3545; padding: 6px 12px; font-size: 12px; display: none;" onclick="fermaWebcam()">❌ Annulla</button>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <video id="webcamVideo" autoplay playsinline style="width: 100%; max-width: 320px; display: none; border: 1px solid #ccc; border-radius: 4px;"></video>
+                        <canvas id="webcamCanvas" style="display: none;"></canvas>
+                        <div id="boxAnteprimaDoc" style="display: none; margin-top: 5px;">
+                            <img id="imgAnteprimaDocumento" src="" alt="Foto Documento" style="max-width: 320px; border: 1px solid #aaa; border-radius: 4px; display: block; margin-bottom: 5px;">
+                            <button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFotoDocumento()">Rimuovi Foto</button>
+                        </div>
+                        <input type="hidden" id="editImmagineDocumentoUrl">
+                    </div>
+                </div>
             </div>
 
             <div id="sezioneDatiGenitori" style="display: none; background: #fff3cd; padding: 12px; border-radius: 6px; border: 1px solid #ffeeba; margin-top: 10px; margin-bottom: 10px;">
@@ -695,6 +714,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc, query, where, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getStorage, ref, uploadString, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
         const k1 = "AIzaSyCjfPICynrV";
         const k2 = "SeeVr4ifXoBoWi74nVGEt5Q";
@@ -711,6 +731,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
+        const storage = getStorage(app);
         const provider = new GoogleAuthProvider();
 
         let timeoutRicerca = null;
@@ -721,6 +742,7 @@
         let anniPresentiNellaScheda = [];
         let cacheTuttiIscritti = [];
         let annoCarnevaleCorrente = localStorage.getItem('anno_carnevale_corrente') || "2027";
+        let streamWebcam = null;
         
         let configCodiceFiscale = localStorage.getItem('config_cf') !== 'false';
         let configDocumento = localStorage.getItem('config_doc') === 'true';
@@ -746,6 +768,83 @@
 
         window.nascondiCaricamento = function() {
             document.getElementById('loadingOverlay').style.display = 'none';
+        };
+
+        window.avviaWebcam = async function() {
+            try {
+                streamWebcam = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } } });
+                const video = document.getElementById('webcamVideo');
+                video.srcObject = streamWebcam;
+                video.style.display = 'block';
+                document.getElementById('btnAvviaWebcam').style.display = 'none';
+                document.getElementById('btnScattaFoto').style.display = 'inline-block';
+                document.getElementById('btnAnnullaWebcam').style.display = 'inline-block';
+            } catch (err) {
+                alert("Impossibile accedere alla webcam: " + err.message);
+            }
+        };
+
+        window.scattaFotoWebcam = async function() {
+            const video = document.getElementById('webcamVideo');
+            const canvas = document.getElementById('webcamCanvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            const base64Image = canvas.toDataURL('image/jpeg', 0.7);
+            fermaWebcam();
+
+            const idPersona = document.getElementById('editIdPersona').value || "temp_" + Date.now();
+            
+            try {
+                mostraCaricamento("Caricamento foto su Firebase Storage...");
+                const storageRef = ref(storage, `documenti_iscritti/${idPersona}.jpg`);
+                await uploadString(storageRef, base64Image, 'data_url');
+                const downloadUrl = await getDownloadURL(storageRef);
+                
+                document.getElementById('editImmagineDocumentoUrl').value = downloadUrl;
+                document.getElementById('imgAnteprimaDocumento').src = downloadUrl;
+                document.getElementById('boxAnteprimaDoc').style.display = 'block';
+                
+                alert("Foto caricata con successo su Storage!");
+            } catch (error) {
+                alert("Errore durante l'upload dell'immagine su Storage: " + error.message);
+            } finally {
+                nascondiCaricamento();
+            }
+        };
+
+        window.fermaWebcam = function() {
+            if (streamWebcam) {
+                streamWebcam.getTracks().forEach(track => track.stop());
+                streamWebcam = null;
+            }
+            document.getElementById('webcamVideo').style.display = 'none';
+            document.getElementById('btnAvviaWebcam').style.display = 'inline-block';
+            document.getElementById('btnScattaFoto').style.display = 'none';
+            document.getElementById('btnAnnullaWebcam').style.display = 'none';
+        };
+
+        window.rimuoviFotoDocumento = async function() {
+            if (!confirm("Vuoi rimuovere definitivamente il documento associato?")) return;
+            const idPersona = document.getElementById('editIdPersona').value;
+            
+            try {
+                mostraCaricamento("Eliminazione file...");
+                if (idPersona) {
+                    const storageRef = ref(storage, `documenti_iscritti/${idPersona}.jpg`);
+                    await deleteObject(storageRef).catch(() => {});
+                }
+                document.getElementById('editImmagineDocumentoUrl').value = "";
+                document.getElementById('imgAnteprimaDocumento').src = "";
+                document.getElementById('boxAnteprimaDoc').style.display = 'none';
+                alert("Foto rimossa con successo!");
+            } catch (error) {
+                alert("Errore durante la rimozione: " + error.message);
+            } finally {
+                nascondiCaricamento();
+            }
         };
 
         function popolaSelectAnniFiltro() {
@@ -1766,6 +1865,15 @@
             document.getElementById('editNumeroDocumento').value = pulisciTesto(p.numero_documento);
             document.getElementById('editScadenzaDocumento').value = formattaDataPerInputDate(p.scadenza_documento);
 
+            const urlDoc = p.immagine_documento || "";
+            document.getElementById('editImmagineDocumentoUrl').value = urlDoc;
+            if (urlDoc) {
+                document.getElementById('imgAnteprimaDocumento').src = urlDoc;
+                document.getElementById('boxAnteprimaDoc').style.display = 'block';
+            } else {
+                document.getElementById('boxAnteprimaDoc').style.display = 'none';
+            }
+
             document.getElementById('editGenitore1Cognome').value = pulisciTesto(p.genitore1_cognome || p.genitore_cognome);
             document.getElementById('editGenitore1Nome').value = pulisciTesto(p.genitore1_nome || p.genitore_nome);
             document.getElementById('editGenitore1LuogoNascita').value = pulisciTesto(p.genitore1_luogo_nascita);
@@ -1816,6 +1924,9 @@
             document.getElementById('sezioneDatiGenitori').style.display = 'none';
             document.getElementById('editTigre').checked = false;
             document.getElementById('editCapitanoPiazza').checked = false;
+            document.getElementById('editImmagineDocumentoUrl').value = "";
+            document.getElementById('imgAnteprimaDocumento').src = "";
+            document.getElementById('boxAnteprimaDoc').style.display = 'none';
             document.getElementById('btnAggiungiIscrizione').style.display = 'none';
             document.getElementById('btnEliminaAnagrafica').style.display = 'none';
             document.getElementById('sezioneStoricoContainer').style.display = 'none';
@@ -1830,7 +1941,12 @@
         });
 
         async function eliminaAnagraficaCompleta(id) {
-            if (confirm("Eliminare definitivamente l'anagrafica e lo storico?")) {
+            if (confirm("Eliminare definitivamente l'anagrafica, lo storico e il documento associato?")) {
+                try {
+                    const storageRef = ref(storage, `documenti_iscritti/${id}.jpg`);
+                    await deleteObject(storageRef).catch(() => {});
+                } catch(e) {}
+                
                 const snap = await getDocs(query(collection(db, "storico"), where("id_persona", "==", id)));
                 await Promise.all(snap.docs.map(d => deleteDoc(doc(db, "storico", d.id))));
                 await deleteDoc(doc(db, "anagrafica", id));
@@ -2037,7 +2153,10 @@
             }
         };
 
-        document.getElementById('btnChiudiX').addEventListener('click', () => modal.style.display = 'none');
+        document.getElementById('btnChiudiX').addEventListener('click', () => {
+            fermaWebcam();
+            modal.style.display = 'none';
+        });
 
         function raccogliDatiAnagrafica() {
             return {
@@ -2056,6 +2175,7 @@
                 tipo_documento: document.getElementById('editTipoDocumento').value.trim(),
                 numero_documento: document.getElementById('editNumeroDocumento').value.trim().toUpperCase(),
                 scadenza_documento: document.getElementById('editScadenzaDocumento').value.trim(),
+                immagine_documento: document.getElementById('editImmagineDocumentoUrl').value.trim(),
 
                 genitore1_cognome: document.getElementById('editGenitore1Cognome').value.trim().toUpperCase(),
                 genitore1_nome: document.getElementById('editGenitore1Nome').value.trim(),
@@ -2084,6 +2204,8 @@
             const dati = raccogliDatiAnagrafica();
             if (!dati.cognome || !dati.nome) return alert("Inserisci Cognome e Nome.");
             const docRef = await addDoc(collection(db, "anagrafica"), dati);
+            
+            // Se è stata caricata una foto con ID temporaneo, rinominiamo/ricarichiamo se necessario, o lasciamo così.
             document.getElementById('editIdPersona').value = docRef.id;
             alert("Anagrafica salvata!");
             modal.style.display = 'none';
