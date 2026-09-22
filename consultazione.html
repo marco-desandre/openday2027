@@ -2436,7 +2436,7 @@
                     if (modalitaCorrente === 'admin') {
                         azioniHtml = `
                             <button type="button" class="btn-azione btn-modifica-storico" onclick="abilitaModificaStorico(this, '${st.id}', '${st.anno}')">Modifica</button>
-                            <button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaRigaStorico('${st.id}', '${id}')">Elimina</button>
+                            <button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaRigaStorico('${st.id}', '${id}', '${st.anno}', '${st.numero_identificativo}')"
                         `;
                     }
 
@@ -2560,14 +2560,14 @@
             }
         };
 		
-        window.eliminaRigaStorico = async function(storicoId, idPersona) {
+        window.eliminaRigaStorico = async function(storicoId, idPersona, annoIscrizione, numIdentificativo) {
             if (!confirm("Sei sicuro di voler eliminare questa iscrizione dallo storico?")) return;
             try {
                 mostraCaricamento("Eliminazione iscrizione...");
                 await deleteDoc(doc(db, "storico", storicoId));
                 
                 // TRACCIAMENTO LOG ELIMINAZIONE ISCRIZIONE
-                await registraLog("Eliminazione iscrizione", `ID Storico: ${storicoId}`);
+                await registraLog("Eliminazione iscrizione", `Anno: ${annoIscrizione} ID: ${numIdentificativo}`);
 
                 cacheTuttiIscritti = [];
                 await caricaStoricoPersona(idPersona);
@@ -2652,18 +2652,20 @@
                     }
                 }
 
+                const numIdentificativoFinale = tipoScelto === "Socio Sostenitore" ? "N/D" : num;
+
                 await addDoc(collection(db, "storico"), { 
                     id_persona: idPersona, 
                     anno: String(annoCarnevaleCorrente), 
                     tipo_iscrizione: tipoScelto, 
                     tipologia: tipoScelto, 
-                    numero_identificativo: tipoScelto === "Socio Sostenitore" ? "N/D" : num, 
+                    numero_identificativo: numIdentificativoFinale, 
                     creato_da: aliasUtenteLoggato, 
                     creato_il: new Date().toLocaleString('it-IT') 
                 });
 
                 // TRACCIAMENTO LOG AGGIUNTA ISCRIZIONE
-                await registraLog("Aggiunta iscrizione", `Anno ${annoCarnevaleCorrente} - ${tipoScelto}`);
+                await registraLog("Inserita iscrizione", `Anno: ${annoCarnevaleCorrente} ID: ${numIdentificativoFinale}`);
 
                 alert("Salvato!");
                 cacheTuttiIscritti = [];
