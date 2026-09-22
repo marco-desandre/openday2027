@@ -2555,9 +2555,15 @@
             if (!confirm("Sei sicuro di voler eliminare questa iscrizione dallo storico?")) return;
             try {
                 mostraCaricamento("Eliminazione iscrizione...");
+                
+                const cognomePersona = document.getElementById('editCognome').value.trim();
+                const nomePersona = document.getElementById('editNome').value.trim();
+                const nomeCompleto = `${cognomePersona} ${nomePersona}`;
+
                 await deleteDoc(doc(db, "storico", storicoId));
                 
-                await registraLog("Eliminazione iscrizione", `Anno: ${annoIscrizione} ID: ${numIdentificativo}`);
+                // TRACCIAMENTO LOG ELIMINAZIONE ISCRIZIONE CON NOME E COGNOME
+                await registraLog("Eliminata iscrizione", `${nomeCompleto} - Anno: ${annoIscrizione} ID: ${numIdentificativo}`);
 
                 cacheTuttiIscritti = [];
                 await caricaStoricoPersona(idPersona);
@@ -2610,6 +2616,10 @@
         window.salvaNuovaIscrizioneDiretta = async function(btn) {
             const tr = btn.closest('tr');
             const idPersona = document.getElementById('editIdPersona').value;
+            const cognomePersona = document.getElementById('editCognome').value.trim();
+            const nomePersona = document.getElementById('editNome').value.trim();
+            const nomeCompleto = `${cognomePersona} ${nomePersona}`;
+
             const selectTipo = tr.querySelector('.select-tipo');
             const tipoScelto = selectTipo ? selectTipo.value : "Iscrizione Completa";
             
@@ -2654,7 +2664,8 @@
                     creato_il: new Date().toLocaleString('it-IT') 
                 });
 
-                await registraLog("Inserita iscrizione", `Anno: ${annoCarnevaleCorrente} ID: ${numIdentificativoFinale}`);
+                // TRACCIAMENTO LOG AGGIUNTA ISCRIZIONE CON NOME E COGNOME
+                await registraLog("Inserita iscrizione", `${nomeCompleto} - Anno: ${annoCarnevaleCorrente} ID: ${numIdentificativoFinale}`);
 
                 alert("Salvato!");
                 cacheTuttiIscritti = [];
