@@ -911,6 +911,10 @@
         import { getStorage, ref as storageRef, uploadString, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 		import { getDatabase, ref as dbRef, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+		let dizionarioComuniCatastali = {};
+		let dizionarioNomiComuni = {}; // <-- Aggiunto per il calcolo del CF
+		let dizionarioCaricato = false;
+		
         const k1 = "AIzaSyCjfPICynrV";
         const k2 = "SeeVr4ifXoBoWi74nVGEt5Q";
 
@@ -1646,9 +1650,7 @@
             alert("Configurazione salvata con successo!");
         };
 
-		let dizionarioComuniCatastali = {};
-		let dizionarioNomiComuni = {}; // <-- Aggiunto per il calcolo del CF
-		let dizionarioCaricato = false;
+		
 		
 		async function caricaDizionarioComuni() {
 			try {
