@@ -907,7 +907,9 @@
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getStorage, ref, uploadString, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 		import { get, child, ref as dbRefRef } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
-
+		import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+		import { getApps, initializeApp as initializeSecondaryApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+		
         const k1 = "AIzaSyCjfPICynrV";
         const k2 = "SeeVr4ifXoBoWi74nVGEt5Q";
 
@@ -946,55 +948,70 @@
         document.getElementById('configFlagCodiceFiscale').checked = configCodiceFiscale;
         document.getElementById('configFlagDocumento').checked = configDocumento;
 
-		// --- EXPORT PRELAZIONI SU TICKETDISPENSER
-		window.registraInCoda = async function() {
-            const nomeInput = document.getElementById('nomeUtente').value.trim();
-            const telefono = document.getElementById('telefonoUtente').value.trim();
-            const conDelega = document.getElementById('checkDelega').checked;
-            const nomeDelegato = document.getElementById('nomeDelegato').value.trim();
-            const pagamento = document.querySelector('input[name="pagamentoUtente"]:checked').value;
+// Configurazione e inizializzazione del database secondario Ticket Dispenser
+        const ticketDispenserConfig = {
+            databaseURL: "https://ticketdispensertuchini-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "ticketdispensertuchini"
+        };
+        
+        let secondaryApp = getApps().find(app => app.name === "ticketDispenserInstance");
+        if (!secondaryApp) {
+            secondaryApp = initializeSecondaryApp(ticketDispenserConfig, "ticketDispenserInstance");
+        }
+        const dbTicket = getDatabase(secondaryApp);
 
-            if(!nomeInput) { alert("Inserisci il tuo Cognome e Nome."); return; }
-            if(!telefono) { alert("Inserisci il tuo numero di telefono."); return; }
-            if(conDelega && !nomeDelegato) { alert("Inserisci il nome del delegante."); return; }
+        window.esportaSuTicketDispenser = async function() {
+            const tbody = document.getElementById('corpoTabellaPrelazioni');
+            const righe = Array.from(tbody.getElementsByTagName('tr'));
+            
+            if (righe.length === 0 || (righe.length === 1 && righe[0].querySelector('td').getAttribute('colspan'))) {
+                alert("Nessun dato da esportare. Seleziona prima almeno un filtro (es. Corvi d'oro) per visualizzare l'elenco.");
+                return;
+            }
 
-            // --- VERIFICA PRELAZIONE CORVO D'ORO ---
-            let chiaveCercata = nomeInput.toLowerCase().trim().replace(/\s+/g, ' ');
-            let chiaveB64 = btoa(unescape(encodeURIComponent(chiaveCercata)));
-            let isCorvoDoro = false;
+            if (!confirm("Vuoi davvero esportare e aggiornare l'elenco visibile sul sistema Ticket Dispenser?")) {
+                return;
+            }
+
+            mostraCaricamento("Esportazione su Ticket Dispenser in corso...");
 
             try {
-                const snapshot = await get(child(dbRefRef(db), `prelazioni_corvidoro/${chiaveB64}`));
-                if (snapshot.exists()) {
-                    isCorvoDoro = true;
-                }
-            } catch (e) {
-                console.log("Controllo prelazione saltato o non disponibile", e);
+                let mappaAbilitati = {};
+                
+                righe.forEach(riga => {
+                    if (riga.style.display !== "none") {
+                        let celle = riga.getElementsByTagName('td');
+                        if (celle.length >= 5) {
+                            let cognome = celle[0].textContent.trim();
+                            let nome = celle[1].textContent.trim();
+                            let dettaglio = celle[4].textContent.trim();
+
+                            let chiavePulita = `${cognome} ${nome}`.toLowerCase().trim().replace(/\s+/g, ' ');
+                            let chiaveB64 = btoa(unescape(encodeURIComponent(chiavePulita)));
+
+                            mappaAbilitati[chiaveB64] = {
+                                cognome: cognome,
+                                nome: nome,
+                                dettaglio: dettaglio,
+                                aggiornato_il: new Date().toISOString()
+                            };
+                        }
+                    }
+                });
+
+                // Scrittura sul nodo dedicato del DB secondario
+                await set(ref(dbTicket, 'prelazioni_corvidoro'), mappaAbilitati);
+
+                nascondiCaricamento();
+                alert("✅ Esportazione completata con successo! L'elenco è ora sincronizzato sul Ticket Dispenser.");
+            } catch (error) {
+                nascondiCaricamento();
+                console.error("Errore esportazione Ticket Dispenser:", error);
+                alert("Errore durante l'esportazione: " + error.message);
             }
-            // ----------------------------------------
-
-            // Salvataggio nel database della coda (aggiungiamo il flag prelazione_corvidoro)
-            const nuovoTicket = push(codaRef, {
-                nome: nomeInput, 
-                telefono: telefono, 
-                delega: conDelega, 
-                delegato: conDelega ? nomeDelegato : "", 
-                pagamento: pagamento, 
-                corvo_doro: isCorvoDoro, // Salviamo l'informazione del diritto di prelazione!
-                timestamp: Date.now(), 
-                stato: 'attesa'
-            });
-
-            localStorage.setItem('coda_id_utente', nuovoTicket.key);
-            localStorage.setItem('coda_nome_utente', nomeInput);
-            
-            if (isCorvoDoro) {
-                console.log("Utente riconosciuto come Corvo d'oro!");
-            }
-
-            attivaModalitaAttesa(nuovoTicket.key, nomeInput);
         };
-		
+
+	
 		// FUNZIONE DI EXPORT SU CSV DELLE PRELAZIONI
 		window.esportaPrelazioniCSV = function() {
             const tbody = document.getElementById('corpoTabellaPrelazioni');
