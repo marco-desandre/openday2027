@@ -942,8 +942,8 @@
         let targetWebcamSoggetto = null; 
         let targetWebcamSlot = 1;       
         
-        let configCodiceFiscale = localStorage.getItem('config_cf') !== 'true';
-        let configDocumento = localStorage.getItem('config_doc') === 'true';
+        let configCodiceFiscale = localStorage.getItem('config_cf') !== 'false';
+        let configDocumento = localStorage.getItem('config_doc') !== 'false';
 		
 		let usaCameraPosteriore = true; // Di default parte con la posteriore o la predefinita
 
