@@ -906,8 +906,8 @@
         import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc, query, where, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getStorage, ref as storageRef, uploadString, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-        import { getDatabase, ref as dbRef, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-		
+		import { getDatabase, ref as dbRef, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
         const k1 = "AIzaSyCjfPICynrV";
         const k2 = "SeeVr4ifXoBoWi74nVGEt5Q";
 
@@ -1213,7 +1213,7 @@
             
             try {
                 mostraCaricamento(`Caricamento foto su Storage...`);
-                const storageRef = ref(storage, `documenti_iscritti/${idPersona}_${targetWebcamSoggetto}_img${targetWebcamSlot}.jpg`);
+                const storageRef = storageRef(storage, `documenti_iscritti/${idPersona}_${targetWebcamSoggetto}_img${targetWebcamSlot}.jpg`);
                 await uploadString(storageRef, base64Image, 'data_url');
                 const downloadUrl = await getDownloadURL(storageRef);
                 
@@ -1280,7 +1280,7 @@
                 mostraCaricamento("Eliminazione file...");
                 if (idPersona) {
                     for (let ext of ['jpg', 'pdf', 'png', 'jpeg']) {
-                        await deleteObject(ref(storage, `documenti_iscritti/${idPersona}_${soggetto}_img${slot}.${ext}`)).catch(() => {});
+                        await deleteObject(storageRef(storage, `documenti_iscritti/${idPersona}_${soggetto}_img${slot}.${ext}`)).catch(() => {});
                     }
                 }
                 document.getElementById(`editUrl_${soggetto}_${slot}`).value = "";
