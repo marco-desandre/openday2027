@@ -941,6 +941,8 @@
         
         let configCodiceFiscale = localStorage.getItem('config_cf') !== 'false';
         let configDocumento = localStorage.getItem('config_doc') === 'true';
+		
+		let usaCameraPosteriore = true; // Di default parte con la posteriore o la predefinita
 
         document.getElementById('inputAnnoCarnevale').value = annoCarnevaleCorrente;
         document.getElementById('configFlagCodiceFiscale').checked = configCodiceFiscale;
@@ -1180,19 +1182,51 @@
         };
 
         window.avviaWebcam = async function(soggetto, slot) {
-            targetWebcamSoggetto = soggetto;
-            targetWebcamSlot = slot;
-            try {
-                streamWebcam = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } } });
-                const video = document.getElementById('webcamVideo');
-                video.srcObject = streamWebcam;
-                document.getElementById('titoloWebcamAttiva').textContent = `Acquisizione Webcam (${soggetto.toUpperCase()} - Immagine ${slot})`;
-                document.getElementById('boxContainerWebcamGenerale').style.display = 'block';
-            } catch (err) {
-                alert("Impossibile accedere alla webcam: " + err.message);
-            }
-        };
+			targetWebcamSoggetto = soggetto;
+			targetWebcamSlot = slot;
+			
+			// Ferma eventuali stream attivi prima di riaprire
+			if (streamWebcam) {
+				streamWebcam.getTracks().forEach(track => track.stop());
+			}
 
+			try {
+				const constraints = {
+					video: {
+						width: { ideal: 1280 },
+						height: { ideal: 720 },
+						facingMode: usaCameraPosteriore ? { exact: "environment" } : "user"
+					}
+				};
+
+				streamWebcam = await navigator.mediaDevices.getUserMedia(constraints);
+				const video = document.getElementById('webcamVideo');
+				video.srcObject = streamWebcam;
+				document.getElementById('titoloWebcamAttiva').textContent = `Acquisizione Webcam (${soggetto.toUpperCase()} - Immagine ${slot})`;
+				document.getElementById('boxContainerWebcamGenerale').style.display = 'block';
+			} catch (err) {
+				// Fallback nel caso in cui "exact: environment" non sia supportato da qualche browser mobile
+				try {
+					const fallbackConstraints = {
+						video: {
+							width: { ideal: 1280 },
+							height: { ideal: 720 },
+							facingMode: usaCameraPosteriore ? "environment" : "user"
+						}
+					};
+					streamWebcam = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
+					document.getElementById('webcamVideo').srcObject = streamWebcam;
+					document.getElementById('boxContainerWebcamGenerale').style.display = 'block';
+				} catch (fallbackErr) {
+					alert("Impossibile accedere alla fotocamera: " + fallbackErr.message);
+				}
+			}
+		};
+
+		window.invertiCamera = async function() {
+			usaCameraPosteriore = !usaCameraPosteriore;
+			await avviaWebcam(targetWebcamSoggetto, targetWebcamSlot);
+		};
         window.scattaFotoWebcam = async function() {
             const video = document.getElementById('webcamVideo');
             const canvas = document.getElementById('webcamCanvas');
