@@ -2383,13 +2383,17 @@
                 const snap = await getDocs(query(collection(db, "storico"), where("id_persona", "==", id)));
                 await Promise.all(snap.docs.map(d => deleteDoc(doc(db, "storico", d.id))));
                 await deleteDoc(doc(db, "anagrafica", id));
+                
+                // TRACCIAMENTO LOG ELIMINAZIONE ANAGRAFICA
+                await registraLog("Elimina anagrafica", `ID: ${id}`);
+
                 alert("Eliminato con successo!");
                 modal.style.display = 'none';
                 cacheTuttiIscritti = [];
                 if (document.getElementById('filtroCognome').value) cercaIscritti(document.getElementById('filtroCognome').value);
             }
         }
-
+		
         async function caricaStoricoPersona(id) {
             const div = document.getElementById('storicoCaricamento'), tab = document.getElementById('tabellaStorico'), tbody = document.getElementById('corpoTabellaStorico');
             tbody.innerHTML = ''; 
@@ -2543,6 +2547,9 @@
                     numero_identificativo: nuovoTipo === "Socio Sostenitore" ? "N/D" : nuovoNum 
                 }, { merge: true });
                 
+                // TRACCIAMENTO LOG MODIFICA ISCRIZIONE
+                await registraLog("Modifica iscrizione", `Anno ${annoStorico} - ${nuovoTipo}`);
+
                 cacheTuttiIscritti = [];
                 await caricaStoricoPersona(idPersona);
                 alert("Modifiche salvate con successo!");
@@ -2558,6 +2565,10 @@
             try {
                 mostraCaricamento("Eliminazione iscrizione...");
                 await deleteDoc(doc(db, "storico", storicoId));
+                
+                // TRACCIAMENTO LOG ELIMINAZIONE ISCRIZIONE
+                await registraLog("Eliminazione iscrizione", `ID Storico: ${storicoId}`);
+
                 cacheTuttiIscritti = [];
                 await caricaStoricoPersona(idPersona);
                 alert("Iscrizione eliminata con successo!");
@@ -2567,7 +2578,7 @@
                 nascondiCaricamento();
             }
         };
-
+		
         function attivaInserimentoNuovaIscrizioneEsistente() {
             const div = document.getElementById('storicoCaricamento');
             div.style.display = 'none'; // <-- Nasconde il messaggio di storico vuoto
@@ -2650,6 +2661,9 @@
                     creato_da: aliasUtenteLoggato, 
                     creato_il: new Date().toLocaleString('it-IT') 
                 });
+
+                // TRACCIAMENTO LOG AGGIUNTA ISCRIZIONE
+                await registraLog("Aggiunta iscrizione", `Anno ${annoCarnevaleCorrente} - ${tipoScelto}`);
 
                 alert("Salvato!");
                 cacheTuttiIscritti = [];
