@@ -1784,6 +1784,58 @@
             eseguiVerificaRuntime();
         }
 		
+		// Funzione di decodifica specifica per i Genitori
+        async function decodificaCfGenitoreInCampi(cf, numGen) {
+            cf = cf.trim().toUpperCase();
+            if (cf.length !== 16) return;
+
+            const annoCar = cf.substring(6, 8);
+            const meseCar = cf.substring(8, 9);
+            let giornoCar = parseInt(cf.substring(9, 11), 10);
+            
+            let annoNum = parseInt(annoCar, 10);
+            const annoCorrente2CIF = new Date().getFullYear() % 100;
+            let secolo = annoNum <= annoCorrente2CIF ? 2000 : 1900;
+            let annoNascita = secolo + annoNum;
+
+            const mesiCodice = { 'A': '01', 'B': '02', 'C': '03', 'D': '04', 'E': '05', 'H': '06', 'L': '07', 'M': '08', 'P': '09', 'R': '10', 'S': '11', 'T': '12' };
+            let meseNum = mesiCodice[meseCar] || '01';
+
+            if (giornoCar > 40) giornoCar -= 40;
+            let giornoStr = String(giornoCar).padStart(2, '0');
+
+            const dataNascitaIso = `${annoNascita}-${meseNum}-${giornoStr}`;
+            document.getElementById(`editGenitore${numGen}DataNascita`).value = dataNascitaIso;
+
+            const codCatastale = cf.substring(11, 15);
+
+            // Attende che il dizionario dei comuni sia pronto se il fetch è ancora in corso
+            if (!dizionarioCaricato) {
+                let tentativi = 0;
+                while (!dizionarioCaricato && tentativi < 15) {
+                    await new Promise(r => setTimeout(r, 200));
+                    tentativi++;
+                }
+            }
+            
+            if (dizionarioComuniCatastali && dizionarioComuniCatastali[codCatastale]) {
+                document.getElementById(`editGenitore${numGen}LuogoNascita`).value = dizionarioComuniCatastali[codCatastale];
+            } else {
+                document.getElementById(`editGenitore${numGen}LuogoNascita`).value = ""; 
+            }
+        }
+
+        // Ascoltatori per l'inserimento in tempo reale del Codice Fiscale dei genitori
+        document.getElementById('editGenitore1CodiceFiscale').addEventListener('input', function(e) {
+            let val = e.target.value.trim().toUpperCase();
+            if (val.length === 16) decodificaCfGenitoreInCampi(val, 1);
+        });
+
+        document.getElementById('editGenitore2CodiceFiscale').addEventListener('input', function(e) {
+            let val = e.target.value.trim().toUpperCase();
+            if (val.length === 16) decodificaCfGenitoreInCampi(val, 2);
+        });
+		
         document.getElementById('editCodiceFiscale').addEventListener('input', function(e) {
             let val = e.target.value.trim().toUpperCase();
             if (val.length === 16) decodificaCfInCampi(val);
