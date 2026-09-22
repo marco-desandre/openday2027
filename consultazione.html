@@ -906,15 +906,16 @@
                 const emailUtente = auth.currentUser ? auth.currentUser.email : "Anonimo";
                 const aliasUtente = aliasUtenteLoggato || emailUtente;
 
-                // Formato richiesto: data;ora;utente;azione;utente, alias
-                const rigaFormattata = `${dataStr};${oraStr};${emailUtente};${azione}${dettaglioAnagrafica ? ' - ' + dettaglioAnagrafica : ''};${emailUtente}, ${aliasUtente}`;
+                // Formato corretto: data;ora;azione;utente, alias
+                const azioneCompleta = azione + (dettaglioAnagrafica ? ' - ' + dettaglioAnagrafica : '');
+                const rigaFormattata = `${dataStr};${oraStr};${azioneCompleta};${emailUtente}, ${aliasUtente}`;
 
                 await addDoc(collection(db, "log_attivita"), {
                     data: dataStr,
                     ora: oraStr,
                     email: emailUtente,
                     alias: aliasUtente,
-                    azione: azione + (dettaglioAnagrafica ? ' (' + dettaglioAnagrafica + ')' : ''),
+                    azione: azioneCompleta,
                     formattato: rigaFormattata,
                     timestamp: adesso.getTime()
                 });
@@ -922,7 +923,7 @@
                 console.error("Errore scrittura log:", e);
             }
         }
-
+		
         window.apriModaleLog = async function() {
             document.getElementById('logModal').style.display = 'flex';
             await caricaDatiLog();
@@ -978,7 +979,7 @@
                 snap.forEach(docSnap => logList.push(docSnap.data()));
                 logList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
-                let csvRows = ["data;ora;utente;azione;utente, alias"];
+                let csvRows = ["data;ora;azione;utente, alias"];
                 logList.forEach(l => {
                     csvRows.push('"' + l.formattato.replace(/;/g, ',').replace(/"/g, '""') + '"');
                 });
@@ -996,7 +997,7 @@
                 alert("Errore esportazione log: " + e.message);
             }
         };
-
+		
         function applicaConfigurazioneUI() {
             document.getElementById('gruppoCampoCodiceFiscale').style.display = configCodiceFiscale ? 'flex' : 'none';
             document.getElementById('gruppoSezioneDocumento').style.display = configDocumento ? 'block' : 'none';
