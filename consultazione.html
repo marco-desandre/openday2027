@@ -2320,13 +2320,39 @@
         };
 
         function attivaInserimentoNuovaIscrizioneEsistente() {
-            const tbody = document.getElementById('corpoTabellaStorico');
-            document.getElementById('tabellaStorico').style.display = 'table';
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${annoCarnevaleCorrente}</td><td><select class="input-storico select-tipo"><option value="Iscrizione Completa">Iscrizione Completa</option></select></td><td><input type="text" class="input-storico input-num" id="inputNuovoNumId" placeholder="Numero..."></td><td><button type="button" class="btn-azione btn-salva-storico" onclick="salvaNuovaIscrizioneDiretta(this)">Salva</button></td>`;
-            tbody.insertBefore(tr, tbody.firstChild);
-            document.getElementById('btnAggiungiIscrizione').style.display = 'none';
-        }
+			const tbody = document.getElementById('corpoTabellaStorico');
+			document.getElementById('tabellaStorico').style.display = 'table';
+			const tr = document.createElement('tr');
+			tr.innerHTML = `
+				<td>${annoCarnevaleCorrente}</td>
+				<td>
+					<select class="input-storico select-tipo" onchange="gestisciVisibilitaNumeroIscrizione(this)">
+						<option value="Iscrizione Completa">Iscrizione Completa</option>
+						<option value="Socio Sostenitore">Socio Sostenitore</option>
+					</select>
+				</td>
+				<td><input type="text" class="input-storico input-num" id="inputNuovoNumId" placeholder="Numero..."></td>
+				<td><button type="button" class="btn-azione btn-salva-storico" onclick="salvaNuovaIscrizioneDiretta(this)">Salva</button></td>
+			`;
+			tbody.insertBefore(tr, tbody.firstChild);
+			document.getElementById('btnAggiungiIscrizione').style.display = 'none';
+		}
+		
+		// Funzione di supporto per nascondere il numero se selezioni Socio Sostenitore
+		window.gestisciVisibilitaNumeroIscrizione = function(selectElem) {
+			const tr = selectElem.closest('tr');
+			const inputNum = tr.querySelector('.input-num');
+			if (selectElem.value === "Socio Sostenitore") {
+				inputNum.value = "";
+				inputNum.disabled = true;
+				inputNum.placeholder = "Non richiesto";
+				inputNum.style.backgroundColor = "#e9ecef";
+			} else {
+				inputNum.disabled = false;
+				inputNum.placeholder = "Numero...";
+				inputNum.style.backgroundColor = "#fff";
+			}
+		};
 
         window.salvaNuovaIscrizioneDiretta = async function(btn) {
             const tr = btn.closest('tr'), idPersona = document.getElementById('editIdPersona').value;
