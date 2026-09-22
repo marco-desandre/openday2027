@@ -774,6 +774,9 @@
                 <p style="margin: 0 0 5px 0; font-size: 12px; font-weight: bold;" id="titoloWebcamAttiva">Acquisizione Webcam</p>
                 <video id="webcamVideo" autoplay playsinline style="width: 100%; max-width: 320px; display: block; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 5px;"></video>
                 <canvas id="webcamCanvas" style="display: none;"></canvas>
+                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                    <button type="button" class="btn-azione" style="background-color: #6c757d; padding: 6px 12px; font-size: 12px;" onclick="invertiCamera()">🔄 Cambia Fotocamera</button>
+                </div>
                 <div style="display: flex; gap: 8px;">
                     <button type="button" class="btn-azione" style="background-color: #28a745; padding: 6px 12px; font-size: 12px;" onclick="scattaFotoWebcam()">📸 Scatta e Salva</button>
                     <button type="button" class="btn-azione" style="background-color: #dc3545; padding: 6px 12px; font-size: 12px;" onclick="fermaWebcam()">❌ Annulla</button>
@@ -939,8 +942,8 @@
         let targetWebcamSoggetto = null; 
         let targetWebcamSlot = 1;       
         
-        let configCodiceFiscale = localStorage.getItem('config_cf') !== 'false';
-        let configDocumento = localStorage.getItem('config_doc') === 'true';
+        let configCodiceFiscale = localStorage.getItem('config_cf') !== 'true';
+        let configDocumento = localStorage.getItem('config_doc') === 'false';
 		
 		let usaCameraPosteriore = true; // Di default parte con la posteriore o la predefinita
 
@@ -1227,6 +1230,31 @@
 			usaCameraPosteriore = !usaCameraPosteriore;
 			await avviaWebcam(targetWebcamSoggetto, targetWebcamSlot);
 		};
+
+        function riduciImmagineBase64(dataUrl, maxWidth = 1024, quality = 0.6) { // --- MODIFICA QUI RISOLUZIONE IMMAGINE SALVATA!
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.src = dataUrl;
+                img.onload = () => {
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+            });
+        }
+
         window.scattaFotoWebcam = async function() {
             const video = document.getElementById('webcamVideo');
             const canvas = document.getElementById('webcamCanvas');
@@ -1235,7 +1263,8 @@
             const ctx = canvas.getContext('2d');
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             
-            const base64Image = canvas.toDataURL('image/jpeg', 0.7);
+            let base64Image = canvas.toDataURL('image/jpeg', 0.9);
+            base64Image = await riduciImmagineBase64(base64Image, 1024, 0.6);
             fermaWebcam();
 
             let idPersona = document.getElementById('editIdPersona').value;
@@ -1274,13 +1303,31 @@
                 document.getElementById('editIdPersona').value = idPersona;
             }
 
-            const estensione = file.name.split('.').pop();
+            const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith('.pdf');
+            const estensione = isPdf ? 'pdf' : 'jpg';
+
             try {
                 mostraCaricamento(`Caricamento file su Storage...`);
-                const sRef = storageRef(storage, `documenti_iscritti/${idPersona}_${soggetto}_img${slot}.${estensione}`);
                 
-                await uploadBytes(sRef, file);
-                const downloadUrl = await getDownloadURL(sRef);
+                let uploadTaskRef;
+                if (isPdf) {
+                    const sRef = storageRef(storage, `documenti_iscritti/${idPersona}_${soggetto}_img${slot}.pdf`);
+                    await uploadBytes(sRef, file);
+                    uploadTaskRef = sRef;
+                } else {
+                    const reader = new FileReader();
+                    const base64Originale = await new Promise((resolve) => {
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.readAsDataURL(file);
+                    });
+
+                    let base64Compresso = await riduciImmagineBase64(base64Originale, 1024, 0.6);
+                    const sRef = storageRef(storage, `documenti_iscritti/${idPersona}_${soggetto}_img${slot}.jpg`);
+                    await uploadString(sRef, base64Compresso, 'data_url');
+                    uploadTaskRef = sRef;
+                }
+
+                const downloadUrl = await getDownloadURL(uploadTaskRef);
 
                 document.getElementById(`editUrl_${soggetto}_${slot}`).value = downloadUrl;
                 const link = document.getElementById(`linkAnteprima_${soggetto}_${slot}`);
