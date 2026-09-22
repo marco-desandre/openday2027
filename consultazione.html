@@ -365,9 +365,12 @@
                 </div>
 
                 <h4 style="color: #007BFF; border-bottom: 2px solid #007BFF; padding-bottom: 5px; margin-top: 35px;">Gestione Utenti</h4>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; flex-wrap: wrap; gap: 10px;">
                     <p style="color: #666; font-size: 13px; margin: 0;">Elenco degli account autorizzati ad accedere al gestionale.</p>
-                    <button type="button" class="btn-nuovo-utente" style="height: 36px; font-size: 13px; padding: 0 12px;" onclick="apriModaleUtente()">+ Nuovo Utente</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" class="btn-nuovo-utente" style="background-color: #ffc107; color: #333; height: 36px; font-size: 13px; padding: 0 12px;" onclick="disabilitaTuttiUser()">🔒 Disabilita tutti gli User</button>
+                        <button type="button" class="btn-nuovo-utente" style="height: 36px; font-size: 13px; padding: 0 12px;" onclick="apriModaleUtente()">+ Nuovo Utente</button>
+                    </div>
                 </div>
                 
                 <div class="table-responsive">
@@ -1861,10 +1864,9 @@
                             <td>${pulisciTesto(u.email)}</td>
                             <td><strong>${pulisciTesto(u.alias)}</strong></td>
                             <td>${pulisciTesto(u.ruolo)}</td>
-                            <td>${attivo ? 'Attivo' : 'Disabilitato'}</td>
+                            <td><span style="color: ${attivo ? '#28a745' : '#dc3545'}; font-weight: bold;">${attivo ? 'Attivo' : 'Disabilitato'}</span></td>
                             <td>
                                 <button type="button" class="btn-azione btn-modifica-storico" onclick="modificaUtente('${u.id}', '${u.email}', '${u.alias || ''}', '${u.ruolo}', ${attivo})">Modifica</button>
-                                <button type="button" class="btn-azione ${attivo ? 'btn-modifica-storico' : 'btn-salva-storico'}" style="background-color: ${attivo ? '#ff851b' : '#28a745'}; color: white;" onclick="toggleStatoUtente('${u.id}', ${attivo})">${attivo ? 'Disabilita' : 'Abilita'}</button>
                                 <button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaUtenteSistema('${u.id}', '${u.email}')">Elimina</button>
                             </td>
                         </tr>`;
@@ -1873,7 +1875,36 @@
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Errore caricamento utenti.</td></tr>'; 
             }
         }
+		
+		window.disabilitaTuttiUser = async function() {
+            const conferma = confirm("⚠️ Sei sicuro di voler disabilitare TUTTI gli utenti con ruolo 'User' in un colpo solo? Gli account Admin rimarranno attivi.");
+            if (!conferma) return;
 
+            try {
+                mostraCaricamento("Disabilitazione utenti in corso...");
+                const snap = await getDocs(collection(db, "utenti"));
+                
+                let batchUpdates = [];
+                snap.forEach(docSnap => {
+                    let data = docSnap.data();
+                    let ruolo = String(data.ruolo || "").trim().toLowerCase();
+                    // Se l'utente è un 'User' (e non Admin) ed è attualmente attivo
+                    if (ruolo === 'user' && data.attivo !== false) {
+                        batchUpdates.push(setDoc(doc(db, "utenti", docSnap.id), { attivo: false }, { merge: true }));
+                    }
+                });
+
+                await Promise.all(batchUpdates);
+                alert("Tutti gli utenti 'User' sono stati disabilitati con successo.");
+                await caricaTabellaUtenti();
+                await registraLog("Disabilitazione di massa utenti User");
+            } catch (error) {
+                alert("Errore durante l'operazione: " + error.message);
+            } finally {
+                nascondiCaricamento();
+            }
+        };
+		
         window.apriModaleUtente = (id = "", email = "", alias = "", ruolo = "User", attivo = true) => {
             document.getElementById('editUserId').value = id;
             document.getElementById('inputUserEmail').value = email;
