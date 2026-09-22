@@ -2557,8 +2557,15 @@
             const dat = document.getElementById('editDataNascita').value.trim();
             const idC = document.getElementById('editIdPersona').value.trim();
             const msg = document.getElementById('messaggioRuntimeDuplicato');
+            const btnSalva = document.getElementById('btnSalva'); // Riferimento al pulsante salva
             
             msg.textContent = "";
+            if (btnSalva) {
+                btnSalva.disabled = false; // Riabilita di default
+                btnSalva.style.opacity = "1";
+                btnSalva.style.cursor = "pointer";
+            }
+
             if (cog.length < 2 || nom.length < 2) return;
 
             const snap = await getDocs(collection(db, "anagrafica"));
@@ -2582,13 +2589,21 @@
 
             if (duplicatoEsattoTrovato) {
                 msg.style.color = "#dc3545";
-                msg.textContent = "⚠️ Attenzione: Esiste già un iscritto con lo stesso Cognome, Nome e Data di Nascita!";
+                msg.textContent = "⚠️ Attenzione: Esiste già un iscritto con lo stesso Cognome, Nome e Data di Nascita! Salvataggio bloccato.";
+                
+                // Disabilita il pulsante di salvataggio in caso di duplicato esatto
+                if (btnSalva) {
+                    btnSalva.disabled = true;
+                    btnSalva.style.opacity = "0.6";
+                    btnSalva.style.cursor = "not-allowed";
+                }
             } else if (omonimoTrovato) {
                 msg.style.color = "#ff851b";
                 msg.textContent = "ℹ️ Attenzione: Esiste già un iscritto con lo stesso Cognome e Nome (Omonimia).";
+                // Nota: se vuoi bloccare anche in caso di semplice omonimia, puoi disabilitare il pulsante anche qui sotto.
             }
         }
-
+		
         document.querySelectorAll('.campo-verifica-runtime').forEach(e => {
             e.addEventListener('input', () => {
                 clearTimeout(timeoutRuntime);
