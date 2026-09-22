@@ -337,7 +337,7 @@
                 <h2>Estrazione Prelazioni</h2>
                 <p style="color: #666; font-size: 14px;">Seleziona i filtri desiderati per estrarre gli iscritti aventi diritto alla prelazione.</p>
                 
-                <div class="search-row" style="background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid #e9ecef;">
+                <div class="search-row" style="background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                     <div style="display: flex; gap: 30px; align-items: center; flex-wrap: wrap;">
                         <div class="checkbox-group">
                             <input type="checkbox" id="flagCorviDoro" onchange="caricaDatiPrelazioni()">
@@ -347,6 +347,9 @@
                             <input type="checkbox" id="flag9Anni" onchange="caricaDatiPrelazioni()">
                             <label for="flag9Anni"><strong>9 anni</strong> (Preventivo 10 anni)</label>
                         </div>
+                    </div>
+                    <div>
+                        <button type="button" class="btn-export-csv" onclick="esportaPrelazioniCSV()">📥 Esporta CSV</button>
                     </div>
                 </div>
 
@@ -371,7 +374,7 @@
                     </table>
                 </div>
             </div>
-
+			
             <!-- SEZIONE CONFIGURAZIONE -->
             <div id="sezione_configurazione" class="sezione-app">
                 <h2>Configurazione Sistema</h2>
