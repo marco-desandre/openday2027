@@ -350,6 +350,7 @@
                     </div>
                     <div>
                         <button type="button" class="btn-export-csv" onclick="esportaPrelazioniCSV()">📥 Esporta CSV</button>
+						<button type="button" class="btn-export-csv" style="background-color: #28a745;" onclick="esportaSuTicketDispenser()">🚀 Esporta su Ticket Dispenser</button>
                     </div>
                 </div>
 
@@ -905,6 +906,7 @@
         import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc, query, where, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getStorage, ref, uploadString, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+		import { get, child, ref as dbRefRef } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
 
         const k1 = "AIzaSyCjfPICynrV";
         const k2 = "SeeVr4ifXoBoWi74nVGEt5Q";
@@ -944,6 +946,55 @@
         document.getElementById('configFlagCodiceFiscale').checked = configCodiceFiscale;
         document.getElementById('configFlagDocumento').checked = configDocumento;
 
+		// --- EXPORT PRELAZIONI SU TICKETDISPENSER
+		window.registraInCoda = async function() {
+            const nomeInput = document.getElementById('nomeUtente').value.trim();
+            const telefono = document.getElementById('telefonoUtente').value.trim();
+            const conDelega = document.getElementById('checkDelega').checked;
+            const nomeDelegato = document.getElementById('nomeDelegato').value.trim();
+            const pagamento = document.querySelector('input[name="pagamentoUtente"]:checked').value;
+
+            if(!nomeInput) { alert("Inserisci il tuo Cognome e Nome."); return; }
+            if(!telefono) { alert("Inserisci il tuo numero di telefono."); return; }
+            if(conDelega && !nomeDelegato) { alert("Inserisci il nome del delegante."); return; }
+
+            // --- VERIFICA PRELAZIONE CORVO D'ORO ---
+            let chiaveCercata = nomeInput.toLowerCase().trim().replace(/\s+/g, ' ');
+            let chiaveB64 = btoa(unescape(encodeURIComponent(chiaveCercata)));
+            let isCorvoDoro = false;
+
+            try {
+                const snapshot = await get(child(dbRefRef(db), `prelazioni_corvidoro/${chiaveB64}`));
+                if (snapshot.exists()) {
+                    isCorvoDoro = true;
+                }
+            } catch (e) {
+                console.log("Controllo prelazione saltato o non disponibile", e);
+            }
+            // ----------------------------------------
+
+            // Salvataggio nel database della coda (aggiungiamo il flag prelazione_corvidoro)
+            const nuovoTicket = push(codaRef, {
+                nome: nomeInput, 
+                telefono: telefono, 
+                delega: conDelega, 
+                delegato: conDelega ? nomeDelegato : "", 
+                pagamento: pagamento, 
+                corvo_doro: isCorvoDoro, // Salviamo l'informazione del diritto di prelazione!
+                timestamp: Date.now(), 
+                stato: 'attesa'
+            });
+
+            localStorage.setItem('coda_id_utente', nuovoTicket.key);
+            localStorage.setItem('coda_nome_utente', nomeInput);
+            
+            if (isCorvoDoro) {
+                console.log("Utente riconosciuto come Corvo d'oro!");
+            }
+
+            attivaModalitaAttesa(nuovoTicket.key, nomeInput);
+        };
+		
 		// FUNZIONE DI EXPORT SU CSV DELLE PRELAZIONI
 		window.esportaPrelazioniCSV = function() {
             const tbody = document.getElementById('corpoTabellaPrelazioni');
