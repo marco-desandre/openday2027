@@ -946,7 +946,6 @@
         document.getElementById('configFlagCodiceFiscale').checked = configCodiceFiscale;
         document.getElementById('configFlagDocumento').checked = configDocumento;
 
-// Configurazione e inizializzazione del database secondario Ticket Dispenser
         // Configurazione e inizializzazione del database secondario Ticket Dispenser
         const ticketDispenserConfig = {
             databaseURL: "https://ticketdispensertuchini-default-rtdb.europe-west1.firebasedatabase.app",
@@ -1213,9 +1212,9 @@
             
             try {
                 mostraCaricamento(`Caricamento foto su Storage...`);
-                const storageRef = storageRef(storage, `documenti_iscritti/${idPersona}_${targetWebcamSoggetto}_img${targetWebcamSlot}.jpg`);
-                await uploadString(storageRef, base64Image, 'data_url');
-                const downloadUrl = await getDownloadURL(storageRef);
+                const sRef = storageRef(storage, `documenti_iscritti/${idPersona}_${targetWebcamSoggetto}_img${targetWebcamSlot}.jpg`);
+                await uploadString(sRef, base64Image, 'data_url');
+                const downloadUrl = await getDownloadURL(sRef);
                 
                 document.getElementById(`editUrl_${targetWebcamSoggetto}_${targetWebcamSlot}`).value = downloadUrl;
                 const link = document.getElementById(`linkAnteprima_${targetWebcamSoggetto}_${targetWebcamSlot}`);
@@ -1244,10 +1243,10 @@
             const estensione = file.name.split('.').pop();
             try {
                 mostraCaricamento(`Caricamento file su Storage...`);
-                const storageRef = ref(storage, `documenti_iscritti/${idPersona}_${soggetto}_img${slot}.${estensione}`);
+                const sRef = storageRef(storage, `documenti_iscritti/${idPersona}_${soggetto}_img${slot}.${estensione}`);
                 
-                await uploadBytes(storageRef, file);
-                const downloadUrl = await getDownloadURL(storageRef);
+                await uploadBytes(sRef, file);
+                const downloadUrl = await getDownloadURL(sRef);
 
                 document.getElementById(`editUrl_${soggetto}_${slot}`).value = downloadUrl;
                 const link = document.getElementById(`linkAnteprima_${soggetto}_${slot}`);
@@ -2680,7 +2679,7 @@
                     for (let sogg of ['iscritto', 'gen1', 'gen2']) {
                         for (let i = 1; i <= 2; i++) {
                             for (let ext of ['jpg', 'pdf', 'png', 'jpeg']) {
-                                await deleteObject(ref(storage, `documenti_iscritti/${id}_${soggetto}_img${i}.${ext}`)).catch(() => {});
+                                await deleteObject(storageRef(storage, `documenti_iscritti/${id}_${soggetto}_img${i}.${ext}`)).catch(() => {});
                             }
                         }
                     }
