@@ -358,6 +358,12 @@
 
                 <button type="button" class="btn-salva" style="max-width: 200px; margin-top: 10px;" onclick="salvaConfigurazioneSistema()">Salva Configurazione</button>
 
+                <!-- SEZIONE REGISTRO LOG -->
+                <h4 style="color: #007BFF; border-bottom: 2px solid #007BFF; padding-bottom: 5px; margin-top: 35px;">Registro Log Attività</h4>
+                <div style="margin-top: 15px; margin-bottom: 20px;">
+                    <button type="button" class="btn-nuovo-utente" style="background-color: #6c757d; height: 38px; font-size: 14px;" onclick="apriModaleLog()">📋 Visualizza Log Attività</button>
+                </div>
+
                 <h4 style="color: #007BFF; border-bottom: 2px solid #007BFF; padding-bottom: 5px; margin-top: 35px;">Gestione Utenti</h4>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
                     <p style="color: #666; font-size: 13px; margin: 0;">Elenco degli account autorizzati ad accedere al gestionale.</p>
@@ -817,6 +823,36 @@
         </div>
     </div>
 
+    <!-- Modale Consultazione Log -->
+    <div id="logModal" class="modal">
+        <div class="modal-content" style="width: 900px;">
+            <div class="header-modale-actions">
+                <button type="button" class="btn-chiudi-x" onclick="chiudiModaleLog()" aria-label="Chiudi">&times;</button>
+            </div>
+            <h3>Registro Log Attività</h3>
+            <p style="color: #666; font-size: 13px;">Elenco cronologico degli accessi, aperture e modifiche anagrafiche.</p>
+            
+            <div style="margin: 15px 0;">
+                <button type="button" class="btn-azione" style="background-color: #17a2b8; padding: 8px 14px; font-size: 13px;" onclick="esportaLogCSV()">📥 Esporta Log CSV</button>
+            </div>
+
+            <div class="table-responsive" style="max-height: 400px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Ora</th>
+                            <th>Utente (Mail)</th>
+                            <th>Azione</th>
+                            <th>Formato Standard</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpoTabellaLog"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc, query, where, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -851,9 +887,8 @@
         let annoCarnevaleCorrente = localStorage.getItem('anno_carnevale_corrente') || "2027";
         let streamWebcam = null;
         
-        // Parametri attivi webcam in corso
-        let targetWebcamSoggetto = null; // 'iscritto', 'gen1', 'gen2'
-        let targetWebcamSlot = 1;       // 1 o 2
+        let targetWebcamSoggetto = null; 
+        let targetWebcamSlot = 1;       
         
         let configCodiceFiscale = localStorage.getItem('config_cf') !== 'false';
         let configDocumento = localStorage.getItem('config_doc') === 'true';
@@ -861,6 +896,106 @@
         document.getElementById('inputAnnoCarnevale').value = annoCarnevaleCorrente;
         document.getElementById('configFlagCodiceFiscale').checked = configCodiceFiscale;
         document.getElementById('configFlagDocumento').checked = configDocumento;
+
+        // FUNZIONE DI REGISTRAZIONE LOG
+        async function registraLog(azione, dettaglioAnagrafica = "") {
+            try {
+                const adesso = new Date();
+                const dataStr = adesso.toLocaleDateString('it-IT'); // GG/MM/AAAA
+                const oraStr = adesso.toLocaleTimeString('it-IT');   // HH:MM:SS
+                const emailUtente = auth.currentUser ? auth.currentUser.email : "Anonimo";
+                const aliasUtente = aliasUtenteLoggato || emailUtente;
+
+                // Formato richiesto: data;ora;utente;azione;utente, alias
+                const rigaFormattata = `${dataStr};${oraStr};${emailUtente};${azione}${dettaglioAnagrafica ? ' - ' + dettaglioAnagrafica : ''};${emailUtente}, ${aliasUtente}`;
+
+                await addDoc(collection(db, "log_attivita"), {
+                    data: dataStr,
+                    ora: oraStr,
+                    email: emailUtente,
+                    alias: aliasUtente,
+                    azione: azione + (dettaglioAnagrafica ? ' (' + dettaglioAnagrafica + ')' : ''),
+                    formattato: rigaFormattata,
+                    timestamp: adesso.getTime()
+                });
+            } catch (e) {
+                console.error("Errore scrittura log:", e);
+            }
+        }
+
+        window.apriModaleLog = async function() {
+            document.getElementById('logModal').style.display = 'flex';
+            await caricaDatiLog();
+        };
+
+        window.chiudiModaleLog = function() {
+            document.getElementById('logModal').style.display = 'none';
+        };
+
+        async function caricaDatiLog() {
+            const tbody = document.getElementById('corpoTabellaLog');
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Caricamento log...</td></tr>';
+            try {
+                const snap = await getDocs(collection(db, "log_attivita"));
+                tbody.innerHTML = '';
+                if (snap.empty) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; font-style:italic;">Nessun log registrato.</td></tr>';
+                    return;
+                }
+
+                let logList = [];
+                snap.forEach(docSnap => {
+                    logList.push(docSnap.data());
+                });
+
+                logList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                logList.forEach(l => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${l.data}</td>
+                            <td>${l.ora}</td>
+                            <td>${l.email}</td>
+                            <td><strong>${l.azione}</strong></td>
+                            <td><code>${l.formattato}</code></td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Errore caricamento log: ${error.message}</td></tr>`;
+            }
+        }
+
+        window.esportaLogCSV = async function() {
+            try {
+                const snap = await getDocs(collection(db, "log_attivita"));
+                if (snap.empty) {
+                    alert("Nessun log da esportare.");
+                    return;
+                }
+
+                let logList = [];
+                snap.forEach(docSnap => logList.push(docSnap.data()));
+                logList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                let csvRows = ["data;ora;utente;azione;utente, alias"];
+                logList.forEach(l => {
+                    csvRows.push('"' + l.formattato.replace(/;/g, ',').replace(/"/g, '""') + '"');
+                });
+
+                const csvString = csvRows.join("\n");
+                const blob = new Blob(["\ufeff" + csvString], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.setAttribute("href", url);
+                link.setAttribute("download", `registro_log_${new Date().toISOString().split('T')[0]}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (e) {
+                alert("Errore esportazione log: " + e.message);
+            }
+        };
 
         function applicaConfigurazioneUI() {
             document.getElementById('gruppoCampoCodiceFiscale').style.display = configCodiceFiscale ? 'flex' : 'none';
@@ -1226,6 +1361,9 @@
 
                 document.getElementById('loginOverlay').style.display = 'none';
                 document.getElementById('userEmailDisplayHeader').textContent = aliasUtenteLoggato;
+
+                // TRACCIAMENTO LOG LOGIN
+                await registraLog("Login");
 
                 const boxModalita = document.getElementById('boxModalita');
                 if (ruoloUtenteLoggato === 'admin') {
@@ -2002,6 +2140,9 @@
         const modal = document.getElementById('editModal');
 
         async function apriModaleEsistente(p) {
+            // TRACCIAMENTO LOG APERTURA ANAGRAFICA
+            await registraLog("Apertura Anagrafica", `${p.cognome} ${p.nome}`);
+
             document.getElementById('modalTitle').textContent = "Scheda Iscritto e Storico";
             document.getElementById('editIdPersona').value = p.id;
             document.getElementById('editCognome').value = pulisciTesto(p.cognome);
@@ -2024,7 +2165,6 @@
             document.getElementById('editNumeroDocumento').value = pulisciTesto(p.numero_documento);
             document.getElementById('editScadenzaDocumento').value = formattaDataPerInputDate(p.scadenza_documento);
 
-            // Caricamento URL Iscritto (compatibilità con vecchi campi singoli `immagine_documento`)
             const urlIsc1 = p.immagine_documento_iscritto_1 || p.immagine_documento_1 || p.immagine_documento || "";
             document.getElementById('editUrl_iscritto_1').value = urlIsc1;
             if (urlIsc1) {
@@ -2043,7 +2183,6 @@
                 document.getElementById('boxAnteprima_iscritto_2').style.display = 'none';
             }
 
-            // Genitore 1
             document.getElementById('editGenitore1Cognome').value = pulisciTesto(p.genitore1_cognome || p.genitore_cognome);
             document.getElementById('editGenitore1Nome').value = pulisciTesto(p.genitore1_nome || p.genitore_nome);
             document.getElementById('editGenitore1LuogoNascita').value = pulisciTesto(p.genitore1_luogo_nascita);
@@ -2071,7 +2210,6 @@
                 document.getElementById('boxAnteprima_gen1_2').style.display = 'none';
             }
             
-            // Genitore 2
             document.getElementById('editGenitore2Cognome').value = pulisciTesto(p.genitore2_cognome);
             document.getElementById('editGenitore2Nome').value = pulisciTesto(p.genitore2_nome);
             document.getElementById('editGenitore2LuogoNascita').value = pulisciTesto(p.genitore2_luogo_nascita);
@@ -2117,7 +2255,10 @@
             await caricaStoricoPersona(p.id);
         }
 
-        document.getElementById('btnNuovoUtente').addEventListener('click', () => {
+        document.getElementById('btnNuovoUtente').addEventListener('click', async () => {
+            // TRACCIAMENTO LOG APERTURA NUOVA ANAGRAFICA
+            await registraLog("Apertura Anagrafica", "Nuova Anagrafica");
+
             document.getElementById('modalTitle').textContent = "Crea Nuovo Utente in Anagrafica";
             document.getElementById('editIdPersona').value = "";
             document.querySelectorAll('.campo-controllo, .campo-controllo-genitore').forEach(c => c.value = "");
@@ -2132,7 +2273,6 @@
             document.getElementById('editTigre').checked = false;
             document.getElementById('editCapitanoPiazza').checked = false;
             
-            // Pulisci anteprime documenti
             ['iscritto', 'gen1', 'gen2'].forEach(sogg => {
                 for (let i = 1; i <= 2; i++) {
                     document.getElementById(`editUrl_${sogg}_${i}`).value = "";
@@ -2159,7 +2299,7 @@
                     for (let sogg of ['iscritto', 'gen1', 'gen2']) {
                         for (let i = 1; i <= 2; i++) {
                             for (let ext of ['jpg', 'pdf', 'png', 'jpeg']) {
-                                await deleteObject(ref(storage, `documenti_iscritti/${id}_${sogg}_img${i}.${ext}`)).catch(() => {});
+                                await deleteObject(ref(storage, `documenti_iscritti/${id}_${soggetto}_img${i}.${ext}`)).catch(() => {});
                             }
                         }
                     }
@@ -2365,7 +2505,6 @@
             document.getElementById('btnAggiungiIscrizione').style.display = 'none';
         }
 
-        // Funzione di supporto per gestire l'abilitazione del campo numero
         window.gestisciVisibilitaNumeroIscrizione = function(selectElem) {
             const tr = selectElem.closest('tr');
             const inputNum = tr.querySelector('.input-num');
@@ -2494,6 +2633,10 @@
             const dati = raccogliDatiAnagrafica();
             if (!dati.cognome || !dati.nome) return alert("Inserisci Cognome e Nome.");
             const docRef = await addDoc(collection(db, "anagrafica"), dati);
+            
+            // TRACCIAMENTO LOG CREAZIONE ANAGRAFICA
+            await registraLog("Modifica Anagrafica", `Nuova: ${dati.cognome} ${dati.nome}`);
+
             document.getElementById('editIdPersona').value = docRef.id;
             alert("Anagrafica salvata!");
             modal.style.display = 'none';
@@ -2505,6 +2648,10 @@
             const id = document.getElementById('editIdPersona').value, dati = raccogliDatiAnagrafica();
             if (!dati.cognome || !dati.nome) return alert("Inserisci Cognome e Nome.");
             await setDoc(doc(db, "anagrafica", id), dati, { merge: true });
+            
+            // TRACCIAMENTO LOG MODIFICA ANAGRAFICA
+            await registraLog("Modifica Anagrafica", `${dati.cognome} ${dati.nome}`);
+
             alert("Modifiche salvate!");
             modal.style.display = 'none';
             cacheTuttiIscritti = [];
