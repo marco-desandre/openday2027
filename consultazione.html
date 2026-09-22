@@ -2282,47 +2282,56 @@
 		};
 
         window.salvaModificaStorico = async function(storicoId, annoStorico, btn) {
-            const tr = btn.closest('tr');
-            const nuovoTipo = tr.querySelector('.select-tipo-mod').value;
-            const nuovoNum = tr.querySelector('.input-num-mod').value.trim();
-            const idPersona = document.getElementById('editIdPersona').value;
+			const tr = btn.closest('tr');
+			const nuovoTipo = tr.querySelector('.select-tipo-mod').value;
+			const inputNumMod = tr.querySelector('.input-num-mod');
+			const nuovoNum = inputNumMod ? inputNumMod.value.trim() : "";
+			const idPersona = document.getElementById('editIdPersona').value;
 
-            if (!nuovoNum) {
-                alert("Inserisci un numero identificativo valido.");
-                return;
-            }
+			// Se è iscrizione completa il numero è obbligatorio, se è socio sostenitore mettiamo N/D
+			if (nuovoTipo === "Iscrizione Completa" && !nuovoNum) {
+				alert("Inserisci un numero identificativo valido.");
+				return;
+			}
 
-            try {
-                mostraCaricamento("Verifica duplicati e salvataggio...");
-                
-                const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoStorico))));
-                let duplicatoTrovato = false;
-                
-                snapStoricoAnno.forEach(d => {
-                    if (d.id === storicoId) return;
-                    let datiSto = d.data();
-                    let numEsistente = String(datiSto.numero_identificativo || "").trim();
-                    if (numEsistente !== "" && numEsistente.toLowerCase() === nuovoNum.toLowerCase()) {
-                        duplicatoTrovato = true;
-                    }
-                });
+			try {
+				mostraCaricamento("Verifica duplicati e salvataggio...");
+				
+				if (nuovoTipo === "Iscrizione Completa" && nuovoNum) {
+					const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoStorico))));
+					let duplicatoTrovato = false;
+					
+					snapStoricoAnno.forEach(d => {
+						if (d.id === storicoId) return;
+						let datiSto = d.data();
+						let numEsistente = String(datiSto.numero_identificativo || "").trim();
+						if (numEsistente !== "" && numEsistente.toLowerCase() === nuovoNum.toLowerCase()) {
+							duplicatoTrovato = true;
+						}
+					});
 
-                if (duplicatoTrovato) {
-                    nascondiCaricamento();
-                    alert(`⚠️ Attenzione: Il numero identificativo "${nuovoNum}" risulta già assegnato ad un altro iscritto per l'anno ${annoStorico}!`);
-                    return;
-                }
+					if (duplicatoTrovato) {
+						nascondiCaricamento();
+						alert(`⚠️ Attenzione: Il numero identificativo "${nuovoNum}" risulta già assegnato ad un altro iscritto per l'anno ${annoStorico}!`);
+						return;
+					}
+				}
 
-                await setDoc(doc(db, "storico", storicoId), { tipo_iscrizione: nuovoTipo, numero_identificativo: nuovoNum }, { merge: true });
-                cacheTuttiIscritti = [];
-                await caricaStoricoPersona(idPersona);
-                alert("Modifiche salvate con successo!");
-            } catch (error) {
-                alert("Errore durante il salvataggio: " + error.message);
-            } finally {
-                nascondiCaricamento();
-            }
-        };
+				await setDoc(doc(db, "storico", storicoId), { 
+					tipo_iscrizione: nuovoTipo, 
+					tipologia: nuovoTipo,
+					numero_identificativo: nuovoTipo === "Socio Sostenitore" ? "N/D" : nuovoNum 
+				}, { merge: true });
+				
+				cacheTuttiIscritti = [];
+				await caricaStoricoPersona(idPersona);
+				alert("Modifiche salvate con successo!");
+			} catch (error) {
+				alert("Errore durante il salvataggio: " + error.message);
+			} finally {
+				nascondiCaricamento();
+			}
+		};
 
         window.eliminaRigaStorico = async function(storicoId, idPersona) {
             if (!confirm("Sei sicuro di voler eliminare questa iscrizione dallo storico?")) return;
