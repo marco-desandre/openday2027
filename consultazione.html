@@ -1647,12 +1647,14 @@
         };
 
 		let dizionarioComuniCatastali = {};
+		let dizionarioCaricato = false;
 		
 		async function caricaDizionarioComuni() {
 			try {
 				const response = await fetch('./comuni_catastali.json');
 				if (response.ok) {
 					dizionarioComuniCatastali = await response.json();
+					dizionarioCaricato = true;
 				}
 			} catch (e) {
 				console.error("Impossibile caricare il dizionario dei comuni:", e);
@@ -1727,7 +1729,8 @@
             }
         };
 
-        function decodificaCfInCampi(cf) {
+        // Funzione di decodifica resa asincrona e sicura
+        async function decodificaCfInCampi(cf) {
             cf = cf.trim().toUpperCase();
             if (cf.length !== 16) return;
 
@@ -1751,12 +1754,22 @@
             calcolaEImpostaEta(dataNascitaIso);
 
             const codCatastale = cf.substring(11, 15);
+
+            // Se il file JSON non ha ancora finito il fetch, attende che sia pronto (massimo qualche frazione di secondo)
+            if (!dizionarioCaricato) {
+                let tentativi = 0;
+                while (!dizionarioCaricato && tentativi < 15) {
+                    await new Promise(r => setTimeout(r, 200));
+                    tentativi++;
+                }
+            }
             
-            // Lettura dal dizionario JSON caricato esternamente
-            if (dizionarioComuniCatastali[codCatastale]) {
+            // Compilazione del luogo di nascita basata sul JSON completo
+            if (dizionarioComuniCatastali && dizionarioComuniCatastali[codCatastale]) {
                 document.getElementById('editLuogoNascita').value = dizionarioComuniCatastali[codCatastale];
             } else {
-                document.getElementById('editLuogoNascita').value = ""; // Lascia vuoto se non trovato
+                document.getElementById('editLuogoNascita').value = ""; 
+                console.warn(`Codice catastale "${codCatastale}" non trovato nel dizionario.`);
             }
 
             eseguiVerificaRuntime();
