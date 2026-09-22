@@ -199,6 +199,7 @@
         <ul class="sidebar-menu">
             <li class="sidebar-item attivo" onclick="cambiaSezioneMenu('visualizzazione_standard', this)">Iscritti</li>
             <li class="sidebar-item" onclick="cambiaSezioneMenu('ricerca', this)">Ricerca filtrata</li>
+			<li class="sidebar-item" onclick="cambiaSezioneMenu('estrazione_prelazioni', this)">Estrazione prelazioni</li>
             
             <!-- GRUPPO PREMI -->
             <div class="sidebar-group-title" onclick="toggleMenuGruppo('gruppoOnorificenze', this)">
@@ -327,6 +328,46 @@
                     <table id="tabellaIscrittiFiltrata" style="display: none;">
                         <thead id="intestazioneTabellaFiltrata"></thead>
                         <tbody id="corpoTabellaFiltrata"></tbody>
+                    </table>
+                </div>
+            </div>
+
+			<!-- SEZIONE ESTRAZIONE PRELAZIONI -->
+            <div id="sezione_estrazione_prelazioni" class="sezione-app">
+                <h2>Estrazione Prelazioni</h2>
+                <p style="color: #666; font-size: 14px;">Seleziona i filtri desiderati per estrarre gli iscritti aventi diritto alla prelazione.</p>
+                
+                <div class="search-row" style="background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid #e9ecef;">
+                    <div style="display: flex; gap: 30px; align-items: center; flex-wrap: wrap;">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="flagCorviDoro" onchange="caricaDatiPrelazioni()">
+                            <label for="flagCorviDoro"><strong>Corvi d'oro</strong> (10 anni o più, senza limite massimo)</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="flag9Anni" onchange="caricaDatiPrelazioni()">
+                            <label for="flag9Anni"><strong>9 anni</strong> (Preventivo 10 anni)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="boxContatorePrelazioni" class="box-contatore" style="display: none; margin-top: 20px;">
+                    Iscritti estratti: <span id="totalePrelazioni">0</span>
+                </div>
+
+                <div id="messaggioGuidaPrelazioni" style="font-size: 14px; color: #666; text-align: center; margin: 20px 0; font-style: italic;">Seleziona almeno un filtro per visualizzare l'elenco.</div>
+
+                <div class="table-responsive">
+                    <table id="tabellaPrelazioni" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Cognome</th>
+                                <th>Nome</th>
+                                <th>Città</th>
+                                <th>Telefono</th>
+                                <th>Dettaglio / Anni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoTabellaPrelazioni"></tbody>
                     </table>
                 </div>
             </div>
@@ -1987,7 +2028,165 @@
             if (target) target.classList.add('attiva');
             if (elem) elem.classList.add('attivo');
             if (valore === 'ricerca') caricaDatiRicercaFiltrata();
+            else if (valore === 'estrazione_prelazioni') caricaDatiPrelazioni();
             else if (valore === 'configurazione') caricaTabellaUtenti();
+        };
+		
+		window.caricaDatiPrelazioni = async function() {
+            const flagCorvi = document.getElementById('flagCorviDoro').checked;
+            const flag9 = document.getElementById('flag9Anni').checked;
+            
+            const msg = document.getElementById('messaggioGuidaPrelazioni');
+            const tab = document.getElementById('tabellaPrelazioni');
+            const box = document.getElementById('boxContatorePrelazioni');
+            const tbody = document.getElementById('corpoTabellaPrelazioni');
+
+            if (!flagCorvi && !flag9) {
+                tab.style.display = 'none';
+                box.style.display = 'none';
+                msg.style.display = 'block';
+                msg.textContent = "Seleziona almeno un filtro per visualizzare l'elenco.";
+                return;
+            }
+
+            msg.textContent = "Elaborazione in corso...";
+            mostraCaricamento("Estrazione prelazioni in corso...");
+
+            try {
+                const snapAnagrafica = await getDocs(collection(db, "anagrafica"));
+                const snapStorico = await getDocs(collection(db, "storico"));
+
+                let anagraficaMap = {};
+                snapAnagrafica.forEach(docSnap => {
+                    anagraficaMap[docSnap.id] = { id: docSnap.id, ...docSnap.data() };
+                });
+
+                let storicoPerPersona = {};
+                let totaliCompletiPersona = {};
+                const annoCarnevaleNum = parseInt(annoCarnevaleCorrente, 10) || 2027;
+                const annoLimitePreventivo = annoCarnevaleNum - 1;
+
+                snapStorico.forEach(docSnap => {
+                    let st = docSnap.data();
+                    let idPers = st.id_persona;
+                    if (!idPers) return;
+
+                    let tipologia = st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || "";
+                    let tipoPulito = String(tipologia).trim().toLowerCase();
+
+                    if (tipoPulito !== "iscrizione completa") return;
+
+                    let annoNum = parseInt(st.anno, 10);
+                    if (isNaN(annoNum)) return;
+
+                    totaliCompletiPersona[idPers] = (totaliCompletiPersona[idPers] || 0) + 1;
+
+                    if (!storicoPerPersona[idPers]) storicoPerPersona[idPers] = [];
+                    storicoPerPersona[idPers].push(annoNum);
+                });
+
+                let risultatiMap = new Map();
+
+                // Calcolo Corvi d'oro (>= 10 anni consecutivi, senza limite massimo)
+                if (flagCorvi) {
+                    for (let idPers in anagraficaMap) {
+                        let persona = anagraficaMap[idPers];
+                        let anniArr = storicoPerPersona[idPers] || [];
+                        let anniNorm = anniArr.map(anno => anno > 2022 ? anno - 2 : anno);
+                        anniNorm = [...new Set(anniNorm)].sort((a, b) => a - b);
+                        
+                        let gruppiCount = {};
+                        anniNorm.forEach((annoNorm, index) => {
+                            let rn = index + 1;
+                            let grp = annoNorm - rn;
+                            gruppiCount[grp] = (gruppiCount[grp] || 0) + 1;
+                        });
+
+                        let massimoConsecutivi = 0;
+                        for (let grp in gruppiCount) {
+                            if (gruppiCount[grp] > massimoConsecutivi) massimoConsecutivi = gruppiCount[grp];
+                        }
+
+                        if (massimoConsecutivi >= 10) {
+                            risultatiMap.set(idPers, {
+                                personaCompleta: persona,
+                                cognome: formattaCognome(persona.cognome),
+                                nome: pulisciTesto(persona.nome),
+                                citta: pulisciTesto(persona.citta),
+                                telefono: pulisciTesto(persona.telefono),
+                                dettaglio: `Corvi d'oro (${massimoConsecutivi} anni consec.)`
+                            });
+                        }
+                    }
+                }
+
+                // Calcolo 9 anni (Preventivo 10 anni esatto, cioè 9 anni consecutivi calcolati fino all'anno precedente)
+                if (flag9) {
+                    for (let idPers in anagraficaMap) {
+                        let persona = anagraficaMap[idPers];
+                        let anniArr = (storicoPerPersona[idPers] || []).filter(a => a <= annoLimitePreventivo);
+                        
+                        let anniNorm = anniArr.map(anno => anno > 2022 ? anno - 2 : anno);
+                        anniNorm = [...new Set(anniNorm)].sort((a, b) => a - b);
+                        
+                        let gruppiCount = {};
+                        anniNorm.forEach((annoNorm, index) => {
+                            let rn = index + 1;
+                            let grp = annoNorm - rn;
+                            gruppiCount[grp] = (gruppiCount[grp] || 0) + 1;
+                        });
+
+                        let massimoConsecutivi = 0;
+                        for (let grp in gruppiCount) {
+                            if (gruppiCount[grp] > massimoConsecutivi) massimoConsecutivi = gruppiCount[grp];
+                        }
+
+                        if (massimoConsecutivi === 9) {
+                            risultatiMap.set(idPers, {
+                                personaCompleta: persona,
+                                cognome: formattaCognome(persona.cognome),
+                                nome: pulisciTesto(persona.nome),
+                                citta: pulisciTesto(persona.citta),
+                                telefono: pulisciTesto(persona.telefono),
+                                dettaglio: `9 anni (Preventivo)`
+                            });
+                        }
+                    }
+                }
+
+                let risultati = Array.from(risultatiMap.values());
+                risultati.sort((a, b) => a.cognome.localeCompare(b.cognome));
+
+                tbody.innerHTML = '';
+                if (risultati.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; font-style:italic;">Nessun iscritto corrisponde ai filtri selezionati.</td></tr>`;
+                } else {
+                    risultati.forEach(r => {
+                        const tr = document.createElement('tr');
+                        tr.style.cursor = 'pointer';
+                        tr.innerHTML = `
+                            <td>${r.cognome}</td>
+                            <td>${r.nome}</td>
+                            <td>${r.citta}</td>
+                            <td>${r.telefono}</td>
+                            <td><strong>${r.dettaglio}</strong></td>
+                        `;
+                        tr.addEventListener('click', () => apriModaleEsistente(r.personaCompleta));
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                document.getElementById('totalePrelazioni').textContent = risultati.length;
+                box.style.display = 'block';
+                msg.style.display = 'none';
+                tab.style.display = 'table';
+
+            } catch (error) {
+                console.error("Errore estrazione prelazioni:", error);
+                msg.textContent = "Errore durante l'estrazione: " + error.message;
+            } finally {
+                nascondiCaricamento();
+            }
         };
 
         window.cambiaModalita = function(modalita) {
