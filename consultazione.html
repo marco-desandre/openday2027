@@ -2392,7 +2392,7 @@
 
         async function caricaStoricoPersona(id) {
             const div = document.getElementById('storicoCaricamento'), tab = document.getElementById('tabellaStorico'), tbody = document.getElementById('corpoTabellaStorico');
-            tbody.innerHTML = ''; tab.style.display = 'none'; div.style.display = 'block'; div.textContent = "Caricamento storico...";
+            tbody.innerHTML = ''; 
             anniPresentiNellaScheda = [];
             
             let totaleComplete = 0;
@@ -2400,13 +2400,18 @@
 
             try {
                 const snap = await getDocs(query(collection(db, "storico"), where("id_persona", "==", id)));
+                
                 if (snap.empty) { 
+                    div.style.display = 'block';
                     div.textContent = "Nessuna iscrizione passata."; 
+                    tab.style.display = 'none'; // <-- Nasconde la tabella se vuota
                     document.getElementById('conteggioIscrizioniScheda').textContent = "0";
                     document.getElementById('conteggioConsecutiveScheda').textContent = "0";
                     return; 
                 }
-                div.style.display = 'none'; tab.style.display = 'table';
+
+                div.style.display = 'none'; 
+                tab.style.display = 'table'; // <-- Mostra la tabella se ci sono dati
                 
                 let docsList = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 docsList.sort((a, b) => parseInt(b.anno || 0, 10) - parseInt(a.anno || 0, 10));
@@ -2454,12 +2459,14 @@
                 document.getElementById('conteggioConsecutiveScheda').textContent = maxC;
 
             } catch (e) { 
+                div.style.display = 'block';
                 div.textContent = "Errore caricamento storico."; 
+                tab.style.display = 'none';
                 document.getElementById('conteggioIscrizioniScheda').textContent = "0";
                 document.getElementById('conteggioConsecutiveScheda').textContent = "0";
             }
         }
-
+		
         window.abilitaModificaStorico = function(btn, storicoId, annoStorico) {
             const tr = btn.closest('tr');
             const tdTipo = tr.querySelector('.td-tipo');
@@ -2562,8 +2569,12 @@
         };
 
         function attivaInserimentoNuovaIscrizioneEsistente() {
+            const div = document.getElementById('storicoCaricamento');
+            div.style.display = 'none'; // <-- Nasconde il messaggio di storico vuoto
+            
             const tbody = document.getElementById('corpoTabellaStorico');
             document.getElementById('tabellaStorico').style.display = 'table';
+            
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${annoCarnevaleCorrente}</td>
@@ -2579,7 +2590,7 @@
             tbody.insertBefore(tr, tbody.firstChild);
             document.getElementById('btnAggiungiIscrizione').style.display = 'none';
         }
-
+		
         window.gestisciVisibilitaNumeroIscrizione = function(selectElem) {
             const tr = selectElem.closest('tr');
             const inputNum = tr.querySelector('.input-num');
