@@ -1646,20 +1646,21 @@
             alert("Configurazione salvata con successo!");
         };
 
-        const dizionarioComuniCatastali = {
-            "L219": "Torino", "H501": "Roma", "F205": "Milano", "F839": "Napoli",
-            "E379": "Ivrea", "C652": "Chivasso", "C722": "Ciriè", "L872": "Vigliano",
-            "A859": "Biella", "L750": "Vercelli", "A479": "Asti", "A182": "Alessandria",
-            "D205": "Cuneo", "F952": "Novara", "L746": "Verbania", "D969": "Genova",
-            "A944": "Bologna", "D612": "Firenze", "L736": "Venezia"
-        };
-        const dizionarioNomiComuni = {
-            "TORINO": "L219", "ROMA": "H501", "MILANO": "F205", "NAPOLI": "F839",
-            "IVREA": "E379", "CHIVASSO": "C652", "CIRIE'": "C722", "CIRIE": "C722",
-            "VIGLIANO": "L872", "BIELLA": "A859", "VERCELLI": "L750", "ASTI": "A479",
-            "ALESSANDRIA": "A182", "CUNEO": "D205", "NOVARA": "F952", "VERBANIA": "L746",
-            "GENOVA": "D969", "BOLOGNA": "A944", "FIRENZE": "D612", "VENEZIA": "L736"
-        };
+		let dizionarioComuniCatastali = {};
+		
+		async function caricaDizionarioComuni() {
+			try {
+				const response = await fetch('./comuni_catastali.json');
+				if (response.ok) {
+					dizionarioComuniCatastali = await response.json();
+				}
+			} catch (e) {
+				console.error("Impossibile caricare il dizionario dei comuni:", e);
+			}
+		}
+
+		// Avvia il caricamento non appena parte lo script
+		caricaDizionarioComuni();
 
         function calcolaCodiceFiscaleGenerico(cognome, nome, luogo, dataNascita) {
             if (!cognome || !nome || !luogo || !dataNascita) return null;
@@ -1750,13 +1751,17 @@
             calcolaEImpostaEta(dataNascitaIso);
 
             const codCatastale = cf.substring(11, 15);
+            
+            // Lettura dal dizionario JSON caricato esternamente
             if (dizionarioComuniCatastali[codCatastale]) {
                 document.getElementById('editLuogoNascita').value = dizionarioComuniCatastali[codCatastale];
+            } else {
+                document.getElementById('editLuogoNascita').value = ""; // Lascia vuoto se non trovato
             }
 
             eseguiVerificaRuntime();
         }
-
+		
         document.getElementById('editCodiceFiscale').addEventListener('input', function(e) {
             let val = e.target.value.trim().toUpperCase();
             if (val.length === 16) decodificaCfInCampi(val);
