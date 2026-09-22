@@ -2375,9 +2375,11 @@
 		};
 
         window.salvaNuovaIscrizioneDiretta = async function(btn) {
-			const tr = btn.closest('tr'), idPersona = document.getElementById('editIdPersona').value;
-			const tipoScelto = tr.querySelector('.select-tipo').value;
-			const num = tipoScelto === "Socio Sostenitore" ? "N/D" : tr.querySelector('.input-num').value.trim();
+			const tr = btn.closest('tr');
+			const idPersona = document.getElementById('editIdPersona').value;
+			const tipoScelto = tr.querySelector('.select-tipo').value; // "Iscrizione Completa" o "Socio Sostenitore"
+			const inputNumElem = tr.querySelector('.input-num');
+			const num = tipoScelto === "Socio Sostenitore" ? "N/D" : (inputNumElem ? inputNumElem.value.trim() : "");
 			
 			if (tipoScelto === "Iscrizione Completa" && !num) {
 				return alert("Inserisci il numero identificativo.");
@@ -2405,16 +2407,18 @@
 					}
 				}
 
+				// Salvataggio su Firestore con i campi standardizzati
 				await addDoc(collection(db, "storico"), { 
 					id_persona: idPersona, 
-					anno: annoCarnevaleCorrente, 
+					anno: String(annoCarnevaleCorrente), 
 					tipo_iscrizione: tipoScelto, 
+					tipologia: tipoScelto, // Salviamo entrambi per massima compatibilità con le vecchie query
 					numero_identificativo: num, 
 					creato_da: aliasUtenteLoggato, 
 					creato_il: new Date().toLocaleString('it-IT') 
 				});
 
-				alert("Salvato!");
+				alert("Iscrizione salvata con successo!");
 				cacheTuttiIscritti = [];
 				document.getElementById('btnAggiungiIscrizione').style.display = 'block';
 				await caricaStoricoPersona(idPersona);
