@@ -2253,19 +2253,41 @@
 
             const valTipo = tdTipo.textContent.trim();
             const valNum = tdNum.textContent.trim();
+            const isSocioSostenitore = valTipo === 'Socio Sostenitore';
 
-            tdTipo.innerHTML = `<select class="input-storico select-tipo-mod"><option value="Iscrizione Completa" ${valTipo === 'Iscrizione Completa' ? 'selected' : ''}>Iscrizione Completa</option></select>`;
-            tdNum.innerHTML = `<input type="text" class="input-storico input-num-mod" value="${valNum}">`;
+            tdTipo.innerHTML = `
+                <select class="input-storico select-tipo-mod" onchange="gestisciVisibilitaNumeroModifica(this)">
+                    <option value="Iscrizione Completa" ${!isSocioSostenitore ? 'selected' : ''}>Iscrizione Completa</option>
+                    <option value="Socio Sostenitore" ${isSocioSostenitore ? 'selected' : ''}>Socio Sostenitore</option>
+                </select>
+            `;
+            tdNum.innerHTML = `<input type="text" class="input-storico input-num-mod" value="${isSocioSostenitore ? '' : valNum}" ${isSocioSostenitore ? 'disabled style="background-color: #e9ecef;" placeholder="Non richiesto"' : ''}>`;
             tdAzioni.innerHTML = `<button type="button" class="btn-azione btn-salva-storico" onclick="salvaModificaStorico('${storicoId}', '${annoStorico}', this)">Salva</button>`;
         };
 
+        window.gestisciVisibilitaNumeroModifica = function(selectElem) {
+            const tr = selectElem.closest('tr');
+            const inputNum = tr.querySelector('.input-num-mod');
+            if (selectElem.value === "Socio Sostenitore") {
+                inputNum.value = "";
+                inputNum.disabled = true;
+                inputNum.placeholder = "Non richiesto";
+                inputNum.style.backgroundColor = "#e9ecef";
+            } else {
+                inputNum.disabled = false;
+                inputNum.placeholder = "Numero...";
+                inputNum.style.backgroundColor = "#fff";
+            }
+        };
+		
         window.salvaModificaStorico = async function(storicoId, annoStorico, btn) {
             const tr = btn.closest('tr');
             const nuovoTipo = tr.querySelector('.select-tipo-mod').value;
-            const nuovoNum = tr.querySelector('.input-num-mod').value.trim();
+            const inputNumMod = tr.querySelector('.input-num-mod');
+            const nuovoNum = inputNumMod ? inputNumMod.value.trim() : "";
             const idPersona = document.getElementById('editIdPersona').value;
 
-            if (!nuovoNum) {
+            if (nuovoTipo !== "Socio Sostenitore" && !nuovoNum) {
                 alert("Inserisci un numero identificativo valido.");
                 return;
             }
@@ -2273,25 +2295,32 @@
             try {
                 mostraCaricamento("Verifica duplicati e salvataggio...");
                 
-                const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoStorico))));
-                let duplicatoTrovato = false;
-                
-                snapStoricoAnno.forEach(d => {
-                    if (d.id === storicoId) return;
-                    let datiSto = d.data();
-                    let numEsistente = String(datiSto.numero_identificativo || "").trim();
-                    if (numEsistente !== "" && numEsistente.toLowerCase() === nuovoNum.toLowerCase()) {
-                        duplicatoTrovato = true;
-                    }
-                });
+                if (nuovoTipo !== "Socio Sostenitore" && nuovoNum) {
+                    const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoStorico))));
+                    let duplicatoTrovato = false;
+                    
+                    snapStoricoAnno.forEach(d => {
+                        if (d.id === storicoId) return;
+                        let datiSto = d.data();
+                        let numEsistente = String(datiSto.numero_identificativo || "").trim();
+                        if (numEsistente !== "" && numEsistente.toLowerCase() === nuovoNum.toLowerCase()) {
+                            duplicatoTrovato = true;
+                        }
+                    });
 
-                if (duplicatoTrovato) {
-                    nascondiCaricamento();
-                    alert(`⚠️ Attenzione: Il numero identificativo "${nuovoNum}" risulta già assegnato ad un altro iscritto per l'anno ${annoStorico}!`);
-                    return;
+                    if (duplicatoTrovato) {
+                        nascondiCaricamento();
+                        alert(`⚠️ Attenzione: Il numero identificativo "${nuovoNum}" risulta già assegnato ad un altro iscritto per l'anno ${annoStorico}!`);
+                        return;
+                    }
                 }
 
-                await setDoc(doc(db, "storico", storicoId), { tipo_iscrizione: nuovoTipo, numero_identificativo: nuovoNum }, { merge: true });
+                await setDoc(doc(db, "storico", storicoId), { 
+                    tipo_iscrizione: nuovoTipo, 
+                    tipologia: nuovoTipo,
+                    numero_identificativo: nuovoTipo === "Socio Sostenitore" ? "N/D" : nuovoNum 
+                }, { merge: true });
+                
                 cacheTuttiIscritti = [];
                 await caricaStoricoPersona(idPersona);
                 alert("Modifiche salvate con successo!");
@@ -2301,7 +2330,7 @@
                 nascondiCaricamento();
             }
         };
-
+		
         window.eliminaRigaStorico = async function(storicoId, idPersona) {
             if (!confirm("Sei sicuro di voler eliminare questa iscrizione dallo storico?")) return;
             try {
@@ -2321,41 +2350,78 @@
             const tbody = document.getElementById('corpoTabellaStorico');
             document.getElementById('tabellaStorico').style.display = 'table';
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${annoCarnevaleCorrente}</td><td><select class="input-storico select-tipo"><option value="Iscrizione Completa">Iscrizione Completa</option></select></td><td><input type="text" class="input-storico input-num" id="inputNuovoNumId" placeholder="Numero..."></td><td><button type="button" class="btn-azione btn-salva-storico" onclick="salvaNuovaIscrizioneDiretta(this)">Salva</button></td>`;
+            tr.innerHTML = `
+                <td>${annoCarnevaleCorrente}</td>
+                <td>
+                    <select class="input-storico select-tipo" onchange="gestisciVisibilitaNumeroIscrizione(this)">
+                        <option value="Iscrizione Completa">Iscrizione Completa</option>
+                        <option value="Socio Sostenitore">Socio Sostenitore</option>
+                    </select>
+                </td>
+                <td><input type="text" class="input-storico input-num" id="inputNuovoNumId" placeholder="Numero..."></td>
+                <td><button type="button" class="btn-azione btn-salva-storico" onclick="salvaNuovaIscrizioneDiretta(this)">Salva</button></td>
+            `;
             tbody.insertBefore(tr, tbody.firstChild);
             document.getElementById('btnAggiungiIscrizione').style.display = 'none';
         }
 
+        // Funzione di supporto per gestire l'abilitazione del campo numero
+        window.gestisciVisibilitaNumeroIscrizione = function(selectElem) {
+            const tr = selectElem.closest('tr');
+            const inputNum = tr.querySelector('.input-num');
+            if (selectElem.value === "Socio Sostenitore") {
+                inputNum.value = "";
+                inputNum.disabled = true;
+                inputNum.placeholder = "Non richiesto";
+                inputNum.style.backgroundColor = "#e9ecef";
+            } else {
+                inputNum.disabled = false;
+                inputNum.placeholder = "Numero...";
+                inputNum.style.backgroundColor = "#fff";
+            }
+        };
+
         window.salvaNuovaIscrizioneDiretta = async function(btn) {
-            const tr = btn.closest('tr'), idPersona = document.getElementById('editIdPersona').value;
-            const num = tr.querySelector('.input-num').value.trim();
-            if (!num) return alert("Inserisci il numero identificativo.");
+            const tr = btn.closest('tr');
+            const idPersona = document.getElementById('editIdPersona').value;
+            const selectTipo = tr.querySelector('.select-tipo');
+            const tipoScelto = selectTipo ? selectTipo.value : "Iscrizione Completa";
+            
+            const inputNum = tr.querySelector('.input-num');
+            const num = inputNum ? inputNum.value.trim() : "";
+            
+            if (tipoScelto !== "Socio Sostenitore" && !num) {
+                return alert("Inserisci il numero identificativo.");
+            }
 
             try {
                 mostraCaricamento("Verifica duplicati e salvataggio...");
 
-                const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoCarnevaleCorrente))));
-                let duplicatoTrovato = false;
+                if (tipoScelto !== "Socio Sostenitore" && num) {
+                    const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoCarnevaleCorrente))));
+                    let duplicatoTrovato = false;
 
-                snapStoricoAnno.forEach(d => {
-                    let datiSto = d.data();
-                    let numEsistente = String(datiSto.numero_identificativo || "").trim();
-                    if (numEsistente !== "" && numEsistente.toLowerCase() === num.toLowerCase()) {
-                        duplicatoTrovato = true;
+                    snapStoricoAnno.forEach(d => {
+                        let datiSto = d.data();
+                        let numEsistente = String(datiSto.numero_identificativo || "").trim();
+                        if (numEsistente !== "" && numEsistente.toLowerCase() === num.toLowerCase()) {
+                            duplicatoTrovato = true;
+                        }
+                    });
+
+                    if (duplicatoTrovato) {
+                        nascondiCaricamento();
+                        alert(`⚠️ Attenzione: Il numero identificativo "${num}" è già stato registrato per l'anno ${annoCarnevaleCorrente}!`);
+                        return;
                     }
-                });
-
-                if (duplicatoTrovato) {
-                    nascondiCaricamento();
-                    alert(`⚠️ Attenzione: Il numero identificativo "${num}" è già stato registrato per l'anno ${annoCarnevaleCorrente}!`);
-                    return;
                 }
 
                 await addDoc(collection(db, "storico"), { 
                     id_persona: idPersona, 
-                    anno: annoCarnevaleCorrente, 
-                    tipo_iscrizione: "Iscrizione Completa", 
-                    numero_identificativo: num, 
+                    anno: String(annoCarnevaleCorrente), 
+                    tipo_iscrizione: tipoScelto, 
+                    tipologia: tipoScelto, 
+                    numero_identificativo: tipoScelto === "Socio Sostenitore" ? "N/D" : num, 
                     creato_da: aliasUtenteLoggato, 
                     creato_il: new Date().toLocaleString('it-IT') 
                 });
@@ -2370,7 +2436,7 @@
                 nascondiCaricamento();
             }
         };
-
+		
         document.getElementById('btnChiudiX').addEventListener('click', () => {
             fermaWebcam();
             modal.style.display = 'none';
