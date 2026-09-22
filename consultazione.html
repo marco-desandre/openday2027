@@ -909,7 +909,6 @@
                 const emailUtente = auth.currentUser ? auth.currentUser.email : "Anonimo";
                 const aliasUtente = aliasUtenteLoggato || emailUtente;
 
-                // Formato corretto: data;ora;azione;utente, alias
                 const azioneCompleta = azione + (dettaglioAnagrafica ? ' - ' + dettaglioAnagrafica : '');
                 const rigaFormattata = `${dataStr};${oraStr};${azioneCompleta};${emailUtente}, ${aliasUtente}`;
 
@@ -1366,7 +1365,6 @@
                 document.getElementById('loginOverlay').style.display = 'none';
                 document.getElementById('userEmailDisplayHeader').textContent = aliasUtenteLoggato;
 
-                // TRACCIAMENTO LOG LOGIN
                 await registraLog("Login");
 
                 const boxModalita = document.getElementById('boxModalita');
@@ -1888,7 +1886,6 @@
                 snap.forEach(docSnap => {
                     let data = docSnap.data();
                     let ruolo = String(data.ruolo || "").trim().toLowerCase();
-                    // Se l'utente è un 'User' (e non Admin) ed è attualmente attivo
                     if (ruolo === 'user' && data.attivo !== false) {
                         batchUpdates.push(setDoc(doc(db, "utenti", docSnap.id), { attivo: false }, { merge: true }));
                     }
@@ -2172,7 +2169,6 @@
         const modal = document.getElementById('editModal');
 
         async function apriModaleEsistente(p) {
-            // TRACCIAMENTO LOG APERTURA ANAGRAFICA
             await registraLog("Apertura Anagrafica", `${p.cognome} ${p.nome}`);
 
             document.getElementById('modalTitle').textContent = "Scheda Iscritto e Storico";
@@ -2272,7 +2268,6 @@
             document.getElementById('editTigre').checked = Boolean(p.tigre);
             document.getElementById('editCapitanoPiazza').checked = Boolean(p.capitano_piazza);
 
-            // Disabilita i flag per gli utenti standard (User)
             const isUserMode = (modalitaCorrente === 'user');
             document.getElementById('editTigre').disabled = isUserMode;
             document.getElementById('editCapitanoPiazza').disabled = isUserMode;
@@ -2328,8 +2323,8 @@
             document.getElementById('conteggioConsecutiveScheda').textContent = "0";
             
             const btnSalva = document.getElementById('btnSalva');
-            btnSalva.textContent = "Crea Anagrafica"; // <-- Testo modificato
-            btnSalva.onclick = gestisciCreazioneNuovaAnagrafica; // <-- Nuova funzione dedicata
+            btnSalva.textContent = "Crea Anagrafica";
+            btnSalva.onclick = gestisciCreazioneNuovaAnagrafica;
             
             modal.style.display = 'flex';
             controllaCampiVuoti();
@@ -2348,14 +2343,12 @@
                 
                 alert("Anagrafica creata con successo! Ora puoi inserire l'iscrizione nello storico sottostante.");
                 
-                // Sblocca la sezione storico e mostra il pulsante per aggiungere l'iscrizione
                 document.getElementById('sezioneStoricoContainer').style.display = 'block';
-                document.getElementById('btnAggiungiIscrizione').style.display = 'block'; // <-- Mostra il pulsante
-                document.getElementById('btnAggiungiIscrizione').onclick = attivaInserimentoNuovaIscrizioneEsistente; // <-- Assegna l'azione
+                document.getElementById('btnAggiungiIscrizione').style.display = 'block';
+                document.getElementById('btnAggiungiIscrizione').onclick = attivaInserimentoNuovaIscrizioneEsistente;
                 
                 await caricaStoricoPersona(docRef.id);
 
-                // Cambia il testo del pulsante principale per le future modifiche
                 const btnSalva = document.getElementById('btnSalva');
                 btnSalva.textContent = "Salva Modifiche Anagrafica";
                 btnSalva.onclick = gestisciSalvataggioEsistente;
@@ -2384,7 +2377,6 @@
                 await Promise.all(snap.docs.map(d => deleteDoc(doc(db, "storico", d.id))));
                 await deleteDoc(doc(db, "anagrafica", id));
                 
-                // TRACCIAMENTO LOG ELIMINAZIONE ANAGRAFICA
                 await registraLog("Elimina anagrafica", `ID: ${id}`);
 
                 alert("Eliminato con successo!");
@@ -2408,14 +2400,14 @@
                 if (snap.empty) { 
                     div.style.display = 'block';
                     div.textContent = "Nessuna iscrizione passata."; 
-                    tab.style.display = 'none'; // <-- Nasconde la tabella se vuota
+                    tab.style.display = 'none';
                     document.getElementById('conteggioIscrizioniScheda').textContent = "0";
                     document.getElementById('conteggioConsecutiveScheda').textContent = "0";
                     return; 
                 }
 
                 div.style.display = 'none'; 
-                tab.style.display = 'table'; // <-- Mostra la tabella se ci sono dati
+                tab.style.display = 'table';
                 
                 let docsList = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 docsList.sort((a, b) => parseInt(b.anno || 0, 10) - parseInt(a.anno || 0, 10));
@@ -2436,7 +2428,7 @@
                     if (modalitaCorrente === 'admin') {
                         azioniHtml = `
                             <button type="button" class="btn-azione btn-modifica-storico" onclick="abilitaModificaStorico(this, '${st.id}', '${st.anno}')">Modifica</button>
-                            <button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaRigaStorico('${st.id}', '${id}', '${st.anno}', '${st.numero_identificativo}')"
+                            <button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaRigaStorico('${st.id}', '${id}', '${st.anno}', '${st.numero_identificativo}')">Elimina</button>
                         `;
                     }
 
@@ -2547,7 +2539,6 @@
                     numero_identificativo: nuovoTipo === "Socio Sostenitore" ? "N/D" : nuovoNum 
                 }, { merge: true });
                 
-                // TRACCIAMENTO LOG MODIFICA ISCRIZIONE
                 await registraLog("Modifica iscrizione", `Anno ${annoStorico} - ${nuovoTipo}`);
 
                 cacheTuttiIscritti = [];
@@ -2566,7 +2557,6 @@
                 mostraCaricamento("Eliminazione iscrizione...");
                 await deleteDoc(doc(db, "storico", storicoId));
                 
-                // TRACCIAMENTO LOG ELIMINAZIONE ISCRIZIONE
                 await registraLog("Eliminazione iscrizione", `Anno: ${annoIscrizione} ID: ${numIdentificativo}`);
 
                 cacheTuttiIscritti = [];
@@ -2581,7 +2571,7 @@
 		
         function attivaInserimentoNuovaIscrizioneEsistente() {
             const div = document.getElementById('storicoCaricamento');
-            div.style.display = 'none'; // <-- Nasconde il messaggio di storico vuoto
+            div.style.display = 'none';
             
             const tbody = document.getElementById('corpoTabellaStorico');
             document.getElementById('tabellaStorico').style.display = 'table';
@@ -2664,7 +2654,6 @@
                     creato_il: new Date().toLocaleString('it-IT') 
                 });
 
-                // TRACCIAMENTO LOG AGGIUNTA ISCRIZIONE
                 await registraLog("Inserita iscrizione", `Anno: ${annoCarnevaleCorrente} ID: ${numIdentificativoFinale}`);
 
                 alert("Salvato!");
@@ -2684,8 +2673,6 @@
         });
 
         function raccogliDatiAnagrafica() {
-            const isUserMode = (modalitaCorrente === 'user');
-            
             let dati = {
                 cognome: document.getElementById('editCognome').value.trim().toUpperCase(),
                 nome: document.getElementById('editNome').value.trim(),
@@ -2740,7 +2727,6 @@
             if (!dati.cognome || !dati.nome) return alert("Inserisci Cognome e Nome.");
             const docRef = await addDoc(collection(db, "anagrafica"), dati);
             
-            // TRACCIAMENTO LOG CREAZIONE ANAGRAFICA
             await registraLog("Modifica Anagrafica", `Nuova: ${dati.cognome} ${dati.nome}`);
 
             document.getElementById('editIdPersona').value = docRef.id;
@@ -2755,7 +2741,6 @@
             if (!dati.cognome || !dati.nome) return alert("Inserisci Cognome e Nome.");
             await setDoc(doc(db, "anagrafica", id), dati, { merge: true });
             
-            // TRACCIAMENTO LOG MODIFICA ANAGRAFICA
             await registraLog("Modifica Anagrafica", `${dati.cognome} ${dati.nome}`);
 
             alert("Modifiche salvate!");
