@@ -2386,22 +2386,24 @@
         window.salvaNuovaIscrizioneDiretta = async function(btn) {
 			const tr = btn.closest('tr');
 			const idPersona = document.getElementById('editIdPersona').value;
-			const selectTipo = tr.querySelector('.select-tipo');
+			
+			// Seleziona direttamente il tag select e input presenti nella riga (più sicuro e immune a errori di classi)
+			const selectTipo = tr.querySelector('select');
 			const tipoScelto = selectTipo ? selectTipo.value : "Iscrizione Completa";
 			
-			const inputNum = tr.querySelector('.input-num');
+			const inputNum = tr.querySelector('input');
 			const num = inputNum ? inputNum.value.trim() : "";
 			
-			// Controlla il numero solo se è un'Iscrizione Completa
-			if (tipoScelto === "Iscrizione Completa" && !num) {
+			// Se NON è Socio Sostenitore, il numero identificativo è obbligatorio
+			if (tipoScelto !== "Socio Sostenitore" && !num) {
 				return alert("Inserisci il numero identificativo.");
 			}
 
 			try {
 				mostraCaricamento("Verifica duplicati e salvataggio...");
 
-				// Eseguiamo il controllo duplicati solo se c'è un numero identificativo valido
-				if (tipoScelto === "Iscrizione Completa" && num) {
+				// Eseguiamo il controllo duplicati solo se c'è un numero identificativo valido e non è un socio sostenitore
+				if (tipoScelto !== "Socio Sostenitore" && num) {
 					const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoCarnevaleCorrente))));
 					let duplicatoTrovato = false;
 
