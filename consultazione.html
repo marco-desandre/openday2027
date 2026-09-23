@@ -923,7 +923,7 @@
 		import { getDatabase, ref as dbRef, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 		let dizionarioComuniCatastali = {};
-		let dizionarioNomiComuni = {}; // <-- Aggiunto per il calcolo del CF
+		let dizionarioNomiComuni = {};
 		let dizionarioCaricato = false;
 		
         const k1 = "AIzaSyCjfPICynrV";
@@ -960,14 +960,13 @@
         let configCodiceFiscale = localStorage.getItem('config_cf') !== 'false';
         let configDocumento = localStorage.getItem('config_doc') !== 'false';
 		
-		let usaCameraPosteriore = true; // Di default parte con la posteriore o la predefinita
+		let usaCameraPosteriore = true;
 
         document.getElementById('inputAnnoCarnevale').value = annoCarnevaleCorrente;
         document.getElementById('configFlagCodiceFiscale').checked = configCodiceFiscale;
         document.getElementById('configFlagDocumento').checked = configDocumento;
 
-        
-		// Configurazione e inizializzazione del database secondario Ticket Dispenser
+        // Configurazione e inizializzazione del database secondario Ticket Dispenser
         const ticketDispenserConfig = {
             databaseURL: "https://ticketdispensertuchini-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "ticketdispensertuchini"
@@ -979,30 +978,7 @@
         }
         const dbTicket = getDatabase(secondaryApp);
 
-        function attivaInserimentoNuovaIscrizioneEsistente() {
-            const div = document.getElementById('storicoCaricamento');
-            div.style.display = 'none';
-            
-            const tbody = document.getElementById('corpoTabellaStorico');
-            document.getElementById('tabellaStorico').style.display = 'table';
-            
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${annoCarnevaleCorrente}</td>
-                <td>
-                    <select class="input-storico select-tipo" onchange="gestisciVisibilitaNumeroIscrizione(this)">
-                        <option value="Iscrizione Completa">Iscrizione Completa</option>
-                        <option value="Socio Sostenitore">Socio Sostenitore</option>
-                    </select>
-                </td>
-                <td><input type="text" class="input-storico input-num" id="inputNuovoNumId" placeholder="Numero..."></td>
-                <td><button type="button" class="btn-azione btn-salva-storico" onclick="salvaNuovaIscrizioneDiretta(this)">Salva</button></td>
-            `;
-            tbody.insertBefore(tr, tbody.firstChild);
-            document.getElementById('btnAggiungiIscrizione').style.display = 'none';
-        }
-		
-		window.esportaSuTicketDispenser = async function() {
+        window.esportaSuTicketDispenser = async function() {
             const tbody = document.getElementById('corpoTabellaPrelazioni');
             const righe = Array.from(tbody.getElementsByTagName('tr'));
             
@@ -1041,7 +1017,6 @@
                     }
                 });
 
-                // Scrittura sul nodo dedicato del DB secondario usando l'alias corretto dbRef
                 await set(dbRef(dbTicket, 'prelazioni_corvidoro'), mappaAbilitati);
 
                 nascondiCaricamento();
@@ -1053,7 +1028,6 @@
             }
         };
 	
-		// FUNZIONE DI EXPORT SU CSV DELLE PRELAZIONI
 		window.esportaPrelazioniCSV = function() {
             const tbody = document.getElementById('corpoTabellaPrelazioni');
             const righe = Array.from(tbody.getElementsByTagName('tr'));
@@ -1092,6 +1066,7 @@
             document.body.removeChild(link);
         };
 
+        // FUNZIONE DI INSERIMENTO NUOVA ISCRIZIONE NELLO STORICO (CORRETTA DENTRO IL MODULO)
 		function attivaInserimentoNuovaIscrizioneEsistente() {
             const div = document.getElementById('storicoCaricamento');
             div.style.display = 'none';
@@ -1099,7 +1074,6 @@
             const tbody = document.getElementById('corpoTabellaStorico');
             document.getElementById('tabellaStorico').style.display = 'table';
             
-            // Generazione dinamica della selezione anno per Admin vs User
             let annoHtml = '';
             const annoMax = parseInt(annoCarnevaleCorrente, 10) || 2027;
 
@@ -1128,13 +1102,13 @@
             tbody.insertBefore(tr, tbody.firstChild);
             document.getElementById('btnAggiungiIscrizione').style.display = 'none';
         }
+        window.attivaInserimentoNuovaIscrizioneEsistente = attivaInserimentoNuovaIscrizioneEsistente;
 
-        // FUNZIONE DI REGISTRAZIONE LOG
         async function registraLog(azione, dettaglioAnagrafica = "") {
             try {
                 const adesso = new Date();
-                const dataStr = adesso.toLocaleDateString('it-IT'); // GG/MM/AAAA
-                const oraStr = adesso.toLocaleTimeString('it-IT');   // HH:MM:SS
+                const dataStr = adesso.toLocaleDateString('it-IT');
+                const oraStr = adesso.toLocaleTimeString('it-IT');
                 const emailUtente = auth.currentUser ? auth.currentUser.email : "Anonimo";
                 const aliasUtente = aliasUtenteLoggato || emailUtente;
 
@@ -1264,7 +1238,6 @@
 			targetWebcamSoggetto = soggetto;
 			targetWebcamSlot = slot;
 			
-			// Ferma eventuali stream attivi prima di riaprire
 			if (streamWebcam) {
 				streamWebcam.getTracks().forEach(track => track.stop());
 			}
@@ -1284,7 +1257,6 @@
 				document.getElementById('titoloWebcamAttiva').textContent = `Acquisizione Webcam (${soggetto.toUpperCase()} - Immagine ${slot})`;
 				document.getElementById('boxContainerWebcamGenerale').style.display = 'block';
 			} catch (err) {
-				// Fallback nel caso in cui "exact: environment" non sia supportato da qualche browser mobile
 				try {
 					const fallbackConstraints = {
 						video: {
@@ -1307,7 +1279,7 @@
 			await avviaWebcam(targetWebcamSoggetto, targetWebcamSlot);
 		};
 
-        function riduciImmagineBase64(dataUrl, maxWidth = 1024, quality = 1) { // --- MODIFICA QUI RISOLUZIONE IMMAGINE SALVATA!
+        function riduciImmagineBase64(dataUrl, maxWidth = 1024, quality = 1) {
             return new Promise((resolve) => {
                 const img = new Image();
                 img.src = dataUrl;
@@ -1380,7 +1352,6 @@
             }
 
             const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith('.pdf');
-            const estensione = isPdf ? 'pdf' : 'jpg';
 
             try {
                 mostraCaricamento(`Caricamento file su Storage...`);
@@ -1722,15 +1693,12 @@
             alert("Configurazione salvata con successo!");
         };
 
-		
-		
 		async function caricaDizionarioComuni() {
 			try {
 				const response = await fetch('./comuni_catastali.json');
 				if (response.ok) {
 					dizionarioComuniCatastali = await response.json();
 					
-					// Crea automaticamente la mappa inversa (Nome Comune -> Codice Catastale)
 					for (let [codice, nome] of Object.entries(dizionarioComuniCatastali)) {
 						dizionarioNomiComuni[nome.toUpperCase()] = codice;
 					}
@@ -1759,8 +1727,8 @@
             if (pData.length !== 3) return null;
             let anno = pData[0].substring(2, 4);
             let mCod = { '01': 'A', '02': 'B', '03': 'C', '04': 'D', '05': 'E', '06': 'H', '07': 'L', '08': 'M', '09': 'P', '10': 'R', '11': 'S', '12': 'T' };
-            let mese = mCod[pData[1]] || 'A';                               // Mese corretto (indice 1)
-            let giorno = String(parseInt(pData[2], 10)).padStart(2, '0');  // Giorno corretto (indice 2)
+            let mese = mCod[pData[1]] || 'A';
+            let giorno = String(parseInt(pData[2], 10)).padStart(2, '0');
             let codCat = dizionarioNomiComuni[luogo.toUpperCase()] || "H501";
 
             let cfParz = partCog + partNom + anno + mese + giorno + codCat;
@@ -1810,7 +1778,6 @@
             }
         };
 
-        // Funzione di decodifica resa asincrona e sicura
         async function decodificaCfInCampi(cf) {
             cf = cf.trim().toUpperCase();
             if (cf.length !== 16) return;
@@ -1836,7 +1803,6 @@
 
             const codCatastale = cf.substring(11, 15);
 
-            // Se il file JSON non ha ancora finito il fetch, attende che sia pronto (massimo qualche frazione di secondo)
             if (!dizionarioCaricato) {
                 let tentativi = 0;
                 while (!dizionarioCaricato && tentativi < 15) {
@@ -1845,18 +1811,15 @@
                 }
             }
             
-            // Compilazione del luogo di nascita basata sul JSON completo
             if (dizionarioComuniCatastali && dizionarioComuniCatastali[codCatastale]) {
                 document.getElementById('editLuogoNascita').value = dizionarioComuniCatastali[codCatastale];
             } else {
                 document.getElementById('editLuogoNascita').value = ""; 
-                console.warn(`Codice catastale "${codCatastale}" non trovato nel dizionario.`);
             }
 
             eseguiVerificaRuntime();
         }
 		
-		// Funzione di decodifica specifica per i Genitori
         async function decodificaCfGenitoreInCampi(cf, numGen) {
             cf = cf.trim().toUpperCase();
             if (cf.length !== 16) return;
@@ -1881,7 +1844,6 @@
 
             const codCatastale = cf.substring(11, 15);
 
-            // Attende che il dizionario dei comuni sia pronto se il fetch è ancora in corso
             if (!dizionarioCaricato) {
                 let tentativi = 0;
                 while (!dizionarioCaricato && tentativi < 15) {
@@ -1897,7 +1859,6 @@
             }
         }
 
-        // Ascoltatori per l'inserimento in tempo reale del Codice Fiscale dei genitori
         document.getElementById('editGenitore1CodiceFiscale').addEventListener('input', function(e) {
             let val = e.target.value.trim().toUpperCase();
             if (val.length === 16) decodificaCfGenitoreInCampi(val, 1);
@@ -1983,7 +1944,6 @@
                         valoreCalcolato = totaleIscrizioni;
                     }
 
-                    // Verifica della soglia minima e dell'eventuale limite massimo (< limiteMax)
                     if (valoreCalcolato >= sogliaAnni) {
                         if (limiteMax === null || valoreCalcolato < limiteMax) {
                             passaCriterio = true;
@@ -2426,7 +2386,6 @@
 
                 let risultatiMap = new Map();
 
-                // Calcolo Corvi d'oro (>= 10 anni consecutivi, senza limite massimo)
                 if (flagCorvi) {
                     for (let idPers in anagraficaMap) {
                         let persona = anagraficaMap[idPers];
@@ -2459,7 +2418,6 @@
                     }
                 }
 
-                // Calcolo 9 anni (Preventivo 10 anni esatto, cioè 9 anni consecutivi calcolati fino all'anno precedente)
                 if (flag9) {
                     for (let idPers in anagraficaMap) {
                         let persona = anagraficaMap[idPers];
@@ -2627,7 +2585,7 @@
             const cog = document.getElementById('editCognome').value.trim();
             const nom = document.getElementById('editNome').value.trim();
             const dat = document.getElementById('editDataNascita').value.trim();
-            const idC = document.getElementById('editIdPersona').value.trim(); // ID della persona in modifica (se esiste)
+            const idC = document.getElementById('editIdPersona').value.trim();
             const msg = document.getElementById('messaggioRuntimeDuplicato');
             const btnSalva = document.getElementById('btnSalva');
             
@@ -2645,7 +2603,6 @@
             let duplicatoEsattoTrovato = false;
 
             snap.forEach(d => {
-                // SE STAI MODIFICANDO UN UTENTE ESISTENTE, IGNORA IL SUO STESSO ID NEL DATABASE!
                 if (idC && d.id === idC) return;
 
                 let dt = d.data();
@@ -3024,7 +2981,7 @@
 		
         window.abilitaModificaStorico = function(btn, storicoId, annoStorico) {
             const tr = btn.closest('tr');
-            const tdAnno = tr.children[0]; // La prima colonna è l'anno
+            const tdAnno = tr.children[0];
             const tdTipo = tr.querySelector('.td-tipo');
             const tdNum = tr.querySelector('.td-num');
             const tdAzioni = tr.querySelector('.td-azioni');
@@ -3034,7 +2991,6 @@
             const isSocioSostenitore = valTipo === 'Socio Sostenitore';
             const annoMax = parseInt(annoCarnevaleCorrente, 10) || 2027;
 
-            // Generazione del select per l'anno (solo se Admin)
             let annoHtml = '';
             if (modalitaCorrente === 'admin') {
                 annoHtml = `<select class="input-storico select-anno-mod">`;
@@ -3140,7 +3096,6 @@
 
                 await deleteDoc(doc(db, "storico", storicoId));
                 
-                // TRACCIAMENTO LOG ELIMINAZIONE ISCRIZIONE CON NOME E COGNOME
                 await registraLog("Eliminata iscrizione", `${nomeCompleto} - Anno: ${annoIscrizione} ID: ${numIdentificativo}`);
 
                 cacheTuttiIscritti = [];
@@ -3175,7 +3130,6 @@
             const nomePersona = document.getElementById('editNome').value.trim();
             const nomeCompleto = `${cognomePersona} ${nomePersona}`;
 
-            // Recupera l'anno selezionato (se admin dal select, altrimenti dall'anno corrente)
             const selectAnnoElem = tr.querySelector('.select-anno-mod');
             const annoScelto = selectAnnoElem ? selectAnnoElem.value : annoCarnevaleCorrente;
 
@@ -3291,20 +3245,6 @@
             return dati;
         }
 		
-        async function gestisciPrimoStepNuovoUtente() {
-            const dati = raccogliDatiAnagrafica();
-            if (!dati.cognome || !dati.nome) return alert("Inserisci Cognome e Nome.");
-            const docRef = await addDoc(collection(db, "anagrafica"), dati);
-            
-            await registraLog("Modifica Anagrafica", `Nuova: ${dati.cognome} ${dati.nome}`);
-
-            document.getElementById('editIdPersona').value = docRef.id;
-            alert("Anagrafica salvata!");
-            modal.style.display = 'none';
-            cacheTuttiIscritti = [];
-            cercaIscritti(dati.cognome);
-        }
-
         async function gestisciSalvataggioEsistente() {
             const id = document.getElementById('editIdPersona').value, dati = raccogliDatiAnagrafica();
             if (!dati.cognome || !dati.nome) return alert("Inserisci Cognome e Nome.");
