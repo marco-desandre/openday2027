@@ -966,7 +966,8 @@
         document.getElementById('configFlagCodiceFiscale').checked = configCodiceFiscale;
         document.getElementById('configFlagDocumento').checked = configDocumento;
 
-        // Configurazione e inizializzazione del database secondario Ticket Dispenser
+        
+		// Configurazione e inizializzazione del database secondario Ticket Dispenser
         const ticketDispenserConfig = {
             databaseURL: "https://ticketdispensertuchini-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "ticketdispensertuchini"
@@ -1067,6 +1068,43 @@
             link.click();
             document.body.removeChild(link);
         };
+
+		function attivaInserimentoNuovaIscrizioneEsistente() {
+            const div = document.getElementById('storicoCaricamento');
+            div.style.display = 'none';
+            
+            const tbody = document.getElementById('corpoTabellaStorico');
+            document.getElementById('tabellaStorico').style.display = 'table';
+            
+            // Generazione dinamica della selezione anno per Admin vs User
+            let annoHtml = '';
+            const annoMax = parseInt(annoCarnevaleCorrente, 10) || 2027;
+
+            if (modalitaCorrente === 'admin') {
+                annoHtml = `<select class="input-storico select-anno-mod">`;
+                for (let a = annoMax; a >= 1964; a--) {
+                    annoHtml += `<option value="${a}" ${a === annoMax ? 'selected' : ''}>${a}</option>`;
+                }
+                annoHtml += `</select>`;
+            } else {
+                annoHtml = `<input type="text" class="input-storico" value="${annoCarnevaleCorrente}" readonly style="background-color: #e9ecef;">`;
+            }
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${annoHtml}</td>
+                <td>
+                    <select class="input-storico select-tipo" onchange="gestisciVisibilitaNumeroIscrizione(this)">
+                        <option value="Iscrizione Completa">Iscrizione Completa</option>
+                        <option value="Socio Sostenitore">Socio Sostenitore</option>
+                    </select>
+                </td>
+                <td><input type="text" class="input-storico input-num" id="inputNuovoNumId" placeholder="Numero..."></td>
+                <td><button type="button" class="btn-azione btn-salva-storico" onclick="salvaNuovaIscrizioneDiretta(this)">Salva</button></td>
+            `;
+            tbody.insertBefore(tr, tbody.firstChild);
+            document.getElementById('btnAggiungiIscrizione').style.display = 'none';
+        }
 
         // FUNZIONE DI REGISTRAZIONE LOG
         async function registraLog(azione, dettaglioAnagrafica = "") {
@@ -2963,6 +3001,7 @@
 		
         window.abilitaModificaStorico = function(btn, storicoId, annoStorico) {
             const tr = btn.closest('tr');
+            const tdAnno = tr.children[0]; // La prima colonna è l'anno
             const tdTipo = tr.querySelector('.td-tipo');
             const tdNum = tr.querySelector('.td-num');
             const tdAzioni = tr.querySelector('.td-azioni');
@@ -2970,7 +3009,21 @@
             const valTipo = tdTipo.textContent.trim();
             const valNum = tdNum.textContent.trim();
             const isSocioSostenitore = valTipo === 'Socio Sostenitore';
+            const annoMax = parseInt(annoCarnevaleCorrente, 10) || 2027;
 
+            // Generazione del select per l'anno (solo se Admin)
+            let annoHtml = '';
+            if (modalitaCorrente === 'admin') {
+                annoHtml = `<select class="input-storico select-anno-mod">`;
+                for (let a = annoMax; a >= 1964; a--) {
+                    annoHtml += `<option value="${a}" ${String(a) === String(annoStorico) ? 'selected' : ''}>${a}</option>`;
+                }
+                annoHtml += `</select>`;
+            } else {
+                annoHtml = `<input type="text" class="input-storico" value="${annoStorico}" readonly style="background-color: #e9ecef;">`;
+            }
+
+            tdAnno.innerHTML = annoHtml;
             tdTipo.innerHTML = `
                 <select class="input-storico select-tipo-mod" onchange="gestisciVisibilitaNumeroModifica(this)">
                     <option value="Iscrizione Completa" ${!isSocioSostenitore ? 'selected' : ''}>Iscrizione Completa</option>
@@ -2978,9 +3031,9 @@
                 </select>
             `;
             tdNum.innerHTML = `<input type="text" class="input-storico input-num-mod" value="${isSocioSostenitore ? '' : valNum}" ${isSocioSostenitore ? 'disabled style="background-color: #e9ecef;" placeholder="Non richiesto"' : ''}>`;
-            tdAzioni.innerHTML = `<button type="button" class="btn-azione btn-salva-storico" onclick="salvaModificaStorico('${storicoId}', '${annoStorico}', this)">Salva</button>`;
+            tdAzioni.innerHTML = `<button type="button" class="btn-azione btn-salva-storico" onclick="salvaModificaStorico('${storicoId}', this)">Salva</button>`;
         };
-
+		
         window.gestisciVisibilitaNumeroModifica = function(selectElem) {
             const tr = selectElem.closest('tr');
             const inputNum = tr.querySelector('.input-num-mod');
@@ -2996,8 +3049,11 @@
             }
         };
 		
-        window.salvaModificaStorico = async function(storicoId, annoStorico, btn) {
+        window.salvaModificaStorico = async function(storicoId, btn) {
             const tr = btn.closest('tr');
+            const selectAnnoMod = tr.querySelector('.select-anno-mod');
+            const nuovoAnno = selectAnnoMod ? selectAnnoMod.value : tr.children[0].textContent.trim();
+            
             const nuovoTipo = tr.querySelector('.select-tipo-mod').value;
             const inputNumMod = tr.querySelector('.input-num-mod');
             const nuovoNum = inputNumMod ? inputNumMod.value.trim() : "";
@@ -3012,7 +3068,7 @@
                 mostraCaricamento("Verifica duplicati e salvataggio...");
                 
                 if (nuovoTipo !== "Socio Sostenitore" && nuovoNum) {
-                    const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoStorico))));
+                    const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(nuovoAnno))));
                     let duplicatoTrovato = false;
                     
                     snapStoricoAnno.forEach(d => {
@@ -3026,18 +3082,19 @@
 
                     if (duplicatoTrovato) {
                         nascondiCaricamento();
-                        alert(`⚠️ Attenzione: Il numero identificativo "${nuovoNum}" risulta già assegnato ad un altro iscritto per l'anno ${annoStorico}!`);
+                        alert(`⚠️ Attenzione: Il numero identificativo "${nuovoNum}" risulta già assegnato ad un altro iscritto per l'anno ${nuovoAnno}!`);
                         return;
                     }
                 }
 
                 await setDoc(doc(db, "storico", storicoId), { 
+                    anno: String(nuovoAnno),
                     tipo_iscrizione: nuovoTipo, 
                     tipologia: nuovoTipo,
                     numero_identificativo: nuovoTipo === "Socio Sostenitore" ? "N/D" : nuovoNum 
                 }, { merge: true });
                 
-                await registraLog("Modifica iscrizione", `Anno ${annoStorico} - ${nuovoTipo}`);
+                await registraLog("Modifica iscrizione", `Anno ${nuovoAnno} - ${nuovoTipo}`);
 
                 cacheTuttiIscritti = [];
                 await caricaStoricoPersona(idPersona);
@@ -3118,6 +3175,10 @@
             const nomePersona = document.getElementById('editNome').value.trim();
             const nomeCompleto = `${cognomePersona} ${nomePersona}`;
 
+            // Recupera l'anno selezionato (se admin dal select, altrimenti dall'anno corrente)
+            const selectAnnoElem = tr.querySelector('.select-anno-mod');
+            const annoScelto = selectAnnoElem ? selectAnnoElem.value : annoCarnevaleCorrente;
+
             const selectTipo = tr.querySelector('.select-tipo');
             const tipoScelto = selectTipo ? selectTipo.value : "Iscrizione Completa";
             
@@ -3132,7 +3193,7 @@
                 mostraCaricamento("Verifica duplicati e salvataggio...");
 
                 if (tipoScelto !== "Socio Sostenitore" && num) {
-                    const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoCarnevaleCorrente))));
+                    const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoScelto))));
                     let duplicatoTrovato = false;
 
                     snapStoricoAnno.forEach(d => {
@@ -3145,7 +3206,7 @@
 
                     if (duplicatoTrovato) {
                         nascondiCaricamento();
-                        alert(`⚠️ Attenzione: Il numero identificativo "${num}" è già stato registrato per l'anno ${annoCarnevaleCorrente}!`);
+                        alert(`⚠️ Attenzione: Il numero identificativo "${num}" è già stato registrato per l'anno ${annoScelto}!`);
                         return;
                     }
                 }
@@ -3154,7 +3215,7 @@
 
                 await addDoc(collection(db, "storico"), { 
                     id_persona: idPersona, 
-                    anno: String(annoCarnevaleCorrente), 
+                    anno: String(annoScelto), 
                     tipo_iscrizione: tipoScelto, 
                     tipologia: tipoScelto, 
                     numero_identificativo: numIdentificativoFinale, 
@@ -3162,8 +3223,7 @@
                     creato_il: new Date().toLocaleString('it-IT') 
                 });
 
-                // TRACCIAMENTO LOG AGGIUNTA ISCRIZIONE CON NOME E COGNOME
-                await registraLog("Inserita iscrizione", `${nomeCompleto} - Anno: ${annoCarnevaleCorrente} ID: ${numIdentificativoFinale}`);
+                await registraLog("Inserita iscrizione", `${nomeCompleto} - Anno: ${annoScelto} ID: ${numIdentificativoFinale}`);
 
                 alert("Salvato!");
                 cacheTuttiIscritti = [];
