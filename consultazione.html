@@ -794,29 +794,34 @@
                 </div>
             </div>
 
-            <div class="form-row-opzioni">
-                <div class="checkboxes-container">
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="editTigre">
-                        <label for="editTigre">Tigre</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="editCapitanoPiazza">
-                        <label for="editCapitanoPiazza">Capitano di Piazza</label>
-                    </div>
-                </div>
-                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-                    <div class="totale-iscrizioni-inline">
-                        <span>Tot. Complete:</span>
-                        <span id="conteggioIscrizioniScheda" class="badge-conteggio">0</span>
-                    </div>
-                    <div class="totale-iscrizioni-inline">
-                        <span>Consecutive:</span>
-                        <span id="conteggioConsecutiveScheda" class="badge-conteggio" style="background-color: #17a2b8;">0</span>
-                    </div>
-                </div>
-            </div>
-
+			<div class="form-row-opzioni">
+				<div class="checkboxes-container">
+					<div class="checkbox-group">
+						<input type="checkbox" id="editTigre">
+						<label for="editTigre">Tigre</label>
+					</div>
+					<div class="checkbox-group">
+						<input type="checkbox" id="editCapitanoPiazza">
+						<label for="editCapitanoPiazza">Capitano di Piazza</label>
+					</div>
+					<!-- NUOVO FLAG VISIBILE SOLO DA ADMIN -->
+					<div class="checkbox-group" id="gruppoFlagNonIscrivibile" style="display: none;">
+						<input type="checkbox" id="editNonIscrivibile">
+						<label for="editNonIscrivibile" style="color: #dc3545;">Non iscrivibile</label>
+					</div>
+				</div>
+				<div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+					<div class="totale-iscrizioni-inline">
+						<span>Tot. Complete:</span>
+						<span id="conteggioIscrizioniScheda" class="badge-conteggio">0</span>
+					</div>
+					<div class="totale-iscrizioni-inline">
+						<span>Consecutive:</span>
+						<span id="conteggioConsecutiveScheda" class="badge-conteggio" style="background-color: #17a2b8;">0</span>
+					</div>
+				</div>
+			</div>
+			
             <div class="box-bottoni-modale">
                 <button type="button" id="btnAggiungiIscrizione" class="btn-aggiungi-iscrizione" style="display: none;">Aggiungi Iscrizione</button>
                 <button type="button" id="btnSalva" class="btn-salva">Salva Anagrafica</button>
@@ -2691,8 +2696,22 @@
             document.getElementById('editCognome').value = pulisciTesto(p.cognome);
             document.getElementById('editNome').value = pulisciTesto(p.nome);
             document.getElementById('editCodiceFiscale').value = pulisciTesto(p.codice_fiscale || p.codiceFiscale).toUpperCase();
-            document.getElementById('editLuogoNascita').value = pulisciTesto(p.luogo_nascita || p.luogoNascita);
-            
+            document.getElementById('editLuogoNascita').value = pulisciTesto(p.luogo_nascita || p.luogoNascita);          
+			document.getElementById('editNonIscrivibile').checked = Boolean(p.non_iscrivibile);
+
+			const isAdmin = (modalitaCorrente === 'admin');
+			// Mostra il flag "Non iscrivibile" solo se siamo in modalità Admin
+			document.getElementById('gruppoFlagNonIscrivibile').style.display = isAdmin ? 'flex' : 'none';
+			document.getElementById('editNonIscrivibile').disabled = !isAdmin;
+
+			// Se l'utente è "user" e il flag "non_iscrivibile" è attivo, nascondi il pulsante aggiungi iscrizione
+			const btnAggiungi = document.getElementById('btnAggiungiIscrizione');
+			if (modalitaCorrente === 'user' && p.non_iscrivibile) {
+				btnAggiungi.style.display = 'none';
+			} else {
+				btnAggiungi.style.display = 'block';
+			}
+			
             let dtNascita = formattaDataPerInputDate(p.data_nascita);
             document.getElementById('editDataNascita').value = dtNascita;
             calcolaEImpostaEta(dtNascita);
@@ -3238,7 +3257,8 @@
                 immagine_documento_gen2_2: document.getElementById('editUrl_gen2_2').value.trim(),
 
                 tigre: document.getElementById('editTigre').checked,
-                capitano_piazza: document.getElementById('editCapitanoPiazza').checked
+                capitano_piazza: document.getElementById('editCapitanoPiazza').checked,
+				non_iscrivibile: document.getElementById('editNonIscrivibile').checked
             };
 
             return dati;
