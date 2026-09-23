@@ -61,7 +61,17 @@
         .container { max-width: 1250px; background: white; padding: 25px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); margin: auto; position: relative; }
         
         .top-bar-header { position: absolute; top: 20px; right: 25px; display: flex; align-items: center; gap: 12px; z-index: 10; }
-        .box-modalita { display: flex; gap: 5px; background: #e9ecef; padding: 4px; border-radius: 6px; }
+        .versione-app {
+			position: absolute;
+			top: 65px; /* Appena sotto la barra utente/pulsanti admin */
+			right: 25px;
+			font-size: 11px;
+			color: #868e96;
+			font-weight: bold;
+			user-select: none;
+			z-index: 10;
+		}
+		.box-modalita { display: flex; gap: 5px; background: #e9ecef; padding: 4px; border-radius: 6px; }
         .btn-modalita { border: none; background: transparent; padding: 6px 12px; font-size: 13px; font-weight: bold; cursor: pointer; border-radius: 4px; color: #555; transition: all 0.2s; }
         .btn-modalita.attivo { background-color: #007BFF; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         
@@ -248,6 +258,8 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
+			<!-- VERSIONE PAGINA -->
+			<div class="versione-app">Ver. 01.00</div>
             <div class="top-bar-header">
                 <div id="boxModalita" class="box-modalita" style="display: none;">
                     <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
@@ -1072,6 +1084,12 @@
 
         // UNICA DEFINIZIONE CORRETTA DELLA FUNZIONE DI INSERIMENTO STORICO
         function attivaInserimentoNuovaIscrizioneEsistente() {
+            // CONTROLLO DI SICUREZZA: se il flag "Non iscrivibile" è spuntato, blocca l'azione
+            if (document.getElementById('editNonIscrivibile').checked) {
+                alert("⛔ Impossibile aggiungere iscrizioni: questo soggetto è contrassegnato come 'Non iscrivibile'.");
+                return;
+            }
+
             const div = document.getElementById('storicoCaricamento');
             div.style.display = 'none';
             
@@ -1107,7 +1125,7 @@
             document.getElementById('btnAggiungiIscrizione').style.display = 'none';
         }
         window.attivaInserimentoNuovaIscrizioneEsistente = attivaInserimentoNuovaIscrizioneEsistente;
-
+		
         async function registraLog(azione, dettaglioAnagrafica = "") {
             try {
                 const adesso = new Date();
@@ -3142,6 +3160,12 @@
         };
 
         window.salvaNuovaIscrizioneDiretta = async function(btn) {
+			// CONTROLLO DI SICUREZZA AGGIUNTIVO
+            if (document.getElementById('editNonIscrivibile').checked) {
+                alert("⛔ Operazione interrotta: il soggetto è impostato come 'Non iscrivibile'.");
+                caricaStoricoPersona(document.getElementById('editIdPersona').value);
+                return;
+            }
             const tr = btn.closest('tr');
             const idPersona = document.getElementById('editIdPersona').value;
             const cognomePersona = document.getElementById('editCognome').value.trim();
