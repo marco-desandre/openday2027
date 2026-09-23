@@ -979,7 +979,30 @@
         }
         const dbTicket = getDatabase(secondaryApp);
 
-        window.esportaSuTicketDispenser = async function() {
+        function attivaInserimentoNuovaIscrizioneEsistente() {
+            const div = document.getElementById('storicoCaricamento');
+            div.style.display = 'none';
+            
+            const tbody = document.getElementById('corpoTabellaStorico');
+            document.getElementById('tabellaStorico').style.display = 'table';
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${annoCarnevaleCorrente}</td>
+                <td>
+                    <select class="input-storico select-tipo" onchange="gestisciVisibilitaNumeroIscrizione(this)">
+                        <option value="Iscrizione Completa">Iscrizione Completa</option>
+                        <option value="Socio Sostenitore">Socio Sostenitore</option>
+                    </select>
+                </td>
+                <td><input type="text" class="input-storico input-num" id="inputNuovoNumId" placeholder="Numero..."></td>
+                <td><button type="button" class="btn-azione btn-salva-storico" onclick="salvaNuovaIscrizioneDiretta(this)">Salva</button></td>
+            `;
+            tbody.insertBefore(tr, tbody.firstChild);
+            document.getElementById('btnAggiungiIscrizione').style.display = 'none';
+        }
+		
+		window.esportaSuTicketDispenser = async function() {
             const tbody = document.getElementById('corpoTabellaPrelazioni');
             const righe = Array.from(tbody.getElementsByTagName('tr'));
             
@@ -3129,29 +3152,6 @@
                 nascondiCaricamento();
             }
         };
-		
-        function attivaInserimentoNuovaIscrizioneEsistente() {
-            const div = document.getElementById('storicoCaricamento');
-            div.style.display = 'none';
-            
-            const tbody = document.getElementById('corpoTabellaStorico');
-            document.getElementById('tabellaStorico').style.display = 'table';
-            
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${annoCarnevaleCorrente}</td>
-                <td>
-                    <select class="input-storico select-tipo" onchange="gestisciVisibilitaNumeroIscrizione(this)">
-                        <option value="Iscrizione Completa">Iscrizione Completa</option>
-                        <option value="Socio Sostenitore">Socio Sostenitore</option>
-                    </select>
-                </td>
-                <td><input type="text" class="input-storico input-num" id="inputNuovoNumId" placeholder="Numero..."></td>
-                <td><button type="button" class="btn-azione btn-salva-storico" onclick="salvaNuovaIscrizioneDiretta(this)">Salva</button></td>
-            `;
-            tbody.insertBefore(tr, tbody.firstChild);
-            document.getElementById('btnAggiungiIscrizione').style.display = 'none';
-        }
 		
         window.gestisciVisibilitaNumeroIscrizione = function(selectElem) {
             const tr = selectElem.closest('tr');
