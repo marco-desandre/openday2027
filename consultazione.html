@@ -966,7 +966,6 @@
         document.getElementById('configFlagCodiceFiscale').checked = configCodiceFiscale;
         document.getElementById('configFlagDocumento').checked = configDocumento;
 
-        // Configurazione e inizializzazione del database secondario Ticket Dispenser
         const ticketDispenserConfig = {
             databaseURL: "https://ticketdispensertuchini-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "ticketdispensertuchini"
@@ -1066,8 +1065,8 @@
             document.body.removeChild(link);
         };
 
-        // FUNZIONE DI INSERIMENTO NUOVA ISCRIZIONE NELLO STORICO (CORRETTA DENTRO IL MODULO)
-		function attivaInserimentoNuovaIscrizioneEsistente() {
+        // UNICA DEFINIZIONE CORRETTA DELLA FUNZIONE DI INSERIMENTO STORICO
+        function attivaInserimentoNuovaIscrizioneEsistente() {
             const div = document.getElementById('storicoCaricamento');
             div.style.display = 'none';
             
