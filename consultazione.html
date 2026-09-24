@@ -2312,7 +2312,6 @@
         };
 
         window.salvaUtenteSistema = async function() {
-            const id = document.getElementById('editUserId').value.trim();
             const email = document.getElementById('inputUserEmail').value.trim().toLowerCase();
             const alias = document.getElementById('inputUserAlias').value.trim();
             const ruolo = document.getElementById('selectUserRole').value;
@@ -2325,11 +2324,9 @@
 
             try {
                 mostraCaricamento("Salvataggio utente in corso...");
-                if (id) {
-                    await setDoc(doc(db, "utenti", id), { email, alias, ruolo, attivo }, { merge: true });
-                } else {
-                    await addDoc(collection(db, "utenti"), { email, alias, ruolo, attivo });
-                }
+                
+                // Usiamo l'email stessa come ID del documento nella collezione 'utenti'
+                await setDoc(doc(db, "utenti", email), { email, alias, ruolo, attivo }, { merge: true });
                 
                 alert("Utente salvato con successo!");
                 chiudiModaleUtente();
@@ -2341,7 +2338,7 @@
                 nascondiCaricamento();
             }
         };
-
+		
         window.cambiaSezioneMenu = function(valore, elem) {
             document.querySelectorAll('.sezione-app').forEach(s => s.classList.remove('attiva'));
             document.querySelectorAll('.sidebar-item, .sidebar-subitem').forEach(v => v.classList.remove('attivo'));
