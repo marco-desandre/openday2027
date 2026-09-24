@@ -79,6 +79,19 @@
         .spinner-cerchio { width: 45px; height: 45px; border: 4px solid #f3f3f3; border-top: 4px solid #007BFF; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+        /* SPINNER INLINE PER PULSANTI/SEZIONI */
+        .spinner-inline {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #007BFF;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
         /* CONTENUTO PRINCIPALE MOBILE */
         .main-content { flex: 1; padding: 15px; overflow-y: auto; background: #f4f4f9; }
         .container { background: white; padding: 15px; border-radius: 8px; box-shadow: 0px 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
@@ -95,6 +108,8 @@
         table { width: 100%; border-collapse: collapse; white-space: nowrap; background: white; }
         th, td { border-bottom: 1px solid #dee2e6; padding: 10px 12px; text-align: left; font-size: 13px; }
         th { background-color: #f8f9fa; color: #495057; font-weight: bold; }
+        tbody tr { cursor: pointer; }
+        tbody tr:active { background-color: #e9ecef; }
 
         /* MODALE MOBILE OTTIMIZZATA */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); justify-content: center; align-items: flex-end; }
@@ -213,6 +228,7 @@
                     <input type="checkbox" id="flagCorviDoro" onchange="caricaDatiPrelazioni()">
                     <label for="flagCorviDoro"><strong>Corvi d'oro</strong> (10+ anni)</label>
                 </div>
+                <div id="messaggioPrelazioni" style="font-size: 13px; color: #666; font-style: italic; margin-top: 10px; display: none;"></div>
                 <div class="table-responsive">
                     <table id="tabellaPrelazioni" style="display: none;">
                         <thead>
@@ -220,6 +236,7 @@
                                 <th>Cognome</th>
                                 <th>Nome</th>
                                 <th>Dettaglio</th>
+                                <th>Anni</th>
                             </tr>
                         </thead>
                         <tbody id="corpoTabellaPrelazioni"></tbody>
@@ -270,7 +287,7 @@
             </div>
         </div>
     </div>
-    <!-- SCRIPT FIREBASE E LOGICA MOBILE (Sincronizzato con la versione principale) -->
+    <!-- SCRIPT FIREBASE E LOGICA MOBILE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -292,7 +309,6 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        let modalitaCorrente = 'user';
         let aliasUtenteLoggato = '';
         let timeoutRicerca = null;
         let annoCarnevaleCorrente = localStorage.getItem('anno_carnevale_corrente') || "2027";
@@ -355,41 +371,72 @@
             else document.getElementById('loginOverlay').style.display = 'flex';
         });
 
-        // Funzione di ricerca rapida iscritti
+        // Funzione di ricerca rapida iscritti con indicatore di caricamento
         async function cercaIscritti(testo) {
             testo = testo.trim().toUpperCase();
-            const msg = document.getElementById('messaggioGuida'), tab = document.getElementById('tabellaIscritti'), tbody = document.getElementById('corpoTabella'), box = document.getElementById('boxContatore');
-            if (testo.length < 2) { tab.style.display = 'none'; box.style.display = 'none'; msg.style.display = 'block'; return; }
+            const msg = document.getElementById('messaggioGuida');
+            const tab = document.getElementById('tabellaIscritti');
+            const tbody = document.getElementById('corpoTabella');
+            const box = document.getElementById('boxContatore');
+
+            if (testo.length < 2) { 
+                tab.style.display = 'none'; 
+                box.style.display = 'none'; 
+                msg.style.display = 'block'; 
+                msg.textContent = "Inizia a digitare per cercare...";
+                return; 
+            }
             
-            const snap = await getDocs(collection(db, "anagrafica"));
-            tbody.innerHTML = '';
-            let res = [];
-            snap.forEach(d => {
-                let dt = d.data();
-                if (String(dt.cognome || "").toUpperCase().includes(testo)) res.push({ id: d.id, ...dt });
-            });
-            if (res.length === 0) { msg.textContent = "Nessun risultato."; tab.style.display = 'none'; box.style.display = 'none'; return; }
-            
-            res.forEach(p => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${p.cognome}</td><td>${p.nome || ''}</td><td>${p.telefono || ''}</td>`;
-                tr.onclick = () => apriModale(p);
-                tbody.appendChild(tr);
-            });
-            document.getElementById('totaleIscritti').textContent = res.length;
-            box.style.display = 'block'; msg.style.display = 'none'; tab.style.display = 'table';
+            msg.style.display = 'block';
+            msg.innerHTML = `<span class="spinner-inline"></span> Ricerca in corso...`;
+
+            try {
+                const snap = await getDocs(collection(db, "anagrafica"));
+                tbody.innerHTML = '';
+                let res = [];
+                snap.forEach(d => {
+                    let dt = d.data();
+                    if (String(dt.cognome || "").toUpperCase().includes(testo)) res.push({ id: d.id, ...dt });
+                });
+
+                if (res.length === 0) { 
+                    msg.textContent = "Nessun risultato."; 
+                    tab.style.display = 'none'; 
+                    box.style.display = 'none'; 
+                    return; 
+                }
+                
+                res.forEach(p => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${p.cognome}</td><td>${p.nome || ''}</td><td>${p.telefono || ''}</td>`;
+                    tr.onclick = () => apriModale(p);
+                    tbody.appendChild(tr);
+                });
+                document.getElementById('totaleIscritti').textContent = res.length;
+                box.style.display = 'block'; 
+                msg.style.display = 'none'; 
+                tab.style.display = 'table';
+            } catch (err) {
+                msg.textContent = "Errore durante la ricerca.";
+            }
         }
 
-		window.caricaDatiPrelazioni = async function() {
+        // Estrazione prelazioni con clessidra/spinner e colonna anni numerici ordinati
+        window.caricaDatiPrelazioni = async function() {
             const flagCorvi = document.getElementById('flagCorviDoro').checked;
             const tab = document.getElementById('tabellaPrelazioni');
             const tbody = document.getElementById('corpoTabellaPrelazioni');
+            const msg = document.getElementById('messaggioPrelazioni');
             tbody.innerHTML = '';
 
             if (!flagCorvi) {
                 tab.style.display = 'none';
+                msg.style.display = 'none';
                 return;
             }
+
+            msg.style.display = 'block';
+            msg.innerHTML = `<span class="spinner-inline"></span> Elaborazione Corvi d'oro in corso...`;
 
             try {
                 const snapAnagrafica = await getDocs(collection(db, "anagrafica"));
@@ -401,6 +448,8 @@
                 });
 
                 let storicoPerPersona = {};
+                let anniPerPersonaOriginali = {};
+                
                 snapStorico.forEach(docSnap => {
                     let st = docSnap.data();
                     let idPers = st.id_persona;
@@ -416,6 +465,9 @@
 
                     if (!storicoPerPersona[idPers]) storicoPerPersona[idPers] = [];
                     storicoPerPersona[idPers].push(annoNum);
+
+                    if (!anniPerPersonaOriginali[idPers]) anniPerPersonaOriginali[idPers] = new Set();
+                    anniPerPersonaOriginali[idPers].add(annoNum);
                 });
 
                 let risultati = [];
@@ -423,7 +475,6 @@
                     let persona = anagraficaMap[idPers];
                     let anniArr = storicoPerPersona[idPers] || [];
                     
-                    // Normalizzazione anni (gestione biennio COVID)
                     let anniNorm = anniArr.map(anno => anno > 2022 ? anno - 2 : anno);
                     anniNorm = [...new Set(anniNorm)].sort((a, b) => a - b);
                     
@@ -440,10 +491,14 @@
                     }
 
                     if (massimoConsecutivi >= 10) {
+                        let listaAnniOrdinata = Array.from(anniPerPersonaOriginali[idPers] || []).sort((a, b) => a - b).join(", ");
                         risultati.push({
+                            id: persona.id,
                             cognome: persona.cognome || '',
                             nome: persona.nome || '',
-                            dettaglio: `Corvo d'oro (${massimoConsecutivi} anni consec.)`
+                            dettaglio: `Corvo d'oro (${massimoConsecutivi} anni consec.)`,
+                            anni: listaAnniOrdinata,
+                            personaCompleta: persona
                         });
                     }
                 }
@@ -451,23 +506,27 @@
                 risultati.sort((a, b) => a.cognome.localeCompare(b.cognome));
 
                 if (risultati.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; font-style:italic;">Nessun Corvo d'oro trovato.</td></tr>`;
+                    msg.textContent = "Nessun Corvo d'oro trovato.";
+                    tab.style.display = 'none';
                 } else {
+                    msg.style.display = 'none';
                     risultati.forEach(r => {
-                        tbody.innerHTML += `
-                            <tr>
-                                <td>${r.cognome}</td>
-                                <td>${r.nome}</td>
-                                <td><strong>${r.dettaglio}</strong></td>
-                            </tr>
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${r.cognome}</td>
+                            <td>${r.nome}</td>
+                            <td><strong>${r.dettaglio}</strong></td>
+                            <td>${r.anni}</td>
                         `;
+                        tr.onclick = () => apriModale(r.personaCompleta);
+                        tbody.appendChild(tr);
                     });
+                    tab.style.display = 'table';
                 }
-                tab.style.display = 'table';
 
             } catch (error) {
                 console.error("Errore estrazione prelazioni:", error);
-                alert("Errore durante l'estrazione: " + error.message);
+                msg.textContent = "Errore durante l'estrazione: " + error.message;
             }
         };
 
@@ -476,7 +535,7 @@
             timeoutRicerca = setTimeout(() => cercaIscritti(e.target.value), 300);
         });
 
-       async function apriModale(p) {
+        async function apriModale(p) {
             document.getElementById('editIdPersona').value = p.id;
             document.getElementById('editCognome').value = p.cognome || '';
             document.getElementById('editNome').value = p.nome || '';
@@ -489,17 +548,18 @@
             await caricaStoricoPersona(p.id);
         }
 		
-		async function caricaStoricoPersona(id) {
+        async function caricaStoricoPersona(id) {
             const div = document.getElementById('storicoCaricamento');
             const tab = document.getElementById('tabellaStorico');
             const tbody = document.getElementById('corpoTabellaStorico');
             tbody.innerHTML = ''; 
+            div.style.display = 'block';
+            div.innerHTML = `<span class="spinner-inline"></span> Caricamento storico...`;
 
             try {
                 const snap = await getDocs(query(collection(db, "storico"), where("id_persona", "==", id)));
                 
                 if (snap.empty) { 
-                    div.style.display = 'block';
                     div.textContent = "Nessuna iscrizione passata."; 
                     tab.style.display = 'none';
                     return; 
@@ -508,7 +568,6 @@
                 div.style.display = 'none'; 
                 tab.style.display = 'table';
                 
-                // Mettiamo i documenti in un array e li ordiniamo per anno decrescente (dal più recente)
                 let docsList = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 docsList.sort((a, b) => parseInt(b.anno || 0, 10) - parseInt(a.anno || 0, 10));
 
@@ -521,47 +580,41 @@
                         </tr>`;
                 });
             } catch (e) { 
-                div.style.display = 'block';
                 div.textContent = "Errore caricamento storico."; 
                 tab.style.display = 'none';
             }
         }
 		
-		async function gestisciSalvataggioEsistente() {
+        window.gestisciSalvataggioEsistente = async function() {
             const id = document.getElementById('editIdPersona').value;
-            const dati = {
-                cognome: document.getElementById('editCognome').value.trim().toUpperCase(),
-                nome: document.getElementById('editNome').value.trim(),
-                codice_fiscale: document.getElementById('editCodiceFiscale').value.trim().toUpperCase(),
-                data_nascita: document.getElementById('editDataNascita').value.trim(),
-                citta: document.getElementById('editCitta').value.trim(),
-                telefono: document.getElementById('editTelefono').value.trim()
-            };
-            if (!dati.cognome || !dati.nome) return alert("Inserisci Cognome e Nome.");
-            await setDoc(doc(db, "anagrafica", id), dati, { merge: true });
-            alert("Modifiche anagrafica salvate!");
-            document.getElementById('editModal').style.display = 'none';
-        }
+            const btnSalva = document.getElementById('btnSalva');
+            const testoOrig = btnSalva.innerHTML;
+            btnSalva.disabled = true;
+            btnSalva.innerHTML = `<span class="spinner-inline"></span> Salvataggio...`;
 
-        async function caricaStorico(id) {
-            const tbody = document.getElementById('corpoTabellaStorico');
-            const tab = document.getElementById('tabellaStorico');
-            const div = document.getElementById('storicoCaricamento');
-            tbody.innerHTML = '';
-            
-            const snap = await getDocs(query(collection(db, "storico"), where("id_persona", "==", id)));
-            if (snap.empty) {
-                div.textContent = "Nessuna iscrizione passata.";
-                tab.style.display = 'none';
-                return;
+            try {
+                const dati = {
+                    cognome: document.getElementById('editCognome').value.trim().toUpperCase(),
+                    nome: document.getElementById('editNome').value.trim(),
+                    codice_fiscale: document.getElementById('editCodiceFiscale').value.trim().toUpperCase(),
+                    data_nascita: document.getElementById('editDataNascita').value.trim(),
+                    citta: document.getElementById('editCitta').value.trim(),
+                    telefono: document.getElementById('editTelefono').value.trim()
+                };
+                if (!dati.cognome || !dati.nome) {
+                    alert("Inserisci Cognome e Nome.");
+                    return;
+                }
+                await setDoc(doc(db, "anagrafica", id), dati, { merge: true });
+                alert("Modifiche anagrafica salvate!");
+                document.getElementById('editModal').style.display = 'none';
+            } catch (err) {
+                alert("Errore salvataggio: " + err.message);
+            } finally {
+                btnSalva.disabled = false;
+                btnSalva.innerHTML = testoOrig;
             }
-            div.style.display = 'none';
-            tab.style.display = 'table';
-            snap.forEach(d => {
-                let st = d.data();
-                tbody.innerHTML += `<tr><td>${st.anno || ''}</td><td>${st.tipo_iscrizione || ''}</td><td>${st.numero_identificativo || ''}</td></tr>`;
-            });
-        }
+        };
 
         document.getElementById('btnChiudiX').addEventListener('click', () => {
             document.getElementById('editModal').style.display = 'none';
