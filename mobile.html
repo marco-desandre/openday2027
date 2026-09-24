@@ -91,11 +91,39 @@
         }
 
         .btn-nuovo-utente { background-color: #28a745; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; width: 100%; margin-top: 5px; }
-        .table-responsive { width: 100%; overflow-x: auto; border: 1px solid #dee2e6; border-radius: 6px; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; white-space: nowrap; background: white; }
-        th, td { border-bottom: 1px solid #dee2e6; padding: 10px 12px; text-align: left; font-size: 13px; }
+        .table-responsive { 
+			width: 100%; 
+			overflow-x: hidden; /* Evita lo scroll orizzontale indesiderato */
+			border: 1px solid #dee2e6; 
+			border-radius: 6px; 
+			margin-top: 10px; 
+		}
+        table { 
+			width: 100%; 
+			border-collapse: collapse; 
+			table-layout: fixed; /* Fondamentale per forzare le colonne dentro la larghezza */
+			background: white; 
+		}
+        th, td { 
+			border-bottom: 1px solid #dee2e6; 
+			padding: 10px 8px; /* Leggermente più compatto per mobile */
+			text-align: left; 
+			font-size: 13px; 
+			overflow: hidden; 
+			text-overflow: ellipsis; /* Mette i puntini (...) se il testo è troppo lungo */
+			white-space: normal; /* Permette al testo di andare a capo */
+		}
         th { background-color: #f8f9fa; color: #495057; font-weight: bold; }
         tr:hover { background-color: #f1f1f1; cursor: pointer; }
+		
+		#tabellaPrelazioni th:nth-child(1), 
+        #tabellaPrelazioni td:nth-child(1) { width: 42%; } /* Cognome */
+
+        #tabellaPrelazioni th:nth-child(2), 
+        #tabellaPrelazioni td:nth-child(2) { width: 42%; } /* Nome */
+
+        #tabellaPrelazioni th:nth-child(3), 
+        #tabellaPrelazioni td:nth-child(3) { width: 16%; text-align: center; } /* Dettaglio */
 
         /* MODALE MOBILE OTTIMIZZATA */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); justify-content: center; align-items: flex-end; }
@@ -464,7 +492,7 @@
                             personaCompleta: persona,
                             cognome: persona.cognome || '',
                             nome: persona.nome || '',
-                            dettaglio: `${massimoConsecutivi} anni consec.`
+                            dettaglio: `${massimoConsecutivi}`
                         });
                     }
                 }
