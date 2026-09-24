@@ -2340,7 +2340,7 @@
                 // Usiamo l'email stessa come ID del documento nella collezione 'utenti'
                 await setDoc(doc(db, "utenti", email), { email, alias, ruolo, attivo }, { merge: true });
                 
-                alert("Utente salvato con successo!");
+                //alert("Utente salvato con successo!");
                 chiudiModaleUtente();
                 caricaTabellaUtenti();
             } catch (error) {
@@ -3257,7 +3257,7 @@
 
                 cacheTuttiIscritti = [];
                 await caricaStoricoPersona(idPersona);
-                alert("Iscrizione eliminata con successo!");
+                //alert("Iscrizione eliminata con successo!");
             } catch (error) {
                 alert("Errore durante l'eliminazione: " + error.message);
             } finally {
@@ -3342,7 +3342,7 @@
 
                 await registraLog("Inserita iscrizione", `${nomeCompleto} - Anno: ${annoScelto} ID: ${numIdentificativoFinale}`);
 
-                alert("Salvato!");
+                //alert("Salvato!");
                 cacheTuttiIscritti = [];
                 document.getElementById('btnAggiungiIscrizione').style.display = 'block';
                 await caricaStoricoPersona(idPersona);
@@ -3416,7 +3416,7 @@
             
             await registraLog("Modifica Anagrafica", `${dati.cognome} ${dati.nome}`);
 
-            alert("Modifiche salvate!");
+            //alert("Modifiche salvate!");
             modal.style.display = 'none';
             cacheTuttiIscritti = [];
             if (document.getElementById('filtroCognome').value) cercaIscritti(document.getElementById('filtroCognome').value);
