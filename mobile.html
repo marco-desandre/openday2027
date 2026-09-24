@@ -380,6 +380,97 @@
             box.style.display = 'block'; msg.style.display = 'none'; tab.style.display = 'table';
         }
 
+		window.caricaDatiPrelazioni = async function() {
+            const flagCorvi = document.getElementById('flagCorviDoro').checked;
+            const tab = document.getElementById('tabellaPrelazioni');
+            const tbody = document.getElementById('corpoTabellaPrelazioni');
+            tbody.innerHTML = '';
+
+            if (!flagCorvi) {
+                tab.style.display = 'none';
+                return;
+            }
+
+            try {
+                const snapAnagrafica = await getDocs(collection(db, "anagrafica"));
+                const snapStorico = await getDocs(collection(db, "storico"));
+
+                let anagraficaMap = {};
+                snapAnagrafica.forEach(docSnap => {
+                    anagraficaMap[docSnap.id] = { id: docSnap.id, ...docSnap.data() };
+                });
+
+                let storicoPerPersona = {};
+                snapStorico.forEach(docSnap => {
+                    let st = docSnap.data();
+                    let idPers = st.id_persona;
+                    if (!idPers) return;
+
+                    let tipologia = st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || "";
+                    let tipoPulito = String(tipologia).trim().toLowerCase();
+
+                    if (!tipoPulito.includes("completa") && !tipoPulito.includes("iscrizione")) return;
+
+                    let annoNum = parseInt(st.anno, 10);
+                    if (isNaN(annoNum)) return;
+
+                    if (!storicoPerPersona[idPers]) storicoPerPersona[idPers] = [];
+                    storicoPerPersona[idPers].push(annoNum);
+                });
+
+                let risultati = [];
+                for (let idPers in anagraficaMap) {
+                    let persona = anagraficaMap[idPers];
+                    let anniArr = storicoPerPersona[idPers] || [];
+                    
+                    // Normalizzazione anni (gestione biennio COVID)
+                    let anniNorm = anniArr.map(anno => anno > 2022 ? anno - 2 : anno);
+                    anniNorm = [...new Set(anniNorm)].sort((a, b) => a - b);
+                    
+                    let gruppiCount = {};
+                    anniNorm.forEach((annoNorm, index) => {
+                        let rn = index + 1;
+                        let grp = annoNorm - rn;
+                        gruppiCount[grp] = (gruppiCount[grp] || 0) + 1;
+                    });
+
+                    let massimoConsecutivi = 0;
+                    for (let grp in gruppiCount) {
+                        if (gruppiCount[grp] > massimoConsecutivi) massimoConsecutivi = gruppiCount[grp];
+                    }
+
+                    if (massimoConsecutivi >= 10) {
+                        risultati.push({
+                            cognome: persona.cognome || '',
+                            nome: persona.nome || '',
+                            dettaglio: `Corvo d'oro (${massimoConsecutivi} anni consec.)`
+                        });
+                    }
+                }
+
+                risultati.sort((a, b) => a.cognome.localeCompare(b.cognome));
+
+                if (risultati.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; font-style:italic;">Nessun Corvo d'oro trovato.</td></tr>`;
+                } else {
+                    risultati.forEach(r => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${r.cognome}</td>
+                                <td>${r.nome}</td>
+                                <td><strong>${r.dettaglio}</strong></td>
+                            </tr>
+                        `;
+                    });
+                }
+                tab.style.display = 'table';
+
+            } catch (error) {
+                console.error("Errore estrazione prelazioni:", error);
+                alert("Errore durante l'estrazione: " + error.message);
+            }
+        };
+
         document.getElementById('filtroCognome').addEventListener('input', (e) => {
             clearTimeout(timeoutRicerca);
             timeoutRicerca = setTimeout(() => cercaIscritti(e.target.value), 300);
