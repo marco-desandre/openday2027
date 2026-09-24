@@ -417,8 +417,11 @@
                 div.style.display = 'none'; 
                 tab.style.display = 'table';
                 
-                snap.forEach(d => {
-                    let st = d.data();
+                // Mettiamo i documenti in un array e li ordiniamo per anno decrescente (dal più recente)
+                let docsList = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                docsList.sort((a, b) => parseInt(b.anno || 0, 10) - parseInt(a.anno || 0, 10));
+
+                docsList.forEach(st => {
                     tbody.innerHTML += `
                         <tr>
                             <td>${st.anno || ''}</td>
