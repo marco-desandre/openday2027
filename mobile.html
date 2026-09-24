@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gestionale Iscritti - Mobile</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            background-color: #f4f4f9; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
+
+        /* HEADER MOBILE */
+        .mobile-header {
+            background-color: #343a40;
+            color: white;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+        .mobile-header h2 { font-size: 16px; margin: 0; }
+        .btn-hamburger { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
+
+        /* MENU A SCOMPARSA (DRAWER) */
+        .mobile-drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100%;
+            background-color: #343a40;
+            color: white;
+            z-index: 1000;
+            transition: left 0.3s ease;
+            box-shadow: 3px 0 10px rgba(0,0,0,0.3);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .mobile-drawer.aperto { left: 0; }
+        .drawer-header { padding: 20px; font-size: 16px; font-weight: bold; background-color: #212529; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #454d55; }
+        .drawer-close { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
+        .drawer-menu { list-style: none; padding: 0; margin: 0; flex: 1; }
+        .drawer-item { padding: 14px 20px; cursor: pointer; font-size: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .drawer-item:active { background-color: #495057; }
+        .drawer-item.attivo { background-color: #007BFF; font-weight: bold; }
+
+        /* OVERLAY SFONDO MENU */
+        #drawerOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 900;
+        }
+
+        /* SCHERMATA DI LOGIN */
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #343a40; display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; box-sizing: border-box; }
+        .login-card { background: white; padding: 30px 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-align: center; width: 100%; max-width: 350px; }
+        .login-card h2 { margin-bottom: 10px; color: #333; font-size: 20px; }
+        .login-card p { color: #666; font-size: 13px; margin-bottom: 25px; }
+        .btn-google { background-color: #4285F4; color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .login-error { color: #dc3545; font-size: 13px; margin-top: 15px; font-weight: bold; min-height: 18px; }
+
+        /* OVERLAY DI CARICAMENTO */
+        #loadingOverlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(52, 58, 64, 0.8); z-index: 10000;
+            justify-content: center; align-items: center; flex-direction: column; color: white;
+        }
+        .spinner-cerchio { width: 45px; height: 45px; border: 4px solid #f3f3f3; border-top: 4px solid #007BFF; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* CONTENUTO PRINCIPALE MOBILE */
+        .main-content { flex: 1; padding: 15px; overflow-y: auto; background: #f4f4f9; }
+        .container { background: white; padding: 15px; border-radius: 8px; box-shadow: 0px 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        
+        .sezione-app { display: none; }
+        .sezione-app.attiva { display: block; }
+
+        input[type="text"], input[type="date"], input[type="email"], input[type="number"], select { 
+            width: 100%; padding: 12px; margin: 6px 0 12px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; 
+        }
+
+        .btn-nuovo-utente { background-color: #28a745; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; width: 100%; margin-top: 5px; }
+        .table-responsive { width: 100%; overflow-x: auto; border: 1px solid #dee2e6; border-radius: 6px; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; white-space: nowrap; background: white; }
+        th, td { border-bottom: 1px solid #dee2e6; padding: 10px 12px; text-align: left; font-size: 13px; }
+        th { background-color: #f8f9fa; color: #495057; font-weight: bold; }
+
+        /* MODALE MOBILE OTTIMIZZATA */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); justify-content: center; align-items: flex-end; }
+        .modal-content { background-color: white; padding: 20px; border-radius: 12px 12px 0 0; width: 100%; max-height: 90vh; overflow-y: auto; box-sizing: border-box; position: relative; }
+        .form-row { display: flex; flex-direction: column; gap: 0; margin-bottom: 0; }
+        .form-group { width: 100%; margin-bottom: 8px; }
+        .box-bottoni-modale { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-salva { background-color: #28a745; color: white; padding: 12px; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; flex: 1; }
+        .btn-aggiungi-iscrizione { background-color: #17a2b8; color: white; padding: 12px; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; flex: 1; }
+        .btn-chiudi-x { background: none; border: none; font-size: 24px; color: #666; font-weight: bold; float: right; }
+
+        .collapsible-header { background: #e7f5ff; padding: 12px; border-radius: 6px; border: 1px solid #74c0fc; font-weight: bold; color: #1864ab; font-size: 14px; margin-top: 12px; display: flex; justify-content: space-between; }
+        .collapsible-content { display: none; background: #f8f9fa; padding: 10px; border: 1px solid #ced4da; border-top: none; border-radius: 0 0 6px 6px; }
+        .collapsible-content.aperto { display: block; }
+        .btn-azione { padding: 8px 12px; border: none; border-radius: 4px; font-size: 13px; color: white; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+    <!-- OVERLAY LOGIN -->
+    <div id="loginOverlay">
+        <div class="login-card">
+            <h2>Tuchini del Borghetto</h2>
+            <p>Accedi con il tuo account Google</p>
+            <button type="button" class="btn-google" onclick="eseguiLoginGoogle()">Accedi con Google</button>
+            <div id="loginError" class="login-error"></div>
+        </div>
+    </div>
+
+    <!-- OVERLAY CARICAMENTO -->
+    <div id="loadingOverlay">
+        <div class="spinner-cerchio"></div>
+        <div id="loaderText" style="font-size: 14px; font-weight: bold;">Elaborazione in corso...</div>
+    </div>
+
+    <!-- HEADER SUPERIORE MOBILE -->
+    <header class="mobile-header">
+        <button type="button" class="btn-hamburger" onclick="toggleDrawer()">☰</button>
+        <h2>Tuchini Mobile</h2>
+        <span id="userEmailDisplayHeader" style="font-size: 11px; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+    </header>
+
+    <!-- MENU LATERALE A SCOMPARSA (DRAWER) -->
+    <div id="drawerOverlay" onclick="toggleDrawer()"></div>
+    <nav id="mobileDrawer" class="mobile-drawer">
+        <div class="drawer-header">
+            <span>Menu</span>
+            <button type="button" class="drawer-close" onclick="toggleDrawer()">&times;</button>
+        </div>
+        <ul class="drawer-menu">
+            <li class="drawer-item attivo" onclick="cambiaSezioneMenu('visualizzazione_standard', this)">Iscritti</li>
+            <li class="drawer-item" onclick="cambiaSezioneMenu('ricerca', this)">Ricerca Filtrata</li>
+            <li class="drawer-item" onclick="cambiaSezioneMenu('estrazione_prelazioni', this)">Estrazione Prelazioni</li>
+            <li class="drawer-item" onclick="eseguiLogout()" style="color: #dc3545; font-weight: bold; margin-top: 20px;">Esci / Logout</li>
+        </ul>
+    </nav>
+
+    <!-- CONTENUTO PRINCIPALE -->
+    <main class="main-content">
+        <div class="container">
+            <!-- SEZIONE 0: ISCRITTI -->
+            <div id="sezione_visualizzazione_standard" class="sezione-app attiva">
+                <h2>Elenco Iscritti</h2>
+                <p style="color: #666; font-size: 13px;">Cerca per cognome (min. 2 lettere).</p>
+                
+                <div>
+                    <label for="filtroCognome"><strong>Cognome:</strong></label>
+                    <input type="text" id="filtroCognome" placeholder="Digita cognome...">
+                </div>
+                <div>
+                    <button type="button" id="btnNuovoUtente" class="btn-nuovo-utente">+ Nuova Anagrafica</button>
+                </div>
+                
+                <div id="boxContatore" style="font-size: 13px; font-weight: bold; margin-top: 10px; display: none;">
+                    Trovati: <span id="totaleIscritti">0</span>
+                </div>
+
+                <div id="messaggioGuida" style="font-size: 13px; color: #666; text-align: center; margin: 15px 0; font-style: italic;">Inizia a digitare per cercare...</div>
+
+                <div class="table-responsive">
+                    <table id="tabellaIscritti" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Cognome</th>
+                                <th>Nome</th>
+                                <th>Telefono</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoTabella"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SEZIONE 1: RICERCA FILTRATA -->
+            <div id="sezione_ricerca" class="sezione-app">
+                <h2>Ricerca Filtrata</h2>
+                <div>
+                    <label for="selezionaAnnoFiltro"><strong>Anno:</strong></label>
+                    <select id="selezionaAnnoFiltro" onchange="caricaDatiRicercaFiltrata()">
+                        <option value="" disabled selected>-- Seleziona --</option>
+                        <option value="tutti">Tutti gli anni</option>
+                    </select>
+                </div>
+                <div class="table-responsive">
+                    <table id="tabellaIscrittiFiltrata" style="display: none;">
+                        <thead id="intestazioneTabellaFiltrata"></thead>
+                        <tbody id="corpoTabellaFiltrata"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SEZIONE PRELAZIONI -->
+            <div id="sezione_estrazione_prelazioni" class="sezione-app">
+                <h2>Estrazione Prelazioni</h2>
+                <div style="margin: 10px 0;">
+                    <input type="checkbox" id="flagCorviDoro" onchange="caricaDatiPrelazioni()">
+                    <label for="flagCorviDoro"><strong>Corvi d'oro</strong> (10+ anni)</label>
+                </div>
+                <div class="table-responsive">
+                    <table id="tabellaPrelazioni" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Cognome</th>
+                                <th>Nome</th>
+                                <th>Dettaglio</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoTabellaPrelazioni"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODALE SCHEDA ISCRITTO -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <button type="button" class="btn-chiudi-x" id="btnChiudiX">&times;</button>
+            <h3 id="modalTitle" style="font-size: 18px; color: #007BFF; margin-top: 0;">Scheda Iscritto</h3>
+            <input type="hidden" id="editIdPersona">
+            
+            <div id="messaggioRuntimeDuplicato" style="font-size: 12px; font-weight: bold; margin-bottom: 5px;"></div>
+
+            <div class="form-row">
+                <div class="form-group"><label>Cognome:</label><input type="text" id="editCognome" class="campo-controllo"></div>
+                <div class="form-group"><label>Nome:</label><input type="text" id="editNome" class="campo-controllo"></div>
+                <div class="form-group"><label>Codice Fiscale:</label><input type="text" id="editCodiceFiscale" style="text-transform: uppercase;"></div>
+                <div class="form-group"><label>Data di Nascita:</label><input type="date" id="editDataNascita"></div>
+                <div class="form-group"><label>Città:</label><input type="text" id="editCitta"></div>
+                <div class="form-group"><label>Telefono:</label><input type="text" id="editTelefono"></div>
+            </div>
+
+            <div class="box-bottoni-modale">
+                <button type="button" id="btnAggiungiIscrizione" class="btn-aggiungi-iscrizione" style="display: none;">+ Iscrizione</button>
+                <button type="button" id="btnSalva" class="btn-salva">Salva</button>
+            </div>
+
+            <div id="sezioneStoricoContainer" style="display: none; margin-top: 15px;">
+                <h4 style="font-size: 14px; border-bottom: 2px solid #007BFF; padding-bottom: 4px;">Storico Iscrizioni</h4>
+                <div id="storicoCaricamento" style="font-size: 13px; color: #666; font-style: italic;">Caricamento...</div>
+                <div class="table-responsive">
+                    <table id="tabellaStorico" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Anno</th>
+                                <th>Tipo</th>
+                                <th>ID</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoTabellaStorico"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT FIREBASE E LOGICA MOBILE (Sincronizzato con la versione principale) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const k1 = "AIzaSyCjfPICynrV";
+        const k2 = "SeeVr4ifXoBoWi74nVGEt5Q";
+        const firebaseConfig = {
+            apiKey: k1 + k2,
+            authDomain: "dbiscrizioni.firebaseapp.com",
+            projectId: "dbiscrizioni",
+            storageBucket: "dbiscrizioni.firebasestorage.app",
+            messagingSenderId: "803347064813",
+            appId: "1:803347064813:web:430a3fc4d0d1a3aa72e9e4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        let modalitaCorrente = 'user';
+        let aliasUtenteLoggato = '';
+        let timeoutRicerca = null;
+        let annoCarnevaleCorrente = localStorage.getItem('anno_carnevale_corrente') || "2027";
+
+        window.toggleDrawer = function() {
+            const drawer = document.getElementById('mobileDrawer');
+            const overlay = document.getElementById('drawerOverlay');
+            const isOpen = drawer.classList.contains('aperto');
+            if (isOpen) {
+                drawer.classList.remove('aperto');
+                overlay.style.display = 'none';
+            } else {
+                drawer.classList.add('aperto');
+                overlay.style.display = 'block';
+            }
+        };
+
+        window.cambiaSezioneMenu = function(valore, elem) {
+            document.querySelectorAll('.sezione-app').forEach(s => s.classList.remove('attiva'));
+            document.querySelectorAll('.drawer-item').forEach(v => v.classList.remove('attivo'));
+            const target = document.getElementById(`sezione_${valore}`);
+            if (target) target.classList.add('attiva');
+            if (elem) elem.classList.add('attivo');
+            toggleDrawer();
+            if (valore === 'ricerca') caricaDatiRicercaFiltrata();
+            else if (valore === 'estrazione_prelazioni') caricaDatiPrelazioni();
+        };
+
+        window.eseguiLoginGoogle = async function() {
+            try {
+                const result = await signInWithPopup(auth, provider);
+                await verificaAutorizzazione(result.user);
+            } catch (error) {
+                document.getElementById('loginError').textContent = "Login fallito: " + error.message;
+            }
+        };
+
+        window.eseguiLogout = async function() {
+            await signOut(auth);
+            document.getElementById('loginOverlay').style.display = 'flex';
+            toggleDrawer();
+        };
+
+        async function verificaAutorizzazione(user) {
+            const emailUser = user.email.trim().toLowerCase();
+            const snap = await getDocs(query(collection(db, "utenti"), where("email", "==", emailUser)));
+            if (snap.empty || snap.docs[0].data().attivo === false) {
+                await signOut(auth);
+                document.getElementById('loginError').textContent = "Accesso non autorizzato.";
+                return;
+            }
+            let data = snap.docs[0].data();
+            aliasUtenteLoggato = data.alias || user.email;
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('userEmailDisplayHeader').textContent = aliasUtenteLoggato;
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) await verificaAutorizzazione(user);
+            else document.getElementById('loginOverlay').style.display = 'flex';
+        });
+
+        // Funzione di ricerca rapida iscritti
+        async function cercaIscritti(testo) {
+            testo = testo.trim().toUpperCase();
+            const msg = document.getElementById('messaggioGuida'), tab = document.getElementById('tabellaIscritti'), tbody = document.getElementById('corpoTabella'), box = document.getElementById('boxContatore');
+            if (testo.length < 2) { tab.style.display = 'none'; box.style.display = 'none'; msg.style.display = 'block'; return; }
+            
+            const snap = await getDocs(collection(db, "anagrafica"));
+            tbody.innerHTML = '';
+            let res = [];
+            snap.forEach(d => {
+                let dt = d.data();
+                if (String(dt.cognome || "").toUpperCase().includes(testo)) res.push({ id: d.id, ...dt });
+            });
+            if (res.length === 0) { msg.textContent = "Nessun risultato."; tab.style.display = 'none'; box.style.display = 'none'; return; }
+            
+            res.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${p.cognome}</td><td>${p.nome || ''}</td><td>${p.telefono || ''}</td>`;
+                tr.onclick = () => apriModale(p);
+                tbody.appendChild(tr);
+            });
+            document.getElementById('totaleIscritti').textContent = res.length;
+            box.style.display = 'block'; msg.style.display = 'none'; tab.style.display = 'table';
+        }
+
+        document.getElementById('filtroCognome').addEventListener('input', (e) => {
+            clearTimeout(timeoutRicerca);
+            timeoutRicerca = setTimeout(() => cercaIscritti(e.target.value), 300);
+        });
+
+        async function apriModale(p) {
+            document.getElementById('editIdPersona').value = p.id;
+            document.getElementById('editCognome').value = p.cognome || '';
+            document.getElementById('editNome').value = p.nome || '';
+            document.getElementById('editCodiceFiscale').value = p.codice_fiscale || '';
+            document.getElementById('editDataNascita').value = p.data_nascita || '';
+            document.getElementById('editCitta').value = p.citta || '';
+            document.getElementById('editTelefono').value = p.telefono || '';
+            
+            document.getElementById('editModal').style.display = 'flex';
+            await caricaStorico(p.id);
+        }
+
+        async function caricaStorico(id) {
+            const tbody = document.getElementById('corpoTabellaStorico');
+            const tab = document.getElementById('tabellaStorico');
+            const div = document.getElementById('storicoCaricamento');
+            tbody.innerHTML = '';
+            
+            const snap = await getDocs(query(collection(db, "storico"), where("id_persona", "==", id)));
+            if (snap.empty) {
+                div.textContent = "Nessuna iscrizione passata.";
+                tab.style.display = 'none';
+                return;
+            }
+            div.style.display = 'none';
+            tab.style.display = 'table';
+            snap.forEach(d => {
+                let st = d.data();
+                tbody.innerHTML += `<tr><td>${st.anno || ''}</td><td>${st.tipo_iscrizione || ''}</td><td>${st.numero_identificativo || ''}</td></tr>`;
+            });
+        }
+
+        document.getElementById('btnChiudiX').addEventListener('click', () => {
+            document.getElementById('editModal').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
