@@ -70,7 +70,7 @@
         .btn-google { background-color: #4285F4; color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .login-error { color: #dc3545; font-size: 13px; margin-top: 15px; font-weight: bold; min-height: 18px; }
 
-        /* OVERLAY DI CARICAMENTO */
+        /* OVERLAY DI CARICAMENTO (CLESSIDRA GLOBALE) */
         #loadingOverlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(52, 58, 64, 0.8); z-index: 10000;
@@ -95,6 +95,7 @@
         table { width: 100%; border-collapse: collapse; white-space: nowrap; background: white; }
         th, td { border-bottom: 1px solid #dee2e6; padding: 10px 12px; text-align: left; font-size: 13px; }
         th { background-color: #f8f9fa; color: #495057; font-weight: bold; }
+        tr:hover { background-color: #f1f1f1; cursor: pointer; }
 
         /* MODALE MOBILE OTTIMIZZATA */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); justify-content: center; align-items: flex-end; }
@@ -105,11 +106,6 @@
         .btn-salva { background-color: #28a745; color: white; padding: 12px; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; flex: 1; }
         .btn-aggiungi-iscrizione { background-color: #17a2b8; color: white; padding: 12px; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; flex: 1; }
         .btn-chiudi-x { background: none; border: none; font-size: 24px; color: #666; font-weight: bold; float: right; }
-
-        .collapsible-header { background: #e7f5ff; padding: 12px; border-radius: 6px; border: 1px solid #74c0fc; font-weight: bold; color: #1864ab; font-size: 14px; margin-top: 12px; display: flex; justify-content: space-between; }
-        .collapsible-content { display: none; background: #f8f9fa; padding: 10px; border: 1px solid #ced4da; border-top: none; border-radius: 0 0 6px 6px; }
-        .collapsible-content.aperto { display: block; }
-        .btn-azione { padding: 8px 12px; border: none; border-radius: 4px; font-size: 13px; color: white; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -124,7 +120,7 @@
         </div>
     </div>
 
-    <!-- OVERLAY CARICAMENTO -->
+    <!-- OVERLAY CARICAMENTO (CLESSIDRA) -->
     <div id="loadingOverlay">
         <div class="spinner-cerchio"></div>
         <div id="loaderText" style="font-size: 14px; font-weight: bold;">Elaborazione in corso...</div>
@@ -270,7 +266,8 @@
             </div>
         </div>
     </div>
-    <!-- SCRIPT FIREBASE E LOGICA MOBILE (Sincronizzato con la versione principale) -->
+
+    <!-- SCRIPT FIREBASE E LOGICA MOBILE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -295,7 +292,16 @@
         let modalitaCorrente = 'user';
         let aliasUtenteLoggato = '';
         let timeoutRicerca = null;
-        let annoCarnevaleCorrente = localStorage.getItem('anno_carnevale_corrente') || "2027";
+
+        // Funzioni per la clessidra / loading globale
+        function mostraCaricamento(messaggio = "Elaborazione in corso...") {
+            document.getElementById('loaderText').textContent = messaggio;
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        function nascondiCaricamento() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
 
         window.toggleDrawer = function() {
             const drawer = document.getElementById('mobileDrawer');
@@ -323,10 +329,13 @@
 
         window.eseguiLoginGoogle = async function() {
             try {
+                mostraCaricamento("Accesso in corso...");
                 const result = await signInWithPopup(auth, provider);
                 await verificaAutorizzazione(result.user);
             } catch (error) {
                 document.getElementById('loginError').textContent = "Login fallito: " + error.message;
+            } finally {
+                nascondiCaricamento();
             }
         };
 
@@ -361,26 +370,34 @@
             const msg = document.getElementById('messaggioGuida'), tab = document.getElementById('tabellaIscritti'), tbody = document.getElementById('corpoTabella'), box = document.getElementById('boxContatore');
             if (testo.length < 2) { tab.style.display = 'none'; box.style.display = 'none'; msg.style.display = 'block'; return; }
             
-            const snap = await getDocs(collection(db, "anagrafica"));
-            tbody.innerHTML = '';
-            let res = [];
-            snap.forEach(d => {
-                let dt = d.data();
-                if (String(dt.cognome || "").toUpperCase().includes(testo)) res.push({ id: d.id, ...dt });
-            });
-            if (res.length === 0) { msg.textContent = "Nessun risultato."; tab.style.display = 'none'; box.style.display = 'none'; return; }
-            
-            res.forEach(p => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${p.cognome}</td><td>${p.nome || ''}</td><td>${p.telefono || ''}</td>`;
-                tr.onclick = () => apriModale(p);
-                tbody.appendChild(tr);
-            });
-            document.getElementById('totaleIscritti').textContent = res.length;
-            box.style.display = 'block'; msg.style.display = 'none'; tab.style.display = 'table';
+            mostraCaricamento("Ricerca in corso...");
+            try {
+                const snap = await getDocs(collection(db, "anagrafica"));
+                tbody.innerHTML = '';
+                let res = [];
+                snap.forEach(d => {
+                    let dt = d.data();
+                    if (String(dt.cognome || "").toUpperCase().includes(testo)) res.push({ id: d.id, ...dt });
+                });
+                if (res.length === 0) { msg.textContent = "Nessun risultato."; tab.style.display = 'none'; box.style.display = 'none'; return; }
+                
+                res.forEach(p => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${p.cognome}</td><td>${p.nome || ''}</td><td>${p.telefono || ''}</td>`;
+                    tr.onclick = () => apriModale(p);
+                    tbody.appendChild(tr);
+                });
+                document.getElementById('totaleIscritti').textContent = res.length;
+                box.style.display = 'block'; msg.style.display = 'none'; tab.style.display = 'table';
+            } catch(e) {
+                console.error(e);
+            } finally {
+                nascondiCaricamento();
+            }
         }
 
-		window.caricaDatiPrelazioni = async function() {
+        // Estrazione prelazioni con salvataggio delle anagrafiche complete per permettere il clic sulla riga
+        window.caricaDatiPrelazioni = async function() {
             const flagCorvi = document.getElementById('flagCorviDoro').checked;
             const tab = document.getElementById('tabellaPrelazioni');
             const tbody = document.getElementById('corpoTabellaPrelazioni');
@@ -390,6 +407,8 @@
                 tab.style.display = 'none';
                 return;
             }
+
+            mostraCaricamento("Estrazione Corvi d'oro in corso...");
 
             try {
                 const snapAnagrafica = await getDocs(collection(db, "anagrafica"));
@@ -409,8 +428,8 @@
                     let tipologia = st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || "";
                     let tipoPulito = String(tipologia).trim().toLowerCase();
 
-                    // Conta sia le iscrizioni complete che quelle come socio sostenitore
-                    if (!tipoPulito.includes("completa") && !tipoPulito.includes("iscrizione") && !tipoPulito.includes("sostenitore")) return;
+                    // Considera unicamente le iscrizioni complete rigorose
+                    if (tipoPulito !== "iscrizione completa") return;
 
                     let annoNum = parseInt(st.anno, 10);
                     if (isNaN(annoNum)) return;
@@ -442,9 +461,10 @@
 
                     if (massimoConsecutivi >= 10) {
                         risultati.push({
+                            personaCompleta: persona,
                             cognome: persona.cognome || '',
                             nome: persona.nome || '',
-                            dettaglio: String(massimoConsecutivi)
+                            dettaglio: `${massimoConsecutivi} anni consec.`
                         });
                     }
                 }
@@ -455,13 +475,16 @@
                     tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; font-style:italic;">Nessun Corvo d'oro trovato.</td></tr>`;
                 } else {
                     risultati.forEach(r => {
-                        tbody.innerHTML += `
-                            <tr>
-                                <td>${r.cognome}</td>
-                                <td>${r.nome}</td>
-                                <td><strong>${r.dettaglio}</strong></td>
-                            </tr>
+                        const tr = document.createElement('tr');
+                        tr.style.cursor = 'pointer';
+                        tr.innerHTML = `
+                            <td>${r.cognome}</td>
+                            <td>${r.nome}</td>
+                            <td><strong>${r.dettaglio}</strong></td>
                         `;
+                        // Cliccando sulla riga delle prelazioni si apre la modale con l'anagrafica corretta
+                        tr.addEventListener('click', () => apriModale(r.personaCompleta));
+                        tbody.appendChild(tr);
                     });
                 }
                 tab.style.display = 'table';
@@ -469,6 +492,8 @@
             } catch (error) {
                 console.error("Errore estrazione prelazioni:", error);
                 alert("Errore durante l'estrazione: " + error.message);
+            } finally {
+                nascondiCaricamento();
             }
         };
 
@@ -477,7 +502,7 @@
             timeoutRicerca = setTimeout(() => cercaIscritti(e.target.value), 300);
         });
 
-       async function apriModale(p) {
+        async function apriModale(p) {
             document.getElementById('editIdPersona').value = p.id;
             document.getElementById('editCognome').value = p.cognome || '';
             document.getElementById('editNome').value = p.nome || '';
@@ -490,7 +515,7 @@
             await caricaStoricoPersona(p.id);
         }
 		
-		async function caricaStoricoPersona(id) {
+        async function caricaStoricoPersona(id) {
             const div = document.getElementById('storicoCaricamento');
             const tab = document.getElementById('tabellaStorico');
             const tbody = document.getElementById('corpoTabellaStorico');
@@ -509,7 +534,6 @@
                 div.style.display = 'none'; 
                 tab.style.display = 'table';
                 
-                // Mettiamo i documenti in un array e li ordiniamo per anno decrescente (dal più recente)
                 let docsList = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 docsList.sort((a, b) => parseInt(b.anno || 0, 10) - parseInt(a.anno || 0, 10));
 
@@ -528,7 +552,7 @@
             }
         }
 		
-		async function gestisciSalvataggioEsistente() {
+        window.gestisciSalvataggioEsistente = async function() {
             const id = document.getElementById('editIdPersona').value;
             const dati = {
                 cognome: document.getElementById('editCognome').value.trim().toUpperCase(),
@@ -539,29 +563,17 @@
                 telefono: document.getElementById('editTelefono').value.trim()
             };
             if (!dati.cognome || !dati.nome) return alert("Inserisci Cognome e Nome.");
-            await setDoc(doc(db, "anagrafica", id), dati, { merge: true });
-            alert("Modifiche anagrafica salvate!");
-            document.getElementById('editModal').style.display = 'none';
-        }
-
-        async function caricaStorico(id) {
-            const tbody = document.getElementById('corpoTabellaStorico');
-            const tab = document.getElementById('tabellaStorico');
-            const div = document.getElementById('storicoCaricamento');
-            tbody.innerHTML = '';
             
-            const snap = await getDocs(query(collection(db, "storico"), where("id_persona", "==", id)));
-            if (snap.empty) {
-                div.textContent = "Nessuna iscrizione passata.";
-                tab.style.display = 'none';
-                return;
+            mostraCaricamento("Salvataggio in corso...");
+            try {
+                await setDoc(doc(db, "anagrafica", id), dati, { merge: true });
+                alert("Modifiche anagrafica salvate!");
+                document.getElementById('editModal').style.display = 'none';
+            } catch(e) {
+                alert("Errore salvataggio: " + e.message);
+            } finally {
+                nascondiCaricamento();
             }
-            div.style.display = 'none';
-            tab.style.display = 'table';
-            snap.forEach(d => {
-                let st = d.data();
-                tbody.innerHTML += `<tr><td>${st.anno || ''}</td><td>${st.tipo_iscrizione || ''}</td><td>${st.numero_identificativo || ''}</td></tr>`;
-            });
         }
 
         document.getElementById('btnChiudiX').addEventListener('click', () => {
