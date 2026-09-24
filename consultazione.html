@@ -2519,6 +2519,8 @@
             }
         };
 
+		let statoOrdinamentoColonna = { indice: -1, crescente: true };
+
         window.caricaDatiRicercaFiltrata = async function() {
             const annoSelezionato = document.getElementById('selezionaAnnoFiltro').value;
             const msg = document.getElementById('messaggioGuidaFiltrato'), tab = document.getElementById('tabellaIscrittiFiltrata'), box = document.getElementById('boxContatoreFiltrato');
@@ -2538,7 +2540,6 @@
                             anno: String(st.anno || ""), 
                             tipo_iscrizione: String(tipoTrovato), 
                             numero_identificativo: String(st.numero_identificativo || ""),
-                            // AGGIUNTA MAPPATURA PER INSERITO DA / IL
                             inserito_da: String(st.creato_da || st.inserito_da || ""),
                             inserito_il: String(st.creato_il || st.inserito_il || "")
                         });
@@ -2554,35 +2555,93 @@
                                 anno: i.anno,
                                 tipo_iscrizione: i.tipo_iscrizione, 
                                 numero_identificativo: i.numero_identificativo,
-                                inserito_da: i.inserito_da, // <-- AGGIUNTO
-                                inserito_il: i.inserito_il  // <-- AGGIUNTO
+                                inserito_da: i.inserito_da,
+                                inserito_il: i.inserito_il
                             });
                         }
                     });
                 });
+
                 risultati.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || ''));
-                let thead = document.getElementById('intestazioneTabellaFiltrata'), tbody = document.getElementById('corpoTabellaFiltrata');
+                
+                let thead = document.getElementById('intestazioneTabellaFiltrata');
                 let cols = colonneSelezionate.filter(c => !(DEFINIZIONE_COLONNE.find(x => x.id === c)?.richiedeAnnoSpecifico && annoSelezionato === "tutti"));
                 
-                thead.innerHTML = `<tr>${cols.map(c => `<th>${DEFINIZIONE_COLONNE.find(x => x.id === c)?.titolo || c}</th>`).join('')}</tr>`;
-                tbody.innerHTML = '';
-                risultati.forEach(p => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = cols.map(c => {
-                        let defCol = DEFINIZIONE_COLONNE.find(x => x.id === c);
-                        let val = p[c];
-                        if (defCol && defCol.formatter) val = defCol.formatter(val);
-                        return `<td>${pulisciTesto(val)}</td>`;
-                    }).join('');
-                    tr.onclick = () => apriModaleEsistente(p);
-                    tbody.appendChild(tr);
-                });
+                // Generazione intestazioni cliccabili per l'ordinamento
+                thead.innerHTML = `<tr>${cols.map((c, index) => {
+                    let titolo = DEFINIZIONE_COLONNE.find(x => x.id === c)?.titolo || c;
+                    let freccia = "";
+                    if (statoOrdinamentoColonna.indice === index) {
+                        freccia = statoOrdinamentoColonna.crescente ? " ▲" : " ▼";
+                    }
+                    return `<th onclick="ordinaTabellaFiltrata(${index}, '${c}')">${titolo}${freccia}</th>`;
+                }).join('')}</tr>`;
+
+                renderizzaRigheTabellaFiltrata(risultati, cols);
+
                 document.getElementById('totaleIscrittiFiltrati').textContent = risultati.length;
                 box.style.display = 'block'; msg.style.display = 'none'; tab.style.display = 'table';
             } catch (e) { msg.textContent = "Errore: " + e.message; }
             finally { nascondiCaricamento(); }
         };
 
+        let ultimiRisultatiFiltratiCache = [];
+        let ultimeColsCache = [];
+
+        function renderizzaRigheTabellaFiltrata(risultati, cols) {
+            ultimiRisultatiFiltratiCache = risultati;
+            ultimeColsCache = cols;
+            let tbody = document.getElementById('corpoTabellaFiltrata');
+            tbody.innerHTML = '';
+            risultati.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = cols.map(c => {
+                    let defCol = DEFINIZIONE_COLONNE.find(x => x.id === c);
+                    let val = p[c];
+                    if (defCol && defCol.formatter) val = defCol.formatter(val);
+                    return `<td>${pulisciTesto(val)}</td>`;
+                }).join('');
+                tr.onclick = () => apriModaleEsistente(p);
+                tbody.appendChild(tr);
+            });
+        }
+
+        window.ordinaTabellaFiltrata = function(colIndex, colId) {
+            if (statoOrdinamentoColonna.indice === colIndex) {
+                statoOrdinamentoColonna.crescente = !statoOrdinamentoColonna.crescente;
+            } else {
+                statoOrdinamentoColonna.indice = colIndex;
+                statoOrdinamentoColonna.crescente = true;
+            }
+
+            ultimiRisultatiFiltratiCache.sort((a, b) => {
+                let valA = a[colId] || "";
+                let valB = b[colId] || "";
+
+                if (!isNaN(valA) && !isNaN(valB) && valA !== "" && valB !== "") {
+                    return statoOrdinamentoColonna.crescente ? valA - valB : valB - valA;
+                }
+
+                let comp = String(valA).localeCompare(String(valB), 'it', { numeric: true });
+                return statoOrdinamentoColonna.crescente ? comp : -comp;
+            });
+
+            // Aggiorna le frecce nell'intestazione
+            let theadTr = document.querySelector('#intestazioneTabellaFiltrata tr');
+            if (theadTr) {
+                Array.from(theadTr.children).forEach((th, idx) => {
+                    let baseText = th.textContent.replace(/[▲▼]/g, "").trim();
+                    if (idx === statoOrdinamentoColonna.indice) {
+                        th.textContent = baseText + (statoOrdinamentoColonna.crescente ? " ▲" : " ▼");
+                    } else {
+                        th.textContent = baseText;
+                    }
+                });
+            }
+
+            renderizzaRigheTabellaFiltrata(ultimiRisultatiFiltratiCache, ultimeColsCache);
+        };
+		
         function calcolaEImpostaEta(dataStr) {
             const inputEta = document.getElementById('editEtaDisplay'), sezGen = document.getElementById('sezioneDatiGenitori');
             if (!dataStr) { inputEta.value = ""; if (sezGen) sezGen.style.display = 'none'; return; }
