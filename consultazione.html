@@ -1516,7 +1516,7 @@
             { id: 'tipo_iscrizione', titolo: 'Tipo Iscrizione', default: true, richiedeAnnoSpecifico: true },
             { id: 'numero_identificativo', titolo: 'Numero Identificativo', default: false, richiedeAnnoSpecifico: true },
             { id: 'inserito_da', titolo: 'Inserito da', default: false, richiedeAnnoSpecifico: true },
-            { id: 'inserito_il', titolo: 'Inserito il', default: false, isDate: true, richiedeAnnoSpecifico: true, formatter: val => formattaDataOraCompleta(val) }
+            { id: 'inserito_il', titolo: 'Inserito il', default: false, isDate: false, richiedeAnnoSpecifico: true, formatter: val => pulisciTesto(val) }
         ];
 
         let colonneSelezionate = JSON.parse(localStorage.getItem('colonne_visibili_ricerca')) || DEFINIZIONE_COLONNE.filter(c => c.default).map(c => c.id);
@@ -2537,7 +2537,10 @@
                         mappa[st.id_persona].push({ 
                             anno: String(st.anno || ""), 
                             tipo_iscrizione: String(tipoTrovato), 
-                            numero_identificativo: String(st.numero_identificativo || "") 
+                            numero_identificativo: String(st.numero_identificativo || ""),
+                            // AGGIUNTA MAPPATURA PER INSERITO DA / IL
+                            inserito_da: String(st.creato_da || st.inserito_da || ""),
+                            inserito_il: String(st.creato_il || st.inserito_il || "")
                         });
                     });
                     snapAnag.forEach(d => cacheTuttiIscritti.push({ id: d.id, ...d.data(), iscrizioni: mappa[d.id] || [] }));
