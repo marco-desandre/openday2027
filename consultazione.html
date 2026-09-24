@@ -323,6 +323,18 @@
                             <option value="tutti">Tutti gli anni</option>
                         </select>
                     </div>
+
+                    <!-- NUOVI FILTRI DATA INSERIMENTO -->
+                    <div class="search-group" style="max-width: 160px;">
+                        <label for="filtroDataDa"><strong>Inserito dal:</strong></label>
+                        <input type="date" id="filtroDataDa" onchange="caricaDatiRicercaFiltrata()">
+                    </div>
+                    <div class="search-group" style="max-width: 160px;">
+                        <label for="filtroDataA"><strong>Inserito al:</strong></label>
+                        <input type="date" id="filtroDataA" onchange="caricaDatiRicercaFiltrata()">
+                    </div>
+                    <!-- FINE NUOVI FILTRI -->
+
                     <div class="search-group" style="flex: initial; display: flex; gap: 10px; align-items: flex-end;">
                         <div>
                             <label>&nbsp;</label>
@@ -340,7 +352,7 @@
                         </div>
                     </div>
                 </div>
-
+				
                 <div id="boxContatoreFiltrato" class="box-contatore" style="display: none;">
                     Iscritti filtrati trovati: <span id="totaleIscrittiFiltrati">0</span>
                 </div>
@@ -2547,9 +2559,38 @@
                     snapAnag.forEach(d => cacheTuttiIscritti.push({ id: d.id, ...d.data(), iscrizioni: mappa[d.id] || [] }));
                 }
                 let risultati = [];
+                
+                // Leggiamo i valori dei filtri data
+                const dataDaVal = document.getElementById('filtroDataDa').value; // Formato "YYYY-MM-DD"
+                const dataaVal = document.getElementById('filtroDataA').value;   // Formato "YYYY-MM-DD"
+                
+                const timestampDa = dataDaVal ? new Date(dataDaVal).setHours(0,0,0,0) : null;
+                const timestampA = dataaVal ? new Date(dataaVal).setHours(23,59,59,999) : null;
+
                 cacheTuttiIscritti.forEach(p => {
                     p.iscrizioni.forEach(i => {
                         if (annoSelezionato === "tutti" || i.anno === annoSelezionato) {
+                            
+                            // Controllo filtro intervallo date su "inserito_il" (es. "24/9/2026, 11:10:37")
+                            if (timestampDa || timestampA) {
+                                if (!i.inserito_il) return; // Se manca la data di inserimento e c'è il filtro, lo saltiamo
+                                
+                                // Estraiamo la parte della data (es. "24/9/2026")
+                                let partiDataOra = i.inserito_il.split(',');
+                                let partiData = partiDataOra[0].trim().split('/'); // [giorno, mese, anno]
+                                if (partiData.length === 3) {
+                                    let g = String(partiData[0]).padStart(2, '0');
+                                    let m = String(partiData[1]).padStart(2, '0');
+                                    let a = partiData[2];
+                                    let timestampRiga = new Date(`${a}-${m}-${g}`).getTime();
+
+                                    if (timestampDa && timestampRiga < timestampDa) return;
+                                    if (timestampA && timestampRiga > timestampA) return;
+                                } else {
+                                    return; // Se il formato non combacia, lo escludiamo in sicurezza quando il filtro è attivo
+                                }
+                            }
+
                             risultati.push({ 
                                 ...p, 
                                 anno: i.anno,
@@ -2561,7 +2602,7 @@
                         }
                     });
                 });
-
+				
                 risultati.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || ''));
                 
                 let thead = document.getElementById('intestazioneTabellaFiltrata');
