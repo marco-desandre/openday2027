@@ -539,17 +539,16 @@
                 }
 
                 let personeDavanti = 0;
-                const mioTimestamp = mioOggetto.timestamp;
-                const mioMetodoPagamento = mioOggetto.pagamento || 'bancomat';
+				const mioTimestamp = mioOggetto.timestamp;
 
-                arrayAttiva.forEach((item) => {
-                    const statoItem = item.stato || 'attesa';
-                    const metodoItem = item.pagamento || 'bancomat';
-                    
-                    if (metodoItem === mioMetodoPagamento && item.timestamp < mioTimestamp && (statoItem === 'attesa' || statoItem === 'chiamato')) {
-                        personeDavanti += item.delega ? 2 : 1;
-                    }
-                });
+				// Calcolo unificato sulla fila unica in base al timestamp cronologico
+				arrayAttiva.forEach((item) => {
+					const statoItem = item.stato || 'attesa';
+					
+					if (item.timestamp < mioTimestamp && (statoItem === 'attesa' || statoItem === 'chiamato')) {
+						personeDavanti += item.delega ? 2 : 1;
+					}
+				});
 
                 document.getElementById('mioNumeroBiglietto').innerText = `Il tuo biglietto è il N° ${numeroMioBiglietto}`;
 
