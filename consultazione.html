@@ -105,8 +105,14 @@
         .grid-checkbox-colonne input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
 
         input[type="text"], input[type="date"], input[type="email"], input[type="number"], select { 
-            width: 100%; padding: 10px; margin: 4px 0 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 15px; 
-        }
+			width: 100%; 
+			padding: 6px 10px; /* Ridotto da 10px a 6px */
+			margin: 2px 0 6px 0; /* Ridotto il margine inferiore */
+			border: 1px solid #ccc; 
+			border-radius: 4px; 
+			box-sizing: border-box; 
+			font-size: 14px; /* Leggermente più compatto */
+		}
 
         .campo-vuoto { border: 2px solid #dc3545 !important; background-color: #fff8f8; }
 
@@ -122,14 +128,36 @@
         .box-contatore { font-size: 14px; color: #333; margin-bottom: 10px; font-weight: bold; }
         
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-        .modal-content { background-color: white; padding: 30px; border-radius: 8px; width: 950px; max-height: 90vh; overflow-y: auto; box-shadow: 0px 4px 15px rgba(0,0,0,0.2); position: relative; }
-        .modal-content h3 { margin-top: 0; color: #007BFF; }
+        .modal-content { 
+			background-color: white; 
+			padding: 20px 25px;
+			border-radius: 8px; 
+			width: 950px; 
+			max-height: 92vh;
+			overflow-y: auto; 
+			box-shadow: 0px 4px 15px rgba(0,0,0,0.2); 
+			position: relative; 
+		}
+		.modal-content h3 { margin-top: 0; color: #007BFF; }
         .modal-content h4 { margin-top: 25px; color: #333; border-bottom: 2px solid #007BFF; padding-bottom: 5px; }
         
-        .form-row { display: flex; gap: 15px; margin-bottom: 5px; }
-        .form-group { flex: 1; display: flex; flex-direction: column; }
-        .form-group label { font-size: 13px; font-weight: bold; color: #444; margin-bottom: 2px; }
-        
+        .form-row { 
+			display: flex; 
+			gap: 12px; 
+			margin-bottom: 2px; /* Ridotto da 5px a 2px */
+		}
+		.form-group { 
+			flex: 1; 
+			display: flex; 
+			flex-direction: column; 
+		}
+		.form-group label { 
+			font-size: 12px; /* Ridotto da 13px */
+			font-weight: bold; 
+			color: #444; 
+			margin-bottom: 1px; /* Ridotto quasi a zero */
+		}
+		
         .form-row-opzioni { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; background: #f8f9fa; padding: 12px 20px; border-radius: 6px; border: 1px solid #e9ecef; flex-wrap: wrap; gap: 15px; }
         .checkboxes-container { display: flex; gap: 30px; align-items: center; }
         .checkbox-group { display: flex; align-items: center; gap: 8px; cursor: pointer; }
@@ -174,9 +202,9 @@
         .placeholder-sezione { padding: 40px; text-align: center; color: #666; font-size: 18px; background: #fafafa; border: 2px dashed #ddd; border-radius: 6px; }
 
         /* ACCORDION / SEZIONI COLLASSABILI */
-        .collapsible-header { background: #e7f5ff; padding: 10px 15px; border-radius: 6px; border: 1px solid #74c0fc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; font-weight: bold; color: #1864ab; font-size: 14px; margin-top: 10px; }
+        .collapsible-header { background: #e7f5ff; padding: 6px 10px; border-radius: 6px; border: 1px solid #74c0fc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; font-weight: bold; color: #1864ab; font-size: 13px; margin-top: 6px; }
         .collapsible-header:hover { background: #d0ebff; }
-        .collapsible-content { display: none; background: #f8f9fa; padding: 12px; border: 1px solid #ced4da; border-top: none; border-radius: 0 0 6px 6px; margin-bottom: 10px; }
+        .collapsible-content { display: none; background: #f8f9fa; padding: 8px; border: 1px solid #ced4da; border-top: none; border-radius: 0 0 6px 6px; margin-bottom: 6px; }
         .collapsible-content.aperto { display: block; }
 
         @media (max-width: 768px) {
