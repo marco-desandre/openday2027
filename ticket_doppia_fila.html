@@ -33,7 +33,7 @@
         h2 { font-size: 22px; color: #111827; font-weight: 700; margin-top: 0; margin-bottom: 6px; }
         .sottotitolo { font-size: 14px; color: #6b7280; margin-bottom: 24px; line-height: 1.4; }
 
-        input[type="text"], input[type="tel"] { 
+        input[type="text"] { 
             width: 100%; 
             padding: 16px; 
             margin-top: 12px; 
@@ -44,7 +44,7 @@
             background: #f9fafb;
             transition: all 0.2s ease;
         }
-        input[type="text"]:focus, input[type="tel"]:focus { 
+        input[type="text"]:focus { 
             border-color: #2563eb; 
             background: #fff;
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); 
@@ -127,6 +127,12 @@
             transition: background 0.2s, transform 0.1s; 
         }
         button:active { background: #1d4ed8; transform: scale(0.98); }
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
         
         #schermataForm { display: none; }
         
@@ -210,8 +216,7 @@
 
         <!-- FASE 1: Inserimento Dati (Coda Normale) -->
         <div id="schermataForm">
-            <input type="text" id="nomeUtente" placeholder="Cognome e Nome" autocomplete="name">
-            <input type="tel" id="telefonoUtente" placeholder="Numero di telefono" autocomplete="tel">
+            <input type="text" id="nomeUtente" placeholder="Cognome e Nome" autocomplete="name" oninput="validaForm()">
             
             <label class="delega-container">
                 <input type="checkbox" id="checkDelega" onchange="toggleDelega()">
@@ -219,7 +224,7 @@
             </label>
 
             <div id="containerDelegato">
-                <input type="text" id="nomeDelegato" placeholder="Cognome e Nome del delegante" autocomplete="off">
+                <input type="text" id="nomeDelegato" placeholder="Cognome e Nome del delegante" autocomplete="off" oninput="validaForm()">
             </div>
 
             <!-- Selezione Metodo di Pagamento -->
@@ -236,7 +241,7 @@
                 <div class="avviso-satispay">⚠️ Satispay non è accettato</div>
             </div>
 
-            <button onclick="registraInCoda()">Prendi il Numero</button>
+            <button id="btnInvia" onclick="registraInCoda()" disabled>Prendi il Numero</button>
         </div>
 
         <!-- LISTA DI RISERVA -->
@@ -244,8 +249,7 @@
             <h3 style="margin-top:0; color: #b45309; text-align: center; font-size: 18px;">⚠️ Coda Al Completo</h3>
             <p style="font-size: 13px; line-height: 1.4; margin-bottom: 16px;">Siamo momentaneamente al completo. Puoi iscriverti alla <strong>lista di riserva</strong>: verrai spostato automaticamente appena si libera un posto.</p>
             
-            <input type="text" id="nomeUtenteRiserva" placeholder="Cognome e Nome" autocomplete="name">
-            <input type="tel" id="telefonoUtenteRiserva" placeholder="Numero di telefono" autocomplete="tel">
+            <input type="text" id="nomeUtenteRiserva" placeholder="Cognome e Nome" autocomplete="name" oninput="validaRiserva()">
             
             <label class="delega-container" style="background: #fff; border-color: #fde68a;">
                 <input type="checkbox" id="checkDelegaRiserva" onchange="toggleDelegaRiserva()">
@@ -253,7 +257,7 @@
             </label>
 
             <div id="containerDelegatoRiserva">
-                <input type="text" id="nomeDelegatoRiserva" placeholder="Cognome e Nome del delegante" autocomplete="off">
+                <input type="text" id="nomeDelegatoRiserva" placeholder="Cognome e Nome del delegante" autocomplete="off" oninput="validaRiserva()">
             </div>
 
             <!-- Selezione Metodo di Pagamento Riserva -->
@@ -270,7 +274,7 @@
                 <div class="avviso-satispay">⚠️ Satispay non è accettato</div>
             </div>
 
-            <button onclick="registraInRiserva()" style="background: #d97706; box-shadow: 0 4px 14px rgba(217, 119, 6, 0.3); margin-top: 18px;">Iscriviti alla Riserva</button>
+            <button id="btnInviaRiserva" onclick="registraInRiserva()" style="background: #d97706; box-shadow: 0 4px 14px rgba(217, 119, 6, 0.3); margin-top: 18px;" disabled>Iscriviti alla Riserva</button>
         </div>
 
         <!-- FASE 2: In Attesa -->
@@ -330,12 +334,40 @@
             const check = document.getElementById('checkDelega').checked;
             document.getElementById('containerDelegato').style.display = check ? 'block' : 'none';
             if (!check) document.getElementById('nomeDelegato').value = ''; 
+            validaForm();
         };
 
         window.toggleDelegaRiserva = function() {
             const check = document.getElementById('checkDelegaRiserva').checked;
             document.getElementById('containerDelegatoRiserva').style.display = check ? 'block' : 'none';
             if (!check) document.getElementById('nomeDelegatoRiserva').value = ''; 
+            validaRiserva();
+        };
+
+        window.validaForm = function() {
+            const nome = document.getElementById('nomeUtente').value.trim();
+            const conDelega = document.getElementById('checkDelega').checked;
+            const nomeDelegato = document.getElementById('nomeDelegato').value.trim();
+            const btn = document.getElementById('btnInvia');
+
+            if (!nome || (conDelega && !nomeDelegato)) {
+                btn.disabled = true;
+            } else {
+                btn.disabled = false;
+            }
+        };
+
+        window.validaRiserva = function() {
+            const nome = document.getElementById('nomeUtenteRiserva').value.trim();
+            const conDelega = document.getElementById('checkDelegaRiserva').checked;
+            const nomeDelegato = document.getElementById('nomeDelegatoRiserva').value.trim();
+            const btn = document.getElementById('btnInviaRiserva');
+
+            if (!nome || (conDelega && !nomeDelegato)) {
+                btn.disabled = true;
+            } else {
+                btn.disabled = false;
+            }
         };
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -416,17 +448,14 @@
 
         window.registraInCoda = function() {
             const nome = document.getElementById('nomeUtente').value.trim();
-            const telefono = document.getElementById('telefonoUtente').value.trim();
             const conDelega = document.getElementById('checkDelega').checked;
             const nomeDelegato = document.getElementById('nomeDelegato').value.trim();
             const pagamento = document.querySelector('input[name="pagamentoUtente"]:checked').value;
 
-            if(!nome) { alert("Inserisci il tuo Cognome e Nome."); return; }
-            if(!telefono) { alert("Inserisci il tuo numero di telefono."); return; }
-            if(conDelega && !nomeDelegato) { alert("Inserisci il nome del delegante."); return; }
+            if(!nome || (conDelega && !nomeDelegato)) return;
 
             const nuovoTicket = push(codaRef, {
-                nome: nome, telefono: telefono, delega: conDelega, delegato: conDelega ? nomeDelegato : "", pagamento: pagamento, timestamp: Date.now(), stato: 'attesa'
+                nome: nome, telefono: "", delega: conDelega, delegato: conDelega ? nomeDelegato : "", pagamento: pagamento, timestamp: Date.now(), stato: 'attesa'
             });
 
             localStorage.setItem('coda_id_utente', nuovoTicket.key);
@@ -436,17 +465,14 @@
 
         window.registraInRiserva = function() {
             const nome = document.getElementById('nomeUtenteRiserva').value.trim();
-            const telefono = document.getElementById('telefonoUtenteRiserva').value.trim();
             const conDelega = document.getElementById('checkDelegaRiserva').checked;
             const nomeDelegato = document.getElementById('nomeDelegatoRiserva').value.trim();
             const pagamento = document.querySelector('input[name="pagamentoRiserva"]:checked').value;
 
-            if(!nome) { alert("Inserisci il tuo Cognome e Nome."); return; }
-            if(!telefono) { alert("Inserisci il tuo numero di telefono."); return; }
-            if(conDelega && !nomeDelegato) { alert("Inserisci il nome del delegante."); return; }
+            if(!nome || (conDelega && !nomeDelegato)) return;
 
             const nuovoTicket = push(codaRef, {
-                nome: nome, telefono: telefono, delega: conDelega, delegato: conDelega ? nomeDelegato : "", pagamento: pagamento, timestamp: Date.now(), stato: 'riserva'
+                nome: nome, telefono: "", delega: conDelega, delegato: conDelega ? nomeDelegato : "", pagamento: pagamento, timestamp: Date.now(), stato: 'riserva'
             });
 
             localStorage.setItem('coda_id_utente', nuovoTicket.key);
