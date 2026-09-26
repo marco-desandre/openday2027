@@ -1762,17 +1762,18 @@
             let nom = estraiCv(nome);
             let partNom = nom.c.length >= 4 ? nom.c[0] + nom.c[2] + nom.c[3] : (nom.c + nom.v + 'XXX').substring(0, 3);
             
-            let pData = dataNascita.split('-');
-            if (pData.length !== 3) return null;
-            let anno = pData[0].substring(2, 4);
-            let mCod = { '01': 'A', '02': 'B', '03': 'C', '04': 'D', '05': 'E', '06': 'H', '07': 'L', '08': 'M', '09': 'P', '10': 'R', '11': 'S', '12': 'T' };
-            let mese = mCod[pData[1]] || 'A';
-            
-            let giornoVal = parseInt(pData[2], 10);
-            if (String(sesso).toUpperCase() === 'F') {
-                giornoVal += 40;
-            }
-            let giorno = String(giornoVal).padStart(2, '0');
+           let pData = dataNascita.split('-'); // es. ["1988", "08", "31"]
+			if (pData.length !== 3) return null;
+			let anno = pData[0].substring(2, 4);
+			let mCod = { '01': 'A', '02': 'B', '03': 'C', '04': 'D', '05': 'E', '06': 'H', '07': 'L', '08': 'M', '09': 'P', '10': 'R', '11': 'S', '12': 'T' };
+			let mese = mCod[pData[1]] || 'A';
+
+			// FORZHIAMO LA LETTURA DIRETTA DELLA STRINGA DEL GIORNO SENZA INTERPRETAZIONI ORARIE
+			let giornoNum = parseInt(pData[2], 10);
+			if (String(sesso).toUpperCase() === 'F') {
+				giornoNum += 40;
+			}
+			let giorno = String(giornoNum).padStart(2, '0');
             
             let codCat = dizionarioNomiComuni[luogo.toUpperCase()] || "H501";
 
