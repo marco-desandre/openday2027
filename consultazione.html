@@ -525,14 +525,19 @@
 
             <div class="form-row" id="gruppoCampoCodiceFiscale">
                 <div class="form-group col-large">
-                    <label>Codice Fiscale:</label>
-                    <div style="display: flex; gap: 8px;">
-                        <select id="editSesso" class="campo-controllo" style="width: 70px; margin: 4px 0 10px 0; text-align: center; font-weight: bold;">
-                            <option value="M">M</option>
-                            <option value="F">F</option>
-                        </select>
-                        <input type="text" id="editCodiceFiscale" class="campo-controllo" maxlength="16" placeholder="es. RSSMRA..." style="text-transform: uppercase; margin: 4px 0 10px 0;">
-                        <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 14px; font-size: 13px; font-weight: bold; height: 42px; margin-top: 4px;" onclick="calcolaCFIsCRITTO()">Calcola</button>
+                    <label>Codice Fiscale e Genere:</label>
+                    <div style="display: flex; gap: 12px; align-items: center; margin: 4px 0 10px 0;">
+                        <!-- Selezione Visibile Maschio / Femmina (Radio buttons) -->
+                        <div style="display: flex; gap: 15px; background: #f8f9fa; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px;">
+                            <label style="font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; margin: 0;">
+                                <input type="radio" name="editSesso" value="M" checked style="cursor: pointer; width: 16px; height: 16px;"> Maschio
+                            </label>
+                            <label style="font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; margin: 0;">
+                                <input type="radio" name="editSesso" value="F" style="cursor: pointer; width: 16px; height: 16px;"> Femmina
+                            </label>
+                        </div>
+                        <input type="text" id="editCodiceFiscale" class="campo-controllo" maxlength="16" placeholder="es. RSSMRA..." style="text-transform: uppercase; margin: 0;">
+                        <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 14px; font-size: 13px; font-weight: bold; height: 42px;" onclick="calcolaCFIsCRITTO()">Calcola</button>
                     </div>
                 </div>
             </div>
@@ -991,7 +996,7 @@
         let streamWebcam = null;
         
         let targetWebcamSoggetto = null; 
-        let targetWebcamSlot = 1;       
+        let targetWebcamSlot = 1;        
         
         let configCodiceFiscale = localStorage.getItem('config_cf') !== 'false';
         let configDocumento = localStorage.getItem('config_doc') !== 'false';
@@ -1795,7 +1800,8 @@
             const nome = document.getElementById('editNome').value.trim().toUpperCase();
             const luogo = document.getElementById('editLuogoNascita').value.trim().toUpperCase();
             const dataNascita = document.getElementById('editDataNascita').value.trim();
-            const sesso = document.getElementById('editSesso').value.trim();
+            const sessoEl = document.querySelector('input[name="editSesso"]:checked');
+            const sesso = sessoEl ? sessoEl.value : 'M';
 
             if (!cognome || !nome || !luogo || !dataNascita) {
                 alert("Compila Cognome, Nome, Luogo e Data di Nascita per calcolare il Codice Fiscale.");
@@ -1833,10 +1839,12 @@
             let giornoCar = parseInt(cf.substring(9, 11), 10);
             
             if (giornoCar > 40) {
-                document.getElementById('editSesso').value = 'F';
+                const radioF = document.querySelector('input[name="editSesso"][value="F"]');
+                if (radioF) radioF.checked = true;
                 giornoCar -= 40;
             } else {
-                document.getElementById('editSesso').value = 'M';
+                const radioM = document.querySelector('input[name="editSesso"][value="M"]');
+                if (radioM) radioM.checked = true;
             }
 
             let annoNum = parseInt(annoCar, 10);
@@ -2826,6 +2834,11 @@
             document.getElementById('editLuogoNascita').value = pulisciTesto(p.luogo_nascita || p.luogoNascita);          
 			document.getElementById('editNonIscrivibile').checked = Boolean(p.non_iscrivibile);
 
+            // Caricamento Sesso (Maschio / Femmina)
+            const sessoVal = String(p.sesso || 'M').toUpperCase();
+            const radioSesso = document.querySelector(`input[name="editSesso"][value="${sessoVal === 'F' ? 'F' : 'M'}"]`);
+            if (radioSesso) radioSesso.checked = true;
+
 			const isAdmin = (modalitaCorrente === 'admin');
 			document.getElementById('gruppoFlagNonIscrivibile').style.display = isAdmin ? 'flex' : 'none';
 			document.getElementById('editNonIscrivibile').disabled = !isAdmin;
@@ -2952,7 +2965,10 @@
             document.getElementById('modalTitle').textContent = "Crea Nuovo Utente in Anagrafica";
             document.getElementById('editIdPersona').value = "";
             document.querySelectorAll('.campo-controllo, .campo-controllo-genitore').forEach(c => c.value = "");
-            document.getElementById('editSesso').value = "M";
+            
+            const radioM = document.querySelector('input[name="editSesso"][value="M"]');
+            if (radioM) radioM.checked = true;
+
             document.getElementById('editTipoDocumento').value = "";
             document.getElementById('editNumeroDocumento').value = "";
             document.getElementById('editScadenzaDocumento').value = "";
@@ -3357,10 +3373,12 @@
         });
 
         function raccogliDatiAnagrafica() {
+            const sessoEl = document.querySelector('input[name="editSesso"]:checked');
             let dati = {
                 cognome: document.getElementById('editCognome').value.trim().toUpperCase(),
                 nome: document.getElementById('editNome').value.trim(),
                 codice_fiscale: document.getElementById('editCodiceFiscale').value.trim().toUpperCase(),
+                sesso: sessoEl ? sessoEl.value : 'M',
                 luogo_nascita: document.getElementById('editLuogoNascita').value.trim(),
                 data_nascita: document.getElementById('editDataNascita').value.trim(),
                 indirizzo: document.getElementById('editIndirizzo').value.trim(),
