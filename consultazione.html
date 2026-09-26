@@ -63,7 +63,7 @@
         .top-bar-header { position: absolute; top: 20px; right: 25px; display: flex; align-items: center; gap: 12px; z-index: 10; }
         .versione-app {
 			position: absolute;
-			top: 65px; /* Appena sotto la barra utente/pulsanti admin */
+			top: 65px;
 			right: 25px;
 			font-size: 11px;
 			color: #868e96;
@@ -106,12 +106,12 @@
 
         input[type="text"], input[type="date"], input[type="email"], input[type="number"], select { 
 			width: 100%; 
-			padding: 6px 10px; /* Ridotto da 10px a 6px */
-			margin: 2px 0 6px 0; /* Ridotto il margine inferiore */
+			padding: 6px 10px; 
+			margin: 2px 0 6px 0; 
 			border: 1px solid #ccc; 
 			border-radius: 4px; 
 			box-sizing: border-box; 
-			font-size: 14px; /* Leggermente più compatto */
+			font-size: 14px; 
 		}
 
         .campo-vuoto { border: 2px solid #dc3545 !important; background-color: #fff8f8; }
@@ -141,22 +141,9 @@
 		.modal-content h3 { margin-top: 0; color: #007BFF; }
         .modal-content h4 { margin-top: 25px; color: #333; border-bottom: 2px solid #007BFF; padding-bottom: 5px; }
         
-        .form-row { 
-			display: flex; 
-			gap: 12px; 
-			margin-bottom: 2px; /* Ridotto da 5px a 2px */
-		}
-		.form-group { 
-			flex: 1; 
-			display: flex; 
-			flex-direction: column; 
-		}
-		.form-group label { 
-			font-size: 12px; /* Ridotto da 13px */
-			font-weight: bold; 
-			color: #444; 
-			margin-bottom: 1px; /* Ridotto quasi a zero */
-		}
+        .form-row { display: flex; gap: 12px; margin-bottom: 2px; }
+		.form-group { flex: 1; display: flex; flex-direction: column; }
+		.form-group label { font-size: 12px; font-weight: bold; color: #444; margin-bottom: 1px; }
 		
         .form-row-opzioni { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; background: #f8f9fa; padding: 12px 20px; border-radius: 6px; border: 1px solid #e9ecef; flex-wrap: wrap; gap: 15px; }
         .checkboxes-container { display: flex; gap: 30px; align-items: center; }
@@ -286,7 +273,6 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<!-- VERSIONE PAGINA -->
 			<div class="versione-app">Ver. 01.00</div>
             <div class="top-bar-header">
                 <div id="boxModalita" class="box-modalita" style="display: none;">
@@ -352,7 +338,6 @@
                         </select>
                     </div>
 
-                    <!-- NUOVI FILTRI DATA INSERIMENTO -->
                     <div class="search-group" style="max-width: 160px;">
                         <label for="filtroDataDa"><strong>Inserito dal:</strong></label>
                         <input type="date" id="filtroDataDa" onchange="caricaDatiRicercaFiltrata()">
@@ -361,7 +346,6 @@
                         <label for="filtroDataA"><strong>Inserito al:</strong></label>
                         <input type="date" id="filtroDataA" onchange="caricaDatiRicercaFiltrata()">
                     </div>
-                    <!-- FINE NUOVI FILTRI -->
 
                     <div class="search-group" style="flex: initial; display: flex; gap: 10px; align-items: flex-end;">
                         <div>
@@ -600,7 +584,7 @@
                 </div>
             </div>
 
-            <!-- DOCUMENTO ISCRITTO (COLLAPSIBLE / MINIMIZZABILE) -->
+            <!-- DOCUMENTO ISCRITTO -->
             <div id="gruppoSezioneDocumento" style="display: none; margin-top: 10px;">
                 <div class="collapsible-header" onclick="toggleCollapsible('corpoDocIscritto', this)">
                     <span>🪪 Documento d'Identità (Iscritto)</span>
@@ -669,7 +653,6 @@
             <div id="sezioneDatiGenitori" style="display: none; background: #fff3cd; padding: 12px; border-radius: 6px; border: 1px solid #ffeeba; margin-top: 10px; margin-bottom: 10px;">
                 <h4 style="margin-top: 0; margin-bottom: 10px; color: #856404; font-size: 14px; border-bottom: 1px solid #ffeeba; padding-bottom: 4px;">Dati Genitori / Tutori (Obbligatori per minorenni < 18 anni)</h4>
                 
-                <!-- GENITORE 1 -->
                 <p style="font-size: 13px; font-weight: bold; color: #856404; margin: 5px 0;">Genitore 1</p>
                 <div class="form-row">
                     <div class="form-group col-medium"><label style="font-size: 11px;">Cognome:</label><input type="text" id="editGenitore1Cognome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
@@ -687,7 +670,6 @@
                     </div>
                 </div>
 
-                <!-- DOCUMENTO GENITORE 1 (COLLAPSIBLE) -->
                 <div id="gruppoGen1Doc" style="display: none; margin-bottom: 10px;">
                     <div class="collapsible-header" style="background: #fff9db; border-color: #f59f00; color: #b7791f;" onclick="toggleCollapsible('corpoDocGen1', this)">
                         <span>🪪 Documento d'Identità (Genitore 1)</span>
@@ -714,7 +696,6 @@
                             </div>
                         </div>
 
-                        <!-- IMMAGINE 1 (Gen 1) -->
                         <div style="margin-top: 10px; border-top: 1px dashed #f59f00; padding-top: 10px;">
                             <label style="font-size: 12px; font-weight: bold; color: #b7791f;">Immagine 1 (Fronte):</label>
                             <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
@@ -732,7 +713,6 @@
                             </div>
                         </div>
 
-                        <!-- IMMAGINE 2 (Gen 1) -->
                         <div style="margin-top: 10px; border-top: 1px dashed #f59f00; padding-top: 10px;">
                             <label style="font-size: 12px; font-weight: bold; color: #b7791f;">Immagine 2 (Retro):</label>
                             <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
@@ -752,7 +732,6 @@
                     </div>
                 </div>
 
-                <!-- GENITORE 2 -->
                 <p style="font-size: 13px; font-weight: bold; color: #856404; margin: 15px 0 5px 0;">Genitore 2</p>
                 <div class="form-row">
                     <div class="form-group col-medium"><label style="font-size: 11px;">Cognome:</label><input type="text" id="editGenitore2Cognome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
@@ -770,7 +749,6 @@
                     </div>
                 </div>
 
-                <!-- DOCUMENTO GENITORE 2 (COLLAPSIBLE) -->
                 <div id="gruppoGen2Doc" style="display: none; margin-top: 5px; margin-bottom: 0;">
                     <div class="collapsible-header" style="background: #fff9db; border-color: #f59f00; color: #b7791f;" onclick="toggleCollapsible('corpoDocGen2', this)">
                         <span>🪪 Documento d'Identità (Genitore 2)</span>
@@ -797,7 +775,6 @@
                             </div>
                         </div>
 
-                        <!-- IMMAGINE 1 (Gen 2) -->
                         <div style="margin-top: 10px; border-top: 1px dashed #f59f00; padding-top: 10px;">
                             <label style="font-size: 12px; font-weight: bold; color: #b7791f;">Immagine 1 (Fronte):</label>
                             <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
@@ -815,7 +792,6 @@
                             </div>
                         </div>
 
-                        <!-- IMMAGINE 2 (Gen 2) -->
                         <div style="margin-top: 10px; border-top: 1px dashed #f59f00; padding-top: 10px;">
                             <label style="font-size: 12px; font-weight: bold; color: #b7791f;">Immagine 2 (Retro):</label>
                             <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
@@ -860,7 +836,6 @@
 						<input type="checkbox" id="editCapitanoPiazza">
 						<label for="editCapitanoPiazza">Capitano di Piazza</label>
 					</div>
-					<!-- NUOVO FLAG VISIBILE SOLO DA ADMIN -->
 					<div class="checkbox-group" id="gruppoFlagNonIscrivibile" style="display: none;">
 						<input type="checkbox" id="editNonIscrivibile">
 						<label for="editNonIscrivibile" style="color: #dc3545;">Non iscrivibile</label>
@@ -1126,9 +1101,7 @@
             document.body.removeChild(link);
         };
 
-        // UNICA DEFINIZIONE CORRETTA DELLA FUNZIONE DI INSERIMENTO STORICO
         function attivaInserimentoNuovaIscrizioneEsistente() {
-            // CONTROLLO DI SICUREZZA: se il flag "Non iscrivibile" è spuntato, blocca l'azione
             if (document.getElementById('editNonIscrivibile').checked) {
                 alert("⛔ Impossibile aggiungere iscrizioni: questo soggetto è contrassegnato come 'Non iscrivibile'.");
                 return;
@@ -2381,11 +2354,7 @@
 
             try {
                 mostraCaricamento("Salvataggio utente in corso...");
-                
-                // Usiamo l'email stessa come ID del documento nella collezione 'utenti'
                 await setDoc(doc(db, "utenti", email), { email, alias, ruolo, attivo }, { merge: true });
-                
-                //alert("Utente salvato con successo!");
                 chiudiModaleUtente();
                 caricaTabellaUtenti();
             } catch (error) {
@@ -2605,9 +2574,8 @@
                 }
                 let risultati = [];
                 
-                // Leggiamo i valori dei filtri data
-                const dataDaVal = document.getElementById('filtroDataDa').value; // Formato "YYYY-MM-DD"
-                const dataaVal = document.getElementById('filtroDataA').value;   // Formato "YYYY-MM-DD"
+                const dataDaVal = document.getElementById('filtroDataDa').value;
+                const dataaVal = document.getElementById('filtroDataA').value;
                 
                 const timestampDa = dataDaVal ? new Date(dataDaVal).setHours(0,0,0,0) : null;
                 const timestampA = dataaVal ? new Date(dataaVal).setHours(23,59,59,999) : null;
@@ -2615,14 +2583,10 @@
                 cacheTuttiIscritti.forEach(p => {
                     p.iscrizioni.forEach(i => {
                         if (annoSelezionato === "tutti" || i.anno === annoSelezionato) {
-                            
-                            // Controllo filtro intervallo date su "inserito_il" (es. "24/9/2026, 11:10:37")
                             if (timestampDa || timestampA) {
-                                if (!i.inserito_il) return; // Se manca la data di inserimento e c'è il filtro, lo saltiamo
-                                
-                                // Estraiamo la parte della data (es. "24/9/2026")
+                                if (!i.inserito_il) return;
                                 let partiDataOra = i.inserito_il.split(',');
-                                let partiData = partiDataOra[0].trim().split('/'); // [giorno, mese, anno]
+                                let partiData = partiDataOra[0].trim().split('/');
                                 if (partiData.length === 3) {
                                     let g = String(partiData[0]).padStart(2, '0');
                                     let m = String(partiData[1]).padStart(2, '0');
@@ -2632,7 +2596,7 @@
                                     if (timestampDa && timestampRiga < timestampDa) return;
                                     if (timestampA && timestampRiga > timestampA) return;
                                 } else {
-                                    return; // Se il formato non combacia, lo escludiamo in sicurezza quando il filtro è attivo
+                                    return;
                                 }
                             }
 
@@ -2653,7 +2617,6 @@
                 let thead = document.getElementById('intestazioneTabellaFiltrata');
                 let cols = colonneSelezionate.filter(c => !(DEFINIZIONE_COLONNE.find(x => x.id === c)?.richiedeAnnoSpecifico && annoSelezionato === "tutti"));
                 
-                // Generazione intestazioni cliccabili per l'ordinamento
                 thead.innerHTML = `<tr>${cols.map((c, index) => {
                     let titolo = DEFINIZIONE_COLONNE.find(x => x.id === c)?.titolo || c;
                     let freccia = "";
@@ -2712,7 +2675,6 @@
                 return statoOrdinamentoColonna.crescente ? comp : -comp;
             });
 
-            // Aggiorna le frecce nell'intestazione
             let theadTr = document.querySelector('#intestazioneTabellaFiltrata tr');
             if (theadTr) {
                 Array.from(theadTr.children).forEach((th, idx) => {
@@ -2865,11 +2827,9 @@
 			document.getElementById('editNonIscrivibile').checked = Boolean(p.non_iscrivibile);
 
 			const isAdmin = (modalitaCorrente === 'admin');
-			// Mostra il flag "Non iscrivibile" solo se siamo in modalità Admin
 			document.getElementById('gruppoFlagNonIscrivibile').style.display = isAdmin ? 'flex' : 'none';
 			document.getElementById('editNonIscrivibile').disabled = !isAdmin;
 
-			// Se l'utente è "user" e il flag "non_iscrivibile" è attivo, nascondi il pulsante aggiungi iscrizione
 			const btnAggiungi = document.getElementById('btnAggiungiIscrizione');
 			if (modalitaCorrente === 'user' && p.non_iscrivibile) {
 				btnAggiungi.style.display = 'none';
@@ -3045,7 +3005,7 @@
                 
                 document.getElementById('sezioneStoricoContainer').style.display = 'block';
                 document.getElementById('btnAggiungiIscrizione').style.display = 'block';
-                document.getElementById('btnAggiungiIscrizione'].onclick = attivaInserimentoNuovaIscrizioneEsistente;
+                document.getElementById('btnAggiungiIscrizione').onclick = attivaInserimentoNuovaIscrizioneEsistente;
                 
                 await caricaStoricoPersona(docRef.id);
 
@@ -3064,7 +3024,6 @@
         async function eliminaAnagraficaCompleta(id) {
             if (confirm("Eliminare definitivamente l'anagrafica, lo storico e i documenti associati?")) {
                 try {
-                    // Recuperiamo prima i dati dell'anagrafica per scriverli correttamente nel log prima di cancellarla
                     const docRefPersona = doc(db, "anagrafica", id);
                     const docSnapPersona = await getDoc(docRefPersona);
                     let nomeCompletoLog = `ID: ${id}`;
@@ -3089,10 +3048,7 @@
                     const snap = await getDocs(query(collection(db, "storico"), where("id_persona", "==", id)));
                     await Promise.all(snap.docs.map(d => deleteDoc(doc(db, "storico", d.id))));
                     
-                    // Elimina l'anagrafica
                     await deleteDoc(docRefPersona);
-                    
-                    // Registra il log con il nome e cognome corretti
                     await registraLog("Elimina anagrafica", nomeCompletoLog);
 
                     alert("Eliminato con successo!");
@@ -3298,12 +3254,10 @@
                 const nomeCompleto = `${cognomePersona} ${nomePersona}`;
 
                 await deleteDoc(doc(db, "storico", storicoId));
-                
                 await registraLog("Eliminata iscrizione", `${nomeCompleto} - Anno: ${annoIscrizione} ID: ${numIdentificativo}`);
 
                 cacheTuttiIscritti = [];
                 await caricaStoricoPersona(idPersona);
-                //alert("Iscrizione eliminata con successo!");
             } catch (error) {
                 alert("Errore durante l'eliminazione: " + error.message);
             } finally {
@@ -3327,7 +3281,6 @@
         };
 
         window.salvaNuovaIscrizioneDiretta = async function(btn) {
-			// CONTROLLO DI SICUREZZA AGGIUNTIVO
             if (document.getElementById('editNonIscrivibile').checked) {
                 alert("⛔ Operazione interrotta: il soggetto è impostato come 'Non iscrivibile'.");
                 caricaStoricoPersona(document.getElementById('editIdPersona').value);
@@ -3388,7 +3341,6 @@
 
                 await registraLog("Inserita iscrizione", `${nomeCompleto} - Anno: ${annoScelto} ID: ${numIdentificativoFinale}`);
 
-                //alert("Salvato!");
                 cacheTuttiIscritti = [];
                 document.getElementById('btnAggiungiIscrizione').style.display = 'block';
                 await caricaStoricoPersona(idPersona);
@@ -3462,7 +3414,6 @@
             
             await registraLog("Modifica Anagrafica", `${dati.cognome} ${dati.nome}`);
 
-            //alert("Modifiche salvate!");
             modal.style.display = 'none';
             cacheTuttiIscritti = [];
             if (document.getElementById('filtroCognome').value) cercaIscritti(document.getElementById('filtroCognome').value);
