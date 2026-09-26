@@ -543,6 +543,10 @@
                 <div class="form-group col-large">
                     <label>Codice Fiscale:</label>
                     <div style="display: flex; gap: 8px;">
+                        <select id="editSesso" class="campo-controllo" style="width: 70px; margin: 4px 0 10px 0; text-align: center; font-weight: bold;">
+                            <option value="M">M</option>
+                            <option value="F">F</option>
+                        </select>
                         <input type="text" id="editCodiceFiscale" class="campo-controllo" maxlength="16" placeholder="es. RSSMRA..." style="text-transform: uppercase; margin: 4px 0 10px 0;">
                         <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 14px; font-size: 13px; font-weight: bold; height: 42px; margin-top: 4px;" onclick="calcolaCFIsCRITTO()">Calcola</button>
                     </div>
@@ -1775,7 +1779,7 @@
 
 		caricaDizionarioComuni();
 
-        function calcolaCodiceFiscaleGenerico(cognome, nome, luogo, dataNascita) {
+        function calcolaCodiceFiscaleGenerico(cognome, nome, luogo, dataNascita, sesso = 'M') {
             if (!cognome || !nome || !luogo || !dataNascita) return null;
             function estraiCv(str) {
                 const pulita = str.replace(/[^A-Z]/g, '');
@@ -1790,7 +1794,13 @@
             let anno = pData[0].substring(2, 4);
             let mCod = { '01': 'A', '02': 'B', '03': 'C', '04': 'D', '05': 'E', '06': 'H', '07': 'L', '08': 'M', '09': 'P', '10': 'R', '11': 'S', '12': 'T' };
             let mese = mCod[pData[1]] || 'A';
-            let giorno = String(parseInt(pData[2], 10)).padStart(2, '0');
+            
+            let giornoVal = parseInt(pData[2], 10);
+            if (String(sesso).toUpperCase() === 'F') {
+                giornoVal += 40;
+            }
+            let giorno = String(giornoVal).padStart(2, '0');
+            
             let codCat = dizionarioNomiComuni[luogo.toUpperCase()] || "H501";
 
             let cfParz = partCog + partNom + anno + mese + giorno + codCat;
@@ -1812,12 +1822,13 @@
             const nome = document.getElementById('editNome').value.trim().toUpperCase();
             const luogo = document.getElementById('editLuogoNascita').value.trim().toUpperCase();
             const dataNascita = document.getElementById('editDataNascita').value.trim();
+            const sesso = document.getElementById('editSesso').value.trim();
 
             if (!cognome || !nome || !luogo || !dataNascita) {
                 alert("Compila Cognome, Nome, Luogo e Data di Nascita per calcolare il Codice Fiscale.");
                 return;
             }
-            let cf = calcolaCodiceFiscaleGenerico(cognome, nome, luogo, dataNascita);
+            let cf = calcolaCodiceFiscaleGenerico(cognome, nome, luogo, dataNascita, sesso);
             if (cf) {
                 document.getElementById('editCodiceFiscale').value = cf;
                 decodificaCfInCampi(cf);
@@ -1834,7 +1845,7 @@
                 alert(`Compila Cognome, Nome, Luogo e Data di Nascita del Genitore ${numGen} per calcolare il Codice Fiscale.`);
                 return;
             }
-            let cf = calcolaCodiceFiscaleGenerico(cognome, nome, luogo, dataNascita);
+            let cf = calcolaCodiceFiscaleGenerico(cognome, nome, luogo, dataNascita, 'M');
             if (cf) {
                 document.getElementById(`editGenitore${numGen}CodiceFiscale`).value = cf;
             }
@@ -1848,6 +1859,13 @@
             const meseCar = cf.substring(8, 9);
             let giornoCar = parseInt(cf.substring(9, 11), 10);
             
+            if (giornoCar > 40) {
+                document.getElementById('editSesso').value = 'F';
+                giornoCar -= 40;
+            } else {
+                document.getElementById('editSesso').value = 'M';
+            }
+
             let annoNum = parseInt(annoCar, 10);
             const annoCorrente2CIF = new Date().getFullYear() % 100;
             let secolo = annoNum <= annoCorrente2CIF ? 2000 : 1900;
@@ -1856,7 +1874,6 @@
             const mesiCodice = { 'A': '01', 'B': '02', 'C': '03', 'D': '04', 'E': '05', 'H': '06', 'L': '07', 'M': '08', 'P': '09', 'R': '10', 'S': '11', 'T': '12' };
             let meseNum = mesiCodice[meseCar] || '01';
 
-            if (giornoCar > 40) giornoCar -= 40;
             let giornoStr = String(giornoCar).padStart(2, '0');
 
             const dataNascitaIso = `${annoNascita}-${meseNum}-${giornoStr}`;
@@ -1889,6 +1906,7 @@
             const annoCar = cf.substring(6, 8);
             const meseCar = cf.substring(8, 9);
             let giornoCar = parseInt(cf.substring(9, 11), 10);
+            if (giornoCar > 40) giornoCar -= 40;
             
             let annoNum = parseInt(annoCar, 10);
             const annoCorrente2CIF = new Date().getFullYear() % 100;
@@ -1898,7 +1916,6 @@
             const mesiCodice = { 'A': '01', 'B': '02', 'C': '03', 'D': '04', 'E': '05', 'H': '06', 'L': '07', 'M': '08', 'P': '09', 'R': '10', 'S': '11', 'T': '12' };
             let meseNum = mesiCodice[meseCar] || '01';
 
-            if (giornoCar > 40) giornoCar -= 40;
             let giornoStr = String(giornoCar).padStart(2, '0');
 
             const dataNascitaIso = `${annoNascita}-${meseNum}-${giornoStr}`;
@@ -2975,6 +2992,7 @@
             document.getElementById('modalTitle').textContent = "Crea Nuovo Utente in Anagrafica";
             document.getElementById('editIdPersona').value = "";
             document.querySelectorAll('.campo-controllo, .campo-controllo-genitore').forEach(c => c.value = "");
+            document.getElementById('editSesso').value = "M";
             document.getElementById('editTipoDocumento').value = "";
             document.getElementById('editNumeroDocumento').value = "";
             document.getElementById('editScadenzaDocumento').value = "";
@@ -3027,7 +3045,7 @@
                 
                 document.getElementById('sezioneStoricoContainer').style.display = 'block';
                 document.getElementById('btnAggiungiIscrizione').style.display = 'block';
-                document.getElementById('btnAggiungiIscrizione').onclick = attivaInserimentoNuovaIscrizioneEsistente;
+                document.getElementById('btnAggiungiIscrizione'].onclick = attivaInserimentoNuovaIscrizioneEsistente;
                 
                 await caricaStoricoPersona(docRef.id);
 
