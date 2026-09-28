@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acquisizione Fotocamera Remota</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #343a40; color: white; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; }
+        .card { background: white; color: #333; padding: 20px; border-radius: 8px; width: 100%; max-width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        video { width: 100%; border-radius: 6px; background: #000; margin-bottom: 15px; }
+        canvas { display: none; }
+        .btn { background: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 4px; font-size: 16px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; }
+        .btn:hover { background: #218838; }
+        .loading { display: none; margin-top: 15px; font-weight: bold; color: #007BFF; }
+        .error { color: #dc3545; font-weight: bold; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h3>Inquadra Documento</h3>
+        <p id="infoTarget" style="font-size: 13px; color: #666; margin-bottom: 15px;">Preparazione fotocamera...</p>
+        
+        <video id="videoPreview" autoplay playsinline></video>
+        <canvas id="canvasFoto"></canvas>
+
+        <button type="button" class="btn" id="btnScatta" onclick="scattaEInvia()">📸 Scatta e Salva</button>
+        <div id="loadingText" class="loading">Caricamento in corso su Firebase...</div>
+        <div id="errorText" class="error"></div>
+    </div>
+
+    <!-- Firebase SDK (Versioni compatibili con consultazione.html) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getStorage, ref as storageRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+        // Credenziali estratte da consultazione.html
+        const k1 = "AIzaSyCjfPICynrV";
+        const k2 = "SeeVr4ifXoBoWi74nVGEt5Q";
+        const firebaseConfig = {
+            apiKey: k1 + k2,
+            authDomain: "dbiscrizioni.firebaseapp.com",
+            projectId: "dbiscrizioni",
+            storageBucket: "dbiscrizioni.firebasestorage.app",
+            messagingSenderId: "803347064813",
+            appId: "1:803347064813:web:430a3fc4d0d1a3aa72e9e4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const storage = getStorage(app);
+
+        // Estrazione parametri dall'URL (ID persona, soggetto es. iscritto/gen1, e slot 1 o 2)
+        const urlParams = new URLSearchParams(window.location.search);
+        const idPersona = urlParams.get('id');
+        const soggetto = urlParams.get('soggetto') || 'iscritto';
+        const slot = urlParams.get('slot') || '1';
+
+        document.getElementById('infoTarget').textContent = `Destinazione: ${soggetto.toUpperCase()} (Immagine ${slot})`;
+
+        let streamCorrente = null;
+
+        async function avviaCameraCellulare() {
+            try {
+                streamCorrente = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: { exact: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } }
+                });
+            } catch (err) {
+                // Fallback se la fotocamera posteriore con exact non è disponibile
+                try {
+                    streamCorrente = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: "environment" }
+                    });
+                } catch (fallbackErr) {
+                    document.getElementById('errorText').textContent = "Impossibile accedere alla fotocamera del telefono: " + fallbackErr.message;
+                    return;
+                }
+            }
+            document.getElementById('videoPreview').srcObject = streamCorrente;
+        }
+
+        window.scattaEInvia = async function() {
+            if (!idPersona) {
+                alert("Errore: ID persona mancante nell'URL.");
+                return;
+            }
+
+            const video = document.getElementById('videoPreview');
+            const canvas = document.getElementById('canvasFoto');
+            canvas.width = video.videoWidth || 1280;
+            canvas.height = video.videoHeight || 720;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            let base64Image = canvas.toDataURL('image/jpeg', 0.85);
+
+            document.getElementById('btnScatta').style.display = 'none';
+            document.getElementById('loadingText').style.display = 'block';
+
+            try {
+                const percorsoStorage = `documenti_iscritti/${idPersona}_${soggetto}_img${slot}.jpg`;
+                const sRef = storageRef(storage, percorsoStorage);
+                
+                await uploadString(sRef, base64Image, 'data_url');
+                const downloadUrl = await getDownloadURL(sRef);
+
+                // Spegne la fotocamera
+                if (streamCorrente) {
+                    streamCorrente.getTracks().forEach(track => track.stop());
+                }
+
+                document.body.innerHTML = `
+                    <div class="card" style="color: #333;">
+                        <h2 style="color: #28a745;">✅ Fatto!</h2>
+                        <p>La foto è stata caricata con successo ed è pronta nel gestionale.</p>
+                        <p style="font-size: 12px; color: #666;">Puoi chiudere questa pagina e tornare al computer.</p>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('loadingText').style.display = 'none';
+                document.getElementById('btnScatta').style.display = 'block';
+                document.getElementById('errorText').textContent = "Errore durante il salvataggio: " + error.message;
+            }
+        };
+
+        avviaCameraCellulare();
+    </script>
+</body>
+</html>
