@@ -435,6 +435,11 @@
                         <input type="number" id="inputAnnoCarnevale" value="2027">
                     </div>
                 </div>
+				
+				<h4 style="color: #007BFF; border-bottom: 2px solid #007BFF; padding-bottom: 5px; margin-top: 35px;">Manutenzione Dati</h4>
+				<div style="margin-top: 15px; margin-bottom: 20px;">
+					<button type="button" class="btn-nuovo-utente" style="background-color: #d97706; height: 38px; font-size: 14px;" onclick="eseguiAggiornamentoMassivoOnorificenze()">⚡ Ricalcola e Aggiorna Stato Onorificenze (Massivo)</button>
+				</div>
 
                 <h4 style="color: #007BFF; border-bottom: 2px solid #007BFF; padding-bottom: 5px; margin-top: 25px;">Campi Obbligatori / Visibili Scheda Anagrafica</h4>
                 <div style="display: flex; gap: 30px; margin: 15px 0;">
@@ -3549,6 +3554,64 @@
             clearTimeout(timeoutRicerca);
             timeoutRicerca = setTimeout(() => cercaIscritti(e.target.value), 300);
         });
+		
+		window.eseguiAggiornamentoMassivoOnorificenze = async function() {
+			if (!confirm("Vuoi ricalcolare e aggiornare lo stato dell'onorificenza per TUTTI gli iscritti nel database?")) return;
+			
+			mostraCaricamento("Aggiornamento massivo onorificenze in corso...");
+			try {
+				const snapAnagrafica = await getDocs(collection(db, "anagrafica"));
+				const snapStorico = await getDocs(collection(db, "storico"));
+
+				let storicoPerPersona = {};
+				snapStorico.forEach(docSnap => {
+					let st = docSnap.data();
+					let idPers = st.id_persona;
+					if (!idPers) return;
+
+					let tipologia = st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || "";
+					if (String(tipologia).trim().toLowerCase() !== "iscrizione completa") return;
+
+					let annoNum = parseInt(st.anno, 10);
+					if (isNaN(annoNum)) return;
+
+					if (!storicoPerPersona[idPers]) storicoPerPersona[idPers] = [];
+					storicoPerPersona[idPers].push(annoNum);
+				});
+
+				let batchPromises = [];
+				let contatoreAggiornati = 0;
+
+				snapAnagrafica.forEach(docSnap => {
+					let idPers = docSnap.id;
+					
+					// Estrae gli anni completi per la persona corrente
+					let anniArr = storicoPerPersona[idPers] || [];
+					
+					// Riutilizza la logica di calcolo esistente
+					let nuovoStato = calcolaStatoOnorificenzaDaAnni(anniArr);
+
+					// Prepara l'aggiornamento del documento su Firestore
+					batchPromises.push(setDoc(doc(db, "anagrafica", idPers), {
+						stato_onorificenza: nuovoStato
+					}, { merge: true }));
+
+					contatoreAggiornati++;
+				});
+
+				await Promise.all(batchPromises);
+				nascondiCaricamento();
+				
+				cacheTuttiIscritti = []; // Svuota la cache locale per ricaricare i dati freschi
+				alert(`✅ Aggiornamento massivo completato con successo! Elaborate e aggiornate ${contatoreAggiornati} anagrafiche.`);
+				
+				await registraLog("Aggiornamento massivo", `Ricalcolate onorificenze per ${contatoreAggiornati} utenti`);
+			} catch (error) {
+				nascondiCaricamento();
+				console.error("Errore aggiornamento massivo:", error);
+				alert("Errore durante l'aggiornamento massivo: " + error.message);
+			}
+		};
     </script>
 </body>
 </html>
