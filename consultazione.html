@@ -3624,10 +3624,11 @@
 				return;
 			}
 
-			// Costruisce l'URL della pagina mobile creata sopra
-			let urlRemoto = `${window.location.origin}/fotocamera_remota.html?id=${idPersona}&soggetto=${soggetto}&slot=${slot}`;
+			// Estrae il percorso base corretto (inclusa la cartella /openday2027/)
+			let percorsoBase = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+			let urlRemoto = `${percorsoBase}fotocamera_remota.html?id=${idPersona}&soggetto=${soggetto}&slot=${slot}`;
 			
-			// Genera l'immagine QR code tramite un servizio gratuito al volo
+			// Genera l'immagine QR code
 			let qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(urlRemoto)}`;
 
 			let container = document.getElementById('boxContainerWebcamGenerale');
