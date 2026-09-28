@@ -2510,6 +2510,8 @@
         };
 
 		let statoOrdinamentoColonna = { indice: -1, crescente: true };
+		let ultimiRisultatiFiltratiCache = [];
+        let ultimeColsCache = [];
 
         window.caricaDatiRicercaFiltrata = async function() {
             const annoSelezionato = document.getElementById('selezionaAnnoFiltro').value;
