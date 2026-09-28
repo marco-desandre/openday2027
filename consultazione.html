@@ -532,23 +532,22 @@
             </div>
 
             <div class="form-row" id="gruppoCampoCodiceFiscale">
-                <div class="form-group col-large">
-                    <label>Codice Fiscale e Genere:</label>
-                    <div style="display: flex; gap: 12px; align-items: center; margin: 4px 0 10px 0;">
-                        <!-- Selezione Visibile Maschio / Femmina (Radio buttons) -->
-                        <div style="display: flex; gap: 15px; background: #f8f9fa; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px;">
-                            <label style="font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; margin: 0;">
-                                <input type="radio" name="editSesso" value="M" checked style="cursor: pointer; width: 16px; height: 16px;"> Maschio
-                            </label>
-                            <label style="font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; margin: 0;">
-                                <input type="radio" name="editSesso" value="F" style="cursor: pointer; width: 16px; height: 16px;"> Femmina
-                            </label>
-                        </div>
-                        <input type="text" id="editCodiceFiscale" class="campo-controllo" maxlength="16" placeholder="es. RSSMRA..." style="text-transform: uppercase; margin: 0;">
-                        <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 14px; font-size: 13px; font-weight: bold; height: 42px;" onclick="calcolaCFIsCRITTO()">Calcola</button>
-                    </div>
-                </div>
-            </div>
+				<div class="form-group col-large">
+					<label>Codice Fiscale e Genere:</label>
+					<div style="display: flex; gap: 15px; align-items: center; margin: 4px 0 10px 0;">
+						<div style="display: flex; gap: 15px; align-items: center;">
+							<label style="font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; margin: 0;">
+								<input type="radio" name="editSesso" value="M" style="cursor: pointer; width: 16px; height: 16px;" onchange="gestisciSelezioneSesso()"> Maschio
+							</label>
+							<label style="font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; margin: 0;">
+								<input type="radio" name="editSesso" value="F" style="cursor: pointer; width: 16px; height: 16px;" onchange="gestisciSelezioneSesso()"> Femmina
+							</label>
+						</div>
+						<input type="text" id="editCodiceFiscale" class="campo-controllo" maxlength="16" placeholder="es. RSSMRA..." style="text-transform: uppercase; margin: 0;">
+						<button type="button" id="btnCalcolaCF" class="btn-azione" style="background-color: #007BFF; padding: 0 14px; font-size: 13px; font-weight: bold; height: 42px; opacity: 0.6; cursor: not-allowed;" disabled onclick="calcolaCFIsCRITTO()">Calcola</button>
+					</div>
+				</div>
+			</div>
 
             <div class="form-row">
 				<div class="form-group col-medium">
@@ -1820,6 +1819,16 @@
             }
             return cfParz + rCar[somma % 26];
         }
+		
+		window.gestisciSelezioneSesso = function() {
+			const sessoSelezionato = document.querySelector('input[name="editSesso"]:checked');
+			const btnCalcola = document.getElementById('btnCalcolaCF');
+			if (sessoSelezionato && btnCalcola) {
+				btnCalcola.disabled = false;
+				btnCalcola.style.opacity = "1";
+				btnCalcola.style.cursor = "pointer";
+			}
+		};
 
         window.calcolaCFIsCRITTO = function() {
             const cognome = document.getElementById('editCognome').value.trim().toUpperCase();
@@ -1857,54 +1866,57 @@
         };
 
         async function decodificaCfInCampi(cf) {
-            cf = cf.trim().toUpperCase();
-            if (cf.length !== 16) return;
+			cf = cf.trim().toUpperCase();
+			if (cf.length !== 16) return;
 
-            const annoCar = cf.substring(6, 8);
-            const meseCar = cf.substring(8, 9);
-            let giornoCar = parseInt(cf.substring(9, 11), 10);
-            
-            if (giornoCar > 40) {
-                const radioF = document.querySelector('input[name="editSesso"][value="F"]');
-                if (radioF) radioF.checked = true;
-                giornoCar -= 40;
-            } else {
-                const radioM = document.querySelector('input[name="editSesso"][value="M"]');
-                if (radioM) radioM.checked = true;
-            }
+			const annoCar = cf.substring(6, 8);
+			const meseCar = cf.substring(8, 9);
+			let giornoCar = parseInt(cf.substring(9, 11), 10);
+			
+			// Gestione automatica Genere da Codice Fiscale
+			if (giornoCar > 40) {
+				const radioF = document.querySelector('input[name="editSesso"][value="F"]');
+				if (radioF) radioF.checked = true;
+				giornoCar -= 40;
+			} else {
+				const radioM = document.querySelector('input[name="editSesso"][value="M"]');
+				if (radioM) radioM.checked = true;
+			}
+			
+			// Abilita il pulsante calcola poiché il sesso è stato valorizzato dal CF
+			window.gestisciSelezioneSesso();
 
-            let annoNum = parseInt(annoCar, 10);
-            const annoCorrente2CIF = new Date().getFullYear() % 100;
-            let secolo = annoNum <= annoCorrente2CIF ? 2000 : 1900;
-            let annoNascita = secolo + annoNum;
+			let annoNum = parseInt(annoCar, 10);
+			const annoCorrente2CIF = new Date().getFullYear() % 100;
+			let secolo = annoNum <= annoCorrente2CIF ? 2000 : 1900;
+			let annoNascita = secolo + annoNum;
 
-            const mesiCodice = { 'A': '01', 'B': '02', 'C': '03', 'D': '04', 'E': '05', 'H': '06', 'L': '07', 'M': '08', 'P': '09', 'R': '10', 'S': '11', 'T': '12' };
-            let meseNum = mesiCodice[meseCar] || '01';
+			const mesiCodice = { 'A': '01', 'B': '02', 'C': '03', 'D': '04', 'E': '05', 'H': '06', 'L': '07', 'M': '08', 'P': '09', 'R': '10', 'S': '11', 'T': '12' };
+			let meseNum = mesiCodice[meseCar] || '01';
+			let giornoStr = String(giornoCar).padStart(2, '0');
 
-            let giornoStr = String(giornoCar).padStart(2, '0');
+			const dataNascitaIso = `${annoNascita}-${meseNum}-${giornoStr}`;
+			document.getElementById('editDataNascita').value = dataNascitaIso;
+			calcolaEImpostaEta(dataNascitaIso);
 
-            const dataNascitaIso = `${annoNascita}-${meseNum}-${giornoStr}`;
-            document.getElementById('editDataNascita').value = dataNascitaIso;
-            calcolaEImpostaEta(dataNascitaIso);
+			const codCatastale = cf.substring(11, 15);
 
-            const codCatastale = cf.substring(11, 15);
+			if (!dizionarioCaricato) {
+				let tentativi = 0;
+				while (!dizionarioCaricato && tentativi < 15) {
+					await new Promise(r => setTimeout(r, 200));
+					tentativi++;
+				}
+			}
+			
+			if (dizionarioComuniCatastali && dizionarioComuniCatastali[codCatastale]) {
+				document.getElementById('editLuogoNascita').value = dizionarioComuniCatastali[codCatastale];
+			} else {
+				document.getElementById('editLuogoNascita').value = ""; 
+			}
 
-            if (!dizionarioCaricato) {
-                let tentativi = 0;
-                while (!dizionarioCaricato && tentativi < 15) {
-                    await new Promise(r => setTimeout(r, 200));
-                    tentativi++;
-                }
-            }
-            
-            if (dizionarioComuniCatastali && dizionarioComuniCatastali[codCatastale]) {
-                document.getElementById('editLuogoNascita').value = dizionarioComuniCatastali[codCatastale];
-            } else {
-                document.getElementById('editLuogoNascita').value = ""; 
-            }
-
-            eseguiVerificaRuntime();
-        }
+			eseguiVerificaRuntime();
+		}
 		
         async function decodificaCfGenitoreInCampi(cf, numGen) {
             cf = cf.trim().toUpperCase();
@@ -2828,9 +2840,21 @@
 			document.getElementById('editNonIscrivibile').checked = Boolean(p.non_iscrivibile);
 
             // Caricamento Sesso (Maschio / Femmina)
-            const sessoVal = String(p.sesso || 'M').toUpperCase();
-            const radioSesso = document.querySelector(`input[name="editSesso"][value="${sessoVal === 'F' ? 'F' : 'M'}"]`);
-            if (radioSesso) radioSesso.checked = true;
+            const sessoVal = String(p.sesso || '').toUpperCase();
+			const radioSesso = document.querySelector(`input[name="editSesso"][value="${sessoVal}"]`);
+			if (radioSesso) {
+				radioSesso.checked = true;
+				window.gestisciSelezioneSesso();
+			} else {
+				// Se non presente sul database, deseleziona entrambi e disabilita il calcola
+				document.querySelectorAll('input[name="editSesso"]').forEach(r => r.checked = false);
+				const btnCalcola = document.getElementById('btnCalcolaCF');
+				if (btnCalcola) {
+					btnCalcola.disabled = true;
+					btnCalcola.style.opacity = "0.6";
+					btnCalcola.style.cursor = "not-allowed";
+				}
+			}
 
 			const isAdmin = (modalitaCorrente === 'admin');
 			document.getElementById('gruppoFlagNonIscrivibile').style.display = isAdmin ? 'flex' : 'none';
@@ -2970,8 +2994,16 @@
             document.getElementById('editIdPersona').value = "";
             document.querySelectorAll('.campo-controllo, .campo-controllo-genitore').forEach(c => c.value = "");
             
-            const radioM = document.querySelector('input[name="editSesso"][value="M"]');
-            if (radioM) radioM.checked = true;
+            // Deseleziona entrambi i radio button del sesso
+			document.querySelectorAll('input[name="editSesso"]').forEach(r => r.checked = false);
+
+			// Disabilita il pulsante Calcola all'apertura del nuovo utente
+			const btnCalcola = document.getElementById('btnCalcolaCF');
+			if (btnCalcola) {
+				btnCalcola.disabled = true;
+				btnCalcola.style.opacity = "0.6";
+				btnCalcola.style.cursor = "not-allowed";
+			}
 
             document.getElementById('editTipoDocumento').value = "";
             document.getElementById('editNumeroDocumento').value = "";
