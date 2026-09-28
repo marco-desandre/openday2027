@@ -3624,20 +3624,46 @@
 				return;
 			}
 
-			// Estrae il percorso base corretto (inclusa la cartella /openday2027/)
 			let percorsoBase = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
 			let urlRemoto = `${percorsoBase}fotocamera_remota.html?id=${idPersona}&soggetto=${soggetto}&slot=${slot}`;
-			
-			// Genera l'immagine QR code
 			let qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(urlRemoto)}`;
 
 			let container = document.getElementById('boxContainerWebcamGenerale');
 			container.innerHTML = `
-				<p style="margin: 0 0 5px 0; font-size: 13px; font-weight: bold;">Inquadra il QR Code con la fotocamera dello smartphone:</p>
-				<img src="${qrImageUrl}" alt="QR Code" style="display: block; margin: 0 auto 10px auto; border-radius: 4px; width: 200px; height: 200px;">
+				<p style="margin: 0 0 5px 0; font-size: 13px; font-weight: bold;">Inquadra il QR Code con lo smartphone:</p>
+				<img src="${qrImageUrl}" alt="QR Code" style="display: block; margin: 0 auto 10px auto; border-radius: 4px; width: 180px; height: 180px;">
+				<button type="button" class="btn-azione" style="background-color: #17a2b8; width: 100%; padding: 8px; margin-bottom: 5px;" onclick="verificaFotoCaricata('${soggetto}', '${slot}')">🔄 Verifica se la foto è arrivata</button>
 				<button type="button" class="btn-azione" style="background-color: #dc3545; width: 100%; padding: 8px;" onclick="fermaWebcam()">Chiudi QR</button>
 			`;
 			container.style.display = 'block';
+		};
+		
+		// Funzione per controllare ed agganciare la foto scattata dal cellulare
+		window.verificaFotoCaricata = async function(soggetto, slot) {
+			let idPersona = document.getElementById('editIdPersona').value;
+			if (!idPersona) return;
+
+			try {
+				mostraCaricamento("Verifica presenza file...");
+				// Tenta di recuperare il link di download direttamente da Firebase Storage
+				const sRef = storageRef(storage, `documenti_iscritti/${idPersona}_${soggetto}_img${slot}.jpg`);
+				const downloadUrl = await getDownloadURL(sRef);
+
+				if (downloadUrl) {
+					document.getElementById(`editUrl_${soggetto}_${slot}`).value = downloadUrl;
+					const link = document.getElementById(`linkAnteprima_${soggetto}_${slot}`);
+					link.href = downloadUrl;
+					link.textContent = `Visualizza Immagine ${slot} (Da Cellulare)`;
+					document.getElementById(`boxAnteprima_${soggetto}_${slot}`).style.display = 'block';
+					
+					fermaWebcam();
+					alert("✅ Foto ricevuta dal cellulare e collegata con successo!");
+				}
+			} catch (e) {
+				alert("⏳ La foto non risulta ancora caricata dal cellulare. Completa lo scatto sul telefono e riprova.");
+			} finally {
+				nascondiCaricamento();
+			}
 		};
     </script>
 </body>
