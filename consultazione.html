@@ -543,21 +543,24 @@
             </div>
 
             <div class="form-row">
-                <div class="form-group col-medium">
-                    <label>Luogo di Nascita:</label>
-                    <input type="text" id="editLuogoNascita" class="campo-controllo" placeholder="es. Ivrea">
-                </div>
-                <div class="form-group col-medium">
-                    <div class="label-con-eta">
-                        <label>Data di Nascita:</label>
-                        <span style="font-size: 11px; color: #666; font-weight: bold;">Anni attuali:</span>
-                    </div>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="date" id="editDataNascita" class="campo-controllo campo-verifica-runtime" style="flex: 2;">
-                        <input type="text" id="editEtaDisplay" class="input-eta-display" style="flex: 1;" readonly placeholder="-">
-                    </div>
-                </div>
-            </div>
+				<div class="form-group col-medium">
+					<label>Luogo di Nascita:</label>
+					<!-- Aggiunto list="listaComuniNascita" -->
+					<input type="text" id="editLuogoNascita" class="campo-controllo" placeholder="es. Ivrea" list="listaComuniNascita">
+					<!-- Datalist che conterrà i suggerimenti dinamici -->
+					<datalist id="listaComuniNascita"></datalist>
+				</div>
+				<div class="form-group col-medium">
+					<div class="label-con-eta">
+						<label>Data di Nascita:</label>
+						<span style="font-size: 11px; color: #666; font-weight: bold;">Anni attuali:</span>
+					</div>
+					<div style="display: flex; gap: 8px;">
+						<input type="date" id="editDataNascita" class="campo-controllo campo-verifica-runtime" style="flex: 2;">
+						<input type="text" id="editEtaDisplay" class="input-eta-display" style="flex: 1;" readonly placeholder="-">
+					</div>
+				</div>
+			</div>
 
             <div class="form-row">
                 <div class="form-group col-large">
@@ -1743,8 +1746,19 @@
 				if (response.ok) {
 					dizionarioComuniCatastali = await response.json();
 					
+					const datalist = document.getElementById('listaComuniNascita');
+					if (datalist) datalist.innerHTML = ''; // Pulisce eventuali elementi precedenti
+
 					for (let [codice, nome] of Object.entries(dizionarioComuniCatastali)) {
-						dizionarioNomiComuni[nome.toUpperCase()] = codice;
+						let nomeMaiuscolo = nome.toUpperCase();
+						dizionarioNomiComuni[nomeMaiuscolo] = codice;
+						
+						// Popola la datalist per l'autocompletamento
+						if (datalist) {
+							let option = document.createElement('option');
+							option.value = nome; // Verrà mostrato e inserito il nome del comune
+							datalist.appendChild(option);
+						}
 					}
 
 					dizionarioCaricato = true;
