@@ -78,6 +78,34 @@
             document.getElementById('videoPreview').srcObject = streamCorrente;
         }
 
+        // Funzione per gestire il messaggio di successo e la chiusura automatica dopo 3 secondi
+        function mostraSuccessoEChiudi() {
+            document.body.innerHTML = `
+                <div class="card" style="color: #333;">
+                    <h2 style="color: #28a745;">✅ Fatto!</h2>
+                    <p>La foto è stata caricata con successo ed è pronta nel gestionale.</p>
+                    <p style="font-size: 12px; color: #666; margin-bottom: 15px;">La scheda si chiuderà automaticamente...</p>
+                </div>
+            `;
+
+            // Attende 3 secondi prima di tentare la chiusura
+            setTimeout(() => {
+                window.close();
+                
+                // Fallback di sicurezza: se il browser blocca window.close(), mostra un pulsante manuale
+                setTimeout(() => {
+                    document.body.innerHTML = `
+                        <div class="card" style="color: #333;">
+                            <h2 style="color: #28a745;">✅ Fatto!</h2>
+                            <p>La foto è stata salvata correttamente.</p>
+                            <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Puoi chiudere questa scheda e tornare al computer.</p>
+                            <button onclick="window.close()" class="btn">Chiudi Scheda</button>
+                        </div>
+                    `;
+                }, 500);
+            }, 3000);
+        }
+
         window.scattaEInvia = async function() {
             if (!idPersona) {
                 alert("Errore: ID persona mancante nell'URL.");
@@ -108,13 +136,9 @@
                     streamCorrente.getTracks().forEach(track => track.stop());
                 }
 
-                document.body.innerHTML = `
-                    <div class="card" style="color: #333;">
-                        <h2 style="color: #28a745;">✅ Fatto!</h2>
-                        <p>La foto è stata caricata con successo ed è pronta nel gestionale.</p>
-                        <p style="font-size: 12px; color: #666;">Puoi chiudere questa pagina e tornare al computer.</p>
-                    </div>
-                `;
+                // Chiama la funzione di successo con attesa e chiusura automatica
+                mostraSuccessoEChiudi();
+
             } catch (error) {
                 document.getElementById('loadingText').style.display = 'none';
                 document.getElementById('btnScatta').style.display = 'block';
