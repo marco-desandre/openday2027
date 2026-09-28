@@ -2850,7 +2850,7 @@
             document.getElementById('editNome').value = pulisciTesto(p.nome);
             document.getElementById('editCodiceFiscale').value = pulisciTesto(p.codice_fiscale || p.codiceFiscale).toUpperCase();
             document.getElementById('editLuogoNascita').value = pulisciTesto(p.luogo_nascita || p.luogoNascita);          
-			document.getElementById('badgeStatoOnorificenza').textContent = p.stato_onorificenza || "Nessuna";
+			document.getElementById('badgeStatoOnorificenza').textContent = p.stato_onorificenza || " -";
 			document.getElementById('editNonIscrivibile').checked = Boolean(p.non_iscrivibile);
 
             // Caricamento Sesso (Maschio / Femmina)
@@ -3469,7 +3469,7 @@
         // Funzione di calcolo dello stato onorificenza basata sullo storico array di anni completi
         function calcolaStatoOnorificenzaDaAnni(anniCompleti) {
             let totaleCompleti = anniCompleti.length;
-            if (totaleCompleti === 0) return "Nessuna";
+            if (totaleCompleti === 0) return " -";
 
             // Normalizzazione anni consecutivi (escludendo il biennio COVID 2021-2022)
             let anniNorm = anniCompleti.map(anno => anno > 2022 ? anno - 2 : anno);
@@ -3496,7 +3496,7 @@
             if (massimoConsecutivi >= 10 && totaleCompleti < 20) return "10";
             if (totaleCompleti >= 10 && massimoConsecutivi >= 10) return "10";
 
-            return "Nessuna";
+            return " -";
         }
 
         // Ricalcola al volo basandosi sulle righe attualmente presenti nella tabella storico della modale
