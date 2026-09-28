@@ -629,12 +629,15 @@
                     <!-- IMMAGINE 1 (Fronte) -->
                     <div style="margin-top: 10px; border-top: 1px dashed #74c0fc; padding-top: 10px;">
                         <label style="font-size: 12px; font-weight: bold; color: #1864ab;">Immagine 1 (Fronte):</label>
-                        <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
-                            <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('iscritto', 1)">📷 Webcam</button>
-                            <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
-                                📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('iscritto', 1, this)">
-                            </label>
-                        </div>
+						<div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
+							<button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('iscritto', 1)">📷 Webcam</button>
+							
+							<button type="button" class="btn-azione" style="background-color: #6f42c1; padding: 6px 10px; font-size: 11px;" onclick="apriQRCapture('iscritto', 1)">📱 Scansiona con Cellulare</button>
+
+							<label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
+								📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('iscritto', 1, this)">
+							</label>
+						</div>
                         <div style="margin-top: 8px;">
                             <div id="boxAnteprima_iscritto_1" style="display: none;">
                                 <a id="linkAnteprima_iscritto_1" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 1</a>
@@ -3612,6 +3615,28 @@
 				console.error("Errore aggiornamento massivo:", error);
 				alert("Errore durante l'aggiornamento massivo: " + error.message);
 			}
+		};
+		
+		window.apriQRCapture = function(soggetto, slot) {
+			let idPersona = document.getElementById('editIdPersona').value;
+			if (!idPersona || idPersona.startsWith('temp_')) {
+				alert("Prima di scansionare con il cellulare, salva l'anagrafica di base!");
+				return;
+			}
+
+			// Costruisce l'URL della pagina mobile creata sopra
+			let urlRemoto = `${window.location.origin}/fotocamera_remota.html?id=${idPersona}&soggetto=${soggetto}&slot=${slot}`;
+			
+			// Genera l'immagine QR code tramite un servizio gratuito al volo
+			let qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(urlRemoto)}`;
+
+			let container = document.getElementById('boxContainerWebcamGenerale');
+			container.innerHTML = `
+				<p style="margin: 0 0 5px 0; font-size: 13px; font-weight: bold;">Inquadra il QR Code con la fotocamera dello smartphone:</p>
+				<img src="${qrImageUrl}" alt="QR Code" style="display: block; margin: 0 auto 10px auto; border-radius: 4px; width: 200px; height: 200px;">
+				<button type="button" class="btn-azione" style="background-color: #dc3545; width: 100%; padding: 8px;" onclick="fermaWebcam()">Chiudi QR</button>
+			`;
+			container.style.display = 'block';
 		};
     </script>
 </body>
