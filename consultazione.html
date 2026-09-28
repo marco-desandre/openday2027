@@ -2986,6 +2986,8 @@
             modal.style.display = 'flex';
             controllaCampiVuoti();
             await caricaStoricoPersona(p.id);
+			
+			ricalcolaOnorificenzaCorrente();
         }
 
         document.getElementById('btnNuovoUtente').addEventListener('click', async () => {
@@ -3281,7 +3283,11 @@
 
                 cacheTuttiIscritti = [];
                 await caricaStoricoPersona(idPersona);
-                alert("Modifiche salvate con successo!");
+				
+				ricalcolaOnorificenzaCorrente();
+				await aggiornaStatoOnorificenzaNelDb(idPersona);
+                
+				alert("Modifiche salvate con successo!");
             } catch (error) {
                 alert("Errore durante il salvataggio: " + error.message);
             } finally {
@@ -3303,6 +3309,9 @@
 
                 cacheTuttiIscritti = [];
                 await caricaStoricoPersona(idPersona);
+				
+				ricalcolaOnorificenzaCorrente();
+				await aggiornaStatoOnorificenzaNelDb(idPersona);
             } catch (error) {
                 alert("Errore durante l'eliminazione: " + error.message);
             } finally {
@@ -3389,6 +3398,9 @@
                 cacheTuttiIscritti = [];
                 document.getElementById('btnAggiungiIscrizione').style.display = 'block';
                 await caricaStoricoPersona(idPersona);
+				
+				ricalcolaOnorificenzaCorrente();
+				await aggiornaStatoOnorificenzaNelDb(idPersona);
             } catch (error) {
                 alert("Errore durante il salvataggio: " + error.message);
             } finally {
@@ -3508,6 +3520,24 @@
 			let nuovoStato = calcolaStatoOnorificenzaDaAnni(anniCompleti);
 			document.getElementById('badgeStatoOnorificenza').textContent = nuovoStato;
 		};
+		
+		// Funzione di supporto per salvare automaticamente lo stato sul DB
+		async function aggiornaStatoOnorificenzaNelDb(idPersona) {
+			if (!idPersona || idPersona.startsWith('temp_')) return;
+			try {
+				const nuovoStato = document.getElementById('badgeStatoOnorificenza').textContent.trim();
+				await setDoc(doc(db, "anagrafica", idPersona), {
+					stato_onorificenza: nuovoStato
+				}, { merge: true });
+			} catch (e) {
+				console.error("Errore aggiornamento automatico stato onorificenza sul DB:", e);
+			}
+		}
+
+		// Funzione di calcolo dello stato onorificenza basata sullo storico array di anni completi
+		function calcolaStatoOnorificenzaDaAnni(anniCompleti) {
+			// ...resto del codice di calcolo...
+		}
 		
         async function gestisciSalvataggioEsistente() {
             const id = document.getElementById('editIdPersona').value, dati = raccogliDatiAnagrafica();
