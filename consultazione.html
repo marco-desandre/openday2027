@@ -1473,15 +1473,32 @@
             
             try {
                 mostraCaricamento("Eliminazione file...");
-                if (idPersona) {
-                    for (let ext of ['jpg', 'pdf', 'png', 'jpeg']) {
-                        await deleteObject(storageRef(storage, `documenti_iscritti/${idPersona}_${soggetto}_img${slot}.${ext}`)).catch(() => {});
+                
+                // Se abbiamo un ID persona valido, proviamo a cancellare le possibili varianti su Storage
+                if (idPersona && !idPersona.startsWith('temp_')) {
+                    const estensioni = ['jpg', 'jpeg', 'png', 'pdf'];
+                    for (let ext of estensioni) {
+                        try {
+                            const fileRef = storageRef(storage, `documenti_iscritti/${idPersona}_${soggetto}_img${slot}.${ext}`);
+                            await deleteObject(fileRef);
+                        } catch (err) {
+                            // Ignora l'errore se il singolo file specifico non esiste
+                        }
                     }
                 }
+
+                // Pulizia dei campi grafici e del valore nascosto
                 document.getElementById(`editUrl_${soggetto}_${slot}`).value = "";
                 document.getElementById(`boxAnteprima_${soggetto}_${slot}`).style.display = 'none';
+                
+                // Pulisci anche l'input file locale associato se presente per permettere di ri-caricare lo stesso file
+                const containerSlot = document.getElementById(`boxAnteprima_${soggetto}_${slot}`).parentElement;
+                const inputFile = containerSlot.querySelector('input[type="file"]');
+                if (inputFile) inputFile.value = "";
+
                 alert("Documento rimosso con successo!");
             } catch (error) {
+                console.error("Errore rimozione:", error);
                 alert("Errore durante la rimozione: " + error.message);
             } finally {
                 nascondiCaricamento();
