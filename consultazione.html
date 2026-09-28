@@ -2519,9 +2519,9 @@
             }
         };
 
+		let statoOrdinamentoColonna = { indice: -1, crescente: true };
 		let ultimiRisultatiFiltratiCache = [];
         let ultimeColsCache = [];
-        let statoOrdinamentoColonna = { indice: -1, crescente: true };
 
         window.caricaDatiRicercaFiltrata = async function() {
             const annoSelezionato = document.getElementById('selezionaAnnoFiltro').value;
@@ -2637,6 +2637,7 @@
         };
 
         function renderizzaRigheTabellaFiltrata(risultati, cols) {
+            ultimiRisultatiFiltratiCache = [];
             ultimiRisultatiFiltratiCache = risultati;
             ultimeColsCache = cols;
             let tbody = document.getElementById('corpoTabellaFiltrata');
@@ -2652,7 +2653,7 @@
                 tr.onclick = () => apriModaleEsistente(p);
                 tbody.appendChild(tr);
             });
-        };
+        }
 
         window.ordinaTabellaFiltrata = function(colIndex, colId) {
             if (statoOrdinamentoColonna.indice === colIndex) {
