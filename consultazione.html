@@ -2927,7 +2927,11 @@
             const urlIsc2 = p.immagine_documento_iscritto_2 || p.immagine_documento_2 || "";
             document.getElementById('editUrl_iscritto_2').value = urlIsc2;
             if (urlIsc2) {
-                document.getElementById('linkAnteprima_iscritto_2').href = urlIsc2;
+                const link2 = document.getElementById('linkAnteprima_iscritto_2');
+                link2.href = urlIsc2;
+                link2.setAttribute('target', '_blank');
+                link2.setAttribute('rel', 'noopener noreferrer');
+                link2.textContent = `Visualizza Immagine 2`;
                 document.getElementById('boxAnteprima_iscritto_2').style.display = 'block';
             } else {
                 document.getElementById('boxAnteprima_iscritto_2').style.display = 'none';
@@ -3647,6 +3651,8 @@
 			}
 		};
 		
+		let intervalloVerificaQR = null;
+
 		let intervalloVerificaQR = null;
 
 		window.apriQRCapture = function(soggetto) {
