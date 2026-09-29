@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.00</div>
+			<div class="versione-app">Ver. 01.10</div>
             <div class="top-bar-header">
                 <div id="boxModalita" class="box-modalita" style="display: none;">
                     <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
@@ -2924,15 +2924,32 @@
                 document.getElementById('boxAnteprima_iscritto_1').style.display = 'none';
             }
 
-            const urlIsc2 = p.immagine_documento_iscritto_2 || p.immagine_documento_2 || "";
+            const urlIsc1 = formattaUrlFirebase(p.immagine_documento_iscritto_1 || p.immagine_documento_1 || p.immagine_documento || "");
+            document.getElementById('editUrl_iscritto_1').value = urlIsc1;
+            if (urlIsc1) {
+                const link1 = document.getElementById('linkAnteprima_iscritto_1');
+                link1.href = urlIsc1;
+                link1.setAttribute('target', '_blank');
+                link1.setAttribute('rel', 'noopener noreferrer');
+                link1.textContent = `Visualizza Immagine 1`;
+                document.getElementById('boxAnteprima_iscritto_1').style.display = 'block';
+            } else {
+                document.getElementById('boxAnteprima_iscritto_1').style.display = 'none';
+            }
+
+            const urlIsc2 = formattaUrlFirebase(p.immagine_documento_iscritto_2 || p.immagine_documento_2 || "");
             document.getElementById('editUrl_iscritto_2').value = urlIsc2;
             if (urlIsc2) {
-                document.getElementById('linkAnteprima_iscritto_2').href = urlIsc2;
+                const link2 = document.getElementById('linkAnteprima_iscritto_2');
+                link2.href = urlIsc2;
+                link2.setAttribute('target', '_blank');
+                link2.setAttribute('rel', 'noopener noreferrer');
+                link2.textContent = `Visualizza Immagine 2`;
                 document.getElementById('boxAnteprima_iscritto_2').style.display = 'block';
             } else {
                 document.getElementById('boxAnteprima_iscritto_2').style.display = 'none';
             }
-
+			
             document.getElementById('editGenitore1Cognome').value = pulisciTesto(p.genitore1_cognome || p.genitore_cognome);
             document.getElementById('editGenitore1Nome').value = pulisciTesto(p.genitore1_nome || p.genitore_nome);
             document.getElementById('editGenitore1LuogoNascita').value = pulisciTesto(p.genitore1_luogo_nascita);
@@ -3676,17 +3693,18 @@
 			intervalloVerificaQR = setInterval(async () => {
 				try {
 					if (stepRicezione === 1) {
-						// Controllo Foto 1 (Fronte)
 						const sRef1 = storageRef(storage, `documenti_iscritti/${idPersona}_${soggetto}_img1.jpg`);
-						const url1 = await getDownloadURL(sRef1);
+						const url1 = await getDownloadURL(sRef1).catch(() => null);
+						
 						if (url1) {
-							// Aggiungiamo un parametro temporale per evitare la cache del browser sull'anteprima
-							const url1Pulito = url1 + (url1.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
+							const url1Pulito = formattaUrlFirebase(url1) + '&t=' + new Date().getTime();
+							
 							document.getElementById(`editUrl_${soggetto}_1`).value = url1Pulito;
 							const link1 = document.getElementById(`linkAnteprima_${soggetto}_1`);
 							link1.href = url1Pulito;
 							link1.setAttribute('target', '_blank');
-							link1.textContent = `Visualizza Immagine 1 (Fronte - Smartphone)`;
+							link1.setAttribute('rel', 'noopener noreferrer');
+							link1.textContent = `Visualizza Immagine 1 (Fronte)`;
 							document.getElementById(`boxAnteprima_${soggetto}_1`).style.display = 'block';
 
 							stepRicezione = 2; // Passa alla fase di ascolto del retro
@@ -3694,18 +3712,19 @@
 							if (lblStato) lblStato.textContent = "✅ Fronte ricevuto! In attesa di foto 2 (Retro)...";
 						}
 					} else if (stepRicezione === 2) {
-						// Controllo Foto 2 (Retro) - Usiamo un nome file leggermente diverso o forziamo il controllo
 						const sRef2 = storageRef(storage, `documenti_iscritti/${idPersona}_${soggetto}_img2.jpg`);
-						const url2 = await getDownloadURL(sRef2);
+						const url2 = await getDownloadURL(sRef2).catch(() => null);
 						
 						if (url2) {
-							// Verifichiamo che l'URL del retro sia valido e diverso da eventuali vecchi caricamenti
-							const url2Pulito = url2.split('?')[0] + '?t=' + new Date().getTime();
+							// Formattazione corretta con alt=media tramite formattaUrlFirebase
+							const url2Pulito = formattaUrlFirebase(url2) + '&t=' + new Date().getTime();
 
 							document.getElementById(`editUrl_${soggetto}_2`).value = url2Pulito;
 							const link2 = document.getElementById(`linkAnteprima_${soggetto}_2`);
 							link2.href = url2Pulito;
-							link2.textContent = `Visualizza Immagine 2 (Retro - Smartphone)`;
+							link2.setAttribute('target', '_blank');
+							link2.setAttribute('rel', 'noopener noreferrer');
+							link2.textContent = `Visualizza Immagine 2 (Retro)`;
 							document.getElementById(`boxAnteprima_${soggetto}_2`).style.display = 'block';
 
 							// Spegne il listener e chiude il box QR automaticamente
@@ -3717,11 +3736,11 @@
 						}
 					}
 				} catch (e) {
-					// L'errore è normale finché il file non esiste ancora su Storage durante il polling
+					// Gestione silenziosa degli errori di polling durante l'attesa
 				}
 			}, 3000);
 		};
-
+		
 		window.chiudiQRCapture = function(soggetto) {
 			if (intervalloVerificaQR) {
 				clearInterval(intervalloVerificaQR);
@@ -3756,6 +3775,18 @@
 				boxQR.innerHTML = '';
 			}
 		};
+		
+		function formattaUrlFirebase(url) {
+			if (!url) return "";
+			url = String(url).trim();
+			if (url.includes('firebasestorage.googleapis.com')) {
+				// Pulisce eventuali parametri alt=media duplicati e lo forza correttamente
+				url = url.split('&alt=media')[0].split('?alt=media')[0];
+				let separatore = url.includes('?') ? '&' : '?';
+				return url + separatore + 'alt=media';
+			}
+			return url;
+		}
     </script>
 </body>
 </html>
