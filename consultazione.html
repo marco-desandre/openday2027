@@ -1442,10 +1442,14 @@
                 const downloadUrl = await getDownloadURL(uploadTaskRef);
 
                 document.getElementById(`editUrl_${soggetto}_${slot}`).value = downloadUrl;
-                const link = document.getElementById(`linkAnteprima_${soggetto}_${slot}`);
-                link.href = downloadUrl;
-                link.textContent = `Visualizza Immagine ${slot} (${file.name})`;
-                document.getElementById(`boxAnteprima_${soggetto}_${slot}`).style.display = 'block';
+				const link = document.getElementById(`linkAnteprima_${soggetto}_${slot}`);
+
+				// Forziamo l'apertura pulita dell'URL dell'immagine
+				link.href = downloadUrl;
+				link.setAttribute('target', '_blank');
+				link.setAttribute('rel', 'noopener noreferrer');
+				link.textContent = `Visualizza Immagine ${slot}`;
+				document.getElementById(`boxAnteprima_${soggetto}_${slot}`).style.display = 'block';
 
                 alert("File caricato con successo!");
             } catch (error) {
@@ -3677,11 +3681,11 @@
 						const url1 = await getDownloadURL(sRef1);
 						if (url1) {
 							// Aggiungiamo un parametro temporale per evitare la cache del browser sull'anteprima
-							const url1Pulito = url1.split('?')[0] + '?t=' + new Date().getTime();
-							
+							const url1Pulito = url1 + (url1.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
 							document.getElementById(`editUrl_${soggetto}_1`).value = url1Pulito;
 							const link1 = document.getElementById(`linkAnteprima_${soggetto}_1`);
 							link1.href = url1Pulito;
+							link1.setAttribute('target', '_blank');
 							link1.textContent = `Visualizza Immagine 1 (Fronte - Smartphone)`;
 							document.getElementById(`boxAnteprima_${soggetto}_1`).style.display = 'block';
 
