@@ -3653,8 +3653,6 @@
 		
 		let intervalloVerificaQR = null;
 
-		let intervalloVerificaQR = null;
-
 		window.apriQRCapture = function(soggetto) {
 			let idPersona = document.getElementById('editIdPersona').value;
 			if (!idPersona || idPersona.startsWith('temp_')) {
@@ -3686,14 +3684,15 @@
 						const url1 = await getDownloadURL(sRef1).catch(() => null);
 						
 						if (url1) {
-							const url1Pulito = url1.split('?')[0] + '?t=' + new Date().getTime();
+							// Forziamo un URL di download pulito bypassando i metadati
+							const url1Pulito = url1.split('&token=')[0] ? url1 : url1; 
 							
-							document.getElementById(`editUrl_${soggetto}_1`).value = url1Pulito;
+							document.getElementById(`editUrl_${soggetto}_1`).value = url1;
 							const link1 = document.getElementById(`linkAnteprima_${soggetto}_1`);
-							link1.href = url1Pulito;
+							link1.href = url1;
 							link1.setAttribute('target', '_blank');
 							link1.setAttribute('rel', 'noopener noreferrer');
-							link1.textContent = `Visualizza Immagine 1 (Fronte - Smartphone)`;
+							link1.textContent = `Visualizza Immagine 1 (Fronte)`;
 							document.getElementById(`boxAnteprima_${soggetto}_1`).style.display = 'block';
 
 							stepRicezione = 2; // Passa alla fase di ascolto del retro
@@ -3705,15 +3704,12 @@
 						const url2 = await getDownloadURL(sRef2).catch(() => null);
 						
 						if (url2) {
-							// Forziamo un parametro di timestamp per evitare la cache
-							const url2Pulito = url2 + (url2.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
-
-							document.getElementById(`editUrl_${soggetto}_2`).value = url2Pulito;
+							document.getElementById(`editUrl_${soggetto}_2`).value = url2;
 							const link2 = document.getElementById(`linkAnteprima_${soggetto}_2`);
-							link2.href = url2Pulito;
+							link2.href = url2;
 							link2.setAttribute('target', '_blank');
 							link2.setAttribute('rel', 'noopener noreferrer');
-							link2.textContent = `Visualizza Immagine 2 (Retro - Smartphone)`;
+							link2.textContent = `Visualizza Immagine 2 (Retro)`;
 							document.getElementById(`boxAnteprima_${soggetto}_2`).style.display = 'block';
 
 							// Spegne il listener e chiude il box QR automaticamente
