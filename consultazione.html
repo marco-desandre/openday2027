@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.20</div>
+			<div class="versione-app">Ver. 01.30</div>
             <div class="top-bar-header">
                 <div id="boxModalita" class="box-modalita" style="display: none;">
                     <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
@@ -3021,13 +3021,18 @@
             document.getElementById('editTigre').disabled = isUserMode;
             document.getElementById('editCapitanoPiazza').disabled = isUserMode;
             
-            ['iscritto', 'gen1', 'gen2'].forEach(sogg => {
+            document.getElementById('editUrl_iscritto_1').value = "";
+            document.getElementById('editUrl_iscritto_2').value = "";
+            aggiornaStatoUIImmagini('iscritto');
+
+            ['gen1', 'gen2'].forEach(sogg => {
                 for (let i = 1; i <= 2; i++) {
                     document.getElementById(`editUrl_${sogg}_${i}`).value = "";
-                    document.getElementById(`boxAnteprima_${sogg}_${i}`).style.display = 'none';
+                    const box = document.getElementById(`boxAnteprima_${sogg}_${i}`);
+                    if (box) box.style.display = 'none';
                 }
             });
-
+			
             document.getElementById('btnAggiungiIscrizione').style.display = 'none';
             document.getElementById('btnEliminaAnagrafica').style.display = 'none';
             document.getElementById('sezioneStoricoContainer').style.display = 'none';
