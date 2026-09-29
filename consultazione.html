@@ -4,8 +4,19 @@
     <meta charset="UTF-8">
     <title>Gestionale Iscritti</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; background-color: #f4f4f9; display: flex; height: 100vh; overflow: hidden; }
-        
+        body { 
+			font-family: Arial, sans-serif; 
+			margin: 0; 
+			background-color: #f4f4f9; 
+			background-image: linear-gradient(rgba(244, 244, 249, 0.92), rgba(244, 244, 249, 0.92)), url('logotuchini.png'); 
+			background-repeat: no-repeat; 
+			background-position: center; 
+			background-size: 45vh; 
+			display: flex; 
+			height: 100vh; 
+			overflow: hidden; 
+		}
+		
         /* SCHERMATA DI LOGIN */
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #343a40; display: flex; justify-content: center; align-items: center; z-index: 9999; }
         .login-card { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-align: center; width: 380px; }
@@ -50,7 +61,17 @@
         .container { max-width: 1250px; background: white; padding: 25px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); margin: auto; position: relative; }
         
         .top-bar-header { position: absolute; top: 20px; right: 25px; display: flex; align-items: center; gap: 12px; z-index: 10; }
-        .box-modalita { display: flex; gap: 5px; background: #e9ecef; padding: 4px; border-radius: 6px; }
+        .versione-app {
+			position: absolute;
+			top: 65px;
+			right: 25px;
+			font-size: 11px;
+			color: #868e96;
+			font-weight: bold;
+			user-select: none;
+			z-index: 10;
+		}
+		.box-modalita { display: flex; gap: 5px; background: #e9ecef; padding: 4px; border-radius: 6px; }
         .btn-modalita { border: none; background: transparent; padding: 6px 12px; font-size: 13px; font-weight: bold; cursor: pointer; border-radius: 4px; color: #555; transition: all 0.2s; }
         .btn-modalita.attivo { background-color: #007BFF; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         
@@ -84,7 +105,13 @@
         .grid-checkbox-colonne input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
 
         input[type="text"], input[type="date"], input[type="email"], input[type="number"], select { 
-			width: 100%; padding: 7px 10px; margin: 2px 0 5px 0 !important; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; 
+			width: 100%; 
+			padding: 6px 10px; 
+			margin: 2px 0 6px 0; 
+			border: 1px solid #ccc; 
+			border-radius: 4px; 
+			box-sizing: border-box; 
+			font-size: 14px; 
 		}
 
         .campo-vuoto { border: 2px solid #dc3545 !important; background-color: #fff8f8; }
@@ -101,13 +128,22 @@
         .box-contatore { font-size: 14px; color: #333; margin-bottom: 10px; font-weight: bold; }
         
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-        .modal-content { background-color: white; padding: 30px; border-radius: 8px; width: 950px; max-height: 90vh; overflow-y: auto; box-shadow: 0px 4px 15px rgba(0,0,0,0.2); position: relative; }
-        .modal-content h3 { margin-top: 0; color: #007BFF; }
+        .modal-content { 
+			background-color: white; 
+			padding: 20px 25px;
+			border-radius: 8px; 
+			width: 950px; 
+			max-height: 92vh;
+			overflow-y: auto; 
+			box-shadow: 0px 4px 15px rgba(0,0,0,0.2); 
+			position: relative; 
+		}
+		.modal-content h3 { margin-top: 0; color: #007BFF; }
         .modal-content h4 { margin-top: 25px; color: #333; border-bottom: 2px solid #007BFF; padding-bottom: 5px; }
         
-        .form-row { display: flex; gap: 15px; margin-bottom: 2px !important; }
-        .form-group { flex: 1; display: flex; flex-direction: column; margin-bottom: 2px; }
-        .form-group label { font-size: 12px; font-weight: bold; color: #444; margin-bottom: 0px; }
+        .form-row { display: flex; gap: 12px; margin-bottom: 2px; }
+		.form-group { flex: 1; display: flex; flex-direction: column; }
+		.form-group label { font-size: 12px; font-weight: bold; color: #444; margin-bottom: 1px; }
 		
         .form-row-opzioni { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; background: #f8f9fa; padding: 12px 20px; border-radius: 6px; border: 1px solid #e9ecef; flex-wrap: wrap; gap: 15px; }
         .checkboxes-container { display: flex; gap: 30px; align-items: center; }
@@ -153,9 +189,9 @@
         .placeholder-sezione { padding: 40px; text-align: center; color: #666; font-size: 18px; background: #fafafa; border: 2px dashed #ddd; border-radius: 6px; }
 
         /* ACCORDION / SEZIONI COLLASSABILI */
-        .collapsible-header { background: #e7f5ff; padding: 8px 12px; border-radius: 6px; border: 1px solid #74c0fc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; font-weight: bold; color: #1864ab; font-size: 13px; margin-top: 6px; }
+        .collapsible-header { background: #e7f5ff; padding: 6px 10px; border-radius: 6px; border: 1px solid #74c0fc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; font-weight: bold; color: #1864ab; font-size: 13px; margin-top: 6px; }
         .collapsible-header:hover { background: #d0ebff; }
-        .collapsible-content { display: none; background: #f8f9fa; padding: 12px; border: 1px solid #ced4da; border-top: none; border-radius: 0 0 6px 6px; margin-bottom: 10px; }
+        .collapsible-content { display: none; background: #f8f9fa; padding: 8px; border: 1px solid #ced4da; border-top: none; border-radius: 0 0 6px 6px; margin-bottom: 6px; }
         .collapsible-content.aperto { display: block; }
 
         @media (max-width: 768px) {
@@ -169,7 +205,7 @@
     <!-- OVERLAY SCHERMATA DI LOGIN -->
     <div id="loginOverlay">
         <div class="login-card">
-            <h2>Gestionale Iscritti</h2>
+            <h2>Tuchini del Boghetto</h2>
             <p>Accedi con il tuo account Google autorizzato</p>
             <button type="button" class="btn-google" onclick="eseguiLoginGoogle()">
                 <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
@@ -199,6 +235,7 @@
         <ul class="sidebar-menu">
             <li class="sidebar-item attivo" onclick="cambiaSezioneMenu('visualizzazione_standard', this)">Iscritti</li>
             <li class="sidebar-item" onclick="cambiaSezioneMenu('ricerca', this)">Ricerca filtrata</li>
+			<li class="sidebar-item" onclick="cambiaSezioneMenu('estrazione_prelazioni', this)">Estrazione prelazioni</li>
             
             <!-- GRUPPO PREMI -->
             <div class="sidebar-group-title" onclick="toggleMenuGruppo('gruppoOnorificenze', this)">
@@ -236,6 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
+			<div class="versione-app">Ver. 01.00</div>
             <div class="top-bar-header">
                 <div id="boxModalita" class="box-modalita" style="display: none;">
                     <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
@@ -299,21 +337,34 @@
                             <option value="tutti">Tutti gli anni</option>
                         </select>
                     </div>
-                    <div class="search-group" style="flex: initial; display: flex; gap: 10px; align-items: flex-end;">
-                        <div>
-                            <label>&nbsp;</label>
-                            <div class="box-personalizza-colonne">
-                                <button type="button" class="btn-toggle-colonne" onclick="togglePannelloColonne()">⚙️ Personalizza Colonne</button>
-                                <div id="pannelloColonne" class="pannello-colonne">
-                                    <h5>Seleziona Colonne Visibili</h5>
-                                    <div class="grid-checkbox-colonne" id="listaCheckboxColonne"></div>
-                                </div>
+
+                    <!-- Filtro Onorificenze "> 30 Anni" -->
+                    <div class="search-group" style="flex: initial; display: flex; align-items: center; padding-bottom: 5px;">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="filtroOnorificenze30Plus" onchange="caricaDatiRicercaFiltrata()">
+                            <label for="filtroOnorificenze30Plus"><strong>> 30 Anni</strong> (30, 40, 50)</label>
+                        </div>
+                    </div>
+
+                    <div class="search-group" style="max-width: 160px;">
+                        <label for="filtroDataDa"><strong>Inserito dal:</strong></label>
+                        <input type="date" id="filtroDataDa" onchange="caricaDatiRicercaFiltrata()">
+                    </div>
+                    <div class="search-group" style="max-width: 160px;">
+                        <label for="filtroDataA"><strong>Inserito al:</strong></label>
+                        <input type="date" id="filtroDataA" onchange="caricaDatiRicercaFiltrata()">
+                    </div>
+
+                    <!-- Pulsanti Gestione Colonne ed Export -->
+                    <div class="search-group" style="flex: initial; display: flex; gap: 10px;">
+                        <div class="box-personalizza-colonne">
+                            <button type="button" class="btn-toggle-colonne" onclick="togglePannelloColonne()">⚙️ Colonne</button>
+                            <div id="pannelloColonne" class="pannello-colonne">
+                                <h5>Personalizza Colonne</h5>
+                                <div id="listaCheckboxColonne" class="grid-checkbox-colonne"></div>
                             </div>
                         </div>
-                        <div>
-                            <label>&nbsp;</label>
-                            <button type="button" class="btn-export-csv" onclick="esportaTabellaCSV()">📥 Export CSV</button>
-                        </div>
+                        <button type="button" class="btn-export-csv" onclick="esportaTabellaCSV()">📥 Esporta CSV</button>
                     </div>
                 </div>
 
@@ -331,6 +382,50 @@
                 </div>
             </div>
 
+			<!-- SEZIONE ESTRAZIONE PRELAZIONI -->
+            <div id="sezione_estrazione_prelazioni" class="sezione-app">
+                <h2>Estrazione Prelazioni</h2>
+                <p style="color: #666; font-size: 14px;">Seleziona i filtri desiderati per estrarre gli iscritti aventi diritto alla prelazione.</p>
+                
+                <div class="search-row" style="background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                    <div style="display: flex; gap: 30px; align-items: center; flex-wrap: wrap;">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="flagCorviDoro" onchange="caricaDatiPrelazioni()">
+                            <label for="flagCorviDoro"><strong>Corvi d'oro</strong> (10 anni o più, senza limite massimo)</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="flag9Anni" onchange="caricaDatiPrelazioni()">
+                            <label for="flag9Anni"><strong>9 anni</strong> (Preventivo 10 anni)</label>
+                        </div>
+                    </div>
+                    <div>
+                        <button type="button" class="btn-export-csv" onclick="esportaPrelazioniCSV()">📥 Esporta CSV</button>
+						<button type="button" class="btn-export-csv" style="background-color: #28a745;" onclick="esportaSuTicketDispenser()">🚀 Esporta su Ticket Dispenser</button>
+                    </div>
+                </div>
+
+                <div id="boxContatorePrelazioni" class="box-contatore" style="display: none; margin-top: 20px;">
+                    Iscritti estratti: <span id="totalePrelazioni">0</span>
+                </div>
+
+                <div id="messaggioGuidaPrelazioni" style="font-size: 14px; color: #666; text-align: center; margin: 20px 0; font-style: italic;">Seleziona almeno un filtro per visualizzare l'elenco.</div>
+
+                <div class="table-responsive">
+                    <table id="tabellaPrelazioni" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Cognome</th>
+                                <th>Nome</th>
+                                <th>Città</th>
+                                <th>Telefono</th>
+                                <th>Dettaglio / Anni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoTabellaPrelazioni"></tbody>
+                    </table>
+                </div>
+            </div>
+			
             <!-- SEZIONE CONFIGURAZIONE -->
             <div id="sezione_configurazione" class="sezione-app">
                 <h2>Configurazione Sistema</h2>
@@ -343,6 +438,11 @@
                         <input type="number" id="inputAnnoCarnevale" value="2027">
                     </div>
                 </div>
+				
+				<h4 style="color: #007BFF; border-bottom: 2px solid #007BFF; padding-bottom: 5px; margin-top: 35px;">Manutenzione Dati</h4>
+				<div style="margin-top: 15px; margin-bottom: 20px;">
+					<button type="button" class="btn-nuovo-utente" style="background-color: #d97706; height: 38px; font-size: 14px;" onclick="eseguiAggiornamentoMassivoOnorificenze()">⚡ Ricalcola e Aggiorna Stato Onorificenze (Massivo)</button>
+				</div>
 
                 <h4 style="color: #007BFF; border-bottom: 2px solid #007BFF; padding-bottom: 5px; margin-top: 25px;">Campi Obbligatori / Visibili Scheda Anagrafica</h4>
                 <div style="display: flex; gap: 30px; margin: 15px 0;">
@@ -358,10 +458,19 @@
 
                 <button type="button" class="btn-salva" style="max-width: 200px; margin-top: 10px;" onclick="salvaConfigurazioneSistema()">Salva Configurazione</button>
 
+                <!-- SEZIONE REGISTRO LOG -->
+                <h4 style="color: #007BFF; border-bottom: 2px solid #007BFF; padding-bottom: 5px; margin-top: 35px;">Registro Log Attività</h4>
+                <div style="margin-top: 15px; margin-bottom: 20px;">
+                    <button type="button" class="btn-nuovo-utente" style="background-color: #6c757d; height: 38px; font-size: 14px;" onclick="apriModaleLog()">📋 Visualizza Log Attività</button>
+                </div>
+
                 <h4 style="color: #007BFF; border-bottom: 2px solid #007BFF; padding-bottom: 5px; margin-top: 35px;">Gestione Utenti</h4>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; flex-wrap: wrap; gap: 10px;">
                     <p style="color: #666; font-size: 13px; margin: 0;">Elenco degli account autorizzati ad accedere al gestionale.</p>
-                    <button type="button" class="btn-nuovo-utente" style="height: 36px; font-size: 13px; padding: 0 12px;" onclick="apriModaleUtente()">+ Nuovo Utente</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" class="btn-nuovo-utente" style="background-color: #ffc107; color: #333; height: 36px; font-size: 13px; padding: 0 12px;" onclick="disabilitaTuttiUser()">🔒 Disabilita tutti gli User</button>
+                        <button type="button" class="btn-nuovo-utente" style="height: 36px; font-size: 13px; padding: 0 12px;" onclick="apriModaleUtente()">+ Nuovo Utente</button>
+                    </div>
                 </div>
                 
                 <div class="table-responsive">
@@ -423,31 +532,42 @@
             </div>
 
             <div class="form-row" id="gruppoCampoCodiceFiscale">
-                <div class="form-group col-large">
-                    <label>Codice Fiscale:</label>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" id="editCodiceFiscale" class="campo-controllo" maxlength="16" placeholder="es. RSSMRA..." style="text-transform: uppercase; margin: 4px 0 10px 0;">
-                        <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 14px; font-size: 13px; font-weight: bold; height: 42px; margin-top: 4px;" onclick="calcolaCFIsCRITTO()">Calcola CF</button>
-                    </div>
-                </div>
-            </div>
+				<div class="form-group col-large">
+					<label>Codice Fiscale e Genere:</label>
+					<div style="display: flex; gap: 15px; align-items: center; margin: 4px 0 10px 0;">
+						<div style="display: flex; gap: 15px; align-items: center;">
+							<label style="font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; margin: 0;">
+								<input type="radio" name="editSesso" value="M" style="cursor: pointer; width: 16px; height: 16px;" onchange="gestisciSelezioneSesso()"> Maschio
+							</label>
+							<label style="font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; margin: 0;">
+								<input type="radio" name="editSesso" value="F" style="cursor: pointer; width: 16px; height: 16px;" onchange="gestisciSelezioneSesso()"> Femmina
+							</label>
+						</div>
+						<input type="text" id="editCodiceFiscale" class="campo-controllo" maxlength="16" placeholder="es. RSSMRA..." style="text-transform: uppercase; margin: 0;">
+						<button type="button" id="btnCalcolaCF" class="btn-azione" style="background-color: #007BFF; padding: 0 14px; font-size: 13px; font-weight: bold; height: 42px; opacity: 0.6; cursor: not-allowed;" disabled onclick="calcolaCFIsCRITTO()">Calcola</button>
+					</div>
+				</div>
+			</div>
 
             <div class="form-row">
-                <div class="form-group col-medium">
-                    <label>Luogo di Nascita:</label>
-                    <input type="text" id="editLuogoNascita" class="campo-controllo" placeholder="es. Ivrea">
-                </div>
-                <div class="form-group col-medium">
-                    <div class="label-con-eta">
-                        <label>Data di Nascita:</label>
-                        <span style="font-size: 11px; color: #666; font-weight: bold;">Anni attuali:</span>
-                    </div>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="date" id="editDataNascita" class="campo-controllo campo-verifica-runtime" style="flex: 2;">
-                        <input type="text" id="editEtaDisplay" class="input-eta-display" style="flex: 1;" readonly placeholder="-">
-                    </div>
-                </div>
-            </div>
+				<div class="form-group col-medium">
+					<label>Luogo di Nascita:</label>
+					<!-- Aggiunto list="listaComuniNascita" -->
+					<input type="text" id="editLuogoNascita" class="campo-controllo" placeholder="es. Ivrea" list="listaComuniNascita">
+					<!-- Datalist che conterrà i suggerimenti dinamici -->
+					<datalist id="listaComuniNascita"></datalist>
+				</div>
+				<div class="form-group col-medium">
+					<div class="label-con-eta">
+						<label>Data di Nascita:</label>
+						<span style="font-size: 11px; color: #666; font-weight: bold;">Anni attuali:</span>
+					</div>
+					<div style="display: flex; gap: 8px;">
+						<input type="date" id="editDataNascita" class="campo-controllo campo-verifica-runtime" style="flex: 2;">
+						<input type="text" id="editEtaDisplay" class="input-eta-display" style="flex: 1;" readonly placeholder="-">
+					</div>
+				</div>
+			</div>
 
             <div class="form-row">
                 <div class="form-group col-large">
@@ -479,278 +599,286 @@
                 </div>
             </div>
 
-            <!-- DOCUMENTO ISCRITTO (COLLAPSIBLE / MINIMIZZABILE) -->
+            <!-- DOCUMENTO ISCRITTO -->
             <div id="gruppoSezioneDocumento" style="display: none; margin-top: 10px;">
-                <div class="collapsible-header" onclick="toggleCollapsible('corpoDocIscritto', this)">
-                    <span>🪪 Documento d'Identità (Iscritto)</span>
-                    <span>▼</span>
+			<div class="collapsible-header" onclick="toggleCollapsible('corpoDocIscritto', this)">
+				<span>🪪 Documento d'Identità (Iscritto)</span>
+				<span>▼</span>
+			</div>
+			<div id="corpoDocIscritto" class="collapsible-content">
+				<div class="form-row" style="margin-bottom: 10px;">
+					<div class="form-group col-medium">
+						<label style="font-size: 11px;">Tipo Documento:</label>
+						<select id="editTipoDocumento" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
+							<option value="">-- Seleziona --</option>
+							<option value="Passaporto">Passaporto</option>
+							<option value="Patente">Patente</option>
+							<option value="Carta di identità">Carta di identità</option>
+						</select>
+					</div>
+					<div class="form-group col-medium">
+						<label style="font-size: 11px;">Numero:</label>
+						<input type="text" id="editNumeroDocumento" placeholder="es. AB12345CD" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
+					</div>
+					<div class="form-group col-medium">
+						<label style="font-size: 11px;">Data di Scadenza:</label>
+						<input type="date" id="editScadenzaDocumento" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
+					</div>
+				</div>
+
+				<!-- UNICO PULSANTE QR E UNICO BOX QR CONDIVISO PER FRONTE/RETRO -->
+				<div style="margin: 10px 0; background: #e7f5ff; padding: 10px; border-radius: 6px; border: 1px solid #74c0fc; text-align: center;">
+					<button type="button" class="btn-azione" style="background-color: #6f42c1; padding: 8px 16px; font-size: 12px; font-weight: bold;" onclick="apriQRCapture('iscritto')">📱 Scansiona Fronte e Retro con Smartphone (1 QR)</button>
+					
+					<!-- Contenitore QR Unico -->
+					<div id="boxContainerQR_iscritto" style="display: none; margin: 10px auto 0 auto; background: #fff; padding: 12px; border: 1px solid #74c0fc; border-radius: 6px; text-align: center; max-width: 250px;"></div>
+				</div>
+
+				<!-- IMMAGINE 1 (Fronte) -->
+				<div style="margin-top: 10px; border-top: 1px dashed #74c0fc; padding-top: 10px;">
+					<label style="font-size: 12px; font-weight: bold; color: #1864ab;">Immagine 1 (Fronte):</label>
+					<div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
+						<button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('iscritto', 1)">📷 Webcam</button>
+						<label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
+							📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('iscritto', 1, this)">
+						</label>
+					</div>
+					<div style="margin-top: 8px;">
+						<div id="boxAnteprima_iscritto_1" style="display: none;">
+							<a id="linkAnteprima_iscritto_1" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 1</a>
+							<button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('iscritto', 1)">Rimuovi</button>
+						</div>
+						<input type="hidden" id="editUrl_iscritto_1">
+					</div>
+				</div>
+
+				<!-- IMMAGINE 2 (Retro) -->
+				<div style="margin-top: 10px; border-top: 1px dashed #74c0fc; padding-top: 10px;">
+					<label style="font-size: 12px; font-weight: bold; color: #1864ab;">Immagine 2 (Retro):</label>
+					<div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
+						<button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('iscritto', 2)">📷 Webcam</button>
+						<label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
+							📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('iscritto', 2, this)">
+						</label>
+					</div>
+					<div style="margin-top: 8px;">
+						<div id="boxAnteprima_iscritto_2" style="display: none;">
+							<a id="linkAnteprima_iscritto_2" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 2</a>
+							<button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('iscritto', 2)">Rimuovi</button>
+						</div>
+						<input type="hidden" id="editUrl_iscritto_2">
+					</div>
+				</div>
+			</div>
+		</div>
+            <!-- DATI GENITORI -->
+            <div id="sezioneDatiGenitori" style="display: none; background: #fff3cd; padding: 12px; border-radius: 6px; border: 1px solid #ffeeba; margin-top: 10px; margin-bottom: 10px;">
+                <h4 style="margin-top: 0; margin-bottom: 10px; color: #856404; font-size: 14px; border-bottom: 1px solid #ffeeba; padding-bottom: 4px;">Dati Genitori / Tutori (Obbligatori per minorenni < 18 anni)</h4>
+                
+                <p style="font-size: 13px; font-weight: bold; color: #856404; margin: 5px 0;">Genitore 1</p>
+                <div class="form-row">
+                    <div class="form-group col-medium"><label style="font-size: 11px;">Cognome:</label><input type="text" id="editGenitore1Cognome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                    <div class="form-group col-medium"><label style="font-size: 11px;">Nome:</label><input type="text" id="editGenitore1Nome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                    <div class="form-group col-medium"><label style="font-size: 11px;">Luogo Nascita:</label><input type="text" id="editGenitore1LuogoNascita" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                    <div class="form-group col-medium"><label style="font-size: 11px;">Data Nascita:</label><input type="date" id="editGenitore1DataNascita" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
                 </div>
-                <div id="corpoDocIscritto" class="collapsible-content">
-                    <div class="form-row" style="margin-bottom: 10px;">
-                        <div class="form-group col-medium">
-                            <label style="font-size: 11px;">Tipo Documento:</label>
-                            <select id="editTipoDocumento" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
-                                <option value="">-- Seleziona --</option>
-                                <option value="Passaporto">Passaporto</option>
-                                <option value="Patente">Patente</option>
-                                <option value="Carta di identità">Carta di identità</option>
-                            </select>
-                        </div>
-                        <div class="form-group col-medium">
-                            <label style="font-size: 11px;">Numero:</label>
-                            <input type="text" id="editNumeroDocumento" placeholder="es. AB12345CD" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
-                        </div>
-                        <div class="form-group col-medium">
-                            <label style="font-size: 11px;">Data di Scadenza:</label>
-                            <input type="date" id="editScadenzaDocumento" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
+                <div class="form-row" id="gruppoGen1CF" style="margin-bottom: 5px;">
+                    <div class="form-group col-large">
+                        <label style="font-size: 11px;">Codice Fiscale:</label>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" id="editGenitore1CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 5px; font-size: 12px; text-transform: uppercase; margin: 0;">
+                            <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 11px; font-weight: bold; height: 30px;" onclick="calcolaCFGenitore(1)">Calcola</button>
                         </div>
                     </div>
+                </div>
 
-                    <!-- IMMAGINE 1 (Fronte) -->
-                    <div style="margin-top: 10px; border-top: 1px dashed #74c0fc; padding-top: 10px;">
-                        <label style="font-size: 12px; font-weight: bold; color: #1864ab;">Immagine 1 (Fronte):</label>
-                        <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
-                            <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('iscritto', 1)">📷 Webcam</button>
-                            <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
-                                📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('iscritto', 1, this)">
-                            </label>
-                        </div>
-                        <div style="margin-top: 8px;">
-                            <div id="boxAnteprima_iscritto_1" style="display: none;">
-                                <a id="linkAnteprima_iscritto_1" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 1</a>
-                                <button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('iscritto', 1)">Rimuovi</button>
+                <div id="gruppoGen1Doc" style="display: none; margin-bottom: 10px;">
+                    <div class="collapsible-header" style="background: #fff9db; border-color: #f59f00; color: #b7791f;" onclick="toggleCollapsible('corpoDocGen1', this)">
+                        <span>🪪 Documento d'Identità (Genitore 1)</span>
+                        <span>▼</span>
+                    </div>
+                    <div id="corpoDocGen1" class="collapsible-content" style="background: #fffdf5;">
+                        <div class="form-row" style="margin-bottom: 10px;">
+                            <div class="form-group col-medium">
+                                <label style="font-size: 11px;">Tipo Documento:</label>
+                                <select id="editGenitore1TipoDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                                    <option value="">-- Seleziona --</option>
+                                    <option value="Passaporto">Passaporto</option>
+                                    <option value="Patente">Patente</option>
+                                    <option value="Carta di identità">Carta di identità</option>
+                                </select>
                             </div>
-                            <input type="hidden" id="editUrl_iscritto_1">
+                            <div class="form-group col-medium">
+                                <label style="font-size: 11px;">N. Documento:</label>
+                                <input type="text" id="editGenitore1NumDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                            </div>
+                            <div class="form-group col-medium">
+                                <label style="font-size: 11px;">Scadenza:</label>
+                                <input type="date" id="editGenitore1ScadenzaDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 10px; border-top: 1px dashed #f59f00; padding-top: 10px;">
+                            <label style="font-size: 12px; font-weight: bold; color: #b7791f;">Immagine 1 (Fronte):</label>
+                            <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
+                                <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('gen1', 1)">📷 Webcam</button>
+                                <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
+                                    📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen1', 1, this)">
+                                </label>
+                            </div>
+                            <div style="margin-top: 8px;">
+                                <div id="boxAnteprima_gen1_1" style="display: none;">
+                                    <a id="linkAnteprima_gen1_1" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 1</a>
+                                    <button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('gen1', 1)">Rimuovi</button>
+                                </div>
+                                <input type="hidden" id="editUrl_gen1_1">
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 10px; border-top: 1px dashed #f59f00; padding-top: 10px;">
+                            <label style="font-size: 12px; font-weight: bold; color: #b7791f;">Immagine 2 (Retro):</label>
+                            <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
+                                <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('gen1', 2)">📷 Webcam</button>
+                                <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
+                                    📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen1', 2, this)">
+                                </label>
+                            </div>
+                            <div style="margin-top: 8px;">
+                                <div id="boxAnteprima_gen1_2" style="display: none;">
+                                    <a id="linkAnteprima_gen1_2" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 2</a>
+                                    <button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('gen1', 2)">Rimuovi</button>
+                                </div>
+                                <input type="hidden" id="editUrl_gen1_2">
+                            </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- IMMAGINE 2 (Retro) -->
-                    <div style="margin-top: 10px; border-top: 1px dashed #74c0fc; padding-top: 10px;">
-                        <label style="font-size: 12px; font-weight: bold; color: #1864ab;">Immagine 2 (Retro):</label>
-                        <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
-                            <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('iscritto', 2)">📷 Webcam</button>
-                            <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
-                                📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('iscritto', 2, this)">
-                            </label>
+                <p style="font-size: 13px; font-weight: bold; color: #856404; margin: 15px 0 5px 0;">Genitore 2</p>
+                <div class="form-row">
+                    <div class="form-group col-medium"><label style="font-size: 11px;">Cognome:</label><input type="text" id="editGenitore2Cognome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                    <div class="form-group col-medium"><label style="font-size: 11px;">Nome:</label><input type="text" id="editGenitore2Nome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                    <div class="form-group col-medium"><label style="font-size: 11px;">Luogo Nascita:</label><input type="text" id="editGenitore2LuogoNascita" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                    <div class="form-group col-medium"><label style="font-size: 11px;">Data Nascita:</label><input type="date" id="editGenitore2DataNascita" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                </div>
+                <div class="form-row" id="gruppoGen2CF" style="margin-bottom: 0;">
+                    <div class="form-group col-large">
+                        <label style="font-size: 11px;">Codice Fiscale:</label>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" id="editGenitore2CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 5px; font-size: 12px; text-transform: uppercase; margin: 0;">
+                            <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 11px; font-weight: bold; height: 30px;" onclick="calcolaCFGenitore(2)">Calcola</button>
                         </div>
-                        <div style="margin-top: 8px;">
-                            <div id="boxAnteprima_iscritto_2" style="display: none;">
-                                <a id="linkAnteprima_iscritto_2" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 2</a>
-                                <button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('iscritto', 2)">Rimuovi</button>
+                    </div>
+                </div>
+
+                <div id="gruppoGen2Doc" style="display: none; margin-top: 5px; margin-bottom: 0;">
+                    <div class="collapsible-header" style="background: #fff9db; border-color: #f59f00; color: #b7791f;" onclick="toggleCollapsible('corpoDocGen2', this)">
+                        <span>🪪 Documento d'Identità (Genitore 2)</span>
+                        <span>▼</span>
+                    </div>
+                    <div id="corpoDocGen2" class="collapsible-content" style="background: #fffdf5;">
+                        <div class="form-row" style="margin-bottom: 10px;">
+                            <div class="form-group col-medium">
+                                <label style="font-size: 11px;">Tipo Documento:</label>
+                                <select id="editGenitore2TipoDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                                    <option value="">-- Seleziona --</option>
+                                    <option value="Passaporto">Passaporto</option>
+                                    <option value="Patente">Patente</option>
+                                    <option value="Carta di identità">Carta di identità</option>
+                                </select>
                             </div>
-                            <input type="hidden" id="editUrl_iscritto_2">
+                            <div class="form-group col-medium">
+                                <label style="font-size: 11px;">N. Documento:</label>
+                                <input type="text" id="editGenitore2NumDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                            </div>
+                            <div class="form-group col-medium">
+                                <label style="font-size: 11px;">Scadenza:</label>
+                                <input type="date" id="editGenitore2ScadenzaDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 10px; border-top: 1px dashed #f59f00; padding-top: 10px;">
+                            <label style="font-size: 12px; font-weight: bold; color: #b7791f;">Immagine 1 (Fronte):</label>
+                            <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
+                                <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('gen2', 1)">📷 Webcam</button>
+                                <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
+                                    📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen2', 1, this)">
+                                </label>
+                            </div>
+                            <div style="margin-top: 8px;">
+                                <div id="boxAnteprima_gen2_1" style="display: none;">
+                                    <a id="linkAnteprima_gen2_1" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 1</a>
+                                    <button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('gen2', 1)">Rimuovi</button>
+                                </div>
+                                <input type="hidden" id="editUrl_gen2_1">
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 10px; border-top: 1px dashed #f59f00; padding-top: 10px;">
+                            <label style="font-size: 12px; font-weight: bold; color: #b7791f;">Immagine 2 (Retro):</label>
+                            <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
+                                <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('gen2', 2)">📷 Webcam</button>
+                                <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
+                                    📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen2', 2, this)">
+                                </label>
+                            </div>
+                            <div style="margin-top: 8px;">
+                                <div id="boxAnteprima_gen2_2" style="display: none;">
+                                    <a id="linkAnteprima_gen2_2" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 2</a>
+                                    <button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('gen2', 2)">Rimuovi</button>
+                                </div>
+                                <input type="hidden" id="editUrl_gen2_2">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- DATI GENITORI (DIVISI IN DUE PANNELLI) -->
-			<div id="sezioneDatiGenitori" style="display: none; margin-top: 10px; margin-bottom: 10px;">
-				<h4 style="margin-top: 0; margin-bottom: 10px; color: #856404; font-size: 14px; border-bottom: 2px solid #ffeeba; padding-bottom: 4px;">Dati Genitori / Tutori (Obbligatori per minorenni < 18 anni)</h4>
-				
-				<!-- PANNELLO GENITORE 1 -->
-				<div style="background: #fff3cd; padding: 10px; border-radius: 6px; border: 1px solid #ffeeba; margin-bottom: 10px;">
-					<p style="font-size: 13px; font-weight: bold; color: #856404; margin: 0 0 5px 0;">Genitore 1</p>
-					<div class="form-row">
-						<div class="form-group col-medium"><label style="font-size: 11px;">Cognome:</label><input type="text" id="editGenitore1Cognome" class="campo-controllo-genitore"></div>
-						<div class="form-group col-medium"><label style="font-size: 11px;">Nome:</label><input type="text" id="editGenitore1Nome" class="campo-controllo-genitore"></div>
-						<div class="form-group col-medium"><label style="font-size: 11px;">Luogo Nascita:</label><input type="text" id="editGenitore1LuogoNascita" class="campo-controllo-genitore"></div>
-						<div class="form-group col-medium"><label style="font-size: 11px;">Data Nascita:</label><input type="date" id="editGenitore1DataNascita" class="campo-controllo-genitore"></div>
-					</div>
-					<div class="form-row" id="gruppoGen1CF" style="margin-bottom: 5px;">
-						<div class="form-group col-large">
-							<label style="font-size: 11px;">Codice Fiscale:</label>
-							<div style="display: flex; gap: 6px;">
-								<input type="text" id="editGenitore1CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="text-transform: uppercase; margin: 0;">
-								<button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 11px; font-weight: bold; height: 34px;" onclick="calcolaCFGenitore(1)">Calcola CF</button>
-							</div>
-						</div>
-					</div>
-
-					<!-- DOCUMENTO GENITORE 1 -->
-					<div id="gruppoGen1Doc" style="display: none; margin-top: 5px;">
-						<div class="collapsible-header" style="background: #fff9db; border-color: #f59f00; color: #b7791f;" onclick="toggleCollapsible('corpoDocGen1', this)">
-							<span>🪪 Documento d'Identità (Genitore 1)</span>
-							<span>▼</span>
-						</div>
-						<div id="corpoDocGen1" class="collapsible-content" style="background: #fffdf5;">
-							<div class="form-row" style="margin-bottom: 5px;">
-								<div class="form-group col-medium">
-									<label style="font-size: 11px;">Tipo Documento:</label>
-									<select id="editGenitore1TipoDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
-										<option value="">-- Seleziona --</option>
-										<option value="Passaporto">Passaporto</option>
-										<option value="Patente">Patente</option>
-										<option value="Carta di identità">Carta di identità</option>
-									</select>
-								</div>
-								<div class="form-group col-medium">
-									<label style="font-size: 11px;">N. Documento:</label>
-									<input type="text" id="editGenitore1NumDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
-								</div>
-								<div class="form-group col-medium">
-									<label style="font-size: 11px;">Scadenza:</label>
-									<input type="date" id="editGenitore1ScadenzaDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
-								</div>
-							</div>
-
-							<!-- Immagini Gen 1 -->
-							<div style="margin-top: 8px; border-top: 1px dashed #f59f00; padding-top: 8px;">
-								<label style="font-size: 11px; font-weight: bold; color: #b7791f;">Immagine 1 (Fronte):</label>
-								<div style="display: flex; gap: 6px; align-items: center; margin-top: 3px; flex-wrap: wrap;">
-									<button type="button" class="btn-azione" style="background-color: #007bff; padding: 4px 8px; font-size: 11px;" onclick="avviaWebcam('gen1', 1)">📷 Webcam</button>
-									<label class="btn-azione" style="background-color: #17a2b8; padding: 4px 8px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
-										📂 Carica <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen1', 1, this)">
-									</label>
-								</div>
-								<div style="margin-top: 5px;">
-									<div id="boxAnteprima_gen1_1" style="display: none;">
-										<a id="linkAnteprima_gen1_1" href="#" target="_blank" style="font-size: 11px; color: #007bff; text-decoration: underline; display: block;">Visualizza Immagine 1</a>
-										<button type="button" class="btn-azione btn-elimina-storico" style="padding: 2px 6px; font-size: 10px;" onclick="rimuoviFileDocumento('gen1', 1)">Rimuovi</button>
-									</div>
-									<input type="hidden" id="editUrl_gen1_1">
-								</div>
-							</div>
-
-							<div style="margin-top: 8px; border-top: 1px dashed #f59f00; padding-top: 8px;">
-								<label style="font-size: 11px; font-weight: bold; color: #b7791f;">Immagine 2 (Retro):</label>
-								<div style="display: flex; gap: 6px; align-items: center; margin-top: 3px; flex-wrap: wrap;">
-									<button type="button" class="btn-azione" style="background-color: #007bff; padding: 4px 8px; font-size: 11px;" onclick="avviaWebcam('gen1', 2)">📷 Webcam</button>
-									<label class="btn-azione" style="background-color: #17a2b8; padding: 4px 8px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
-										📂 Carica <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen1', 2, this)">
-									</label>
-								</div>
-								<div style="margin-top: 5px;">
-									<div id="boxAnteprima_gen1_2" style="display: none;">
-										<a id="linkAnteprima_gen1_2" href="#" target="_blank" style="font-size: 11px; color: #007bff; text-decoration: underline; display: block;">Visualizza Immagine 2</a>
-										<button type="button" class="btn-azione btn-elimina-storico" style="padding: 2px 6px; font-size: 10px;" onclick="rimuoviFileDocumento('gen1', 2)">Rimuovi</button>
-									</div>
-									<input type="hidden" id="editUrl_gen1_2">
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<!-- PANNELLO GENITORE 2 -->
-				<div style="background: #fff3cd; padding: 10px; border-radius: 6px; border: 1px solid #ffeeba;">
-					<p style="font-size: 13px; font-weight: bold; color: #856404; margin: 0 0 5px 0;">Genitore 2</p>
-					<div class="form-row">
-						<div class="form-group col-medium"><label style="font-size: 11px;">Cognome:</label><input type="text" id="editGenitore2Cognome" class="campo-controllo-genitore"></div>
-						<div class="form-group col-medium"><label style="font-size: 11px;">Nome:</label><input type="text" id="editGenitore2Nome" class="campo-controllo-genitore"></div>
-						<div class="form-group col-medium"><label style="font-size: 11px;">Luogo Nascita:</label><input type="text" id="editGenitore2LuogoNascita" class="campo-controllo-genitore"></div>
-						<div class="form-group col-medium"><label style="font-size: 11px;">Data Nascita:</label><input type="date" id="editGenitore2DataNascita" class="campo-controllo-genitore"></div>
-					</div>
-					<div class="form-row" id="gruppoGen2CF" style="margin-bottom: 5px;">
-						<div class="form-group col-large">
-							<label style="font-size: 11px;">Codice Fiscale:</label>
-							<div style="display: flex; gap: 6px;">
-								<input type="text" id="editGenitore2CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="text-transform: uppercase; margin: 0;">
-								<button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 11px; font-weight: bold; height: 34px;" onclick="calcolaCFGenitore(2)">Calcola CF</button>
-							</div>
-						</div>
-					</div>
-
-					<!-- DOCUMENTO GENITORE 2 -->
-					<div id="gruppoGen2Doc" style="display: none; margin-top: 5px;">
-						<div class="collapsible-header" style="background: #fff9db; border-color: #f59f00; color: #b7791f;" onclick="toggleCollapsible('corpoDocGen2', this)">
-							<span>🪪 Documento d'Identità (Genitore 2)</span>
-							<span>▼</span>
-						</div>
-						<div id="corpoDocGen2" class="collapsible-content" style="background: #fffdf5;">
-							<div class="form-row" style="margin-bottom: 5px;">
-								<div class="form-group col-medium">
-									<label style="font-size: 11px;">Tipo Documento:</label>
-									<select id="editGenitore2TipoDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
-										<option value="">-- Seleziona --</option>
-										<option value="Passaporto">Passaporto</option>
-										<option value="Patente">Patente</option>
-										<option value="Carta di identità">Carta di identità</option>
-									</select>
-								</div>
-								<div class="form-group col-medium">
-									<label style="font-size: 11px;">N. Documento:</label>
-									<input type="text" id="editGenitore2NumDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
-								</div>
-								<div class="form-group col-medium">
-									<label style="font-size: 11px;">Scadenza:</label>
-									<input type="date" id="editGenitore2ScadenzaDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
-								</div>
-							</div>
-
-							<!-- Immagini Gen 2 -->
-							<div style="margin-top: 8px; border-top: 1px dashed #f59f00; padding-top: 8px;">
-								<label style="font-size: 11px; font-weight: bold; color: #b7791f;">Immagine 1 (Fronte):</label>
-								<div style="display: flex; gap: 6px; align-items: center; margin-top: 3px; flex-wrap: wrap;">
-									<button type="button" class="btn-azione" style="background-color: #007bff; padding: 4px 8px; font-size: 11px;" onclick="avviaWebcam('gen2', 1)">📷 Webcam</button>
-									<label class="btn-azione" style="background-color: #17a2b8; padding: 4px 8px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
-										📂 Carica <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen2', 1, this)">
-									</label>
-								</div>
-								<div style="margin-top: 5px;">
-									<div id="boxAnteprima_gen2_1" style="display: none;">
-										<a id="linkAnteprima_gen2_1" href="#" target="_blank" style="font-size: 11px; color: #007bff; text-decoration: underline; display: block;">Visualizza Immagine 1</a>
-										<button type="button" class="btn-azione btn-elimina-storico" style="padding: 2px 6px; font-size: 10px;" onclick="rimuoviFileDocumento('gen2', 1)">Rimuovi</button>
-									</div>
-									<input type="hidden" id="editUrl_gen2_1">
-								</div>
-							</div>
-
-							<div style="margin-top: 8px; border-top: 1px dashed #f59f00; padding-top: 8px;">
-								<label style="font-size: 11px; font-weight: bold; color: #b7791f;">Immagine 2 (Retro):</label>
-								<div style="display: flex; gap: 6px; align-items: center; margin-top: 3px; flex-wrap: wrap;">
-									<button type="button" class="btn-azione" style="background-color: #007bff; padding: 4px 8px; font-size: 11px;" onclick="avviaWebcam('gen2', 2)">📷 Webcam</button>
-									<label class="btn-azione" style="background-color: #17a2b8; padding: 4px 8px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
-										📂 Carica <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen2', 2, this)">
-									</label>
-								</div>
-								<div style="margin-top: 5px;">
-									<div id="boxAnteprima_gen2_2" style="display: none;">
-										<a id="linkAnteprima_gen2_2" href="#" target="_blank" style="font-size: 11px; color: #007bff; text-decoration: underline; display: block;">Visualizza Immagine 2</a>
-										<button type="button" class="btn-azione btn-elimina-storico" style="padding: 2px 6px; font-size: 10px;" onclick="rimuoviFileDocumento('gen2', 2)">Rimuovi</button>
-									</div>
-									<input type="hidden" id="editUrl_gen2_2">
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
 
             <!-- Box Webcam Condiviso -->
             <div id="boxContainerWebcamGenerale" style="display: none; margin-top: 15px; background: #fff; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
                 <p style="margin: 0 0 5px 0; font-size: 12px; font-weight: bold;" id="titoloWebcamAttiva">Acquisizione Webcam</p>
                 <video id="webcamVideo" autoplay playsinline style="width: 100%; max-width: 320px; display: block; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 5px;"></video>
                 <canvas id="webcamCanvas" style="display: none;"></canvas>
+                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                    <button type="button" class="btn-azione" style="background-color: #6c757d; padding: 6px 12px; font-size: 12px;" onclick="invertiCamera()">🔄 Cambia Fotocamera</button>
+                </div>
                 <div style="display: flex; gap: 8px;">
                     <button type="button" class="btn-azione" style="background-color: #28a745; padding: 6px 12px; font-size: 12px;" onclick="scattaFotoWebcam()">📸 Scatta e Salva</button>
                     <button type="button" class="btn-azione" style="background-color: #dc3545; padding: 6px 12px; font-size: 12px;" onclick="fermaWebcam()">❌ Annulla</button>
                 </div>
             </div>
 
-            <div class="form-row-opzioni">
-                <div class="checkboxes-container">
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="editTigre">
-                        <label for="editTigre">Tigre</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="editCapitanoPiazza">
-                        <label for="editCapitanoPiazza">Capitano di Piazza</label>
-                    </div>
-                </div>
-                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-                    <div class="totale-iscrizioni-inline">
-                        <span>Tot. Complete:</span>
-                        <span id="conteggioIscrizioniScheda" class="badge-conteggio">0</span>
-                    </div>
-                    <div class="totale-iscrizioni-inline">
-                        <span>Consecutive:</span>
-                        <span id="conteggioConsecutiveScheda" class="badge-conteggio" style="background-color: #17a2b8;">0</span>
-                    </div>
-                </div>
-            </div>
-
+			<div class="form-row-opzioni">
+				<div class="checkboxes-container">
+					<div style="display: flex; align-items: center; gap: 8px; background: #e7f5ff; padding: 6px 12px; border-radius: 6px; border: 1px solid #74c0fc;">
+						<label style="font-size: 13px; font-weight: bold; color: #1864ab; margin: 0;">🏆 Onorificenza:</label>
+						<span id="badgeStatoOnorificenza" style="background: #1971c2; color: white; padding: 2px 10px; border-radius: 12px; font-weight: bold; font-size: 13px;"> -</span>
+					</div>
+					<div class="checkbox-group">
+						<input type="checkbox" id="editTigre">
+						<label for="editTigre">Tigre</label>
+					</div>
+					<div class="checkbox-group">
+						<input type="checkbox" id="editCapitanoPiazza">
+						<label for="editCapitanoPiazza">Capitano di Piazza</label>
+					</div>
+					<div class="checkbox-group" id="gruppoFlagNonIscrivibile" style="display: none;">
+						<input type="checkbox" id="editNonIscrivibile">
+						<label for="editNonIscrivibile" style="color: #dc3545;">Non iscrivibile</label>
+					</div>
+				</div>
+				<div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+					<div class="totale-iscrizioni-inline">
+						<span>Tot. Complete:</span>
+						<span id="conteggioIscrizioniScheda" class="badge-conteggio">0</span>
+					</div>
+					<div class="totale-iscrizioni-inline">
+						<span>Consecutive:</span>
+						<span id="conteggioConsecutiveScheda" class="badge-conteggio" style="background-color: #17a2b8;">0</span>
+					</div>
+				</div>
+			</div>
+			
             <div class="box-bottoni-modale">
                 <button type="button" id="btnAggiungiIscrizione" class="btn-aggiungi-iscrizione" style="display: none;">Aggiungi Iscrizione</button>
                 <button type="button" id="btnSalva" class="btn-salva">Salva Anagrafica</button>
@@ -819,12 +947,47 @@
         </div>
     </div>
 
+    <!-- Modale Consultazione Log -->
+    <div id="logModal" class="modal">
+        <div class="modal-content" style="width: 900px;">
+            <div class="header-modale-actions">
+                <button type="button" class="btn-chiudi-x" onclick="chiudiModaleLog()" aria-label="Chiudi">&times;</button>
+            </div>
+            <h3>Registro Log Attività</h3>
+            <p style="color: #666; font-size: 13px;">Elenco cronologico degli accessi, aperture e modifiche anagrafiche.</p>
+            
+            <div style="margin: 15px 0;">
+                <button type="button" class="btn-azione" style="background-color: #17a2b8; padding: 8px 14px; font-size: 13px;" onclick="esportaLogCSV()">📥 Esporta Log CSV</button>
+            </div>
+
+            <div class="table-responsive" style="max-height: 400px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Ora</th>
+                            <th>Utente (Mail)</th>
+                            <th>Azione</th>
+                            <th>Formato Standard</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpoTabellaLog"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { initializeApp, getApps, initializeApp as initializeSecondaryApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc, query, where, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getStorage, ref, uploadString, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+        import { getStorage, ref as storageRef, uploadString, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+		import { getDatabase, ref as dbRef, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+		let dizionarioComuniCatastali = {};
+		let dizionarioNomiComuni = {};
+		let dizionarioCaricato = false;
+		
         const k1 = "AIzaSyCjfPICynrV";
         const k2 = "SeeVr4ifXoBoWi74nVGEt5Q";
 
@@ -853,17 +1016,258 @@
         let annoCarnevaleCorrente = localStorage.getItem('anno_carnevale_corrente') || "2027";
         let streamWebcam = null;
         
-        // Parametri attivi webcam in corso
-        let targetWebcamSoggetto = null; // 'iscritto', 'gen1', 'gen2'
-        let targetWebcamSlot = 1;       // 1 o 2
+        let targetWebcamSoggetto = null; 
+        let targetWebcamSlot = 1;        
         
         let configCodiceFiscale = localStorage.getItem('config_cf') !== 'false';
-        let configDocumento = localStorage.getItem('config_doc') === 'true';
+        let configDocumento = localStorage.getItem('config_doc') !== 'false';
+		
+		let usaCameraPosteriore = true;
 
         document.getElementById('inputAnnoCarnevale').value = annoCarnevaleCorrente;
         document.getElementById('configFlagCodiceFiscale').checked = configCodiceFiscale;
         document.getElementById('configFlagDocumento').checked = configDocumento;
 
+        const ticketDispenserConfig = {
+            databaseURL: "https://ticketdispensertuchini-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "ticketdispensertuchini"
+        };
+        
+        let secondaryApp = getApps().find(app => app.name === "ticketDispenserInstance");
+        if (!secondaryApp) {
+            secondaryApp = initializeSecondaryApp(ticketDispenserConfig, "ticketDispenserInstance");
+        }
+        const dbTicket = getDatabase(secondaryApp);
+
+        window.esportaSuTicketDispenser = async function() {
+            const tbody = document.getElementById('corpoTabellaPrelazioni');
+            const righe = Array.from(tbody.getElementsByTagName('tr'));
+            
+            if (righe.length === 0 || (righe.length === 1 && righe[0].querySelector('td').getAttribute('colspan'))) {
+                alert("Nessun dato da esportare. Seleziona prima almeno un filtro (es. Corvi d'oro) per visualizzare l'elenco.");
+                return;
+            }
+
+            if (!confirm("Vuoi davvero esportare e aggiornare l'elenco visibile sul sistema Ticket Dispenser?")) {
+                return;
+            }
+
+            mostraCaricamento("Esportazione su Ticket Dispenser in corso...");
+
+            try {
+                let mappaAbilitati = {};
+                
+                righe.forEach(riga => {
+                    if (riga.style.display !== "none") {
+                        let celle = riga.getElementsByTagName('td');
+                        if (celle.length >= 5) {
+                            let cognome = celle[0].textContent.trim();
+                            let nome = celle[1].textContent.trim();
+                            let dettaglio = celle[4].textContent.trim();
+
+                            let chiavePulita = `${cognome} ${nome}`.toLowerCase().trim().replace(/\s+/g, ' ');
+                            let chiaveB64 = btoa(unescape(encodeURIComponent(chiavePulita)));
+
+                            mappaAbilitati[chiaveB64] = {
+                                cognome: cognome,
+                                nome: nome,
+                                dettaglio: dettaglio,
+                                aggiornato_il: new Date().toISOString()
+                            };
+                        }
+                    }
+                });
+
+                await set(dbRef(dbTicket, 'prelazioni_corvidoro'), mappaAbilitati);
+
+                nascondiCaricamento();
+                alert("✅ Esportazione completata con successo! L'elenco è ora sincronizzato sul Ticket Dispenser.");
+            } catch (error) {
+                nascondiCaricamento();
+                console.error("Errore esportazione Ticket Dispenser:", error);
+                alert("Errore durante l'esportazione: " + error.message);
+            }
+        };
+	
+		window.esportaPrelazioniCSV = function() {
+            const tbody = document.getElementById('corpoTabellaPrelazioni');
+            const righe = Array.from(tbody.getElementsByTagName('tr'));
+            
+            if (righe.length === 0 || (righe.length === 1 && righe[0].querySelector('td').getAttribute('colspan'))) {
+                alert("Nessun dato da esportare.");
+                return;
+            }
+            
+            let intestazioni = ["Cognome", "Nome", "Città", "Telefono", "Dettaglio"];
+            let csvRows = [intestazioni.join(";")];
+            
+            righe.forEach(riga => {
+                if (riga.style.display !== "none") {
+                    let celle = riga.getElementsByTagName('td');
+                    if (celle.length >= 5) {
+                        let rigaDati = [];
+                        for (let cella of celle) {
+                            let testoCella = cella.textContent.trim();
+                            rigaDati.push('"' + testoCella.replace(/"/g, '""') + '"');
+                        }
+                        csvRows.push(rigaDati.join(";"));
+                    }
+                }
+            });
+            
+            const csvString = csvRows.join("\n");
+            const blob = new Blob(["\ufeff" + csvString], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            
+            link.setAttribute("href", url);
+            link.setAttribute("download", `estrazione_prelazioni_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
+        function attivaInserimentoNuovaIscrizioneEsistente() {
+            if (document.getElementById('editNonIscrivibile').checked) {
+                alert("⛔ Impossibile aggiungere iscrizioni: questo soggetto è contrassegnato come 'Non iscrivibile'.");
+                return;
+            }
+
+            const div = document.getElementById('storicoCaricamento');
+            div.style.display = 'none';
+            
+            const tbody = document.getElementById('corpoTabellaStorico');
+            document.getElementById('tabellaStorico').style.display = 'table';
+            
+            let annoHtml = '';
+            const annoMax = parseInt(annoCarnevaleCorrente, 10) || 2027;
+
+            if (modalitaCorrente === 'admin') {
+                annoHtml = `<select class="input-storico select-anno-mod">`;
+                for (let a = annoMax; a >= 1964; a--) {
+                    annoHtml += `<option value="${a}" ${a === annoMax ? 'selected' : ''}>${a}</option>`;
+                }
+                annoHtml += `</select>`;
+            } else {
+                annoHtml = `<input type="text" class="input-storico" value="${annoCarnevaleCorrente}" readonly style="background-color: #e9ecef;">`;
+            }
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${annoHtml}</td>
+                <td>
+                    <select class="input-storico select-tipo" onchange="gestisciVisibilitaNumeroIscrizione(this)">
+                        <option value="Iscrizione Completa">Iscrizione Completa</option>
+                        <option value="Socio Sostenitore">Socio Sostenitore</option>
+                    </select>
+                </td>
+                <td><input type="text" class="input-storico input-num" id="inputNuovoNumId" placeholder="Numero..."></td>
+                <td><button type="button" class="btn-azione btn-salva-storico" onclick="salvaNuovaIscrizioneDiretta(this)">Salva</button></td>
+            `;
+            tbody.insertBefore(tr, tbody.firstChild);
+            document.getElementById('btnAggiungiIscrizione').style.display = 'none';
+        }
+        window.attivaInserimentoNuovaIscrizioneEsistente = attivaInserimentoNuovaIscrizioneEsistente;
+		
+        async function registraLog(azione, dettaglioAnagrafica = "") {
+            try {
+                const adesso = new Date();
+                const dataStr = adesso.toLocaleDateString('it-IT');
+                const oraStr = adesso.toLocaleTimeString('it-IT');
+                const emailUtente = auth.currentUser ? auth.currentUser.email : "Anonimo";
+                const aliasUtente = aliasUtenteLoggato || emailUtente;
+
+                const azioneCompleta = azione + (dettaglioAnagrafica ? ' - ' + dettaglioAnagrafica : '');
+                const rigaFormattata = `${dataStr};${oraStr};${azioneCompleta};${emailUtente}, ${aliasUtente}`;
+
+                await addDoc(collection(db, "log_attivita"), {
+                    data: dataStr,
+                    ora: oraStr,
+                    email: emailUtente,
+                    alias: aliasUtente,
+                    azione: azioneCompleta,
+                    formattato: rigaFormattata,
+                    timestamp: adesso.getTime()
+                });
+            } catch (e) {
+                console.error("Errore scrittura log:", e);
+            }
+        }
+		
+        window.apriModaleLog = async function() {
+            document.getElementById('logModal').style.display = 'flex';
+            await caricaDatiLog();
+        };
+
+        window.chiudiModaleLog = function() {
+            document.getElementById('logModal').style.display = 'none';
+        };
+
+        async function caricaDatiLog() {
+            const tbody = document.getElementById('corpoTabellaLog');
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Caricamento log...</td></tr>';
+            try {
+                const snap = await getDocs(collection(db, "log_attivita"));
+                tbody.innerHTML = '';
+                if (snap.empty) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; font-style:italic;">Nessun log registrato.</td></tr>';
+                    return;
+                }
+
+                let logList = [];
+                snap.forEach(docSnap => {
+                    logList.push(docSnap.data());
+                });
+
+                logList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                logList.forEach(l => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${l.data}</td>
+                            <td>${l.ora}</td>
+                            <td>${l.email}</td>
+                            <td><strong>${l.azione}</strong></td>
+                            <td><code>${l.formattato}</code></td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Errore caricamento log: ${error.message}</td></tr>`;
+            }
+        }
+
+        window.esportaLogCSV = async function() {
+            try {
+                const snap = await getDocs(collection(db, "log_attivita"));
+                if (snap.empty) {
+                    alert("Nessun log da esportare.");
+                    return;
+                }
+
+                let logList = [];
+                snap.forEach(docSnap => logList.push(docSnap.data()));
+                logList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                let csvRows = ["data;ora;azione;utente, alias"];
+                logList.forEach(l => {
+                    csvRows.push('"' + l.formattato.replace(/;/g, ',').replace(/"/g, '""') + '"');
+                });
+
+                const csvString = csvRows.join("\n");
+                const blob = new Blob(["\ufeff" + csvString], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.setAttribute("href", url);
+                link.setAttribute("download", `registro_log_${new Date().toISOString().split('T')[0]}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (e) {
+                alert("Errore esportazione log: " + e.message);
+            }
+        };
+		
         function applicaConfigurazioneUI() {
             document.getElementById('gruppoCampoCodiceFiscale').style.display = configCodiceFiscale ? 'flex' : 'none';
             document.getElementById('gruppoSezioneDocumento').style.display = configDocumento ? 'block' : 'none';
@@ -896,18 +1300,73 @@
         };
 
         window.avviaWebcam = async function(soggetto, slot) {
-            targetWebcamSoggetto = soggetto;
-            targetWebcamSlot = slot;
-            try {
-                streamWebcam = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } } });
-                const video = document.getElementById('webcamVideo');
-                video.srcObject = streamWebcam;
-                document.getElementById('titoloWebcamAttiva').textContent = `Acquisizione Webcam (${soggetto.toUpperCase()} - Immagine ${slot})`;
-                document.getElementById('boxContainerWebcamGenerale').style.display = 'block';
-            } catch (err) {
-                alert("Impossibile accedere alla webcam: " + err.message);
-            }
-        };
+			targetWebcamSoggetto = soggetto;
+			targetWebcamSlot = slot;
+			
+			if (streamWebcam) {
+				streamWebcam.getTracks().forEach(track => track.stop());
+			}
+
+			try {
+				const constraints = {
+					video: {
+						width: { ideal: 1280 },
+						height: { ideal: 720 },
+						facingMode: usaCameraPosteriore ? { exact: "environment" } : "user"
+					}
+				};
+
+				streamWebcam = await navigator.mediaDevices.getUserMedia(constraints);
+				const video = document.getElementById('webcamVideo');
+				video.srcObject = streamWebcam;
+				document.getElementById('titoloWebcamAttiva').textContent = `Acquisizione Webcam (${soggetto.toUpperCase()} - Immagine ${slot})`;
+				document.getElementById('boxContainerWebcamGenerale').style.display = 'block';
+			} catch (err) {
+				try {
+					const fallbackConstraints = {
+						video: {
+							width: { ideal: 1280 },
+							height: { ideal: 720 },
+							facingMode: usaCameraPosteriore ? "environment" : "user"
+						}
+					};
+					streamWebcam = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
+					document.getElementById('webcamVideo').srcObject = streamWebcam;
+					document.getElementById('boxContainerWebcamGenerale').style.display = 'block';
+				} catch (fallbackErr) {
+					alert("Impossibile accedere alla fotocamera: " + fallbackErr.message);
+				}
+			}
+		};
+
+		window.invertiCamera = async function() {
+			usaCameraPosteriore = !usaCameraPosteriore;
+			await avviaWebcam(targetWebcamSoggetto, targetWebcamSlot);
+		};
+
+        function riduciImmagineBase64(dataUrl, maxWidth = 1024, quality = 1) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.src = dataUrl;
+                img.onload = () => {
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+            });
+        }
 
         window.scattaFotoWebcam = async function() {
             const video = document.getElementById('webcamVideo');
@@ -917,7 +1376,8 @@
             const ctx = canvas.getContext('2d');
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             
-            const base64Image = canvas.toDataURL('image/jpeg', 0.7);
+            let base64Image = canvas.toDataURL('image/jpeg', 0.9);
+            base64Image = await riduciImmagineBase64(base64Image, 1024, 0.6);
             fermaWebcam();
 
             let idPersona = document.getElementById('editIdPersona').value;
@@ -928,9 +1388,9 @@
             
             try {
                 mostraCaricamento(`Caricamento foto su Storage...`);
-                const storageRef = ref(storage, `documenti_iscritti/${idPersona}_${targetWebcamSoggetto}_img${targetWebcamSlot}.jpg`);
-                await uploadString(storageRef, base64Image, 'data_url');
-                const downloadUrl = await getDownloadURL(storageRef);
+                const sRef = storageRef(storage, `documenti_iscritti/${idPersona}_${targetWebcamSoggetto}_img${targetWebcamSlot}.jpg`);
+                await uploadString(sRef, base64Image, 'data_url');
+                const downloadUrl = await getDownloadURL(sRef);
                 
                 document.getElementById(`editUrl_${targetWebcamSoggetto}_${targetWebcamSlot}`).value = downloadUrl;
                 const link = document.getElementById(`linkAnteprima_${targetWebcamSoggetto}_${targetWebcamSlot}`);
@@ -956,19 +1416,40 @@
                 document.getElementById('editIdPersona').value = idPersona;
             }
 
-            const estensione = file.name.split('.').pop();
+            const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith('.pdf');
+
             try {
                 mostraCaricamento(`Caricamento file su Storage...`);
-                const storageRef = ref(storage, `documenti_iscritti/${idPersona}_${soggetto}_img${slot}.${estensione}`);
                 
-                await uploadBytes(storageRef, file);
-                const downloadUrl = await getDownloadURL(storageRef);
+                let uploadTaskRef;
+                if (isPdf) {
+                    const sRef = storageRef(storage, `documenti_iscritti/${idPersona}_${soggetto}_img${slot}.pdf`);
+                    await uploadBytes(sRef, file);
+                    uploadTaskRef = sRef;
+                } else {
+                    const reader = new FileReader();
+                    const base64Originale = await new Promise((resolve) => {
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.readAsDataURL(file);
+                    });
+
+                    let base64Compresso = await riduciImmagineBase64(base64Originale, 1024, 0.6);
+                    const sRef = storageRef(storage, `documenti_iscritti/${idPersona}_${soggetto}_img${slot}.jpg`);
+                    await uploadString(sRef, base64Compresso, 'data_url');
+                    uploadTaskRef = sRef;
+                }
+
+                const downloadUrl = await getDownloadURL(uploadTaskRef);
 
                 document.getElementById(`editUrl_${soggetto}_${slot}`).value = downloadUrl;
-                const link = document.getElementById(`linkAnteprima_${soggetto}_${slot}`);
-                link.href = downloadUrl;
-                link.textContent = `Visualizza Immagine ${slot} (${file.name})`;
-                document.getElementById(`boxAnteprima_${soggetto}_${slot}`).style.display = 'block';
+				const link = document.getElementById(`linkAnteprima_${soggetto}_${slot}`);
+
+				// Forziamo l'apertura pulita dell'URL dell'immagine
+				link.href = downloadUrl;
+				link.setAttribute('target', '_blank');
+				link.setAttribute('rel', 'noopener noreferrer');
+				link.textContent = `Visualizza Immagine ${slot}`;
+				document.getElementById(`boxAnteprima_${soggetto}_${slot}`).style.display = 'block';
 
                 alert("File caricato con successo!");
             } catch (error) {
@@ -980,12 +1461,18 @@
         };
 
         window.fermaWebcam = function() {
-            if (streamWebcam) {
-                streamWebcam.getTracks().forEach(track => track.stop());
-                streamWebcam = null;
-            }
-            document.getElementById('boxContainerWebcamGenerale').style.display = 'none';
-        };
+			// Se c'è un controllo QR attivo in background, lo stoppo
+			if (typeof intervalloVerificaQR !== 'undefined' && intervalloVerificaQR) {
+				clearInterval(intervalloVerificaQR);
+				intervalloVerificaQR = null;
+			}
+
+			if (streamWebcam) {
+				streamWebcam.getTracks().forEach(track => track.stop());
+				streamWebcam = null;
+			}
+			document.getElementById('boxContainerWebcamGenerale').style.display = 'none';
+		};
 
         window.rimuoviFileDocumento = async function(soggetto, slot) {
             if (!confirm("Vuoi rimuovere questo documento?")) return;
@@ -993,15 +1480,31 @@
             
             try {
                 mostraCaricamento("Eliminazione file...");
-                if (idPersona) {
-                    for (let ext of ['jpg', 'pdf', 'png', 'jpeg']) {
-                        await deleteObject(ref(storage, `documenti_iscritti/${idPersona}_${soggetto}_img${slot}.${ext}`)).catch(() => {});
+                
+                if (idPersona && !idPersona.startsWith('temp_')) {
+                    const estensioni = ['jpg', 'jpeg', 'png', 'pdf'];
+                    for (let ext of estensioni) {
+                        try {
+                            const fileRef = storageRef(storage, `documenti_iscritti/${idPersona}_${soggetto}_img${slot}.${ext}`);
+                            await deleteObject(fileRef);
+                        } catch (err) {
+                            // Ignora l'errore se il singolo file specifico non esiste
+                        }
                     }
                 }
+
+                // Pulizia dei campi grafici e del valore nascosto
                 document.getElementById(`editUrl_${soggetto}_${slot}`).value = "";
                 document.getElementById(`boxAnteprima_${soggetto}_${slot}`).style.display = 'none';
-                alert("Documento rimosso con successo!");
+                
+                // Pulisci anche l'input file locale associato se presente per permettere di ri-caricare lo stesso file
+                const containerSlot = document.getElementById(`boxAnteprima_${soggetto}_${slot}`).parentElement;
+                const inputFile = containerSlot.querySelector('input[type="file"]');
+                if (inputFile) inputFile.value = "";
+
+                //alert("Documento rimosso con successo!");
             } catch (error) {
+                console.error("Errore rimozione:", error);
                 alert("Errore durante la rimozione: " + error.message);
             } finally {
                 nascondiCaricamento();
@@ -1082,7 +1585,7 @@
             { id: 'tipo_iscrizione', titolo: 'Tipo Iscrizione', default: true, richiedeAnnoSpecifico: true },
             { id: 'numero_identificativo', titolo: 'Numero Identificativo', default: false, richiedeAnnoSpecifico: true },
             { id: 'inserito_da', titolo: 'Inserito da', default: false, richiedeAnnoSpecifico: true },
-            { id: 'inserito_il', titolo: 'Inserito il', default: false, isDate: true, richiedeAnnoSpecifico: true, formatter: val => formattaDataOraCompleta(val) }
+            { id: 'inserito_il', titolo: 'Inserito il', default: false, isDate: false, richiedeAnnoSpecifico: true, formatter: val => pulisciTesto(val) }
         ];
 
         let colonneSelezionate = JSON.parse(localStorage.getItem('colonne_visibili_ricerca')) || DEFINIZIONE_COLONNE.filter(c => c.default).map(c => c.id);
@@ -1229,6 +1732,8 @@
                 document.getElementById('loginOverlay').style.display = 'none';
                 document.getElementById('userEmailDisplayHeader').textContent = aliasUtenteLoggato;
 
+                await registraLog("Login");
+
                 const boxModalita = document.getElementById('boxModalita');
                 if (ruoloUtenteLoggato === 'admin') {
                     boxModalita.style.display = 'flex';
@@ -1279,22 +1784,38 @@
             alert("Configurazione salvata con successo!");
         };
 
-        const dizionarioComuniCatastali = {
-            "L219": "Torino", "H501": "Roma", "F205": "Milano", "F839": "Napoli",
-            "E379": "Ivrea", "C652": "Chivasso", "C722": "Ciriè", "L872": "Vigliano",
-            "A859": "Biella", "L750": "Vercelli", "A479": "Asti", "A182": "Alessandria",
-            "D205": "Cuneo", "F952": "Novara", "L746": "Verbania", "D969": "Genova",
-            "A944": "Bologna", "D612": "Firenze", "L736": "Venezia"
-        };
-        const dizionarioNomiComuni = {
-            "TORINO": "L219", "ROMA": "H501", "MILANO": "F205", "NAPOLI": "F839",
-            "IVREA": "E379", "CHIVASSO": "C652", "CIRIE'": "C722", "CIRIE": "C722",
-            "VIGLIANO": "L872", "BIELLA": "A859", "VERCELLI": "L750", "ASTI": "A479",
-            "ALESSANDRIA": "A182", "CUNEO": "D205", "NOVARA": "F952", "VERBANIA": "L746",
-            "GENOVA": "D969", "BOLOGNA": "A944", "FIRENZE": "D612", "VENEZIA": "L736"
-        };
+		async function caricaDizionarioComuni() {
+			try {
+				const response = await fetch('./comuni_catastali.json');
+				if (response.ok) {
+					dizionarioComuniCatastali = await response.json();
+					
+					const datalist = document.getElementById('listaComuniNascita');
+					if (datalist) datalist.innerHTML = ''; // Pulisce eventuali elementi precedenti
 
-        function calcolaCodiceFiscaleGenerico(cognome, nome, luogo, dataNascita) {
+					for (let [codice, nome] of Object.entries(dizionarioComuniCatastali)) {
+						let nomeMaiuscolo = nome.toUpperCase();
+						dizionarioNomiComuni[nomeMaiuscolo] = codice;
+						
+						// Popola la datalist per l'autocompletamento
+						if (datalist) {
+							let option = document.createElement('option');
+							option.value = nome; // Verrà mostrato e inserito il nome del comune
+							datalist.appendChild(option);
+						}
+					}
+
+					dizionarioCaricato = true;
+					console.log("Dizionari comuni caricati e indicizzati con successo.");
+				}
+			} catch (e) {
+				console.error("Impossibile caricare il dizionario dei comuni:", e);
+			}
+		}
+
+		caricaDizionarioComuni();
+
+        function calcolaCodiceFiscaleGenerico(cognome, nome, luogo, dataNascita, sesso = 'M') {
             if (!cognome || !nome || !luogo || !dataNascita) return null;
             function estraiCv(str) {
                 const pulita = str.replace(/[^A-Z]/g, '');
@@ -1309,7 +1830,13 @@
             let anno = pData[0].substring(2, 4);
             let mCod = { '01': 'A', '02': 'B', '03': 'C', '04': 'D', '05': 'E', '06': 'H', '07': 'L', '08': 'M', '09': 'P', '10': 'R', '11': 'S', '12': 'T' };
             let mese = mCod[pData[1]] || 'A';
-            let giorno = String(parseInt(pData[2], 10)).padStart(2, '0');
+            
+            let giornoVal = parseInt(pData[2], 10);
+            if (String(sesso).toUpperCase() === 'F') {
+                giornoVal += 40;
+            }
+            let giorno = String(giornoVal).padStart(2, '0');
+            
             let codCat = dizionarioNomiComuni[luogo.toUpperCase()] || "H501";
 
             let cfParz = partCog + partNom + anno + mese + giorno + codCat;
@@ -1325,18 +1852,30 @@
             }
             return cfParz + rCar[somma % 26];
         }
+		
+		window.gestisciSelezioneSesso = function() {
+			const sessoSelezionato = document.querySelector('input[name="editSesso"]:checked');
+			const btnCalcola = document.getElementById('btnCalcolaCF');
+			if (sessoSelezionato && btnCalcola) {
+				btnCalcola.disabled = false;
+				btnCalcola.style.opacity = "1";
+				btnCalcola.style.cursor = "pointer";
+			}
+		};
 
         window.calcolaCFIsCRITTO = function() {
             const cognome = document.getElementById('editCognome').value.trim().toUpperCase();
             const nome = document.getElementById('editNome').value.trim().toUpperCase();
             const luogo = document.getElementById('editLuogoNascita').value.trim().toUpperCase();
             const dataNascita = document.getElementById('editDataNascita').value.trim();
+            const sessoEl = document.querySelector('input[name="editSesso"]:checked');
+            const sesso = sessoEl ? sessoEl.value : 'M';
 
             if (!cognome || !nome || !luogo || !dataNascita) {
                 alert("Compila Cognome, Nome, Luogo e Data di Nascita per calcolare il Codice Fiscale.");
                 return;
             }
-            let cf = calcolaCodiceFiscaleGenerico(cognome, nome, luogo, dataNascita);
+            let cf = calcolaCodiceFiscaleGenerico(cognome, nome, luogo, dataNascita, sesso);
             if (cf) {
                 document.getElementById('editCodiceFiscale').value = cf;
                 decodificaCfInCampi(cf);
@@ -1353,19 +1892,73 @@
                 alert(`Compila Cognome, Nome, Luogo e Data di Nascita del Genitore ${numGen} per calcolare il Codice Fiscale.`);
                 return;
             }
-            let cf = calcolaCodiceFiscaleGenerico(cognome, nome, luogo, dataNascita);
+            let cf = calcolaCodiceFiscaleGenerico(cognome, nome, luogo, dataNascita, 'M');
             if (cf) {
                 document.getElementById(`editGenitore${numGen}CodiceFiscale`).value = cf;
             }
         };
 
-        function decodificaCfInCampi(cf) {
+        async function decodificaCfInCampi(cf) {
+			cf = cf.trim().toUpperCase();
+			if (cf.length !== 16) return;
+
+			const annoCar = cf.substring(6, 8);
+			const meseCar = cf.substring(8, 9);
+			let giornoCar = parseInt(cf.substring(9, 11), 10);
+			
+			// Gestione automatica Genere da Codice Fiscale
+			if (giornoCar > 40) {
+				const radioF = document.querySelector('input[name="editSesso"][value="F"]');
+				if (radioF) radioF.checked = true;
+				giornoCar -= 40;
+			} else {
+				const radioM = document.querySelector('input[name="editSesso"][value="M"]');
+				if (radioM) radioM.checked = true;
+			}
+			
+			// Abilita il pulsante calcola poiché il sesso è stato valorizzato dal CF
+			window.gestisciSelezioneSesso();
+
+			let annoNum = parseInt(annoCar, 10);
+			const annoCorrente2CIF = new Date().getFullYear() % 100;
+			let secolo = annoNum <= annoCorrente2CIF ? 2000 : 1900;
+			let annoNascita = secolo + annoNum;
+
+			const mesiCodice = { 'A': '01', 'B': '02', 'C': '03', 'D': '04', 'E': '05', 'H': '06', 'L': '07', 'M': '08', 'P': '09', 'R': '10', 'S': '11', 'T': '12' };
+			let meseNum = mesiCodice[meseCar] || '01';
+			let giornoStr = String(giornoCar).padStart(2, '0');
+
+			const dataNascitaIso = `${annoNascita}-${meseNum}-${giornoStr}`;
+			document.getElementById('editDataNascita').value = dataNascitaIso;
+			calcolaEImpostaEta(dataNascitaIso);
+
+			const codCatastale = cf.substring(11, 15);
+
+			if (!dizionarioCaricato) {
+				let tentativi = 0;
+				while (!dizionarioCaricato && tentativi < 15) {
+					await new Promise(r => setTimeout(r, 200));
+					tentativi++;
+				}
+			}
+			
+			if (dizionarioComuniCatastali && dizionarioComuniCatastali[codCatastale]) {
+				document.getElementById('editLuogoNascita').value = dizionarioComuniCatastali[codCatastale];
+			} else {
+				document.getElementById('editLuogoNascita').value = ""; 
+			}
+
+			eseguiVerificaRuntime();
+		}
+		
+        async function decodificaCfGenitoreInCampi(cf, numGen) {
             cf = cf.trim().toUpperCase();
             if (cf.length !== 16) return;
 
             const annoCar = cf.substring(6, 8);
             const meseCar = cf.substring(8, 9);
             let giornoCar = parseInt(cf.substring(9, 11), 10);
+            if (giornoCar > 40) giornoCar -= 40;
             
             let annoNum = parseInt(annoCar, 10);
             const annoCorrente2CIF = new Date().getFullYear() % 100;
@@ -1375,115 +1968,72 @@
             const mesiCodice = { 'A': '01', 'B': '02', 'C': '03', 'D': '04', 'E': '05', 'H': '06', 'L': '07', 'M': '08', 'P': '09', 'R': '10', 'S': '11', 'T': '12' };
             let meseNum = mesiCodice[meseCar] || '01';
 
-            if (giornoCar > 40) giornoCar -= 40;
             let giornoStr = String(giornoCar).padStart(2, '0');
 
             const dataNascitaIso = `${annoNascita}-${meseNum}-${giornoStr}`;
-            document.getElementById('editDataNascita').value = dataNascitaIso;
-            calcolaEImpostaEta(dataNascitaIso);
+            document.getElementById(`editGenitore${numGen}DataNascita`).value = dataNascitaIso;
 
             const codCatastale = cf.substring(11, 15);
-            if (dizionarioComuniCatastali[codCatastale]) {
-                document.getElementById('editLuogoNascita').value = dizionarioComuniCatastali[codCatastale];
-            }
 
-            eseguiVerificaRuntime();
+            if (!dizionarioCaricato) {
+                let tentativi = 0;
+                while (!dizionarioCaricato && tentativi < 15) {
+                    await new Promise(r => setTimeout(r, 200));
+                    tentativi++;
+                }
+            }
+            
+            if (dizionarioComuniCatastali && dizionarioComuniCatastali[codCatastale]) {
+                document.getElementById(`editGenitore${numGen}LuogoNascita`).value = dizionarioComuniCatastali[codCatastale];
+            } else {
+                document.getElementById(`editGenitore${numGen}LuogoNascita`).value = ""; 
+            }
         }
 
+        document.getElementById('editGenitore1CodiceFiscale').addEventListener('input', function(e) {
+            let val = e.target.value.trim().toUpperCase();
+            if (val.length === 16) decodificaCfGenitoreInCampi(val, 1);
+        });
+
+        document.getElementById('editGenitore2CodiceFiscale').addEventListener('input', function(e) {
+            let val = e.target.value.trim().toUpperCase();
+            if (val.length === 16) decodificaCfGenitoreInCampi(val, 2);
+        });
+		
         document.getElementById('editCodiceFiscale').addEventListener('input', function(e) {
             let val = e.target.value.trim().toUpperCase();
             if (val.length === 16) decodificaCfInCampi(val);
         });
 
-        async function elaboraOnorificenze(idSezione, titoloSezione, sogliaAnni, tipoControllo) {
+		async function elaboraOnorificenze(idSezione, titoloSezione, valoreStato) {
             const container = document.getElementById(idSezione);
-            container.innerHTML = `<h2> ${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Elaborazione calcolo ${titoloSezione} in corso...</div>`;
-            mostraCaricamento(`Elaborazione ${titoloSezione}...`);
+            container.innerHTML = `<h2>🏆 Onorificenze: ${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Caricamento ${titoloSezione} in corso...</div>`;
+            mostraCaricamento(`Caricamento ${titoloSezione}...`);
             
             try {
-                const snapAnagrafica = await getDocs(collection(db, "anagrafica"));
-                const snapStorico = await getDocs(collection(db, "storico"));
-
-                let anagraficaMap = {};
-                snapAnagrafica.forEach(docSnap => {
-                    anagraficaMap[docSnap.id] = docSnap.data();
-                });
-
-                let storicoPerPersona = {};
-                let totaliCompletiPersona = {};
-
-                snapStorico.forEach(docSnap => {
-                    let st = docSnap.data();
-                    let idPers = st.id_persona;
-                    if (!idPers) return;
-
-                    let tipologia = st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || st.categoria || st.iscrizione || "";
-                    let tipoPulito = String(tipologia).trim().toLowerCase();
-
-                    if (tipoPulito !== "iscrizione completa") return;
-
-                    let annoNum = parseInt(st.anno, 10);
-                    if (isNaN(annoNum)) return;
-
-                    totaliCompletiPersona[idPers] = (totaliCompletiPersona[idPers] || 0) + 1;
-
-                    if (!storicoPerPersona[idPers]) {
-                        storicoPerPersona[idPers] = [];
-                    }
-                    storicoPerPersona[idPers].push(annoNum);
-                });
+                // Esegue una query mirata filtrando per lo stato salvato in anagrafica
+                const q = query(collection(db, "anagrafica"), where("stato_onorificenza", "==", valoreStato));
+                const snapAnagrafica = await getDocs(q);
 
                 let risultati = [];
+                snapAnagrafica.forEach(docSnap => {
+                    let persona = { id: docSnap.id, ...docSnap.data() };
+                    risultati.push({
+                        personaCompleta: persona,
+                        cognome: formattaCognome(persona.cognome),
+                        nome: pulisciTesto(persona.nome),
+                        citta: pulisciTesto(persona.citta),
+                        telefono: pulisciTesto(persona.telefono),
+                        valore: valoreStato
+                    });
+                });
 
-                for (let idPers in anagraficaMap) {
-                    let persona = anagraficaMap[idPers];
-                    let totaleIscrizioni = totaliCompletiPersona[idPers] || 0;
-                    let passaCriterio = false;
-
-                    if (tipoControllo === 'consecutivi') {
-                        let anniArr = storicoPerPersona[idPers] || [];
-                        let anniNorm = anniArr.map(anno => anno > 2022 ? anno - 2 : anno);
-                        anniNorm = [...new Set(anniNorm)].sort((a, b) => a - b);
-                        
-                        let gruppiCount = {};
-                        anniNorm.forEach((annoNorm, index) => {
-                            let rn = index + 1;
-                            let grp = annoNorm - rn;
-                            gruppiCount[grp] = (gruppiCount[grp] || 0) + 1;
-                        });
-
-                        let massimoConsecutivi = 0;
-                        for (let grp in gruppiCount) {
-                            if (gruppiCount[grp] > massimoConsecutivi) {
-                                massimoConsecutivi = gruppiCount[grp];
-                            }
-                        }
-                        
-                        passaCriterio = massimoConsecutivi >= sogliaAnni;
-                        persona.valoreMostrato = massimoConsecutivi;
-                    } else if (tipoControllo === 'totali') {
-                        let sogliaTotaleSql = sogliaAnni - 1;
-                        passaCriterio = totaleIscrizioni > sogliaTotaleSql;
-                        persona.valoreMostrato = totaleIscrizioni;
-                    }
-
-                    if (passaCriterio) {
-                        risultati.push({
-                            cognome: formattaCognome(persona.cognome),
-                            nome: pulisciTesto(persona.nome),
-                            citta: pulisciTesto(persona.citta),
-                            telefono: pulisciTesto(persona.telefono),
-                            valore: persona.valoreMostrato
-                        });
-                    }
-                }
-
+                // Ordinamento alfabetico per cognome
                 risultati.sort((a, b) => a.cognome.localeCompare(b.cognome));
-                let etichettaColonnaValore = tipoControllo === 'consecutivi' ? 'Anni Consecutivi' : 'Totale Iscrizioni';
 
                 let html = `
-                    <h2>Onorificenze: ${titoloSezione}</h2>
-                    <p style="color: #666; font-size: 14px;">Elenco estratto in tempo reale applicando i criteri.</p>
+                    <h2>🏆 Onorificenze: ${titoloSezione}</h2>
+                    <p style="color: #666; font-size: 14px;">Elenco filtrato istantaneamente in base allo stato salvato in anagrafica. Clicca su una riga per aprire la scheda.</p>
                     <div class="box-contatore" style="display: block;">Iscritti trovati: ${risultati.length}</div>
                     <div class="table-responsive"><table>
                         <thead>
@@ -1492,45 +2042,50 @@
                                 <th>Nome</th>
                                 <th>Città</th>
                                 <th>Telefono</th>
-                                <th>${etichettaColonnaValore}</th>
+                                <th>Fascia</th>
                             </tr>
                         </thead>
                         <tbody>
+                        </tbody>
+                    </table></div>
                 `;
 
+                container.innerHTML = html;
+                const tbodyElement = container.querySelector('tbody');
+
                 if (risultati.length === 0) {
-                    html += `<tr><td colspan="5" style="text-align:center; font-style:italic;">Nessun iscritto soddisfa il criterio dei ${titoloSezione}.</td></tr>`;
+                    tbodyElement.innerHTML = `<tr><td colspan="5" style="text-align:center; font-style:italic;">Nessun iscritto trovato per la fascia ${titoloSezione}.</td></tr>`;
                 } else {
                     risultati.forEach(r => {
-                        html += `
-                            <tr>
-                                <td>${r.cognome}</td>
-                                <td>${r.nome}</td>
-                                <td>${r.citta}</td>
-                                <td>${r.telefono}</td>
-                                <td><strong>${r.valore}</strong></td>
-                            </tr>
+                        const tr = document.createElement('tr');
+                        tr.style.cursor = 'pointer';
+                        tr.innerHTML = `
+                            <td>${r.cognome}</td>
+                            <td>${r.nome}</td>
+                            <td>${r.citta}</td>
+                            <td>${r.telefono}</td>
+                            <td><strong>${r.valore} anni</strong></td>
                         `;
+                        tr.addEventListener('click', () => apriModaleEsistente(r.personaCompleta));
+                        tbodyElement.appendChild(tr);
                     });
                 }
 
-                html += `</tbody></table></div>`;
-                container.innerHTML = html;
-
             } catch (error) {
-                console.error("Errore nel calcolo delle onorificenze:", error);
-                container.innerHTML = `<h2>Onorificenze: ${titoloSezione}</h2><p style="color:red;">Errore durante il recupero dei dati: ${error.message}</p>`;
+                console.error("Errore nel caricamento rapido delle onorificenze:", error);
+                container.innerHTML = `<h2>🏆 Onorificenze: ${titoloSezione}</h2><p style="color:red;">Errore durante il recupero dei dati: ${error.message}</p>`;
             } finally {
                 nascondiCaricamento();
             }
         }
 
-        window.caricaElenco10Anni = () => elaboraOnorificenze('sezione_onorificenze_10', '10 Anni', 10, 'consecutivi');
-        window.caricaElenco20Anni = () => elaboraOnorificenze('sezione_onorificenze_20', '20 Anni', 20, 'totali');
-        window.caricaElenco30Anni = () => elaboraOnorificenze('sezione_onorificenze_30', '30 Anni', 30, 'totali');
-        window.caricaElenco40Anni = () => elaboraOnorificenze('sezione_onorificenze_40', '40 Anni', 40, 'totali');
-        window.caricaElenco50Anni = () => elaboraOnorificenze('sezione_onorificenze_50', '50 Anni', 50, 'totali');
-
+        // Collegamento diretto delle voci di menu alla funzione unificata
+        window.caricaElenco10Anni = () => elaboraOnorificenze('sezione_onorificenze_10', '10 Anni', '10');
+        window.caricaElenco20Anni = () => elaboraOnorificenze('sezione_onorificenze_20', '20 Anni', '20');
+        window.caricaElenco30Anni = () => elaboraOnorificenze('sezione_onorificenze_30', '30 Anni', '30');
+        window.caricaElenco40Anni = () => elaboraOnorificenze('sezione_onorificenze_40', '40 Anni', '40');
+        window.caricaElenco50Anni = () => elaboraOnorificenze('sezione_onorificenze_50', '50 Anni', '50');
+		
         async function elaboraPreventivoIscrizioni(idSezione, titoloSezione, sogliaAnni, tipoControllo) {
             const container = document.getElementById(idSezione);
             container.innerHTML = `<h2>Preventivo Iscrizioni: ${titoloSezione}</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Elaborazione preventivo ${titoloSezione} in corso...</div>`;
@@ -1724,10 +2279,9 @@
                             <td>${pulisciTesto(u.email)}</td>
                             <td><strong>${pulisciTesto(u.alias)}</strong></td>
                             <td>${pulisciTesto(u.ruolo)}</td>
-                            <td>${attivo ? 'Attivo' : 'Disabilitato'}</td>
+                            <td><span style="color: ${attivo ? '#28a745' : '#dc3545'}; font-weight: bold;">${attivo ? 'Attivo' : 'Disabilitato'}</span></td>
                             <td>
                                 <button type="button" class="btn-azione btn-modifica-storico" onclick="modificaUtente('${u.id}', '${u.email}', '${u.alias || ''}', '${u.ruolo}', ${attivo})">Modifica</button>
-                                <button type="button" class="btn-azione ${attivo ? 'btn-modifica-storico' : 'btn-salva-storico'}" style="background-color: ${attivo ? '#ff851b' : '#28a745'}; color: white;" onclick="toggleStatoUtente('${u.id}', ${attivo})">${attivo ? 'Disabilita' : 'Abilita'}</button>
                                 <button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaUtenteSistema('${u.id}', '${u.email}')">Elimina</button>
                             </td>
                         </tr>`;
@@ -1736,7 +2290,35 @@
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Errore caricamento utenti.</td></tr>'; 
             }
         }
+		
+		window.disabilitaTuttiUser = async function() {
+            const conferma = confirm("⚠️ Sei sicuro di voler disabilitare TUTTI gli utenti con ruolo 'User' in un colpo solo? Gli account Admin rimarranno attivi.");
+            if (!conferma) return;
 
+            try {
+                mostraCaricamento("Disabilitazione utenti in corso...");
+                const snap = await getDocs(collection(db, "utenti"));
+                
+                let batchUpdates = [];
+                snap.forEach(docSnap => {
+                    let data = docSnap.data();
+                    let ruolo = String(data.ruolo || "").trim().toLowerCase();
+                    if (ruolo === 'user' && data.attivo !== false) {
+                        batchUpdates.push(setDoc(doc(db, "utenti", docSnap.id), { attivo: false }, { merge: true }));
+                    }
+                });
+
+                await Promise.all(batchUpdates);
+                alert("Tutti gli utenti 'User' sono stati disabilitati con successo.");
+                await caricaTabellaUtenti();
+                await registraLog("Disabilitazione di massa utenti User");
+            } catch (error) {
+                alert("Errore durante l'operazione: " + error.message);
+            } finally {
+                nascondiCaricamento();
+            }
+        };
+		
         window.apriModaleUtente = (id = "", email = "", alias = "", ruolo = "User", attivo = true) => {
             document.getElementById('editUserId').value = id;
             document.getElementById('inputUserEmail').value = email;
@@ -1779,7 +2361,6 @@
         };
 
         window.salvaUtenteSistema = async function() {
-            const id = document.getElementById('editUserId').value.trim();
             const email = document.getElementById('inputUserEmail').value.trim().toLowerCase();
             const alias = document.getElementById('inputUserAlias').value.trim();
             const ruolo = document.getElementById('selectUserRole').value;
@@ -1792,13 +2373,7 @@
 
             try {
                 mostraCaricamento("Salvataggio utente in corso...");
-                if (id) {
-                    await setDoc(doc(db, "utenti", id), { email, alias, ruolo, attivo }, { merge: true });
-                } else {
-                    await addDoc(collection(db, "utenti"), { email, alias, ruolo, attivo });
-                }
-                
-                alert("Utente salvato con successo!");
+                await setDoc(doc(db, "utenti", email), { email, alias, ruolo, attivo }, { merge: true });
                 chiudiModaleUtente();
                 caricaTabellaUtenti();
             } catch (error) {
@@ -1808,7 +2383,7 @@
                 nascondiCaricamento();
             }
         };
-
+		
         window.cambiaSezioneMenu = function(valore, elem) {
             document.querySelectorAll('.sezione-app').forEach(s => s.classList.remove('attiva'));
             document.querySelectorAll('.sidebar-item, .sidebar-subitem').forEach(v => v.classList.remove('attivo'));
@@ -1816,7 +2391,163 @@
             if (target) target.classList.add('attiva');
             if (elem) elem.classList.add('attivo');
             if (valore === 'ricerca') caricaDatiRicercaFiltrata();
+            else if (valore === 'estrazione_prelazioni') caricaDatiPrelazioni();
             else if (valore === 'configurazione') caricaTabellaUtenti();
+        };
+		
+		window.caricaDatiPrelazioni = async function() {
+            const flagCorvi = document.getElementById('flagCorviDoro').checked;
+            const flag9 = document.getElementById('flag9Anni').checked;
+            
+            const msg = document.getElementById('messaggioGuidaPrelazioni');
+            const tab = document.getElementById('tabellaPrelazioni');
+            const box = document.getElementById('boxContatorePrelazioni');
+            const tbody = document.getElementById('corpoTabellaPrelazioni');
+
+            if (!flagCorvi && !flag9) {
+                tab.style.display = 'none';
+                box.style.display = 'none';
+                msg.style.display = 'block';
+                msg.textContent = "Seleziona almeno un filtro per visualizzare l'elenco.";
+                return;
+            }
+
+            msg.textContent = "Elaborazione in corso...";
+            mostraCaricamento("Estrazione prelazioni in corso...");
+
+            try {
+                const snapAnagrafica = await getDocs(collection(db, "anagrafica"));
+                const snapStorico = await getDocs(collection(db, "storico"));
+
+                let anagraficaMap = {};
+                snapAnagrafica.forEach(docSnap => {
+                    anagraficaMap[docSnap.id] = { id: docSnap.id, ...docSnap.data() };
+                });
+
+                let storicoPerPersona = {};
+                let totaliCompletiPersona = {};
+                const annoCarnevaleNum = parseInt(annoCarnevaleCorrente, 10) || 2027;
+                const annoLimitePreventivo = annoCarnevaleNum - 1;
+
+                snapStorico.forEach(docSnap => {
+                    let st = docSnap.data();
+                    let idPers = st.id_persona;
+                    if (!idPers) return;
+
+                    let tipologia = st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || "";
+                    let tipoPulito = String(tipologia).trim().toLowerCase();
+
+                    if (tipoPulito !== "iscrizione completa") return;
+
+                    let annoNum = parseInt(st.anno, 10);
+                    if (isNaN(annoNum)) return;
+
+                    totaliCompletiPersona[idPers] = (totaliCompletiPersona[idPers] || 0) + 1;
+
+                    if (!storicoPerPersona[idPers]) storicoPerPersona[idPers] = [];
+                    storicoPerPersona[idPers].push(annoNum);
+                });
+
+                let risultatiMap = new Map();
+
+                if (flagCorvi) {
+                    for (let idPers in anagraficaMap) {
+                        let persona = anagraficaMap[idPers];
+                        let anniArr = storicoPerPersona[idPers] || [];
+                        let anniNorm = anniArr.map(anno => anno > 2022 ? anno - 2 : anno);
+                        anniNorm = [...new Set(anniNorm)].sort((a, b) => a - b);
+                        
+                        let gruppiCount = {};
+                        anniNorm.forEach((annoNorm, index) => {
+                            let rn = index + 1;
+                            let grp = annoNorm - rn;
+                            gruppiCount[grp] = (gruppiCount[grp] || 0) + 1;
+                        });
+
+                        let massimoConsecutivi = 0;
+                        for (let grp in gruppiCount) {
+                            if (gruppiCount[grp] > massimoConsecutivi) massimoConsecutivi = gruppiCount[grp];
+                        }
+
+                        if (massimoConsecutivi >= 10) {
+                            risultatiMap.set(idPers, {
+                                personaCompleta: persona,
+                                cognome: formattaCognome(persona.cognome),
+                                nome: pulisciTesto(persona.nome),
+                                citta: pulisciTesto(persona.citta),
+                                telefono: pulisciTesto(persona.telefono),
+                                dettaglio: `Corvo d'oro (${massimoConsecutivi} anni consec.)`
+                            });
+                        }
+                    }
+                }
+
+                if (flag9) {
+                    for (let idPers in anagraficaMap) {
+                        let persona = anagraficaMap[idPers];
+                        let anniArr = (storicoPerPersona[idPers] || []).filter(a => a <= annoLimitePreventivo);
+                        
+                        let anniNorm = anniArr.map(anno => anno > 2022 ? anno - 2 : anno);
+                        anniNorm = [...new Set(anniNorm)].sort((a, b) => a - b);
+                        
+                        let gruppiCount = {};
+                        anniNorm.forEach((annoNorm, index) => {
+                            let rn = index + 1;
+                            let grp = annoNorm - rn;
+                            gruppiCount[grp] = (gruppiCount[grp] || 0) + 1;
+                        });
+
+                        let massimoConsecutivi = 0;
+                        for (let grp in gruppiCount) {
+                            if (gruppiCount[grp] > massimoConsecutivi) massimoConsecutivi = gruppiCount[grp];
+                        }
+
+                        if (massimoConsecutivi === 9) {
+                            risultatiMap.set(idPers, {
+                                personaCompleta: persona,
+                                cognome: formattaCognome(persona.cognome),
+                                nome: pulisciTesto(persona.nome),
+                                citta: pulisciTesto(persona.citta),
+                                telefono: pulisciTesto(persona.telefono),
+                                dettaglio: `9 anni (Preventivo)`
+                            });
+                        }
+                    }
+                }
+
+                let risultati = Array.from(risultatiMap.values());
+                risultati.sort((a, b) => a.cognome.localeCompare(b.cognome));
+
+                tbody.innerHTML = '';
+                if (risultati.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; font-style:italic;">Nessun iscritto corrisponde ai filtri selezionati.</td></tr>`;
+                } else {
+                    risultati.forEach(r => {
+                        const tr = document.createElement('tr');
+                        tr.style.cursor = 'pointer';
+                        tr.innerHTML = `
+                            <td>${r.cognome}</td>
+                            <td>${r.nome}</td>
+                            <td>${r.citta}</td>
+                            <td>${r.telefono}</td>
+                            <td><strong>${r.dettaglio}</strong></td>
+                        `;
+                        tr.addEventListener('click', () => apriModaleEsistente(r.personaCompleta));
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                document.getElementById('totalePrelazioni').textContent = risultati.length;
+                box.style.display = 'block';
+                msg.style.display = 'none';
+                tab.style.display = 'table';
+
+            } catch (error) {
+                console.error("Errore estrazione prelazioni:", error);
+                msg.textContent = "Errore durante l'estrazione: " + error.message;
+            } finally {
+                nascondiCaricamento();
+            }
         };
 
         window.cambiaModalita = function(modalita) {
@@ -1833,17 +2564,33 @@
             }
         };
 
+		let statoOrdinamentoColonna = { indice: -1, crescente: true };
+		let ultimiRisultatiFiltratiCache = [];
+        let ultimeColsCache = [];
+
         window.caricaDatiRicercaFiltrata = async function() {
             const annoSelezionato = document.getElementById('selezionaAnnoFiltro').value;
-            const msg = document.getElementById('messaggioGuidaFiltrato'), tab = document.getElementById('tabellaIscrittiFiltrata'), box = document.getElementById('boxContatoreFiltrato');
+            const msg = document.getElementById('messaggioGuidaFiltrato');
+            const tab = document.getElementById('tabellaIscrittiFiltrata');
+            const box = document.getElementById('boxContatoreFiltrato');
+            
             inizializzaPannelloColonne();
-            if (!annoSelezionato) { tab.style.display = 'none'; box.style.display = 'none'; msg.style.display = 'block'; return; }
+            if (!annoSelezionato) { 
+                tab.style.display = 'none'; 
+                box.style.display = 'none'; 
+                msg.style.display = 'block'; 
+                return; 
+            }
+            
             msg.textContent = "Caricamento in corso...";
             mostraCaricamento("Caricamento dati ricerca...");
+            
             try {
                 if (cacheTuttiIscritti.length === 0) {
-                    const snapAnag = await getDocs(collection(db, "anagrafica")), snapStorico = await getDocs(collection(db, "storico"));
+                    const snapAnag = await getDocs(collection(db, "anagrafica"));
+                    const snapStorico = await getDocs(collection(db, "storico"));
                     let mappa = {};
+                    
                     snapStorico.forEach(d => {
                         let st = d.data();
                         if (!mappa[st.id_persona]) mappa[st.id_persona] = [];
@@ -1851,47 +2598,143 @@
                         mappa[st.id_persona].push({ 
                             anno: String(st.anno || ""), 
                             tipo_iscrizione: String(tipoTrovato), 
-                            numero_identificativo: String(st.numero_identificativo || "") 
+                            numero_identificativo: String(st.numero_identificativo || ""),
+                            inserito_da: String(st.creato_da || st.inserito_da || ""),
+                            inserito_il: String(st.creato_il || st.inserito_il || "")
                         });
                     });
+                    
                     snapAnag.forEach(d => cacheTuttiIscritti.push({ id: d.id, ...d.data(), iscrizioni: mappa[d.id] || [] }));
                 }
+                
                 let risultati = [];
+                const dataDaVal = document.getElementById('filtroDataDa').value;
+                const dataaVal = document.getElementById('filtroDataA').value;
+                const filtro30PlusAttivo = document.getElementById('filtroOnorificenze30Plus').checked;
+                
+                const timestampDa = dataDaVal ? new Date(dataDaVal).setHours(0,0,0,0) : null;
+                const timestampA = dataaVal ? new Date(dataaVal).setHours(23,59,59,999) : null;
+
                 cacheTuttiIscritti.forEach(p => {
+                    if (filtro30PlusAttivo) {
+                        let statoOnor = String(p.stato_onorificenza || "").trim();
+                        if (!['30', '40', '50'].includes(statoOnor)) {
+                            return;
+                        }
+                    }
+
                     p.iscrizioni.forEach(i => {
                         if (annoSelezionato === "tutti" || i.anno === annoSelezionato) {
+                            if (timestampDa || timestampA) {
+                                if (!i.inserito_il) return;
+                                let partiDataOra = i.inserito_il.split(',');
+                                let partiData = partiDataOra[0].trim().split('/');
+                                if (partiData.length === 3) {
+                                    let g = String(partiData[0]).padStart(2, '0');
+                                    let m = String(partiData[1]).padStart(2, '0');
+                                    let a = partiData[2];
+                                    let timestampRiga = new Date(`${a}-${m}-${g}`).getTime();
+
+                                    if (timestampDa && timestampRiga < timestampDa) return;
+                                    if (timestampA && timestampRiga > timestampA) return;
+                                } else {
+                                    return;
+                                }
+                            }
+
                             risultati.push({ 
                                 ...p, 
                                 anno: i.anno,
                                 tipo_iscrizione: i.tipo_iscrizione, 
-                                numero_identificativo: i.numero_identificativo 
+                                numero_identificativo: i.numero_identificativo,
+                                inserito_da: i.inserito_da,
+                                inserito_il: i.inserito_il
                             });
                         }
                     });
                 });
+                
                 risultati.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || ''));
-                let thead = document.getElementById('intestazioneTabellaFiltrata'), tbody = document.getElementById('corpoTabellaFiltrata');
+                
+                let thead = document.getElementById('intestazioneTabellaFiltrata');
                 let cols = colonneSelezionate.filter(c => !(DEFINIZIONE_COLONNE.find(x => x.id === c)?.richiedeAnnoSpecifico && annoSelezionato === "tutti"));
                 
-                thead.innerHTML = `<tr>${cols.map(c => `<th>${DEFINIZIONE_COLONNE.find(x => x.id === c)?.titolo || c}</th>`).join('')}</tr>`;
-                tbody.innerHTML = '';
-                risultati.forEach(p => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = cols.map(c => {
-                        let defCol = DEFINIZIONE_COLONNE.find(x => x.id === c);
-                        let val = p[c];
-                        if (defCol && defCol.formatter) val = defCol.formatter(val);
-                        return `<td>${pulisciTesto(val)}</td>`;
-                    }).join('');
-                    tr.onclick = () => apriModaleEsistente(p);
-                    tbody.appendChild(tr);
-                });
+                thead.innerHTML = `<tr>${cols.map((c, index) => {
+                    let titolo = DEFINIZIONE_COLONNE.find(x => x.id === c)?.titolo || c;
+                    let freccia = "";
+                    if (statoOrdinamentoColonna.indice === index) {
+                        freccia = statoOrdinamentoColonna.crescente ? " ▲" : " ▼";
+                    }
+                    return `<th onclick="ordinaTabellaFiltrata(${index}, '${c}')">${titolo}${freccia}</th>`;
+                }).join('')}</tr>`;
+
+                renderizzaRigheTabellaFiltrata(risultati, cols);
+
                 document.getElementById('totaleIscrittiFiltrati').textContent = risultati.length;
-                box.style.display = 'block'; msg.style.display = 'none'; tab.style.display = 'table';
-            } catch (e) { msg.textContent = "Errore: " + e.message; }
-            finally { nascondiCaricamento(); }
+                box.style.display = 'block'; 
+                msg.style.display = 'none'; 
+                tab.style.display = 'table';
+            } catch (e) { 
+                msg.textContent = "Errore: " + e.message; 
+            } finally { 
+                nascondiCaricamento(); 
+            }
         };
 
+        function renderizzaRigheTabellaFiltrata(risultati, cols) {
+            ultimiRisultatiFiltratiCache = [];
+            ultimiRisultatiFiltratiCache = risultati;
+            ultimeColsCache = cols;
+            let tbody = document.getElementById('corpoTabellaFiltrata');
+            tbody.innerHTML = '';
+            risultati.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = cols.map(c => {
+                    let defCol = DEFINIZIONE_COLONNE.find(x => x.id === c);
+                    let val = p[c];
+                    if (defCol && defCol.formatter) val = defCol.formatter(val);
+                    return `<td>${pulisciTesto(val)}</td>`;
+                }).join('');
+                tr.onclick = () => apriModaleEsistente(p);
+                tbody.appendChild(tr);
+            });
+        }
+
+        window.ordinaTabellaFiltrata = function(colIndex, colId) {
+            if (statoOrdinamentoColonna.indice === colIndex) {
+                statoOrdinamentoColonna.crescente = !statoOrdinamentoColonna.crescente;
+            } else {
+                statoOrdinamentoColonna.indice = colIndex;
+                statoOrdinamentoColonna.crescente = true;
+            }
+
+            ultimiRisultatiFiltratiCache.sort((a, b) => {
+                let valA = a[colId] || "";
+                let valB = b[colId] || "";
+
+                if (!isNaN(valA) && !isNaN(valB) && valA !== "" && valB !== "") {
+                    return statoOrdinamentoColonna.crescente ? valA - valB : valB - valA;
+                }
+
+                let comp = String(valA).localeCompare(String(valB), 'it', { numeric: true });
+                return statoOrdinamentoColonna.crescente ? comp : -comp;
+            });
+
+            let theadTr = document.querySelector('#intestazioneTabellaFiltrata tr');
+            if (theadTr) {
+                Array.from(theadTr.children).forEach((th, idx) => {
+                    let baseText = th.textContent.replace(/[▲▼]/g, "").trim();
+                    if (idx === statoOrdinamentoColonna.indice) {
+                        th.textContent = baseText + (statoOrdinamentoColonna.crescente ? " ▲" : " ▼");
+                    } else {
+                        th.textContent = baseText;
+                    }
+                });
+            }
+
+            renderizzaRigheTabellaFiltrata(ultimiRisultatiFiltratiCache, ultimeColsCache);
+        };
+		
         function calcolaEImpostaEta(dataStr) {
             const inputEta = document.getElementById('editEtaDisplay'), sezGen = document.getElementById('sezioneDatiGenitori');
             if (!dataStr) { inputEta.value = ""; if (sezGen) sezGen.style.display = 'none'; return; }
@@ -1920,8 +2763,15 @@
             const dat = document.getElementById('editDataNascita').value.trim();
             const idC = document.getElementById('editIdPersona').value.trim();
             const msg = document.getElementById('messaggioRuntimeDuplicato');
+            const btnSalva = document.getElementById('btnSalva');
             
             msg.textContent = "";
+            if (btnSalva) {
+                btnSalva.disabled = false;
+                btnSalva.style.opacity = "1";
+                btnSalva.style.cursor = "pointer";
+            }
+
             if (cog.length < 2 || nom.length < 2) return;
 
             const snap = await getDocs(collection(db, "anagrafica"));
@@ -1930,6 +2780,7 @@
 
             snap.forEach(d => {
                 if (idC && d.id === idC) return;
+
                 let dt = d.data();
                 let dbCognome = String(dt.cognome || "").trim().toUpperCase();
                 let dbNome = String(dt.nome || "").trim().toUpperCase();
@@ -1946,12 +2797,18 @@
             if (duplicatoEsattoTrovato) {
                 msg.style.color = "#dc3545";
                 msg.textContent = "⚠️ Attenzione: Esiste già un iscritto con lo stesso Cognome, Nome e Data di Nascita!";
+                
+                if (btnSalva) {
+                    btnSalva.disabled = true;
+                    btnSalva.style.opacity = "0.6";
+                    btnSalva.style.cursor = "not-allowed";
+                }
             } else if (omonimoTrovato) {
                 msg.style.color = "#ff851b";
                 msg.textContent = "ℹ️ Attenzione: Esiste già un iscritto con lo stesso Cognome e Nome (Omonimia).";
             }
         }
-
+		
         document.querySelectorAll('.campo-verifica-runtime').forEach(e => {
             e.addEventListener('input', () => {
                 clearTimeout(timeoutRuntime);
@@ -2004,13 +2861,45 @@
         const modal = document.getElementById('editModal');
 
         async function apriModaleEsistente(p) {
+            await registraLog("Apertura Anagrafica", `${p.cognome} ${p.nome}`);
+
             document.getElementById('modalTitle').textContent = "Scheda Iscritto e Storico";
             document.getElementById('editIdPersona').value = p.id;
             document.getElementById('editCognome').value = pulisciTesto(p.cognome);
             document.getElementById('editNome').value = pulisciTesto(p.nome);
             document.getElementById('editCodiceFiscale').value = pulisciTesto(p.codice_fiscale || p.codiceFiscale).toUpperCase();
-            document.getElementById('editLuogoNascita').value = pulisciTesto(p.luogo_nascita || p.luogoNascita);
-            
+            document.getElementById('editLuogoNascita').value = pulisciTesto(p.luogo_nascita || p.luogoNascita);          
+			document.getElementById('badgeStatoOnorificenza').textContent = p.stato_onorificenza || " -";
+			document.getElementById('editNonIscrivibile').checked = Boolean(p.non_iscrivibile);
+
+            // Caricamento Sesso (Maschio / Femmina)
+            const sessoVal = String(p.sesso || '').toUpperCase();
+			const radioSesso = document.querySelector(`input[name="editSesso"][value="${sessoVal}"]`);
+			if (radioSesso) {
+				radioSesso.checked = true;
+				window.gestisciSelezioneSesso();
+			} else {
+				// Se non presente sul database, deseleziona entrambi e disabilita il calcola
+				document.querySelectorAll('input[name="editSesso"]').forEach(r => r.checked = false);
+				const btnCalcola = document.getElementById('btnCalcolaCF');
+				if (btnCalcola) {
+					btnCalcola.disabled = true;
+					btnCalcola.style.opacity = "0.6";
+					btnCalcola.style.cursor = "not-allowed";
+				}
+			}
+
+			const isAdmin = (modalitaCorrente === 'admin');
+			document.getElementById('gruppoFlagNonIscrivibile').style.display = isAdmin ? 'flex' : 'none';
+			document.getElementById('editNonIscrivibile').disabled = !isAdmin;
+
+			const btnAggiungi = document.getElementById('btnAggiungiIscrizione');
+			if (modalitaCorrente === 'user' && p.non_iscrivibile) {
+				btnAggiungi.style.display = 'none';
+			} else {
+				btnAggiungi.style.display = 'block';
+			}
+			
             let dtNascita = formattaDataPerInputDate(p.data_nascita);
             document.getElementById('editDataNascita').value = dtNascita;
             calcolaEImpostaEta(dtNascita);
@@ -2026,7 +2915,6 @@
             document.getElementById('editNumeroDocumento').value = pulisciTesto(p.numero_documento);
             document.getElementById('editScadenzaDocumento').value = formattaDataPerInputDate(p.scadenza_documento);
 
-            // Caricamento URL Iscritto (compatibilità con vecchi campi singoli `immagine_documento`)
             const urlIsc1 = p.immagine_documento_iscritto_1 || p.immagine_documento_1 || p.immagine_documento || "";
             document.getElementById('editUrl_iscritto_1').value = urlIsc1;
             if (urlIsc1) {
@@ -2045,7 +2933,6 @@
                 document.getElementById('boxAnteprima_iscritto_2').style.display = 'none';
             }
 
-            // Genitore 1
             document.getElementById('editGenitore1Cognome').value = pulisciTesto(p.genitore1_cognome || p.genitore_cognome);
             document.getElementById('editGenitore1Nome').value = pulisciTesto(p.genitore1_nome || p.genitore_nome);
             document.getElementById('editGenitore1LuogoNascita').value = pulisciTesto(p.genitore1_luogo_nascita);
@@ -2073,7 +2960,6 @@
                 document.getElementById('boxAnteprima_gen1_2').style.display = 'none';
             }
             
-            // Genitore 2
             document.getElementById('editGenitore2Cognome').value = pulisciTesto(p.genitore2_cognome);
             document.getElementById('editGenitore2Nome').value = pulisciTesto(p.genitore2_nome);
             document.getElementById('editGenitore2LuogoNascita').value = pulisciTesto(p.genitore2_luogo_nascita);
@@ -2101,8 +2987,21 @@
                 document.getElementById('boxAnteprima_gen2_2').style.display = 'none';
             }
 
+			let statoSalvato = p.stato_onorificenza;
+			if (!statoSalvato) {
+				// Se manca nel DB, lo calcoliamo al volo in base alle righe dello storico
+				// (dopo aver atteso che lo storico sia caricato)
+				setTimeout(() => ricalcolaOnorificenzaCorrente(), 200);
+			} else {
+				document.getElementById('badgeStatoOnorificenza').textContent = statoSalvato;
+			}
+
             document.getElementById('editTigre').checked = Boolean(p.tigre);
             document.getElementById('editCapitanoPiazza').checked = Boolean(p.capitano_piazza);
+
+            const isUserMode = (modalitaCorrente === 'user');
+            document.getElementById('editTigre').disabled = isUserMode;
+            document.getElementById('editCapitanoPiazza').disabled = isUserMode;
 
             document.getElementById('btnAggiungiIscrizione').style.display = 'block';
             document.getElementById('btnAggiungiIscrizione').onclick = attivaInserimentoNuovaIscrizioneEsistente;
@@ -2117,12 +3016,28 @@
             modal.style.display = 'flex';
             controllaCampiVuoti();
             await caricaStoricoPersona(p.id);
+			
+			ricalcolaOnorificenzaCorrente();
         }
 
-        document.getElementById('btnNuovoUtente').addEventListener('click', () => {
+        document.getElementById('btnNuovoUtente').addEventListener('click', async () => {
+            await registraLog("Apertura Anagrafica", "Nuova Anagrafica");
+
             document.getElementById('modalTitle').textContent = "Crea Nuovo Utente in Anagrafica";
             document.getElementById('editIdPersona').value = "";
             document.querySelectorAll('.campo-controllo, .campo-controllo-genitore').forEach(c => c.value = "");
+            
+            // Deseleziona entrambi i radio button del sesso
+			document.querySelectorAll('input[name="editSesso"]').forEach(r => r.checked = false);
+
+			// Disabilita il pulsante Calcola all'apertura del nuovo utente
+			const btnCalcola = document.getElementById('btnCalcolaCF');
+			if (btnCalcola) {
+				btnCalcola.disabled = true;
+				btnCalcola.style.opacity = "0.6";
+				btnCalcola.style.cursor = "not-allowed";
+			}
+
             document.getElementById('editTipoDocumento').value = "";
             document.getElementById('editNumeroDocumento').value = "";
             document.getElementById('editScadenzaDocumento').value = "";
@@ -2131,10 +3046,14 @@
             document.getElementById('editEtaDisplay').value = "";
             document.getElementById('messaggioRuntimeDuplicato').textContent = "";
             document.getElementById('sezioneDatiGenitori').style.display = 'none';
+            
             document.getElementById('editTigre').checked = false;
             document.getElementById('editCapitanoPiazza').checked = false;
             
-            // Pulisci anteprime documenti
+            const isUserMode = (modalitaCorrente === 'user');
+            document.getElementById('editTigre').disabled = isUserMode;
+            document.getElementById('editCapitanoPiazza').disabled = isUserMode;
+            
             ['iscritto', 'gen1', 'gen2'].forEach(sogg => {
                 for (let i = 1; i <= 2; i++) {
                     document.getElementById(`editUrl_${sogg}_${i}`).value = "";
@@ -2149,37 +3068,87 @@
             document.getElementById('conteggioConsecutiveScheda').textContent = "0";
             
             const btnSalva = document.getElementById('btnSalva');
-            btnSalva.textContent = "Salva Anagrafica";
-            btnSalva.onclick = gestisciPrimoStepNuovoUtente;
+            btnSalva.textContent = "Crea Anagrafica";
+            btnSalva.onclick = gestisciCreazioneNuovaAnagrafica;
+            
             modal.style.display = 'flex';
             controllaCampiVuoti();
         });
+		
+		async function gestisciCreazioneNuovaAnagrafica() {
+            const dati = raccogliDatiAnagrafica();
+            if (!dati.cognome || !dati.nome) return alert("Inserisci Cognome e Nome.");
+            
+            try {
+                mostraCaricamento("Creazione anagrafica in corso...");
+                const docRef = await addDoc(collection(db, "anagrafica"), dati);
+                document.getElementById('editIdPersona').value = docRef.id;
 
+                await registraLog("Modifica Anagrafica", `Nuova: ${dati.cognome} ${dati.nome}`);
+                
+                alert("Anagrafica creata con successo! Ora puoi inserire l'iscrizione nello storico sottostante.");
+                
+                document.getElementById('sezioneStoricoContainer').style.display = 'block';
+                document.getElementById('btnAggiungiIscrizione').style.display = 'block';
+                document.getElementById('btnAggiungiIscrizione').onclick = attivaInserimentoNuovaIscrizioneEsistente;
+                
+                await caricaStoricoPersona(docRef.id);
+
+                const btnSalva = document.getElementById('btnSalva');
+                btnSalva.textContent = "Salva Modifiche Anagrafica";
+                btnSalva.onclick = gestisciSalvataggioEsistente;
+                
+                cacheTuttiIscritti = [];
+            } catch (error) {
+                alert("Errore durante la creazione: " + error.message);
+            } finally {
+                nascondiCaricamento();
+            }
+        }
+		
         async function eliminaAnagraficaCompleta(id) {
             if (confirm("Eliminare definitivamente l'anagrafica, lo storico e i documenti associati?")) {
                 try {
+                    const docRefPersona = doc(db, "anagrafica", id);
+                    const docSnapPersona = await getDoc(docRefPersona);
+                    let nomeCompletoLog = `ID: ${id}`;
+                    
+                    if (docSnapPersona.exists()) {
+                        let datiPersona = docSnapPersona.data();
+                        let cog = formattaCognome(datiPersona.cognome || "");
+                        let nom = pulisciTesto(datiPersona.nome || "");
+                        if (cog || nom) {
+                            nomeCompletoLog = `${cog} ${nom}`;
+                        }
+                    }
+
                     for (let sogg of ['iscritto', 'gen1', 'gen2']) {
                         for (let i = 1; i <= 2; i++) {
                             for (let ext of ['jpg', 'pdf', 'png', 'jpeg']) {
-                                await deleteObject(ref(storage, `documenti_iscritti/${id}_${sogg}_img${i}.${ext}`)).catch(() => {});
+                                await deleteObject(storageRef(storage, `documenti_iscritti/${id}_${soggetto}_img${i}.${ext}`)).catch(() => {});
                             }
                         }
                     }
-                } catch(e) {}
-                
-                const snap = await getDocs(query(collection(db, "storico"), where("id_persona", "==", id)));
-                await Promise.all(snap.docs.map(d => deleteDoc(doc(db, "storico", d.id))));
-                await deleteDoc(doc(db, "anagrafica", id));
-                alert("Eliminato con successo!");
-                modal.style.display = 'none';
-                cacheTuttiIscritti = [];
-                if (document.getElementById('filtroCognome').value) cercaIscritti(document.getElementById('filtroCognome').value);
+                    
+                    const snap = await getDocs(query(collection(db, "storico"), where("id_persona", "==", id)));
+                    await Promise.all(snap.docs.map(d => deleteDoc(doc(db, "storico", d.id))));
+                    
+                    await deleteDoc(docRefPersona);
+                    await registraLog("Elimina anagrafica", nomeCompletoLog);
+
+                    alert("Eliminato con successo!");
+                    modal.style.display = 'none';
+                    cacheTuttiIscritti = [];
+                    if (document.getElementById('filtroCognome').value) cercaIscritti(document.getElementById('filtroCognome').value);
+                } catch (error) {
+                    alert("Errore durante l'eliminazione: " + error.message);
+                }
             }
         }
-
+		
         async function caricaStoricoPersona(id) {
             const div = document.getElementById('storicoCaricamento'), tab = document.getElementById('tabellaStorico'), tbody = document.getElementById('corpoTabellaStorico');
-            tbody.innerHTML = ''; tab.style.display = 'none'; div.style.display = 'block'; div.textContent = "Caricamento storico...";
+            tbody.innerHTML = ''; 
             anniPresentiNellaScheda = [];
             
             let totaleComplete = 0;
@@ -2187,13 +3156,18 @@
 
             try {
                 const snap = await getDocs(query(collection(db, "storico"), where("id_persona", "==", id)));
+                
                 if (snap.empty) { 
+                    div.style.display = 'block';
                     div.textContent = "Nessuna iscrizione passata."; 
+                    tab.style.display = 'none';
                     document.getElementById('conteggioIscrizioniScheda').textContent = "0";
                     document.getElementById('conteggioConsecutiveScheda').textContent = "0";
                     return; 
                 }
-                div.style.display = 'none'; tab.style.display = 'table';
+
+                div.style.display = 'none'; 
+                tab.style.display = 'table';
                 
                 let docsList = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 docsList.sort((a, b) => parseInt(b.anno || 0, 10) - parseInt(a.anno || 0, 10));
@@ -2214,7 +3188,7 @@
                     if (modalitaCorrente === 'admin') {
                         azioniHtml = `
                             <button type="button" class="btn-azione btn-modifica-storico" onclick="abilitaModificaStorico(this, '${st.id}', '${st.anno}')">Modifica</button>
-                            <button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaRigaStorico('${st.id}', '${id}')">Elimina</button>
+                            <button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaRigaStorico('${st.id}', '${id}', '${st.anno}', '${st.numero_identificativo}')">Elimina</button>
                         `;
                     }
 
@@ -2241,198 +3215,249 @@
                 document.getElementById('conteggioConsecutiveScheda').textContent = maxC;
 
             } catch (e) { 
+                div.style.display = 'block';
                 div.textContent = "Errore caricamento storico."; 
+                tab.style.display = 'none';
                 document.getElementById('conteggioIscrizioniScheda').textContent = "0";
                 document.getElementById('conteggioConsecutiveScheda').textContent = "0";
             }
         }
-
-        window.abilitaModificaStorico = function(btn, storicoId, annoStorico) {
-			const tr = btn.closest('tr');
-			const tdTipo = tr.querySelector('.td-tipo');
-			const tdNum = tr.querySelector('.td-num');
-			const tdAzioni = tr.querySelector('.td-azioni');
-
-			const valTipo = tdTipo.textContent.trim();
-			const valNum = tdNum.textContent.trim();
-
-			tdTipo.innerHTML = `
-				<select class="input-storico select-tipo-mod" onchange="gestisciVisibilitaNumeroModifica(this)">
-					<option value="Iscrizione Completa" ${valTipo === 'Iscrizione Completa' ? 'selected' : ''}>Iscrizione Completa</option>
-					<option value="Socio Sostenitore" ${valTipo === 'Socio Sostenitore' ? 'selected' : ''}>Socio Sostenitore</option>
-				</select>
-			`;
-			
-			const disabilitaNum = valTipo === 'Socio Sostenitore';
-			tdNum.innerHTML = `<input type="text" class="input-storico input-num-mod" value="${valNum}" ${disabilitaNum ? 'disabled style="background-color: #e9ecef;"' : ''}>`;
-			tdAzioni.innerHTML = `<button type="button" class="btn-azione btn-salva-storico" onclick="salvaModificaStorico('${storicoId}', '${annoStorico}', this)">Salva</button>`;
-		};
 		
-		window.gestisciVisibilitaNumeroModifica = function(selectElem) {
-			const tr = selectElem.closest('tr');
-			const inputNum = tr.querySelector('.input-num-mod');
-			if (selectElem.value === "Socio Sostenitore") {
-				inputNum.value = "";
-				inputNum.disabled = true;
-				inputNum.style.backgroundColor = "#e9ecef";
-			} else {
-				inputNum.disabled = false;
-				inputNum.style.backgroundColor = "#fff";
-			}
-		};
+        window.abilitaModificaStorico = function(btn, storicoId, annoStorico) {
+            const tr = btn.closest('tr');
+            const tdAnno = tr.children[0];
+            const tdTipo = tr.querySelector('.td-tipo');
+            const tdNum = tr.querySelector('.td-num');
+            const tdAzioni = tr.querySelector('.td-azioni');
 
-        window.salvaModificaStorico = async function(storicoId, annoStorico, btn) {
-			const tr = btn.closest('tr');
-			const nuovoTipo = tr.querySelector('.select-tipo-mod').value;
-			const inputNumMod = tr.querySelector('.input-num-mod');
-			const nuovoNum = inputNumMod ? inputNumMod.value.trim() : "";
-			const idPersona = document.getElementById('editIdPersona').value;
+            const valTipo = tdTipo.textContent.trim();
+            const valNum = tdNum.textContent.trim();
+            const isSocioSostenitore = valTipo === 'Socio Sostenitore';
+            const annoMax = parseInt(annoCarnevaleCorrente, 10) || 2027;
 
-			// Se è iscrizione completa il numero è obbligatorio, se è socio sostenitore mettiamo N/D
-			if (nuovoTipo === "Iscrizione Completa" && !nuovoNum) {
-				alert("Inserisci un numero identificativo valido.");
-				return;
-			}
+            let annoHtml = '';
+            if (modalitaCorrente === 'admin') {
+                annoHtml = `<select class="input-storico select-anno-mod">`;
+                for (let a = annoMax; a >= 1964; a--) {
+                    annoHtml += `<option value="${a}" ${String(a) === String(annoStorico) ? 'selected' : ''}>${a}</option>`;
+                }
+                annoHtml += `</select>`;
+            } else {
+                annoHtml = `<input type="text" class="input-storico" value="${annoStorico}" readonly style="background-color: #e9ecef;">`;
+            }
 
-			try {
-				mostraCaricamento("Verifica duplicati e salvataggio...");
+            tdAnno.innerHTML = annoHtml;
+            tdTipo.innerHTML = `
+                <select class="input-storico select-tipo-mod" onchange="gestisciVisibilitaNumeroModifica(this)">
+                    <option value="Iscrizione Completa" ${!isSocioSostenitore ? 'selected' : ''}>Iscrizione Completa</option>
+                    <option value="Socio Sostenitore" ${isSocioSostenitore ? 'selected' : ''}>Socio Sostenitore</option>
+                </select>
+            `;
+            tdNum.innerHTML = `<input type="text" class="input-storico input-num-mod" value="${isSocioSostenitore ? '' : valNum}" ${isSocioSostenitore ? 'disabled style="background-color: #e9ecef;" placeholder="Non richiesto"' : ''}>`;
+            tdAzioni.innerHTML = `<button type="button" class="btn-azione btn-salva-storico" onclick="salvaModificaStorico('${storicoId}', this)">Salva</button>`;
+        };
+		
+        window.gestisciVisibilitaNumeroModifica = function(selectElem) {
+            const tr = selectElem.closest('tr');
+            const inputNum = tr.querySelector('.input-num-mod');
+            if (selectElem.value === "Socio Sostenitore") {
+                inputNum.value = "";
+                inputNum.disabled = true;
+                inputNum.placeholder = "Non richiesto";
+                inputNum.style.backgroundColor = "#e9ecef";
+            } else {
+                inputNum.disabled = false;
+                inputNum.placeholder = "Numero...";
+                inputNum.style.backgroundColor = "#fff";
+            }
+        };
+		
+        window.salvaModificaStorico = async function(storicoId, btn) {
+            const tr = btn.closest('tr');
+            const selectAnnoMod = tr.querySelector('.select-anno-mod');
+            const nuovoAnno = selectAnnoMod ? selectAnnoMod.value : tr.children[0].textContent.trim();
+            
+            const nuovoTipo = tr.querySelector('.select-tipo-mod').value;
+            const inputNumMod = tr.querySelector('.input-num-mod');
+            const nuovoNum = inputNumMod ? inputNumMod.value.trim() : "";
+            const idPersona = document.getElementById('editIdPersona').value;
+
+            if (nuovoTipo !== "Socio Sostenitore" && !nuovoNum) {
+                alert("Inserisci un numero identificativo valido.");
+                return;
+            }
+
+            try {
+                mostraCaricamento("Verifica duplicati e salvataggio...");
+                
+                if (nuovoTipo !== "Socio Sostenitore" && nuovoNum) {
+                    const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(nuovoAnno))));
+                    let duplicatoTrovato = false;
+                    
+                    snapStoricoAnno.forEach(d => {
+                        if (d.id === storicoId) return;
+                        let datiSto = d.data();
+                        let numEsistente = String(datiSto.numero_identificativo || "").trim();
+                        if (numEsistente !== "" && numEsistente.toLowerCase() === nuovoNum.toLowerCase()) {
+                            duplicatoTrovato = true;
+                        }
+                    });
+
+                    if (duplicatoTrovato) {
+                        nascondiCaricamento();
+                        alert(`⚠️ Attenzione: Il numero identificativo "${nuovoNum}" risulta già assegnato ad un altro iscritto per l'anno ${nuovoAnno}!`);
+                        return;
+                    }
+                }
+
+                await setDoc(doc(db, "storico", storicoId), { 
+                    anno: String(nuovoAnno),
+                    tipo_iscrizione: nuovoTipo, 
+                    tipologia: nuovoTipo,
+                    numero_identificativo: nuovoTipo === "Socio Sostenitore" ? "N/D" : nuovoNum 
+                }, { merge: true });
+                
+                await registraLog("Modifica iscrizione", `Anno ${nuovoAnno} - ${nuovoTipo}`);
+
+                cacheTuttiIscritti = [];
+                await caricaStoricoPersona(idPersona);
 				
-				if (nuovoTipo === "Iscrizione Completa" && nuovoNum) {
-					const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoStorico))));
-					let duplicatoTrovato = false;
-					
-					snapStoricoAnno.forEach(d => {
-						if (d.id === storicoId) return;
-						let datiSto = d.data();
-						let numEsistente = String(datiSto.numero_identificativo || "").trim();
-						if (numEsistente !== "" && numEsistente.toLowerCase() === nuovoNum.toLowerCase()) {
-							duplicatoTrovato = true;
-						}
-					});
-
-					if (duplicatoTrovato) {
-						nascondiCaricamento();
-						alert(`⚠️ Attenzione: Il numero identificativo "${nuovoNum}" risulta già assegnato ad un altro iscritto per l'anno ${annoStorico}!`);
-						return;
-					}
-				}
-
-				await setDoc(doc(db, "storico", storicoId), { 
-					tipo_iscrizione: nuovoTipo, 
-					tipologia: nuovoTipo,
-					numero_identificativo: nuovoTipo === "Socio Sostenitore" ? "N/D" : nuovoNum 
-				}, { merge: true });
-				
-				cacheTuttiIscritti = [];
-				await caricaStoricoPersona(idPersona);
+				ricalcolaOnorificenzaCorrente();
+				await aggiornaStatoOnorificenzaNelDb(idPersona);
+                
 				alert("Modifiche salvate con successo!");
-			} catch (error) {
-				alert("Errore durante il salvataggio: " + error.message);
-			} finally {
-				nascondiCaricamento();
-			}
-		};
-
-        window.eliminaRigaStorico = async function(storicoId, idPersona) {
+            } catch (error) {
+                alert("Errore durante il salvataggio: " + error.message);
+            } finally {
+                nascondiCaricamento();
+            }
+        };
+		
+        window.eliminaRigaStorico = async function(storicoId, idPersona, annoIscrizione, numIdentificativo) {
             if (!confirm("Sei sicuro di voler eliminare questa iscrizione dallo storico?")) return;
             try {
                 mostraCaricamento("Eliminazione iscrizione...");
+                
+                const cognomePersona = document.getElementById('editCognome').value.trim();
+                const nomePersona = document.getElementById('editNome').value.trim();
+                const nomeCompleto = `${cognomePersona} ${nomePersona}`;
+
                 await deleteDoc(doc(db, "storico", storicoId));
+                await registraLog("Eliminata iscrizione", `${nomeCompleto} - Anno: ${annoIscrizione} ID: ${numIdentificativo}`);
+
                 cacheTuttiIscritti = [];
                 await caricaStoricoPersona(idPersona);
-                alert("Iscrizione eliminata con successo!");
+				
+				ricalcolaOnorificenzaCorrente();
+				await aggiornaStatoOnorificenzaNelDb(idPersona);
             } catch (error) {
                 alert("Errore durante l'eliminazione: " + error.message);
             } finally {
                 nascondiCaricamento();
             }
         };
-
-        function attivaInserimentoNuovaIscrizioneEsistente() {
-			const tbody = document.getElementById('corpoTabellaStorico');
-			document.getElementById('tabellaStorico').style.display = 'table';
-			const tr = document.createElement('tr');
-			tr.innerHTML = `
-				<td>${annoCarnevaleCorrente}</td>
-				<td>
-					<select class="input-storico select-tipo" onchange="gestisciVisibilitaNumeroIscrizione(this)">
-						<option value="Iscrizione Completa">Iscrizione Completa</option>
-						<option value="Socio Sostenitore">Socio Sostenitore</option>
-					</select>
-				</td>
-				<td><input type="text" class="input-storico input-num" id="inputNuovoNumId" placeholder="Numero..."></td>
-				<td><button type="button" class="btn-azione btn-salva-storico" onclick="salvaNuovaIscrizioneDiretta(this)">Salva</button></td>
-			`;
-			tbody.insertBefore(tr, tbody.firstChild);
-			document.getElementById('btnAggiungiIscrizione').style.display = 'none';
-		}
 		
-		// Funzione di supporto per nascondere il numero se selezioni Socio Sostenitore
-				window.gestisciVisibilitaNumeroIscrizione = function(selectElem) {
-					const tr = selectElem.closest('tr');
-					const inputNum = tr.querySelector('.input-num');
-					if (selectElem.value === "Socio Sostenitore") {
-						inputNum.value = "";
-						inputNum.disabled = true;
-						inputNum.placeholder = "Non richiesto";
-						inputNum.style.backgroundColor = "#e9ecef";
-					} else {
-						inputNum.disabled = false;
-						inputNum.placeholder = "Numero...";
-						inputNum.style.backgroundColor = "#fff";
-					}
-				};
+        window.gestisciVisibilitaNumeroIscrizione = function(selectElem) {
+            const tr = selectElem.closest('tr');
+            const inputNum = tr.querySelector('.input-num');
+            if (selectElem.value === "Socio Sostenitore") {
+                inputNum.value = "";
+                inputNum.disabled = true;
+                inputNum.placeholder = "Non richiesto";
+                inputNum.style.backgroundColor = "#e9ecef";
+            } else {
+                inputNum.disabled = false;
+                inputNum.placeholder = "Numero...";
+                inputNum.style.backgroundColor = "#fff";
+            }
+        };
 
-				window.salvaNuovaIscrizioneDiretta = async function(btn) {
-			const tr = btn.closest('tr');
-			const idPersona = document.getElementById('editIdPersona').value;
-			const selectTipo = tr.querySelector('select');
-			const tipoScelto = selectTipo ? selectTipo.value : "NON TROVATO";
-			
-			const inputNum = tr.querySelector('input');
-			const num = inputNum ? inputNum.value.trim() : "NON TROVATO";
-			
-			// Mostra cosa sta leggendo esattamente il codice
-			alert("DEBUG -> Tipo scelto: [" + tipoScelto + "] | Num: [" + num + "]");
+        window.salvaNuovaIscrizioneDiretta = async function(btn) {
+            if (document.getElementById('editNonIscrivibile').checked) {
+                alert("⛔ Operazione interrotta: il soggetto è impostato come 'Non iscrivibile'.");
+                caricaStoricoPersona(document.getElementById('editIdPersona').value);
+                return;
+            }
+            const tr = btn.closest('tr');
+            const idPersona = document.getElementById('editIdPersona').value;
+            const cognomePersona = document.getElementById('editCognome').value.trim();
+            const nomePersona = document.getElementById('editNome').value.trim();
+            const nomeCompleto = `${cognomePersona} ${nomePersona}`;
 
-			if (tipoScelto !== "Socio Sostenitore" && !num) {
-				return alert("Inserisci il numero identificativo.");
-			}
+            const selectAnnoElem = tr.querySelector('.select-anno-mod');
+            const annoScelto = selectAnnoElem ? selectAnnoElem.value : annoCarnevaleCorrente;
 
-			try {
-				mostraCaricamento("Salvataggio in corso...");
+            const selectTipo = tr.querySelector('.select-tipo');
+            const tipoScelto = selectTipo ? selectTipo.value : "Iscrizione Completa";
+            
+            const inputNum = tr.querySelector('.input-num');
+            const num = inputNum ? inputNum.value.trim() : "";
+            
+            if (tipoScelto !== "Socio Sostenitore" && !num) {
+                return alert("Inserisci il numero identificativo.");
+            }
 
-				await addDoc(collection(db, "storico"), { 
-					id_persona: idPersona, 
-					anno: String(annoCarnevaleCorrente), 
-					tipo_iscrizione: tipoScelto, 
-					tipologia: tipoScelto, 
-					numero_identificativo: tipoScelto === "Socio Sostenitore" ? "N/D" : num, 
-					creato_da: aliasUtenteLoggato, 
-					creato_il: new Date().toLocaleString('it-IT') 
-				});
+            try {
+                mostraCaricamento("Verifica duplicati e salvataggio...");
 
-				alert("Iscrizione salvata con successo!");
-				cacheTuttiIscritti = [];
-				document.getElementById('btnAggiungiIscrizione').style.display = 'block';
-				await caricaStoricoPersona(idPersona);
-			} (catch error) {
-				alert("Errore durante il salvataggio: " + error.message);
-			} finally {
-				nascondiCaricamento();
-			}
-		};
+                if (tipoScelto !== "Socio Sostenitore" && num) {
+                    const snapStoricoAnno = await getDocs(query(collection(db, "storico"), where("anno", "==", String(annoScelto))));
+                    let duplicatoTrovato = false;
 
+                    snapStoricoAnno.forEach(d => {
+                        let datiSto = d.data();
+                        let numEsistente = String(datiSto.numero_identificativo || "").trim();
+                        if (numEsistente !== "" && numEsistente.toLowerCase() === num.toLowerCase()) {
+                            duplicatoTrovato = true;
+                        }
+                    });
+
+                    if (duplicatoTrovato) {
+                        nascondiCaricamento();
+                        alert(`⚠️ Attenzione: Il numero identificativo "${num}" è già stato registrato per l'anno ${annoScelto}!`);
+                        return;
+                    }
+                }
+
+                const numIdentificativoFinale = tipoScelto === "Socio Sostenitore" ? "N/D" : num;
+
+                await addDoc(collection(db, "storico"), { 
+                    id_persona: idPersona, 
+                    anno: String(annoScelto), 
+                    tipo_iscrizione: tipoScelto, 
+                    tipologia: tipoScelto, 
+                    numero_identificativo: numIdentificativoFinale, 
+                    creato_da: aliasUtenteLoggato, 
+                    creato_il: new Date().toLocaleString('it-IT') 
+                });
+
+                await registraLog("Inserita iscrizione", `${nomeCompleto} - Anno: ${annoScelto} ID: ${numIdentificativoFinale}`);
+
+                cacheTuttiIscritti = [];
+                document.getElementById('btnAggiungiIscrizione').style.display = 'block';
+                await caricaStoricoPersona(idPersona);
+				
+				ricalcolaOnorificenzaCorrente();
+				await aggiornaStatoOnorificenzaNelDb(idPersona);
+            } catch (error) {
+                alert("Errore durante il salvataggio: " + error.message);
+            } finally {
+                nascondiCaricamento();
+            }
+        };
+		
         document.getElementById('btnChiudiX').addEventListener('click', () => {
             fermaWebcam();
             modal.style.display = 'none';
         });
 
         function raccogliDatiAnagrafica() {
-            return {
+            const sessoEl = document.querySelector('input[name="editSesso"]:checked');
+            let dati = {
                 cognome: document.getElementById('editCognome').value.trim().toUpperCase(),
                 nome: document.getElementById('editNome').value.trim(),
                 codice_fiscale: document.getElementById('editCodiceFiscale').value.trim().toUpperCase(),
+                sesso: sessoEl ? sessoEl.value : 'M',
                 luogo_nascita: document.getElementById('editLuogoNascita').value.trim(),
                 data_nascita: document.getElementById('editDataNascita').value.trim(),
                 indirizzo: document.getElementById('editIndirizzo').value.trim(),
@@ -2471,27 +3496,89 @@
                 immagine_documento_gen2_1: document.getElementById('editUrl_gen2_1').value.trim(),
                 immagine_documento_gen2_2: document.getElementById('editUrl_gen2_2').value.trim(),
 
+                stato_onorificenza: document.getElementById('badgeStatoOnorificenza').textContent.trim(),
                 tigre: document.getElementById('editTigre').checked,
-                capitano_piazza: document.getElementById('editCapitanoPiazza').checked
+                capitano_piazza: document.getElementById('editCapitanoPiazza').checked,
+                non_iscrivibile: document.getElementById('editNonIscrivibile').checked
             };
+
+            return dati;
+        }
+        
+        // Funzione di calcolo dello stato onorificenza basata sullo storico array di anni completi
+        function calcolaStatoOnorificenzaDaAnni(anniCompleti) {
+            let totaleCompleti = anniCompleti.length;
+            if (totaleCompleti === 0) return " -";
+
+            // Normalizzazione anni consecutivi (escludendo il biennio COVID 2021-2022)
+            let anniNorm = anniCompleti.map(anno => anno > 2022 ? anno - 2 : anno);
+            anniNorm = [...new Set(anniNorm)].sort((a, b) => a - b);
+            
+            let gruppiCount = {};
+            anniNorm.forEach((annoNorm, index) => {
+                let rn = index + 1;
+                let grp = annoNorm - rn;
+                gruppiCount[grp] = (gruppiCount[grp] || 0) + 1;
+            });
+
+            let massimoConsecutivi = 0;
+            for (let grp in gruppiCount) {
+                if (gruppiCount[grp] > massimoConsecutivi) {
+                    massimoConsecutivi = gruppiCount[grp];
+                }
+            }
+
+            if (totaleCompleti >= 50) return "50";
+            if (totaleCompleti >= 40) return "40";
+            if (totaleCompleti >= 30) return "30";
+            if (totaleCompleti >= 20) return "20";
+            if (massimoConsecutivi >= 10 && totaleCompleti < 20) return "10";
+            if (totaleCompleti >= 10 && massimoConsecutivi >= 10) return "10";
+
+            return " -";
         }
 
-        async function gestisciPrimoStepNuovoUtente() {
-            const dati = raccogliDatiAnagrafica();
-            if (!dati.cognome || !dati.nome) return alert("Inserisci Cognome e Nome.");
-            const docRef = await addDoc(collection(db, "anagrafica"), dati);
-            document.getElementById('editIdPersona').value = docRef.id;
-            alert("Anagrafica salvata!");
-            modal.style.display = 'none';
-            cacheTuttiIscritti = [];
-            cercaIscritti(dati.cognome);
-        }
+        // Ricalcola al volo basandosi sulle righe attualmente presenti nella tabella storico della modale
+        window.ricalcolaOnorificenzaCorrente = function() {
+            let righeStorico = document.querySelectorAll('#corpoTabellaStorico tr');
+            let anniCompleti = [];
 
+            righeStorico.forEach(tr => {
+                let annoTd = tr.children[0];
+                let tipoTd = tr.querySelector('.td-tipo');
+                if (annoTd && tipoTd) {
+                    let annoVal = parseInt(annoTd.textContent.trim(), 10);
+                    let tipoVal = tipoTd.textContent.trim().toLowerCase();
+                    if (!isNaN(annoVal) && tipoVal === "iscrizione completa") {
+                        anniCompleti.push(annoVal);
+                    }
+                }
+            });
+
+            let nuovoStato = calcolaStatoOnorificenzaDaAnni(anniCompleti);
+            document.getElementById('badgeStatoOnorificenza').textContent = nuovoStato;
+        };
+        
+        // Funzione di supporto per salvare automaticamente lo stato sul DB
+        async function aggiornaStatoOnorificenzaNelDb(idPersona) {
+            if (!idPersona || idPersona.startsWith('temp_')) return;
+            try {
+                const nuovoStato = document.getElementById('badgeStatoOnorificenza').textContent.trim();
+                await setDoc(doc(db, "anagrafica", idPersona), {
+                    stato_onorificenza: nuovoStato
+                }, { merge: true });
+            } catch (e) {
+                console.error("Errore aggiornamento automatico stato onorificenza sul DB:", e);
+            }
+        }
+        
         async function gestisciSalvataggioEsistente() {
             const id = document.getElementById('editIdPersona').value, dati = raccogliDatiAnagrafica();
             if (!dati.cognome || !dati.nome) return alert("Inserisci Cognome e Nome.");
             await setDoc(doc(db, "anagrafica", id), dati, { merge: true });
-            alert("Modifiche salvate!");
+            
+            await registraLog("Modifica Anagrafica", `${dati.cognome} ${dati.nome}`);
+
             modal.style.display = 'none';
             cacheTuttiIscritti = [];
             if (document.getElementById('filtroCognome').value) cercaIscritti(document.getElementById('filtroCognome').value);
@@ -2501,6 +3588,175 @@
             clearTimeout(timeoutRicerca);
             timeoutRicerca = setTimeout(() => cercaIscritti(e.target.value), 300);
         });
+		
+		window.eseguiAggiornamentoMassivoOnorificenze = async function() {
+			if (!confirm("Vuoi ricalcolare e aggiornare lo stato dell'onorificenza per TUTTI gli iscritti nel database?")) return;
+			
+			mostraCaricamento("Aggiornamento massivo onorificenze in corso...");
+			try {
+				const snapAnagrafica = await getDocs(collection(db, "anagrafica"));
+				const snapStorico = await getDocs(collection(db, "storico"));
+
+				let storicoPerPersona = {};
+				snapStorico.forEach(docSnap => {
+					let st = docSnap.data();
+					let idPers = st.id_persona;
+					if (!idPers) return;
+
+					let tipologia = st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || "";
+					if (String(tipologia).trim().toLowerCase() !== "iscrizione completa") return;
+
+					let annoNum = parseInt(st.anno, 10);
+					if (isNaN(annoNum)) return;
+
+					if (!storicoPerPersona[idPers]) storicoPerPersona[idPers] = [];
+					storicoPerPersona[idPers].push(annoNum);
+				});
+
+				let batchPromises = [];
+				let contatoreAggiornati = 0;
+
+				snapAnagrafica.forEach(docSnap => {
+					let idPers = docSnap.id;
+					
+					// Estrae gli anni completi per la persona corrente
+					let anniArr = storicoPerPersona[idPers] || [];
+					
+					// Riutilizza la logica di calcolo esistente
+					let nuovoStato = calcolaStatoOnorificenzaDaAnni(anniArr);
+
+					// Prepara l'aggiornamento del documento su Firestore
+					batchPromises.push(setDoc(doc(db, "anagrafica", idPers), {
+						stato_onorificenza: nuovoStato
+					}, { merge: true }));
+
+					contatoreAggiornati++;
+				});
+
+				await Promise.all(batchPromises);
+				nascondiCaricamento();
+				
+				cacheTuttiIscritti = []; // Svuota la cache locale per ricaricare i dati freschi
+				alert(`✅ Aggiornamento massivo completato con successo! Elaborate e aggiornate ${contatoreAggiornati} anagrafiche.`);
+				
+				await registraLog("Aggiornamento massivo", `Ricalcolate onorificenze per ${contatoreAggiornati} utenti`);
+			} catch (error) {
+				nascondiCaricamento();
+				console.error("Errore aggiornamento massivo:", error);
+				alert("Errore durante l'aggiornamento massivo: " + error.message);
+			}
+		};
+		
+		let intervalloVerificaQR = null;
+
+		window.apriQRCapture = function(soggetto) {
+			let idPersona = document.getElementById('editIdPersona').value;
+			if (!idPersona || idPersona.startsWith('temp_')) {
+				alert("Prima di scansionare con il cellulare, salva l'anagrafica di base!");
+				return;
+			}
+
+			let percorsoBase = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+			let urlRemoto = `${percorsoBase}fotocamera_remota.html?id=${idPersona}&soggetto=${soggetto}`;
+			let qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(urlRemoto)}`;
+
+			let boxQR = document.getElementById(`boxContainerQR_${soggetto}`);
+			boxQR.innerHTML = `
+				<p style="margin: 0 0 5px 0; font-size: 11px; font-weight: bold;">Inquadra per Fronte e Retro:</p>
+				<img src="${qrImageUrl}" alt="QR Code" style="display: block; margin: 0 auto 8px auto; border-radius: 4px; width: 140px; height: 140px;">
+				<p id="statoQRCapture_${soggetto}" style="margin: 0 0 6px 0; font-size: 10px; color: #666; text-align: center;">In attesa di foto 1 (Fronte)...</p>
+				<button type="button" class="btn-azione btn-elimina-storico" style="width: 100%; padding: 4px; font-size: 10px;" onclick="chiudiQRCapture('${soggetto}')">Chiudi QR</button>
+			`;
+			boxQR.style.display = 'block';
+
+			if (intervalloVerificaQR) clearInterval(intervalloVerificaQR);
+
+			let stepRicezione = 1; // 1 = attende fronte, 2 = attende retro
+
+			intervalloVerificaQR = setInterval(async () => {
+				try {
+					if (stepRicezione === 1) {
+						const sRef1 = storageRef(storage, `documenti_iscritti/${idPersona}_${soggetto}_img1.jpg`);
+						const url1 = await getDownloadURL(sRef1).catch(() => null);
+						
+						if (url1) {
+							const url1Pulito = url1.split('?')[0] + '?t=' + new Date().getTime();
+							
+							document.getElementById(`editUrl_${soggetto}_1`).value = url1Pulito;
+							const link1 = document.getElementById(`linkAnteprima_${soggetto}_1`);
+							link1.href = url1Pulito;
+							link1.setAttribute('target', '_blank');
+							link1.setAttribute('rel', 'noopener noreferrer');
+							link1.textContent = `Visualizza Immagine 1 (Fronte - Smartphone)`;
+							document.getElementById(`boxAnteprima_${soggetto}_1`).style.display = 'block';
+
+							stepRicezione = 2; // Passa alla fase di ascolto del retro
+							let lblStato = document.getElementById(`statoQRCapture_${soggetto}`);
+							if (lblStato) lblStato.textContent = "✅ Fronte ricevuto! In attesa di foto 2 (Retro)...";
+						}
+					} else if (stepRicezione === 2) {
+						const sRef2 = storageRef(storage, `documenti_iscritti/${idPersona}_${soggetto}_img2.jpg`);
+						const url2 = await getDownloadURL(sRef2).catch(() => null);
+						
+						if (url2) {
+							const url2Pulito = url2.split('?')[0] + '?t=' + new Date().getTime();
+
+							document.getElementById(`editUrl_${soggetto}_2`).value = url2Pulito;
+							const link2 = document.getElementById(`linkAnteprima_${soggetto}_2`);
+							link2.href = url2Pulito;
+							link2.setAttribute('target', '_blank');
+							link2.setAttribute('rel', 'noopener noreferrer');
+							link2.textContent = `Visualizza Immagine 2 (Retro - Smartphone)`;
+							document.getElementById(`boxAnteprima_${soggetto}_2`).style.display = 'block';
+
+							// Spegne il listener e chiude il box QR automaticamente
+							clearInterval(intervalloVerificaQR);
+							intervalloVerificaQR = null;
+							chiudiQRCapture(soggetto);
+							
+							alert("✅ Acquisizione completata! Sia il Fronte che il Retro sono stati salvati correttamente.");
+						}
+					}
+				} catch (e) {
+					// Gestione silenziosa degli errori di polling durante l'attesa
+				}
+			}, 3000);
+		};
+		
+		window.chiudiQRCapture = function(soggetto) {
+			if (intervalloVerificaQR) {
+				clearInterval(intervalloVerificaQR);
+				intervalloVerificaQR = null;
+			}
+			let boxQR = document.getElementById(`boxContainerQR_${soggetto}`);
+			if (boxQR) {
+				boxQR.style.display = 'none';
+				boxQR.innerHTML = '';
+			}
+		};
+
+		window.chiudiQRCapture = function(soggetto) {
+			if (intervalloVerificaQR) {
+				clearInterval(intervalloVerificaQR);
+				intervalloVerificaQR = null;
+			}
+			let boxQR = document.getElementById(`boxContainerQR_${soggetto}`);
+			if (boxQR) {
+				boxQR.style.display = 'none';
+				boxQR.innerHTML = '';
+			}
+		};
+		window.chiudiQRCapture = function(soggetto, slot) {
+			if (intervalloVerificaQR) {
+				clearInterval(intervalloVerificaQR);
+				intervalloVerificaQR = null;
+			}
+			let boxQR = document.getElementById(`boxContainerQR_${soggetto}_${slot}`);
+			if (boxQR) {
+				boxQR.style.display = 'none';
+				boxQR.innerHTML = '';
+			}
+		};
     </script>
 </body>
 </html>
