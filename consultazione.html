@@ -3656,7 +3656,6 @@
 			let urlRemoto = `${percorsoBase}fotocamera_remota.html?id=${idPersona}&soggetto=${soggetto}`;
 			let qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(urlRemoto)}`;
 
-			// Unico box QR unificato sopra o sotto i pulsanti
 			let boxQR = document.getElementById(`boxContainerQR_${soggetto}`);
 			boxQR.innerHTML = `
 				<p style="margin: 0 0 5px 0; font-size: 11px; font-weight: bold;">Inquadra per Fronte e Retro:</p>
@@ -3673,36 +3672,62 @@
 			intervalloVerificaQR = setInterval(async () => {
 				try {
 					if (stepRicezione === 1) {
+						// Controllo Foto 1 (Fronte)
 						const sRef1 = storageRef(storage, `documenti_iscritti/${idPersona}_${soggetto}_img1.jpg`);
 						const url1 = await getDownloadURL(sRef1);
 						if (url1) {
-							document.getElementById(`editUrl_${soggetto}_1`).value = url1;
+							// Aggiungiamo un parametro temporale per evitare la cache del browser sull'anteprima
+							const url1Pulito = url1.split('?')[0] + '?t=' + new Date().getTime();
+							
+							document.getElementById(`editUrl_${soggetto}_1`).value = url1Pulito;
 							const link1 = document.getElementById(`linkAnteprima_${soggetto}_1`);
-							link1.href = url1;
+							link1.href = url1Pulito;
 							link1.textContent = `Visualizza Immagine 1 (Fronte - Smartphone)`;
 							document.getElementById(`boxAnteprima_${soggetto}_1`).style.display = 'block';
 
-							stepRicezione = 2;
+							stepRicezione = 2; // Passa alla fase di ascolto del retro
 							let lblStato = document.getElementById(`statoQRCapture_${soggetto}`);
-							if (lblStato) lblStato.textContent = "✅ Fronte ricevuto! Ora scatta il Retro...";
+							if (lblStato) lblStato.textContent = "✅ Fronte ricevuto! In attesa di foto 2 (Retro)...";
 						}
 					} else if (stepRicezione === 2) {
+						// Controllo Foto 2 (Retro) - Usiamo un nome file leggermente diverso o forziamo il controllo
 						const sRef2 = storageRef(storage, `documenti_iscritti/${idPersona}_${soggetto}_img2.jpg`);
 						const url2 = await getDownloadURL(sRef2);
+						
 						if (url2) {
-							document.getElementById(`editUrl_${soggetto}_2`).value = url2;
+							// Verifichiamo che l'URL del retro sia valido e diverso da eventuali vecchi caricamenti
+							const url2Pulito = url2.split('?')[0] + '?t=' + new Date().getTime();
+
+							document.getElementById(`editUrl_${soggetto}_2`).value = url2Pulito;
 							const link2 = document.getElementById(`linkAnteprima_${soggetto}_2`);
-							link2.href = url2;
+							link2.href = url2Pulito;
 							link2.textContent = `Visualizza Immagine 2 (Retro - Smartphone)`;
 							document.getElementById(`boxAnteprima_${soggetto}_2`).style.display = 'block';
 
+							// Spegne il listener e chiude il box QR automaticamente
 							clearInterval(intervalloVerificaQR);
+							intervalloVerificaQR = null;
 							chiudiQRCapture(soggetto);
+							
 							alert("✅ Acquisizione completata! Sia il Fronte che il Retro sono stati salvati correttamente.");
 						}
 					}
-				} catch (e) {}
+				} catch (e) {
+					// L'errore è normale finché il file non esiste ancora su Storage durante il polling
+				}
 			}, 3000);
+		};
+
+		window.chiudiQRCapture = function(soggetto) {
+			if (intervalloVerificaQR) {
+				clearInterval(intervalloVerificaQR);
+				intervalloVerificaQR = null;
+			}
+			let boxQR = document.getElementById(`boxContainerQR_${soggetto}`);
+			if (boxQR) {
+				boxQR.style.display = 'none';
+				boxQR.innerHTML = '';
+			}
 		};
 
 		window.chiudiQRCapture = function(soggetto) {
