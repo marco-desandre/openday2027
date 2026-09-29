@@ -2915,15 +2915,6 @@
             document.getElementById('editNumeroDocumento').value = pulisciTesto(p.numero_documento);
             document.getElementById('editScadenzaDocumento').value = formattaDataPerInputDate(p.scadenza_documento);
 
-            const urlIsc1 = p.immagine_documento_iscritto_1 || p.immagine_documento_1 || p.immagine_documento || "";
-            document.getElementById('editUrl_iscritto_1').value = urlIsc1;
-            if (urlIsc1) {
-                document.getElementById('linkAnteprima_iscritto_1').href = urlIsc1;
-                document.getElementById('boxAnteprima_iscritto_1').style.display = 'block';
-            } else {
-                document.getElementById('boxAnteprima_iscritto_1').style.display = 'none';
-            }
-
             const urlIsc1 = formattaUrlFirebase(p.immagine_documento_iscritto_1 || p.immagine_documento_1 || p.immagine_documento || "");
             document.getElementById('editUrl_iscritto_1').value = urlIsc1;
             if (urlIsc1) {
@@ -2936,7 +2927,7 @@
             } else {
                 document.getElementById('boxAnteprima_iscritto_1').style.display = 'none';
             }
-
+			
             const urlIsc2 = formattaUrlFirebase(p.immagine_documento_iscritto_2 || p.immagine_documento_2 || "");
             document.getElementById('editUrl_iscritto_2').value = urlIsc2;
             if (urlIsc2) {
