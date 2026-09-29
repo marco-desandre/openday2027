@@ -2924,7 +2924,20 @@
                 document.getElementById('boxAnteprima_iscritto_1').style.display = 'none';
             }
 
-            const urlIsc2 = p.immagine_documento_iscritto_2 || p.immagine_documento_2 || "";
+            const urlIsc1 = formattaUrlFirebase(p.immagine_documento_iscritto_1 || p.immagine_documento_1 || p.immagine_documento || "");
+            document.getElementById('editUrl_iscritto_1').value = urlIsc1;
+            if (urlIsc1) {
+                const link1 = document.getElementById('linkAnteprima_iscritto_1');
+                link1.href = urlIsc1;
+                link1.setAttribute('target', '_blank');
+                link1.setAttribute('rel', 'noopener noreferrer');
+                link1.textContent = `Visualizza Immagine 1`;
+                document.getElementById('boxAnteprima_iscritto_1').style.display = 'block';
+            } else {
+                document.getElementById('boxAnteprima_iscritto_1').style.display = 'none';
+            }
+
+            const urlIsc2 = formattaUrlFirebase(p.immagine_documento_iscritto_2 || p.immagine_documento_2 || "");
             document.getElementById('editUrl_iscritto_2').value = urlIsc2;
             if (urlIsc2) {
                 const link2 = document.getElementById('linkAnteprima_iscritto_2');
@@ -2936,7 +2949,7 @@
             } else {
                 document.getElementById('boxAnteprima_iscritto_2').style.display = 'none';
             }
-
+			
             document.getElementById('editGenitore1Cognome').value = pulisciTesto(p.genitore1_cognome || p.genitore_cognome);
             document.getElementById('editGenitore1Nome').value = pulisciTesto(p.genitore1_nome || p.genitore_nome);
             document.getElementById('editGenitore1LuogoNascita').value = pulisciTesto(p.genitore1_luogo_nascita);
@@ -3684,12 +3697,11 @@
 						const url1 = await getDownloadURL(sRef1).catch(() => null);
 						
 						if (url1) {
-							// Forziamo un URL di download pulito bypassando i metadati
-							const url1Pulito = url1.split('&token=')[0] ? url1 : url1; 
+							const url1Pulito = formattaUrlFirebase(url1) + '&t=' + new Date().getTime();
 							
-							document.getElementById(`editUrl_${soggetto}_1`).value = url1;
+							document.getElementById(`editUrl_${soggetto}_1`).value = url1Pulito;
 							const link1 = document.getElementById(`linkAnteprima_${soggetto}_1`);
-							link1.href = url1;
+							link1.href = url1Pulito;
 							link1.setAttribute('target', '_blank');
 							link1.setAttribute('rel', 'noopener noreferrer');
 							link1.textContent = `Visualizza Immagine 1 (Fronte)`;
@@ -3704,9 +3716,12 @@
 						const url2 = await getDownloadURL(sRef2).catch(() => null);
 						
 						if (url2) {
-							document.getElementById(`editUrl_${soggetto}_2`).value = url2;
+							// Formattazione corretta con alt=media tramite formattaUrlFirebase
+							const url2Pulito = formattaUrlFirebase(url2) + '&t=' + new Date().getTime();
+
+							document.getElementById(`editUrl_${soggetto}_2`).value = url2Pulito;
 							const link2 = document.getElementById(`linkAnteprima_${soggetto}_2`);
-							link2.href = url2;
+							link2.href = url2Pulito;
 							link2.setAttribute('target', '_blank');
 							link2.setAttribute('rel', 'noopener noreferrer');
 							link2.textContent = `Visualizza Immagine 2 (Retro)`;
@@ -3760,6 +3775,18 @@
 				boxQR.innerHTML = '';
 			}
 		};
+		
+		function formattaUrlFirebase(url) {
+			if (!url) return "";
+			url = String(url).trim();
+			if (url.includes('firebasestorage.googleapis.com')) {
+				// Pulisce eventuali parametri alt=media duplicati e lo forza correttamente
+				url = url.split('&alt=media')[0].split('?alt=media')[0];
+				let separatore = url.includes('?') ? '&' : '?';
+				return url + separatore + 'alt=media';
+			}
+			return url;
+		}
     </script>
 </body>
 </html>
