@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.10</div>
+			<div class="versione-app">Ver. 01.20</div>
             <div class="top-bar-header">
                 <div id="boxModalita" class="box-modalita" style="display: none;">
                     <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
@@ -626,48 +626,28 @@
 					</div>
 				</div>
 
-				<!-- UNICO PULSANTE QR E UNICO BOX QR CONDIVISO PER FRONTE/RETRO -->
+				<!-- PULSANTE QR CODE -->
 				<div style="margin: 10px 0; background: #e7f5ff; padding: 10px; border-radius: 6px; border: 1px solid #74c0fc; text-align: center;">
 					<button type="button" class="btn-azione" style="background-color: #6f42c1; padding: 8px 16px; font-size: 12px; font-weight: bold;" onclick="apriQRCapture('iscritto')">📱 Scansiona Fronte e Retro con Smartphone (1 QR)</button>
-					
-					<!-- Contenitore QR Unico -->
 					<div id="boxContainerQR_iscritto" style="display: none; margin: 10px auto 0 auto; background: #fff; padding: 12px; border: 1px solid #74c0fc; border-radius: 6px; text-align: center; max-width: 250px;"></div>
 				</div>
 
-				<!-- IMMAGINE 1 (Fronte) -->
+				<!-- SEZIONE UNICA IMMAGINI -->
 				<div style="margin-top: 10px; border-top: 1px dashed #74c0fc; padding-top: 10px;">
-					<label style="font-size: 12px; font-weight: bold; color: #1864ab;">Immagine 1 (Fronte):</label>
-					<div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
-						<button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('iscritto', 1)">📷 Webcam</button>
-						<label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
-							📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('iscritto', 1, this)">
-						</label>
-					</div>
-					<div style="margin-top: 8px;">
-						<div id="boxAnteprima_iscritto_1" style="display: none;">
-							<a id="linkAnteprima_iscritto_1" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 1</a>
-							<button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('iscritto', 1)">Rimuovi</button>
+					<label style="font-size: 12px; font-weight: bold; color: #1864ab;">Immagini Documento:</label>
+					<div style="margin-top: 8px;" id="boxContainerImmagini_iscritto">
+						<div id="linkAnteprima_iscritto_1_wrap" style="display: none; margin-bottom: 4px;">
+							<a id="linkAnteprima_iscritto_1" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline;">Visualizza Immagine 1 (Fronte)</a>
 						</div>
-						<input type="hidden" id="editUrl_iscritto_1">
-					</div>
-				</div>
-
-				<!-- IMMAGINE 2 (Retro) -->
-				<div style="margin-top: 10px; border-top: 1px dashed #74c0fc; padding-top: 10px;">
-					<label style="font-size: 12px; font-weight: bold; color: #1864ab;">Immagine 2 (Retro):</label>
-					<div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
-						<button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('iscritto', 2)">📷 Webcam</button>
-						<label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
-							📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('iscritto', 2, this)">
-						</label>
-					</div>
-					<div style="margin-top: 8px;">
-						<div id="boxAnteprima_iscritto_2" style="display: none;">
-							<a id="linkAnteprima_iscritto_2" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 2</a>
-							<button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('iscritto', 2)">Rimuovi</button>
+						<div id="linkAnteprima_iscritto_2_wrap" style="display: none; margin-bottom: 8px;">
+							<a id="linkAnteprima_iscritto_2" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline;">Visualizza Immagine 2 (Retro)</a>
 						</div>
-						<input type="hidden" id="editUrl_iscritto_2">
+						<div id="msgNessunaImmagine_iscritto" style="font-size: 12px; color: #666; font-style: italic; margin-bottom: 6px;">Nessun documento caricato.</div>
+						
+						<button type="button" id="btnRimuoviEntrambi_iscritto" class="btn-azione btn-elimina-storico" style="display: none;" onclick="rimuoviEntrambiFileDocumento('iscritto')">🗑️ Rimuovi Documenti</button>
 					</div>
+					<input type="hidden" id="editUrl_iscritto_1">
+					<input type="hidden" id="editUrl_iscritto_2">
 				</div>
 			</div>
 		</div>
@@ -2861,19 +2841,19 @@
         const modal = document.getElementById('editModal');
 
         async function apriModaleEsistente(p) {
-            await registraLog("Apertura Anagrafica", `${p.cognome} ${p.nome}`);
+			await registraLog("Apertura Anagrafica", `${p.cognome} ${p.nome}`);
 
-            document.getElementById('modalTitle').textContent = "Scheda Iscritto e Storico";
-            document.getElementById('editIdPersona').value = p.id;
-            document.getElementById('editCognome').value = pulisciTesto(p.cognome);
-            document.getElementById('editNome').value = pulisciTesto(p.nome);
-            document.getElementById('editCodiceFiscale').value = pulisciTesto(p.codice_fiscale || p.codiceFiscale).toUpperCase();
-            document.getElementById('editLuogoNascita').value = pulisciTesto(p.luogo_nascita || p.luogoNascita);          
+			document.getElementById('modalTitle').textContent = "Scheda Iscritto e Storico";
+			document.getElementById('editIdPersona').value = p.id;
+			document.getElementById('editCognome').value = pulisciTesto(p.cognome);
+			document.getElementById('editNome').value = pulisciTesto(p.nome);
+			document.getElementById('editCodiceFiscale').value = pulisciTesto(p.codice_fiscale || p.codiceFiscale).toUpperCase();
+			document.getElementById('editLuogoNascita').value = pulisciTesto(p.luogo_nascita || p.luogoNascita);          
 			document.getElementById('badgeStatoOnorificenza').textContent = p.stato_onorificenza || " -";
 			document.getElementById('editNonIscrivibile').checked = Boolean(p.non_iscrivibile);
 
-            // Caricamento Sesso (Maschio / Femmina)
-            const sessoVal = String(p.sesso || '').toUpperCase();
+			// Caricamento Sesso (Maschio / Femmina)
+			const sessoVal = String(p.sesso || '').toUpperCase();
 			const radioSesso = document.querySelector(`input[name="editSesso"][value="${sessoVal}"]`);
 			if (radioSesso) {
 				radioSesso.checked = true;
@@ -2900,134 +2880,113 @@
 				btnAggiungi.style.display = 'block';
 			}
 			
-            let dtNascita = formattaDataPerInputDate(p.data_nascita);
-            document.getElementById('editDataNascita').value = dtNascita;
-            calcolaEImpostaEta(dtNascita);
+			let dtNascita = formattaDataPerInputDate(p.data_nascita);
+			document.getElementById('editDataNascita').value = dtNascita;
+			calcolaEImpostaEta(dtNascita);
 
-            document.getElementById('editIndirizzo').value = pulisciTesto(p.indirizzo);
-            document.getElementById('editCitta').value = pulisciTesto(p.citta);
-            document.getElementById('editCap').value = pulisciTesto(p.cap);
-            document.getElementById('editProvincia').value = pulisciTesto(p.provincia);
-            document.getElementById('editTelefono').value = pulisciTesto(p.telefono);
-            document.getElementById('editMail').value = pulisciTesto(p.mail || p.email);
-            
-            document.getElementById('editTipoDocumento').value = mappaTipoDocumento(p.tipo_documento);
-            document.getElementById('editNumeroDocumento').value = pulisciTesto(p.numero_documento);
-            document.getElementById('editScadenzaDocumento').value = formattaDataPerInputDate(p.scadenza_documento);
-
-            const urlIsc1 = formattaUrlFirebase(p.immagine_documento_iscritto_1 || p.immagine_documento_1 || p.immagine_documento || "");
-            document.getElementById('editUrl_iscritto_1').value = urlIsc1;
-            if (urlIsc1) {
-                const link1 = document.getElementById('linkAnteprima_iscritto_1');
-                link1.href = urlIsc1;
-                link1.setAttribute('target', '_blank');
-                link1.setAttribute('rel', 'noopener noreferrer');
-                link1.textContent = `Visualizza Immagine 1`;
-                document.getElementById('boxAnteprima_iscritto_1').style.display = 'block';
-            } else {
-                document.getElementById('boxAnteprima_iscritto_1').style.display = 'none';
-            }
+			document.getElementById('editIndirizzo').value = pulisciTesto(p.indirizzo);
+			document.getElementById('editCitta').value = pulisciTesto(p.citta);
+			document.getElementById('editCap').value = pulisciTesto(p.cap);
+			document.getElementById('editProvincia').value = pulisciTesto(p.provincia);
+			document.getElementById('editTelefono').value = pulisciTesto(p.telefono);
+			document.getElementById('editMail').value = pulisciTesto(p.mail || p.email);
 			
-            const urlIsc2 = formattaUrlFirebase(p.immagine_documento_iscritto_2 || p.immagine_documento_2 || "");
-            document.getElementById('editUrl_iscritto_2').value = urlIsc2;
-            if (urlIsc2) {
-                const link2 = document.getElementById('linkAnteprima_iscritto_2');
-                link2.href = urlIsc2;
-                link2.setAttribute('target', '_blank');
-                link2.setAttribute('rel', 'noopener noreferrer');
-                link2.textContent = `Visualizza Immagine 2`;
-                document.getElementById('boxAnteprima_iscritto_2').style.display = 'block';
-            } else {
-                document.getElementById('boxAnteprima_iscritto_2').style.display = 'none';
-            }
+			document.getElementById('editTipoDocumento').value = mappaTipoDocumento(p.tipo_documento);
+			document.getElementById('editNumeroDocumento').value = pulisciTesto(p.numero_documento);
+			document.getElementById('editScadenzaDocumento').value = formattaDataPerInputDate(p.scadenza_documento);
+
+			// Gestione unificata immagini iscritto (Fronte e Retro)
+			const urlIsc1 = formattaUrlFirebase(p.immagine_documento_iscritto_1 || p.immagine_documento_1 || p.immagine_documento || "");
+			const urlIsc2 = formattaUrlFirebase(p.immagine_documento_iscritto_2 || p.immagine_documento_2 || "");
 			
-            document.getElementById('editGenitore1Cognome').value = pulisciTesto(p.genitore1_cognome || p.genitore_cognome);
-            document.getElementById('editGenitore1Nome').value = pulisciTesto(p.genitore1_nome || p.genitore_nome);
-            document.getElementById('editGenitore1LuogoNascita').value = pulisciTesto(p.genitore1_luogo_nascita);
-            document.getElementById('editGenitore1DataNascita').value = formattaDataPerInputDate(p.genitore1_data_nascita);
-            document.getElementById('editGenitore1CodiceFiscale').value = pulisciTesto(p.genitore1_codice_fiscale || p.genitore_codice_fiscale).toUpperCase();
-            document.getElementById('editGenitore1TipoDoc').value = mappaTipoDocumento(p.genitore1_tipo_doc);
-            document.getElementById('editGenitore1NumDoc').value = pulisciTesto(p.genitore1_num_doc);
-            document.getElementById('editGenitore1ScadenzaDoc').value = formattaDataPerInputDate(p.genitore1_scadenza_doc);
+			document.getElementById('editUrl_iscritto_1').value = urlIsc1;
+			document.getElementById('editUrl_iscritto_2').value = urlIsc2;
+			aggiornaStatoUIImmagini('iscritto');
+			
+			document.getElementById('editGenitore1Cognome').value = pulisciTesto(p.genitore1_cognome || p.genitore_cognome);
+			document.getElementById('editGenitore1Nome').value = pulisciTesto(p.genitore1_nome || p.genitore_nome);
+			document.getElementById('editGenitore1LuogoNascita').value = pulisciTesto(p.genitore1_luogo_nascita);
+			document.getElementById('editGenitore1DataNascita').value = formattaDataPerInputDate(p.genitore1_data_nascita);
+			document.getElementById('editGenitore1CodiceFiscale').value = pulisciTesto(p.genitore1_codice_fiscale || p.genitore_codice_fiscale).toUpperCase();
+			document.getElementById('editGenitore1TipoDoc').value = mappaTipoDocumento(p.genitore1_tipo_doc);
+			document.getElementById('editGenitore1NumDoc').value = pulisciTesto(p.genitore1_num_doc);
+			document.getElementById('editGenitore1ScadenzaDoc').value = formattaDataPerInputDate(p.genitore1_scadenza_doc);
 
-            const urlGen1_1 = p.immagine_documento_gen1_1 || "";
-            document.getElementById('editUrl_gen1_1').value = urlGen1_1;
-            if (urlGen1_1) {
-                document.getElementById('linkAnteprima_gen1_1').href = urlGen1_1;
-                document.getElementById('boxAnteprima_gen1_1').style.display = 'block';
-            } else {
-                document.getElementById('boxAnteprima_gen1_1').style.display = 'none';
-            }
+			const urlGen1_1 = p.immagine_documento_gen1_1 || "";
+			document.getElementById('editUrl_gen1_1').value = urlGen1_1;
+			if (urlGen1_1) {
+				document.getElementById('linkAnteprima_gen1_1').href = urlGen1_1;
+				document.getElementById('boxAnteprima_gen1_1').style.display = 'block';
+			} else {
+				document.getElementById('boxAnteprima_gen1_1').style.display = 'none';
+			}
 
-            const urlGen1_2 = p.immagine_documento_gen1_2 || "";
-            document.getElementById('editUrl_gen1_2').value = urlGen1_2;
-            if (urlGen1_2) {
-                document.getElementById('linkAnteprima_gen1_2').href = urlGen1_2;
-                document.getElementById('boxAnteprima_gen1_2').style.display = 'block';
-            } else {
-                document.getElementById('boxAnteprima_gen1_2').style.display = 'none';
-            }
-            
-            document.getElementById('editGenitore2Cognome').value = pulisciTesto(p.genitore2_cognome);
-            document.getElementById('editGenitore2Nome').value = pulisciTesto(p.genitore2_nome);
-            document.getElementById('editGenitore2LuogoNascita').value = pulisciTesto(p.genitore2_luogo_nascita);
-            document.getElementById('editGenitore2DataNascita').value = formattaDataPerInputDate(p.genitore2_data_nascita);
-            document.getElementById('editGenitore2CodiceFiscale').value = pulisciTesto(p.genitore2_codice_fiscale).toUpperCase();
-            document.getElementById('editGenitore2TipoDoc').value = mappaTipoDocumento(p.genitore2_tipo_doc);
-            document.getElementById('editGenitore2NumDoc').value = pulisciTesto(p.genitore2_num_doc);
-            document.getElementById('editGenitore2ScadenzaDoc').value = formattaDataPerInputDate(p.genitore2_scadenza_doc);
+			const urlGen1_2 = p.immagine_documento_gen1_2 || "";
+			document.getElementById('editUrl_gen1_2').value = urlGen1_2;
+			if (urlGen1_2) {
+				document.getElementById('linkAnteprima_gen1_2').href = urlGen1_2;
+				document.getElementById('boxAnteprima_gen1_2').style.display = 'block';
+			} else {
+				document.getElementById('boxAnteprima_gen1_2').style.display = 'none';
+			}
+			
+			document.getElementById('editGenitore2Cognome').value = pulisciTesto(p.genitore2_cognome);
+			document.getElementById('editGenitore2Nome').value = pulisciTesto(p.genitore2_nome);
+			document.getElementById('editGenitore2LuogoNascita').value = pulisciTesto(p.genitore2_luogo_nascita);
+			document.getElementById('editGenitore2DataNascita').value = formattaDataPerInputDate(p.genitore2_data_nascita);
+			document.getElementById('editGenitore2CodiceFiscale').value = pulisciTesto(p.genitore2_codice_fiscale).toUpperCase();
+			document.getElementById('editGenitore2TipoDoc').value = mappaTipoDocumento(p.genitore2_tipo_doc);
+			document.getElementById('editGenitore2NumDoc').value = pulisciTesto(p.genitore2_num_doc);
+			document.getElementById('editGenitore2ScadenzaDoc').value = formattaDataPerInputDate(p.genitore2_scadenza_doc);
 
-            const urlGen2_1 = p.immagine_documento_gen2_1 || "";
-            document.getElementById('editUrl_gen2_1').value = urlGen2_1;
-            if (urlGen2_1) {
-                document.getElementById('linkAnteprima_gen2_1').href = urlGen2_1;
-                document.getElementById('boxAnteprima_gen2_1').style.display = 'block';
-            } else {
-                document.getElementById('boxAnteprima_gen2_1').style.display = 'none';
-            }
+			const urlGen2_1 = p.immagine_documento_gen2_1 || "";
+			document.getElementById('editUrl_gen2_1').value = urlGen2_1;
+			if (urlGen2_1) {
+				document.getElementById('linkAnteprima_gen2_1').href = urlGen2_1;
+				document.getElementById('boxAnteprima_gen2_1').style.display = 'block';
+			} else {
+				document.getElementById('boxAnteprima_gen2_1').style.display = 'none';
+			}
 
-            const urlGen2_2 = p.immagine_documento_gen2_2 || "";
-            document.getElementById('editUrl_gen2_2').value = urlGen2_2;
-            if (urlGen2_2) {
-                document.getElementById('linkAnteprima_gen2_2').href = urlGen2_2;
-                document.getElementById('boxAnteprima_gen2_2').style.display = 'block';
-            } else {
-                document.getElementById('boxAnteprima_gen2_2').style.display = 'none';
-            }
+			const urlGen2_2 = p.immagine_documento_gen2_2 || "";
+			document.getElementById('editUrl_gen2_2').value = urlGen2_2;
+			if (urlGen2_2) {
+				document.getElementById('linkAnteprima_gen2_2').href = urlGen2_2;
+				document.getElementById('boxAnteprima_gen2_2').style.display = 'block';
+			} else {
+				document.getElementById('boxAnteprima_gen2_2').style.display = 'none';
+			}
 
 			let statoSalvato = p.stato_onorificenza;
 			if (!statoSalvato) {
-				// Se manca nel DB, lo calcoliamo al volo in base alle righe dello storico
-				// (dopo aver atteso che lo storico sia caricato)
 				setTimeout(() => ricalcolaOnorificenzaCorrente(), 200);
 			} else {
 				document.getElementById('badgeStatoOnorificenza').textContent = statoSalvato;
 			}
 
-            document.getElementById('editTigre').checked = Boolean(p.tigre);
-            document.getElementById('editCapitanoPiazza').checked = Boolean(p.capitano_piazza);
+			document.getElementById('editTigre').checked = Boolean(p.tigre);
+			document.getElementById('editCapitanoPiazza').checked = Boolean(p.capitano_piazza);
 
-            const isUserMode = (modalitaCorrente === 'user');
-            document.getElementById('editTigre').disabled = isUserMode;
-            document.getElementById('editCapitanoPiazza').disabled = isUserMode;
+			const isUserMode = (modalitaCorrente === 'user');
+			document.getElementById('editTigre').disabled = isUserMode;
+			document.getElementById('editCapitanoPiazza').disabled = isUserMode;
 
-            document.getElementById('btnAggiungiIscrizione').style.display = 'block';
-            document.getElementById('btnAggiungiIscrizione').onclick = attivaInserimentoNuovaIscrizioneEsistente;
-            document.getElementById('btnEliminaAnagrafica').style.display = (modalitaCorrente === 'admin') ? 'block' : 'none';
-            document.getElementById('btnEliminaAnagrafica').onclick = () => eliminaAnagraficaCompleta(p.id);
-            document.getElementById('sezioneStoricoContainer').style.display = 'block';
-            
-            const btnSalva = document.getElementById('btnSalva');
-            btnSalva.textContent = "Salva Modifiche Anagrafica";
-            btnSalva.onclick = gestisciSalvataggioEsistente;
+			document.getElementById('btnAggiungiIscrizione').style.display = 'block';
+			document.getElementById('btnAggiungiIscrizione').onclick = attivaInserimentoNuovaIscrizioneEsistente;
+			document.getElementById('btnEliminaAnagrafica').style.display = (modalitaCorrente === 'admin') ? 'block' : 'none';
+			document.getElementById('btnEliminaAnagrafica').onclick = () => eliminaAnagraficaCompleta(p.id);
+			document.getElementById('sezioneStoricoContainer').style.display = 'block';
+			
+			const btnSalva = document.getElementById('btnSalva');
+			btnSalva.textContent = "Salva Modifiche Anagrafica";
+			btnSalva.onclick = gestisciSalvataggioEsistente;
 
-            modal.style.display = 'flex';
-            controllaCampiVuoti();
-            await caricaStoricoPersona(p.id);
+			modal.style.display = 'flex';
+			controllaCampiVuoti();
+			await caricaStoricoPersona(p.id);
 			
 			ricalcolaOnorificenzaCorrente();
-        }
-
+		}
         document.getElementById('btnNuovoUtente').addEventListener('click', async () => {
             await registraLog("Apertura Anagrafica", "Nuova Anagrafica");
 
@@ -3691,12 +3650,7 @@
 							const url1Pulito = formattaUrlFirebase(url1) + '&t=' + new Date().getTime();
 							
 							document.getElementById(`editUrl_${soggetto}_1`).value = url1Pulito;
-							const link1 = document.getElementById(`linkAnteprima_${soggetto}_1`);
-							link1.href = url1Pulito;
-							link1.setAttribute('target', '_blank');
-							link1.setAttribute('rel', 'noopener noreferrer');
-							link1.textContent = `Visualizza Immagine 1 (Fronte)`;
-							document.getElementById(`boxAnteprima_${soggetto}_1`).style.display = 'block';
+							aggiornaStatoUIImmagini(soggetto);
 
 							stepRicezione = 2; // Passa alla fase di ascolto del retro
 							let lblStato = document.getElementById(`statoQRCapture_${soggetto}`);
@@ -3710,12 +3664,7 @@
 							const url2Pulito = formattaUrlFirebase(url2) + '&t=' + new Date().getTime();
 
 							document.getElementById(`editUrl_${soggetto}_2`).value = url2Pulito;
-							const link2 = document.getElementById(`linkAnteprima_${soggetto}_2`);
-							link2.href = url2Pulito;
-							link2.setAttribute('target', '_blank');
-							link2.setAttribute('rel', 'noopener noreferrer');
-							link2.textContent = `Visualizza Immagine 2 (Retro)`;
-							document.getElementById(`boxAnteprima_${soggetto}_2`).style.display = 'block';
+							aggiornaStatoUIImmagini(soggetto);
 
 							// Spegne il listener e chiude il box QR automaticamente
 							clearInterval(intervalloVerificaQR);
@@ -3730,7 +3679,6 @@
 				}
 			}, 3000);
 		};
-		
 		window.chiudiQRCapture = function(soggetto) {
 			if (intervalloVerificaQR) {
 				clearInterval(intervalloVerificaQR);
@@ -3753,6 +3701,74 @@
 			}
 			return url;
 		}
+		
+		window.aggiornaStatoUIImmagini = function(soggetto) {
+            const url1 = document.getElementById(`editUrl_${soggetto}_1`).value.trim();
+            const url2 = document.getElementById(`editUrl_${soggetto}_2`).value.trim();
+            
+            const wrap1 = document.getElementById(`linkAnteprima_${soggetto}_1_wrap`);
+            const wrap2 = document.getElementById(`linkAnteprima_${soggetto}_2_wrap`);
+            const msgNessuna = document.getElementById(`msgNessunaImmagine_${soggetto}`);
+            const btnRimuovi = document.getElementById(`btnRimuoviEntrambi_${soggetto}`);
+
+            if (url1) {
+                const link1 = document.getElementById(`linkAnteprima_${soggetto}_1`);
+                link1.href = url1;
+                wrap1.style.display = 'block';
+            } else {
+                wrap1.style.display = 'none';
+            }
+
+            if (url2) {
+                const link2 = document.getElementById(`linkAnteprima_${soggetto}_2`);
+                link2.href = url2;
+                wrap2.style.display = 'block';
+            } else {
+                wrap2.style.display = 'none';
+            }
+
+            if (url1 || url2) {
+                msgNessuna.style.display = 'none';
+                btnRimuovi.style.display = 'inline-block';
+            } else {
+                msgNessuna.style.display = 'block';
+                btnRimuovi.style.display = 'none';
+            }
+        };
+
+        window.rimuoviEntrambiFileDocumento = async function(soggetto) {
+            if (!confirm("Vuoi rimuovere entrambi i documenti associati?")) return;
+            let idPersona = document.getElementById('editIdPersona').value;
+            
+            try {
+                mostraCaricamento("Eliminazione file in corso...");
+                
+                if (idPersona && !idPersona.startsWith('temp_')) {
+                    for (let slot = 1; slot <= 2; slot++) {
+                        for (let ext of ['jpg', 'jpeg', 'png', 'pdf']) {
+                            try {
+                                const fileRef = storageRef(storage, `documenti_iscritti/${idPersona}_${soggetto}_img${slot}.${ext}`);
+                                await deleteObject(fileRef);
+                            } catch (err) {
+                                // Ignora se il file specifico non esiste
+                            }
+                        }
+                    }
+                }
+
+                // Svuota i campi nascosti
+                document.getElementById(`editUrl_${soggetto}_1`).value = "";
+                document.getElementById(`editUrl_${soggetto}_2`).value = "";
+
+                // Aggiorna la grafica
+                aggiornaStatoUIImmagini(soggetto);
+            } catch (error) {
+                console.error("Errore rimozione:", error);
+                alert("Errore durante la rimozione: " + error.message);
+            } finally {
+                nascondiCaricamento();
+            }
+        };
     </script>
 </body>
 </html>
