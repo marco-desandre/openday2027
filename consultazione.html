@@ -638,6 +638,10 @@
 								📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('iscritto', 1, this)">
 							</label>
 						</div>
+
+                        <!-- CONTENITORE DINAMICO INLINE PER IL QR CODE (Fronte) -->
+                        <div id="boxContainerQR_iscritto_1" style="display: none; margin-top: 10px; background: #fff; padding: 12px; border: 1px solid #74c0fc; border-radius: 6px; text-align: center; max-width: 250px;"></div>
+
                         <div style="margin-top: 8px;">
                             <div id="boxAnteprima_iscritto_1" style="display: none;">
                                 <a id="linkAnteprima_iscritto_1" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 1</a>
@@ -652,10 +656,17 @@
                         <label style="font-size: 12px; font-weight: bold; color: #1864ab;">Immagine 2 (Retro):</label>
                         <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
                             <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('iscritto', 2)">📷 Webcam</button>
+
+                            <button type="button" class="btn-azione" style="background-color: #6f42c1; padding: 6px 10px; font-size: 11px;" onclick="apriQRCapture('iscritto', 2)">📱 Scansiona con Cellulare</button>
+
                             <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
                                 📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('iscritto', 2, this)">
                             </label>
                         </div>
+
+                        <!-- CONTENITORE DINAMICO INLINE PER IL QR CODE (Retro) -->
+                        <div id="boxContainerQR_iscritto_2" style="display: none; margin-top: 10px; background: #fff; padding: 12px; border: 1px solid #74c0fc; border-radius: 6px; text-align: center; max-width: 250px;"></div>
+
                         <div style="margin-top: 8px;">
                             <div id="boxAnteprima_iscritto_2" style="display: none;">
                                 <a id="linkAnteprima_iscritto_2" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 2</a>
@@ -1459,7 +1470,6 @@
 				intervalloVerificaQR = null;
 			}
 
-			// Codice originale della tua webcam
 			if (streamWebcam) {
 				streamWebcam.getTracks().forEach(track => track.stop());
 				streamWebcam = null;
@@ -1474,7 +1484,6 @@
             try {
                 mostraCaricamento("Eliminazione file...");
                 
-                // Se abbiamo un ID persona valido, proviamo a cancellare le possibili varianti su Storage
                 if (idPersona && !idPersona.startsWith('temp_')) {
                     const estensioni = ['jpg', 'jpeg', 'png', 'pdf'];
                     for (let ext of estensioni) {
@@ -3654,14 +3663,15 @@
 			let urlRemoto = `${percorsoBase}fotocamera_remota.html?id=${idPersona}&soggetto=${soggetto}&slot=${slot}`;
 			let qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(urlRemoto)}`;
 
-			let container = document.getElementById('boxContainerWebcamGenerale');
-			container.innerHTML = `
-				<p style="margin: 0 0 5px 0; font-size: 13px; font-weight: bold;">Inquadra il QR Code con lo smartphone:</p>
-				<img src="${qrImageUrl}" alt="QR Code" style="display: block; margin: 0 auto 10px auto; border-radius: 4px; width: 180px; height: 180px;">
-				<p style="margin: 0 0 8px 0; font-size: 11px; color: #666; text-align: center;" id="testoStatoQR">In attesa dello scatto dal cellulare...</p>
-				<button type="button" class="btn-azione" style="background-color: #dc3545; width: 100%; padding: 8px;" onclick="fermaWebcam()">Chiudi QR</button>
+			// Seleziona il box QR specifico dello slot (es. Fronte = slot 1, Retro = slot 2)
+			let boxQR = document.getElementById(`boxContainerQR_${soggetto}_${slot}`);
+			boxQR.innerHTML = `
+				<p style="margin: 0 0 5px 0; font-size: 11px; font-weight: bold;">Inquadra QR Code:</p>
+				<img src="${qrImageUrl}" alt="QR Code" style="display: block; margin: 0 auto 8px auto; border-radius: 4px; width: 140px; height: 140px;">
+				<p style="margin: 0 0 6px 0; font-size: 10px; color: #666; text-align: center;">In attesa dello scatto...</p>
+				<button type="button" class="btn-azione btn-elimina-storico" style="width: 100%; padding: 4px; font-size: 10px;" onclick="chiudiQRCapture('${soggetto}', ${slot})">Chiudi QR</button>
 			`;
-			container.style.display = 'block';
+			boxQR.style.display = 'block';
 
 			// Pulisci eventuali intervalli precedenti
 			if (intervalloVerificaQR) clearInterval(intervalloVerificaQR);
@@ -3682,40 +3692,24 @@
 
 						// Ferma il controllo e chiudi il box QR
 						clearInterval(intervalloVerificaQR);
-						fermaWebcam();
-						alert("✅ Foto scattata con lo smartphone ricevuta e collegata automaticamente!");
+						chiudiQRCapture(soggetto, slot);
+						alert(`✅ Foto ${slot === 1 ? 'Fronte' : 'Retro'} ricevuta dallo smartphone e collegata automaticamente!`);
 					}
 				} catch (e) {
 					// Il file non è ancora presente, continua a controllare silenziosamente in background
 				}
 			}, 3000); // Controlla ogni 3 secondi
 		};
-		
-		// Funzione per controllare ed agganciare la foto scattata dal cellulare
-		window.verificaFotoCaricata = async function(soggetto, slot) {
-			let idPersona = document.getElementById('editIdPersona').value;
-			if (!idPersona) return;
 
-			try {
-				mostraCaricamento("Verifica presenza file...");
-				// Tenta di recuperare il link di download direttamente da Firebase Storage
-				const sRef = storageRef(storage, `documenti_iscritti/${idPersona}_${soggetto}_img${slot}.jpg`);
-				const downloadUrl = await getDownloadURL(sRef);
-
-				if (downloadUrl) {
-					document.getElementById(`editUrl_${soggetto}_${slot}`).value = downloadUrl;
-					const link = document.getElementById(`linkAnteprima_${soggetto}_${slot}`);
-					link.href = downloadUrl;
-					link.textContent = `Visualizza Immagine ${slot} (Da Cellulare)`;
-					document.getElementById(`boxAnteprima_${soggetto}_${slot}`).style.display = 'block';
-					
-					fermaWebcam();
-					alert("✅ Foto ricevuta dal cellulare e collegata con successo!");
-				}
-			} catch (e) {
-				alert("⏳ La foto non risulta ancora caricata dal cellulare. Completa lo scatto sul telefono e riprova.");
-			} finally {
-				nascondiCaricamento();
+		window.chiudiQRCapture = function(soggetto, slot) {
+			if (intervalloVerificaQR) {
+				clearInterval(intervalloVerificaQR);
+				intervalloVerificaQR = null;
+			}
+			let boxQR = document.getElementById(`boxContainerQR_${soggetto}_${slot}`);
+			if (boxQR) {
+				boxQR.style.display = 'none';
+				boxQR.innerHTML = '';
 			}
 		};
     </script>
