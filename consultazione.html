@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.30</div>
+			<div class="versione-app">Ver. 01.40</div>
             <div class="top-bar-header">
                 <div id="boxModalita" class="box-modalita" style="display: none;">
                     <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
@@ -3081,6 +3081,7 @@
         async function eliminaAnagraficaCompleta(id) {
             if (confirm("Eliminare definitivamente l'anagrafica, lo storico e i documenti associati?")) {
                 try {
+                    mostraCaricamento("Eliminazione anagrafica e documenti in corso...");
                     const docRefPersona = doc(db, "anagrafica", id);
                     const docSnapPersona = await getDoc(docRefPersona);
                     let nomeCompletoLog = `ID: ${id}`;
@@ -3094,25 +3095,35 @@
                         }
                     }
 
+                    // Elimina tutti i documenti associati da Firebase Storage (Iscritto, Genitore 1, Genitore 2)
                     for (let sogg of ['iscritto', 'gen1', 'gen2']) {
                         for (let i = 1; i <= 2; i++) {
-                            for (let ext of ['jpg', 'pdf', 'png', 'jpeg']) {
-                                await deleteObject(storageRef(storage, `documenti_iscritti/${id}_${soggetto}_img${i}.${ext}`)).catch(() => {});
+                            for (let ext of ['jpg', 'jpeg', 'png', 'pdf']) {
+                                try {
+                                    const fileRef = storageRef(storage, `documenti_iscritti/${id}_${sogg}_img${i}.${ext}`);
+                                    await deleteObject(fileRef);
+                                } catch (err) {
+                                    // Ignora se il file specifico non esiste sullo storage
+                                }
                             }
                         }
                     }
                     
+                    // Elimina lo storico iscrizioni
                     const snap = await getDocs(query(collection(db, "storico"), where("id_persona", "==", id)));
                     await Promise.all(snap.docs.map(d => deleteDoc(doc(db, "storico", d.id))));
                     
+                    // Elimina l'anagrafica principale
                     await deleteDoc(docRefPersona);
                     await registraLog("Elimina anagrafica", nomeCompletoLog);
 
-                    alert("Eliminato con successo!");
+                    nascondiCaricamento();
+                    alert("Anagrafica, storico e documenti eliminati con successo!");
                     modal.style.display = 'none';
                     cacheTuttiIscritti = [];
                     if (document.getElementById('filtroCognome').value) cercaIscritti(document.getElementById('filtroCognome').value);
                 } catch (error) {
+                    nascondiCaricamento();
                     alert("Errore durante l'eliminazione: " + error.message);
                 }
             }
