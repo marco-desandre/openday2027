@@ -3666,6 +3666,8 @@
 		
 		let intervalloVerificaQR = null;
 
+		let intervalloVerificaQR = null;
+
 		window.apriQRCapture = function(soggetto) {
 			let idPersona = document.getElementById('editIdPersona').value;
 			if (!idPersona || idPersona.startsWith('temp_')) {
@@ -3716,7 +3718,6 @@
 						const url2 = await getDownloadURL(sRef2).catch(() => null);
 						
 						if (url2) {
-							// Formattazione corretta con alt=media tramite formattaUrlFirebase
 							const url2Pulito = formattaUrlFirebase(url2) + '&t=' + new Date().getTime();
 
 							document.getElementById(`editUrl_${soggetto}_2`).value = url2Pulito;
@@ -3753,34 +3754,10 @@
 			}
 		};
 
-		window.chiudiQRCapture = function(soggetto) {
-			if (intervalloVerificaQR) {
-				clearInterval(intervalloVerificaQR);
-				intervalloVerificaQR = null;
-			}
-			let boxQR = document.getElementById(`boxContainerQR_${soggetto}`);
-			if (boxQR) {
-				boxQR.style.display = 'none';
-				boxQR.innerHTML = '';
-			}
-		};
-		window.chiudiQRCapture = function(soggetto, slot) {
-			if (intervalloVerificaQR) {
-				clearInterval(intervalloVerificaQR);
-				intervalloVerificaQR = null;
-			}
-			let boxQR = document.getElementById(`boxContainerQR_${soggetto}_${slot}`);
-			if (boxQR) {
-				boxQR.style.display = 'none';
-				boxQR.innerHTML = '';
-			}
-		};
-		
 		function formattaUrlFirebase(url) {
 			if (!url) return "";
 			url = String(url).trim();
 			if (url.includes('firebasestorage.googleapis.com')) {
-				// Pulisce eventuali parametri alt=media duplicati e lo forza correttamente
 				url = url.split('&alt=media')[0].split('?alt=media')[0];
 				let separatore = url.includes('?') ? '&' : '?';
 				return url + separatore + 'alt=media';
