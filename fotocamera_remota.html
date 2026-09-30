@@ -44,14 +44,14 @@
             max-height: 58vh;
             border-radius: 8px;
             overflow: hidden;
-            border: 3px solid #ffc107; /* Colore iniziale bordo (Fronte) */
+            border: 3px solid #ffc107; /* Bordo iniziale (Fronte) */
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
             background: #000;
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: border-color 0.3s ease;
+            transition: border-color 0.2s ease;
         }
 
         video { 
@@ -81,17 +81,32 @@
             background: rgba(40, 167, 69, 0.85); 
         }
 
-        /* Colore evidenziato per il Fronte (Giallo/Oro) */
         #istruzioniStep { 
             font-size: 14px; 
-            color: #ffc107; 
             font-weight: bold; 
             margin: 0;
         }
+
+        /* Stile evidenziatore per il FRONTE */
+        .evidenziatore-fronte {
+            background-color: #ffc107;
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        /* Stile evidenziatore per il RETRO */
+        .evidenziatore-retro {
+            background-color: #17a2b8;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
         .suggerimento-tap {
             font-size: 11px;
             color: #e9ecef;
-            margin-top: 2px;
+            margin-top: 4px;
         }
 
         canvas { display: none; }
@@ -107,8 +122,7 @@
 </head>
 <body>
 
-    <!-- Indicatore di versione in alto a destra -->
-    <div class="versione-app">Ver. 01.00</div>
+    <div class="versione-app">Ver. 01.10</div>
 
     <div>
         <h3 id="titoloSoggetto">Acquisizione Documento</h3>
@@ -118,7 +132,7 @@
         <video id="webcamVideo" autoplay playsinline muted></video>
         
         <div class="overlay-testo">
-            <div id="istruzioniStep">Tap per scattare la foto del FRONTE</div>
+            <div id="istruzioniStep">Tap per scattare la foto del <span class="evidenziatore-fronte" id="testoLato">FRONTE</span></div>
             <div class="suggerimento-tap">📸 Tocca l'immagine per catturare</div>
         </div>
     </div>
@@ -218,12 +232,12 @@
             let base64Originale = canvas.toDataURL('image/jpeg', 0.9);
             
             const container = document.getElementById('videoContainer');
-            const lblIstruzioni = document.getElementById('istruzioniStep');
+            const testoLato = document.getElementById('testoLato');
             const loader = document.getElementById('loadingRemoto');
 
-            // Feedback visivo immediato: bordo verde e testo di conferma
+            // 1. Feedback visivo immediato: bordo verde e testo di conferma
             container.style.borderColor = "#28a745";
-            lblIstruzioni.textContent = slotCorrente === 1 ? "✅ Fronte acquisito! Salvataggio..." : "✅ Retro acquisito! Salvataggio...";
+            testoLato.textContent = slotCorrente === 1 ? "FRONTE ACQUISITO" : "RETRO ACQUISITO";
             loader.style.display = 'block';
             loader.textContent = "Caricamento su Cloud...";
 
@@ -235,24 +249,24 @@
 
                 loader.style.display = 'none';
 
-                // Mantiene il feedback verde per 2 secondi prima di passare allo step successivo o chiudere
-                await attesa(2000);
+                // 2. Mantiene il feedback verde per esattamente 1 secondo
+                await attesa(1000);
 
                 if (slotCorrente === 1) {
                     slotCorrente = 2;
-                    // Passaggio al Retro con colore evidenziato differente (Verde Chiaro/Ciano: #38ef7d)
-                    lblIstruzioni.textContent = "Tap per scattare la foto del RETRO";
-                    lblIstruzioni.style.color = "#38ef7d"; 
-                    container.style.borderColor = "#17a2b8"; // Bordo azzurro per il retro
+                    // Passaggio al Retro: ripristina il bordo originale del retro (#17a2b8) e imposta evidenziatore retro
+                    container.style.borderColor = "#17a2b8";
+                    testoLato.className = "evidenziatore-retro";
+                    testoLato.textContent = "RETRO";
                     inAcquisizione = false;
                 } else {
-                    lblIstruzioni.textContent = "✅ Fatto!";
+                    document.getElementById('istruzioniStep').textContent = "✅ Fatto!";
                     alert("✅ Entrambe le foto (Fronte e Retro) sono state inviate correttamente! Puoi chiudere questa finestra.");
                     window.close();
                 }
             } catch (error) {
                 loader.style.display = 'none';
-                container.style.borderColor = "#ffc107";
+                container.style.borderColor = slotCorrente === 1 ? "#ffc107" : "#17a2b8";
                 alert("Errore durante l'invio della foto: " + error.message);
                 inAcquisizione = false;
             }
