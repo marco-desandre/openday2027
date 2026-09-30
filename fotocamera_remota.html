@@ -146,35 +146,37 @@
         document.getElementById('titoloSoggetto').textContent = `Acquisizione Documento (${soggetto ? soggetto.toUpperCase() : ''})`;
 
         async function avviaCameraRemota() {
-            try {
-                // Tenta prima di usare la fotocamera posteriore (principale) dello smartphone
-                streamWebcam = await navigator.mediaDevices.getUserMedia({
-                    video: { 
-                        width: { ideal: 1280 }, 
-                        height: { ideal: 720 }, 
-                        facingMode: { exact: "environment" } 
-                    }
-                });
-            } catch (err1) {
+            // Configurazione flessibile per massima compatibilità mobile
+            const constraintsList = [
+                { video: { facingMode: { exact: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } } },
+                { video: { facingMode: "environment" } }, // Fallback standard fotocamera posteriore
+                { video: true }                            // Fallback qualsiasi fotocamera disponibile
+            ];
+
+            let success = false;
+            for (let constraints of constraintsList) {
                 try {
-                    // Fallback se 'exact: environment' non è supportato o fallisce
-                    streamWebcam = await navigator.mediaDevices.getUserMedia({
-                        video: { facingMode: "environment" }
-                    });
-                } catch (err2) {
-                    try {
-                        // Ultimo tentativo generico con qualsiasi fotocamera disponibile
-                        streamWebcam = await navigator.mediaDevices.getUserMedia({ video: true });
-                    } catch (errFinal) {
-                        alert("⚠️ Impossibile accedere alla fotocamera.\n\nAssicurati di aprire il link tramite HTTPS e di aver concesso i permessi al browser.\nDettaglio: " + errFinal.message);
-                        return;
-                    }
+                    streamWebcam = await navigator.mediaDevices.getUserMedia(constraints);
+                    success = true;
+                    break;
+                } catch (err) {
+                    console.warn("Tentativo constraints fallito, provo il successivo...", err);
                 }
             }
-            
+
+            if (!success || !streamWebcam) {
+                alert("⚠️ Impossibile avviare la fotocamera. Verifica che il sito abbia i permessi per usare la fotocamera nelle impostazioni del browser.");
+                return;
+            }
+
             const videoElement = document.getElementById('webcamVideo');
             videoElement.srcObject = streamWebcam;
-            await videoElement.play().catch(e => console.log("Play automatico intercettato:", e));
+            
+            try {
+                await videoElement.play();
+            } catch (e) {
+                console.error("Errore durante il play del video:", e);
+            }
         }
 
         avviaCameraRemota();
