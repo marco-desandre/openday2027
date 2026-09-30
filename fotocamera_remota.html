@@ -21,8 +21,20 @@
             flex-direction: column; 
             justify-content: space-around; 
             align-items: center; 
+            position: relative;
         }
         h3 { margin: 2px 0; font-size: 15px; }
+
+        /* Versione in alto a destra */
+        .versione-app {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 11px;
+            color: #868e96;
+            font-weight: bold;
+            user-select: none;
+        }
 
         /* Contenitore video cliccabile */
         .video-container {
@@ -69,7 +81,7 @@
             background: rgba(40, 167, 69, 0.85); 
         }
 
-        /* Colore differenziato per Fronte (Giallo/Oro) */
+        /* Colore evidenziato per il Fronte (Giallo/Oro) */
         #istruzioniStep { 
             font-size: 14px; 
             color: #ffc107; 
@@ -94,6 +106,9 @@
     </style>
 </head>
 <body>
+
+    <!-- Indicatore di versione in alto a destra -->
+    <div class="versione-app">Ver. 01.00</div>
 
     <div>
         <h3 id="titoloSoggetto">Acquisizione Documento</h3>
@@ -220,19 +235,19 @@
 
                 loader.style.display = 'none';
 
-                // Mantiene il feedback verde per almeno 2 secondi totali prima di cambiare stato o chiudere
+                // Mantiene il feedback verde per 2 secondi prima di passare allo step successivo o chiudere
                 await attesa(2000);
 
                 if (slotCorrente === 1) {
                     slotCorrente = 2;
-                    // Passaggio al Retro con colore evidenziato differente (Azzurro/Ciano: #17a2b8)
+                    // Passaggio al Retro con colore evidenziato differente (Verde Chiaro/Ciano: #38ef7d)
                     lblIstruzioni.textContent = "Tap per scattare la foto del RETRO";
-                    lblIstruzioni.style.color = "#38ef7d"; // Colore distintivo per il retro
-                    container.style.borderColor = "#17a2b8"; // Ripristina bordo colorato (azzurro) per il retro
+                    lblIstruzioni.style.color = "#38ef7d"; 
+                    container.style.borderColor = "#17a2b8"; // Bordo azzurro per il retro
                     inAcquisizione = false;
                 } else {
                     lblIstruzioni.textContent = "✅ Fatto!";
-                    //alert("✅ Entrambe le foto (Fronte e Retro) sono state inviate correttamente! Puoi chiudere questa finestra.");
+                    alert("✅ Entrambe le foto (Fronte e Retro) sono state inviate correttamente! Puoi chiudere questa finestra.");
                     window.close();
                 }
             } catch (error) {
