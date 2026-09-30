@@ -8,89 +8,113 @@
         html, body { 
             height: 100vh; 
             margin: 0; 
-            padding: 5px; 
+            padding: 8px; 
             box-sizing: border-box; 
         }
         body { 
             font-family: Arial, sans-serif; 
             text-align: center; 
-            background: #343a40; 
+            background: #212529; 
             color: white; 
             display: flex; 
             flex-direction: column; 
             justify-content: space-between; 
             align-items: center; 
-            overflow: hidden; /* Blocca qualsiasi scroll */
+            overflow: hidden; 
         }
-        h3 { margin: 2px 0; font-size: 16px; }
-        #istruzioniStep { 
-            font-size: 14px; 
-            color: #ffc107; 
-            font-weight: bold; 
-            margin: 4px 0; 
-            background: rgba(0,0,0,0.3); 
-            padding: 6px 10px; 
-            border-radius: 6px; 
-            width: 100%;
-            max-width: 400px;
-            box-sizing: border-box;
-        }
+        h3 { margin: 2px 0; font-size: 15px; color: #ced4da; }
+        
+        /* Contenitore video con effetto "pulsante interattivo" */
         .video-container {
+            position: relative;
             flex: 1;
+            width: 100%;
+            max-width: 450px;
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 100%;
-            max-height: calc(100vh - 150px);
             min-height: 0;
+            cursor: pointer;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 3px solid #ffc107;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            background: #000;
         }
         video { 
-            max-width: 100%; 
-            max-height: 100%; 
-            width: auto;
-            height: auto;
-            border-radius: 6px; 
-            border: 2px solid #fff; 
-            object-fit: contain;
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover;
         }
         canvas { display: none; }
-        .footer-action {
+
+        /* Scritta in sovrimpressione (Overlay) */
+        .overlay-testo {
+            position: absolute;
+            bottom: 0;
+            left: 0;
             width: 100%;
-            max-width: 400px;
-            margin-bottom: 5px;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            padding: 15px 10px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            transition: background 0.2s;
         }
-        .btn-scatta { 
-            background-color: #28a745; 
-            color: white; 
-            border: none; 
-            padding: 12px 20px; 
+        .video-container:active .overlay-testo {
+            background: rgba(40, 167, 69, 0.85); /* Feedback visivo al tap */
+        }
+        #istruzioniStep { 
             font-size: 16px; 
+            color: #ffc107; 
             font-weight: bold; 
-            border-radius: 8px; 
-3            cursor: pointer; 
-            width: 100%; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+            margin: 0;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
-        .btn-scatta:hover { background-color: #218838; }
-        #loadingRemoto { display: none; margin-top: 5px; font-size: 14px; font-weight: bold; color: #17a2b8; }
+        .suggerimento-tap {
+            font-size: 12px;
+            color: #e9ecef;
+            margin-top: 3px;
+        }
+
+        #loadingRemoto { 
+            display: none; 
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(33, 37, 41, 0.85);
+            justify-content: center;
+            align-items: center;
+            font-size: 18px; 
+            font-weight: bold; 
+            color: #17a2b8; 
+            z-index: 10;
+        }
     </style>
 </head>
 <body>
 
-    <div>
-        <h3 id="titoloSoggetto">Acquisizione Documento</h3>
-        <div id="istruzioniStep">1️⃣ Inquadra e scatta il FRONTE</div>
-    </div>
+    <h3 id="titoloSoggetto">Documento</h3>
 
-    <div class="video-container">
+    <!-- Toccando tutta questa area si scatta la foto -->
+    <div class="video-container" onclick="scattaEInviaRemota()">
         <video id="webcamVideo" autoplay playsinline></video>
-    </div>
-    <canvas id="webcamCanvas"></canvas>
+        
+        <div class="overlay-testo">
+            <div id="istruzioniStep">Tap per scattare la foto del FRONTE</div>
+            <div class="suggerimento-tap">📸 Tocca l'immagine per catturare</div>
+        </div>
 
-    <div class="footer-action">
-        <button type="button" class="btn-scatta" id="btnScattaRemota" onclick="scattaEInviaRemota()">📸 Scatta Fronte</button>
         <div id="loadingRemoto">Caricamento in corso...</div>
     </div>
+
+    <canvas id="webcamCanvas"></canvas>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -117,8 +141,9 @@
 
         let streamWebcam = null;
         let slotCorrente = 1; // 1 = Fronte, 2 = Retro
+        let inAcquisizione = semaforoLock = false;
 
-        document.getElementById('titoloSoggetto').textContent = `Documento (${soggetto ? soggetto.toUpperCase() : ''})`;
+        document.getElementById('titoloSoggetto').textContent = `Acquisizione Documento (${soggetto ? soggetto.toUpperCase() : ''})`;
 
         async function avviaCameraRemota() {
             try {
@@ -159,11 +184,13 @@
         }
 
         window.scattaEInviaRemota = async function() {
+            if (inAcquisizione) return;
             if (!idPersona || !soggetto) {
                 alert("Parametri mancanti nell'URL.");
                 return;
             }
 
+            inAcquisizione = true;
             const video = document.getElementById('webcamVideo');
             const canvas = document.getElementById('webcamCanvas');
             canvas.width = video.videoWidth || 640;
@@ -173,9 +200,9 @@
 
             let base64Originale = canvas.toDataURL('image/jpeg', 0.9);
             
-            document.getElementById('loadingRemoto').style.display = 'block';
-            document.getElementById('loadingRemoto').textContent = slotCorrente === 1 ? "Caricamento Fronte in corso..." : "Caricamento Retro in corso...";
-            document.getElementById('btnScattaRemota').disabled = true;
+            const loader = document.getElementById('loadingRemoto');
+            loader.style.display = 'flex';
+            loader.textContent = slotCorrente === 1 ? "Caricamento Fronte in corso..." : "Caricamento Retro in corso...";
 
             try {
                 let base64Compresso = await riduciImmagineBase64(base64Originale, 1024, 0.6);
@@ -183,25 +210,23 @@
                 const sRef = storageRef(storage, `documenti_iscritti/${idPersona}_${soggetto}_img${slotCorrente}.jpg`);
                 await uploadString(sRef, base64Compresso, 'data_url');
 
-                document.getElementById('loadingRemoto').style.display = 'none';
-                document.getElementById('btnScattaRemota').disabled = false;
+                loader.style.display = 'none';
 
                 if (slotCorrente === 1) {
                     slotCorrente = 2;
-                    document.getElementById('istruzioniStep').textContent = "2️⃣ Ottimo! Ora inquadra il RETRO";
-                    document.getElementById('btnScattaRemota').textContent = "📸 Scatta Retro";
-                    document.getElementById('btnScattaRemota').style.backgroundColor = "#ffc107";
-                    document.getElementById('btnScattaRemota').style.color = "#000";
+                    document.getElementById('istruzioniStep').textContent = "Tap per scattare la foto del RETRO";
+                    let container = document.querySelector('.video-container');
+                    container.style.borderColor = "#28a745"; // Cambio colore bordo per indicare il cambio step
                 } else {
                     document.getElementById('istruzioniStep').textContent = "✅ Fatto!";
-                    document.getElementById('btnScattaRemota').style.display = 'none';
-                    alert("✅ Entrambe le foto inviate correttamente! Puoi chiudere questa finestra.");
+                    alert("✅ Entrambe le foto (Fronte e Retro) sono state inviate correttamente! Puoi chiudere questa finestra.");
                     window.close();
                 }
             } catch (error) {
-                document.getElementById('loadingRemoto').style.display = 'none';
-                document.getElementById('btnScattaRemota').disabled = false;
+                loader.style.display = 'none';
                 alert("Errore durante l'invio: " + error.message);
+            } finally {
+                inAcquisizione = false;
             }
         };
     </script>
