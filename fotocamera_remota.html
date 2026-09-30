@@ -10,7 +10,7 @@
             margin: 0; 
             padding: 5px; 
             box-sizing: border-box; 
-            overflow: hidden; /* Blocca lo scroll */
+            overflow: hidden; 
         }
         body { 
             font-family: Arial, sans-serif; 
@@ -24,7 +24,7 @@
         }
         h3 { margin: 2px 0; font-size: 15px; }
 
-        /* Contenitore cliccabile che funge da pulsante immagine */
+        /* Contenitore video cliccabile */
         .video-container {
             position: relative;
             width: 100%;
@@ -32,13 +32,14 @@
             max-height: 58vh;
             border-radius: 8px;
             overflow: hidden;
-            border: 3px solid #ffc107;
+            border: 3px solid #ffc107; /* Colore iniziale bordo (Fronte) */
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
             background: #000;
             display: flex;
             justify-content: center;
             align-items: center;
+            transition: border-color 0.3s ease;
         }
 
         video { 
@@ -48,7 +49,7 @@
             display: block;
         }
 
-        /* Testo in sovrimpressione sull'immagine */
+        /* Testo in sovrimpressione */
         .overlay-testo {
             position: absolute;
             bottom: 0;
@@ -65,8 +66,10 @@
             transition: background 0.2s;
         }
         .video-container:active .overlay-testo {
-            background: rgba(40, 167, 69, 0.85); /* Feedback visivo al tap */
+            background: rgba(40, 167, 69, 0.85); 
         }
+
+        /* Colore differenziato per Fronte (Giallo/Oro) */
         #istruzioniStep { 
             font-size: 14px; 
             color: #ffc107; 
@@ -96,8 +99,7 @@
         <h3 id="titoloSoggetto">Acquisizione Documento</h3>
     </div>
 
-    <!-- Toccando tutta questa area (video + scritta) si scatta la foto -->
-    <div class="video-container" onclick="scattaEInviaRemota()">
+    <div class="video-container" id="videoContainer" onclick="scattaEInviaRemota()">
         <video id="webcamVideo" autoplay playsinline muted></video>
         
         <div class="overlay-testo">
@@ -179,6 +181,10 @@
             });
         }
 
+        function attesa(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
         window.scattaEInviaRemota = async function() {
             if (inAcquisizione) return;
             if (!idPersona || !soggetto) {
@@ -196,9 +202,15 @@
 
             let base64Originale = canvas.toDataURL('image/jpeg', 0.9);
             
+            const container = document.getElementById('videoContainer');
+            const lblIstruzioni = document.getElementById('istruzioniStep');
             const loader = document.getElementById('loadingRemoto');
+
+            // Feedback visivo immediato: bordo verde e testo di conferma
+            container.style.borderColor = "#28a745";
+            lblIstruzioni.textContent = slotCorrente === 1 ? "✅ Fronte acquisito! Salvataggio..." : "✅ Retro acquisito! Salvataggio...";
             loader.style.display = 'block';
-            loader.textContent = slotCorrente === 1 ? "Caricamento Fronte in corso..." : "Caricamento Retro in corso...";
+            loader.textContent = "Caricamento su Cloud...";
 
             try {
                 let base64Compresso = await riduciImmagineBase64(base64Originale, 1024, 0.6);
@@ -208,20 +220,25 @@
 
                 loader.style.display = 'none';
 
+                // Mantiene il feedback verde per almeno 2 secondi totali prima di cambiare stato o chiudere
+                await attesa(2000);
+
                 if (slotCorrente === 1) {
                     slotCorrente = 2;
-                    document.getElementById('istruzioniStep').textContent = "Tap per scattare la foto del RETRO";
-                    let container = document.querySelector('.video-container');
-                    container.style.borderColor = "#28a745"; // Passa a verde per indicare il retro
+                    // Passaggio al Retro con colore evidenziato differente (Azzurro/Ciano: #17a2b8)
+                    lblIstruzioni.textContent = "Tap per scattare la foto del RETRO";
+                    lblIstruzioni.style.color = "#38ef7d"; // Colore distintivo per il retro
+                    container.style.borderColor = "#17a2b8"; // Ripristina bordo colorato (azzurro) per il retro
+                    inAcquisizione = false;
                 } else {
-                    document.getElementById('istruzioniStep').textContent = "✅ Fatto!";
-                    alert("✅ Entrambe le foto (Fronte e Retro) sono state inviate correttamente! Puoi chiudere questa finestra.");
+                    lblIstruzioni.textContent = "✅ Fatto!";
+                    //alert("✅ Entrambe le foto (Fronte e Retro) sono state inviate correttamente! Puoi chiudere questa finestra.");
                     window.close();
                 }
             } catch (error) {
                 loader.style.display = 'none';
+                container.style.borderColor = "#ffc107";
                 alert("Errore durante l'invio della foto: " + error.message);
-            } finally {
                 inAcquisizione = false;
             }
         };
