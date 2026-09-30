@@ -2,61 +2,60 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Acquisizione Documento Remota</title>
     <style>
         html, body { 
-            height: 100vh; 
+            height: 100%; 
             margin: 0; 
-            padding: 8px; 
+            padding: 5px; 
             box-sizing: border-box; 
+            overflow: hidden; /* Blocca lo scroll */
         }
         body { 
             font-family: Arial, sans-serif; 
             text-align: center; 
-            background: #212529; 
+            background: #343a40; 
             color: white; 
             display: flex; 
             flex-direction: column; 
-            justify-content: space-between; 
+            justify-content: space-around; 
             align-items: center; 
-            overflow: hidden; 
         }
-        h3 { margin: 2px 0; font-size: 15px; color: #ced4da; }
-        
-        /* Contenitore video con effetto "pulsante interattivo" */
+        h3 { margin: 2px 0; font-size: 15px; }
+
+        /* Contenitore cliccabile che funge da pulsante immagine */
         .video-container {
             position: relative;
-            flex: 1;
             width: 100%;
-            max-width: 450px;
+            max-width: 380px;
+            max-height: 58vh;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 3px solid #ffc107;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            background: #000;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 0;
-            cursor: pointer;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 3px solid #ffc107;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            background: #000;
         }
+
         video { 
             width: 100%; 
             height: 100%; 
-            object-fit: cover;
+            object-fit: contain; 
+            display: block;
         }
-        canvas { display: none; }
 
-        /* Scritta in sovrimpressione (Overlay) */
+        /* Testo in sovrimpressione sull'immagine */
         .overlay-testo {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
             background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(4px);
-            padding: 15px 10px;
+            padding: 10px 5px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -69,52 +68,49 @@
             background: rgba(40, 167, 69, 0.85); /* Feedback visivo al tap */
         }
         #istruzioniStep { 
-            font-size: 16px; 
+            font-size: 14px; 
             color: #ffc107; 
             font-weight: bold; 
             margin: 0;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
         .suggerimento-tap {
-            font-size: 12px;
+            font-size: 11px;
             color: #e9ecef;
-            margin-top: 3px;
+            margin-top: 2px;
         }
 
+        canvas { display: none; }
+        
         #loadingRemoto { 
             display: none; 
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(33, 37, 41, 0.85);
-            justify-content: center;
-            align-items: center;
-            font-size: 18px; 
+            font-size: 14px; 
             font-weight: bold; 
             color: #17a2b8; 
-            z-index: 10;
+            margin: 2px 0; 
         }
     </style>
 </head>
 <body>
 
-    <h3 id="titoloSoggetto">Documento</h3>
+    <div>
+        <h3 id="titoloSoggetto">Acquisizione Documento</h3>
+    </div>
 
-    <!-- Toccando tutta questa area si scatta la foto -->
-	<div class="video-container" onclick="scattaEInviaRemota()">
-		<video id="webcamVideo" autoplay playsinline muted></video>
-		
-		<div class="overlay-testo">
-			<div id="istruzioniStep">Tap per scattare la foto del FRONTE</div>
-			<div class="suggerimento-tap">📸 Tocca l'immagine per catturare</div>
-		</div>
-
-		<div id="loadingRemoto">Caricamento in corso...</div>
-	</div>
+    <!-- Toccando tutta questa area (video + scritta) si scatta la foto -->
+    <div class="video-container" onclick="scattaEInviaRemota()">
+        <video id="webcamVideo" autoplay playsinline muted></video>
+        
+        <div class="overlay-testo">
+            <div id="istruzioniStep">Tap per scattare la foto del FRONTE</div>
+            <div class="suggerimento-tap">📸 Tocca l'immagine per catturare</div>
+        </div>
+    </div>
 
     <canvas id="webcamCanvas"></canvas>
+
+    <div>
+        <div id="loadingRemoto">Caricamento in corso...</div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -141,41 +137,23 @@
 
         let streamWebcam = null;
         let slotCorrente = 1; // 1 = Fronte, 2 = Retro
-        let inAcquisizione = semaforoLock = false;
+        let inAcquisizione = false;
 
-        document.getElementById('titoloSoggetto').textContent = `Acquisizione Documento (${soggetto ? soggetto.toUpperCase() : ''})`;
+        document.getElementById('titoloSoggetto').textContent = `Documento (${soggetto ? soggetto.toUpperCase() : ''})`;
 
         async function avviaCameraRemota() {
-            // Configurazione flessibile per massima compatibilità mobile
-            const constraintsList = [
-                { video: { facingMode: { exact: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } } },
-                { video: { facingMode: "environment" } }, // Fallback standard fotocamera posteriore
-                { video: true }                            // Fallback qualsiasi fotocamera disponibile
-            ];
-
-            let success = false;
-            for (let constraints of constraintsList) {
-                try {
-                    streamWebcam = await navigator.mediaDevices.getUserMedia(constraints);
-                    success = true;
-                    break;
-                } catch (err) {
-                    console.warn("Tentativo constraints fallito, provo il successivo...", err);
-                }
-            }
-
-            if (!success || !streamWebcam) {
-                alert("⚠️ Impossibile avviare la fotocamera. Verifica che il sito abbia i permessi per usare la fotocamera nelle impostazioni del browser.");
-                return;
-            }
-
-            const videoElement = document.getElementById('webcamVideo');
-            videoElement.srcObject = streamWebcam;
-            
             try {
-                await videoElement.play();
-            } catch (e) {
-                console.error("Errore durante il play del video:", e);
+                streamWebcam = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "environment" }
+                });
+                document.getElementById('webcamVideo').srcObject = streamWebcam;
+            } catch (err) {
+                try {
+                    streamWebcam = await navigator.mediaDevices.getUserMedia({ video: true });
+                    document.getElementById('webcamVideo').srcObject = streamWebcam;
+                } catch (e) {
+                    alert("Impossibile accedere alla fotocamera dello smartphone: " + e.message);
+                }
             }
         }
 
@@ -219,7 +197,7 @@
             let base64Originale = canvas.toDataURL('image/jpeg', 0.9);
             
             const loader = document.getElementById('loadingRemoto');
-            loader.style.display = 'flex';
+            loader.style.display = 'block';
             loader.textContent = slotCorrente === 1 ? "Caricamento Fronte in corso..." : "Caricamento Retro in corso...";
 
             try {
@@ -234,7 +212,7 @@
                     slotCorrente = 2;
                     document.getElementById('istruzioniStep').textContent = "Tap per scattare la foto del RETRO";
                     let container = document.querySelector('.video-container');
-                    container.style.borderColor = "#28a745"; // Cambio colore bordo per indicare il cambio step
+                    container.style.borderColor = "#28a745"; // Passa a verde per indicare il retro
                 } else {
                     document.getElementById('istruzioniStep').textContent = "✅ Fatto!";
                     alert("✅ Entrambe le foto (Fronte e Retro) sono state inviate correttamente! Puoi chiudere questa finestra.");
@@ -242,7 +220,7 @@
                 }
             } catch (error) {
                 loader.style.display = 'none';
-                alert("Errore durante l'invio: " + error.message);
+                alert("Errore durante l'invio della foto: " + error.message);
             } finally {
                 inAcquisizione = false;
             }
