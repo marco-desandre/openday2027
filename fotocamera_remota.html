@@ -103,16 +103,16 @@
     <h3 id="titoloSoggetto">Documento</h3>
 
     <!-- Toccando tutta questa area si scatta la foto -->
-    <div class="video-container" onclick="scattaEInviaRemota()">
-        <video id="webcamVideo" autoplay playsinline></video>
-        
-        <div class="overlay-testo">
-            <div id="istruzioniStep">Tap per scattare la foto del FRONTE</div>
-            <div class="suggerimento-tap">📸 Tocca l'immagine per catturare</div>
-        </div>
+	<div class="video-container" onclick="scattaEInviaRemota()">
+		<video id="webcamVideo" autoplay playsinline muted></video>
+		
+		<div class="overlay-testo">
+			<div id="istruzioniStep">Tap per scattare la foto del FRONTE</div>
+			<div class="suggerimento-tap">📸 Tocca l'immagine per catturare</div>
+		</div>
 
-        <div id="loadingRemoto">Caricamento in corso...</div>
-    </div>
+		<div id="loadingRemoto">Caricamento in corso...</div>
+	</div>
 
     <canvas id="webcamCanvas"></canvas>
 
@@ -147,18 +147,34 @@
 
         async function avviaCameraRemota() {
             try {
+                // Tenta prima di usare la fotocamera posteriore (principale) dello smartphone
                 streamWebcam = await navigator.mediaDevices.getUserMedia({
-                    video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "environment" }
+                    video: { 
+                        width: { ideal: 1280 }, 
+                        height: { ideal: 720 }, 
+                        facingMode: { exact: "environment" } 
+                    }
                 });
-                document.getElementById('webcamVideo').srcObject = streamWebcam;
-            } catch (err) {
+            } catch (err1) {
                 try {
-                    streamWebcam = await navigator.mediaDevices.getUserMedia({ video: true });
-                    document.getElementById('webcamVideo').srcObject = streamWebcam;
-                } catch (e) {
-                    alert("Impossibile accedere alla fotocamera dello smartphone: " + e.message);
+                    // Fallback se 'exact: environment' non è supportato o fallisce
+                    streamWebcam = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: "environment" }
+                    });
+                } catch (err2) {
+                    try {
+                        // Ultimo tentativo generico con qualsiasi fotocamera disponibile
+                        streamWebcam = await navigator.mediaDevices.getUserMedia({ video: true });
+                    } catch (errFinal) {
+                        alert("⚠️ Impossibile accedere alla fotocamera.\n\nAssicurati di aprire il link tramite HTTPS e di aver concesso i permessi al browser.\nDettaglio: " + errFinal.message);
+                        return;
+                    }
                 }
             }
+            
+            const videoElement = document.getElementById('webcamVideo');
+            videoElement.srcObject = streamWebcam;
+            await videoElement.play().catch(e => console.log("Play automatico intercettato:", e));
         }
 
         avviaCameraRemota();
