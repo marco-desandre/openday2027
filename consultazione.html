@@ -2381,7 +2381,6 @@
             const msg = document.getElementById('messaggioGuidaPrelazioni');
             const tab = document.getElementById('tabellaPrelazioni');
             const box = document.getElementById('boxContatorePrelazioni');
-            const tbody = document.getElementById('corpoTabellaPrelazioni');
 
             if (!flagCorvi && !flag9) {
                 tab.style.display = 'none';
@@ -2492,7 +2491,6 @@
 
                         if (massimoConsecutivi === 9) {
                             let giaIscrittoCorrente = iscrittiAnnoCorrenteSet.has(idPers);
-                            // Se l'utente era già stato inserito da Corvi d'oro, manteniamo o aggiorniamo il dettaglio in modo coerente
                             let dettaglioEsistente = risultatiMap.has(idPers) ? risultatiMap.get(idPers).dettaglio + " / 9 anni" : `9 anni (Preventivo)`;
                             
                             risultatiMap.set(idPers, {
@@ -2511,25 +2509,9 @@
                 let risultati = Array.from(risultatiMap.values());
                 risultati.sort((a, b) => a.cognome.localeCompare(b.cognome));
 
-                tbody.innerHTML = '';
-                if (risultati.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; font-style:italic;">Nessun iscritto corrisponde ai filtri selezionati.</td></tr>`;
-                } else {
-                    risultati.forEach(r => {
-                        const tr = document.createElement('tr');
-                        tr.style.cursor = 'pointer';
-                        tr.innerHTML = `
-                            <td>${r.cognome}</td>
-                            <td>${r.nome}</td>
-                            <td>${r.citta}</td>
-                            <td>${r.telefono}</td>
-                            <td><strong>${r.dettaglio}</strong></td>
-                            <td style="text-align: center; font-weight: bold; color: ${r.iscrittoAnnoCorrente === 'Si' ? '#28a745' : '#6c757d'};">${r.iscrittoAnnoCorrente}</td>
-                        `;
-                        tr.addEventListener('click', () => apriModaleEsistente(r.personaCompleta));
-                        tbody.appendChild(tr);
-                    });
-                }
+                // Salvataggio in cache e rendering tramite la funzione di supporto
+                ultimiRisultatiPrelazioniCache = risultati;
+                renderizzaRighePrelazioni(risultati);
 
                 document.getElementById('totalePrelazioni').textContent = risultati.length;
                 box.style.display = 'block';
@@ -2543,7 +2525,7 @@
                 nascondiCaricamento();
             }
         };
-
+		
         window.cambiaModalita = function(modalita) {
             modalitaCorrente = modalita;
             const isUser = (modalita === 'user');
@@ -3803,36 +3785,62 @@
 		let statoOrdinamentoPrelazioni = { indice: -1, crescente: true };
 		let ultimiRisultatiPrelazioniCache = [];
 
-		// Salva i risultati in cache dentro caricaDatiPrelazioni()
-		// Appena prima di ciclare i "risultati" in caricaDatiPrelazioni(), aggiungi:
-		ultimiRisultatiPrelazioniCache = risultati;
-		renderizzaRighePrelazioni(risultati);
-
 		// Crea questa funzione di supporto per il rendering delle righe
 		function renderizzaRighePrelazioni(righeDaRenderizzare) {
-			const tbody = document.getElementById('corpoTabellaPrelazioni');
-			tbody.innerHTML = '';
-			
-			if (righeDaRenderizzare.length === 0) {
-				tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; font-style:italic;">Nessun iscritto corrisponde ai filtri selezionati.</td></tr>`;
-				return;
-			}
+            const tbody = document.getElementById('corpoTabellaPrelazioni');
+            tbody.innerHTML = '';
+            
+            if (righeDaRenderizzare.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; font-style:italic;">Nessun iscritto corrisponde ai filtri selezionati.</td></tr>`;
+                return;
+            }
 
-			righeDaRenderizzare.forEach(r => {
-				const tr = document.createElement('tr');
-				tr.style.cursor = 'pointer';
-				tr.innerHTML = `
-					<td>${r.cognome}</td>
-					<td>${r.nome}</td>
-					<td>${r.citta}</td>
-					<td>${r.telefono}</td>
-					<td><strong>${r.dettaglio}</strong></td>
-					<td style="text-align: center; font-weight: bold; color: ${r.iscrittoAnnoCorrente === 'Si' ? '#28a745' : '#6c757d'};">${r.iscrittoAnnoCorrente}</td>
-				`;
-				tr.addEventListener('click', () => apriModaleEsistente(r.personaCompleta));
-				tbody.appendChild(tr);
-			});
-		}
+            righeDaRenderizzare.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.style.cursor = 'pointer';
+                tr.innerHTML = `
+                    <td>${r.cognome}</td>
+                    <td>${r.nome}</td>
+                    <td>${r.citta}</td>
+                    <td>${r.telefono}</td>
+                    <td><strong>${r.dettaglio}</strong></td>
+                    <td style="text-align: center; font-weight: bold; color: ${r.iscrittoAnnoCorrente === 'Si' ? '#28a745' : '#6c757d'};">${r.iscrittoAnnoCorrente}</td>
+                `;
+                tr.addEventListener('click', () => apriModaleEsistente(r.personaCompleta));
+                tbody.appendChild(tr);
+            });
+        }
+
+        window.ordinaTabellaPrelazioniCustom = function(colIndex, colId) {
+            if (statoOrdinamentoPrelazioni.indice === colIndex) {
+                statoOrdinamentoPrelazioni.crescente = !statoOrdinamentoPrelazioni.crescente;
+            } else {
+                statoOrdinamentoPrelazioni.indice = colIndex;
+                statoOrdinamentoPrelazioni.crescente = true;
+            }
+
+            ultimiRisultatiPrelazioniCache.sort((a, b) => {
+                let valA = a[colId] || "";
+                let valB = b[colId] || "";
+
+                let comp = String(valA).localeCompare(String(valB), 'it', { numeric: true });
+                return statoOrdinamentoPrelazioni.crescente ? comp : -comp;
+            });
+
+            let theadTr = document.querySelector('#tabellaPrelazioni thead tr');
+            if (theadTr) {
+                Array.from(theadTr.children).forEach((th, idx) => {
+                    let baseText = th.textContent.replace(/[▲▼]/g, "").trim();
+                    if (idx === statoOrdinamentoPrelazioni.indice) {
+                        th.textContent = baseText + (statoOrdinamentoPrelazioni.crescente ? " ▲" : " ▼");
+                    } else {
+                        th.textContent = baseText;
+                    }
+                });
+            }
+
+            renderizzaRighePrelazioni(ultimiRisultatiPrelazioniCache);
+        };
 
 		// Funzione richiamata al click sulle intestazioni
 		window.ordinaTabellaPrelazioniCustom = function(colIndex, colId) {
