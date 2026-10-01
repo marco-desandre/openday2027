@@ -419,6 +419,7 @@
                                 <th>Città</th>
                                 <th>Telefono</th>
                                 <th>Dettaglio / Anni</th>
+								<th>Iscritto Anno Corrente</th>
                             </tr>
                         </thead>
                         <tbody id="corpoTabellaPrelazioni"></tbody>
@@ -1078,13 +1079,13 @@
                 return;
             }
             
-            let intestazioni = ["Cognome", "Nome", "Città", "Telefono", "Dettaglio"];
+            let intestazioni = ["Cognome", "Nome", "Città", "Telefono", "Dettaglio", "Iscritto Anno Corrente"];
             let csvRows = [intestazioni.join(";")];
             
             righe.forEach(riga => {
                 if (riga.style.display !== "none") {
                     let celle = riga.getElementsByTagName('td');
-                    if (celle.length >= 5) {
+                    if (celle.length >= 6) {
                         let rigaDati = [];
                         for (let cella of celle) {
                             let testoCella = cella.textContent.trim();
@@ -1106,7 +1107,6 @@
             link.click();
             document.body.removeChild(link);
         };
-
         function attivaInserimentoNuovaIscrizioneEsistente() {
             if (document.getElementById('editNonIscrivibile').checked) {
                 alert("⛔ Impossibile aggiungere iscrizioni: questo soggetto è contrassegnato come 'Non iscrivibile'.");
@@ -2406,6 +2406,8 @@
 
                 let storicoPerPersona = {};
                 let totaliCompletiPersona = {};
+                let iscrittiAnnoCorrenteSet = new Set();
+                
                 const annoCarnevaleNum = parseInt(annoCarnevaleCorrente, 10) || 2027;
                 const annoLimitePreventivo = annoCarnevaleNum - 1;
 
@@ -2417,10 +2419,15 @@
                     let tipologia = st.tipologia || st.tipo_iscrizione || st.tipo || st.descrizione || "";
                     let tipoPulito = String(tipologia).trim().toLowerCase();
 
-                    if (tipoPulito !== "iscrizione completa") return;
-
                     let annoNum = parseInt(st.anno, 10);
                     if (isNaN(annoNum)) return;
+
+                    // Verifica iscrizione anno corrente
+                    if (tipoPulito === "iscrizione completa" && annoNum === annoCarnevaleNum) {
+                        iscrittiAnnoCorrenteSet.add(idPers);
+                    }
+
+                    if (tipoPulito !== "iscrizione completa") return;
 
                     totaliCompletiPersona[idPers] = (totaliCompletiPersona[idPers] || 0) + 1;
 
@@ -2450,13 +2457,15 @@
                         }
 
                         if (massimoConsecutivi >= 10) {
+                            let giaIscrittoCorrente = iscrittiAnnoCorrenteSet.has(idPers);
                             risultatiMap.set(idPers, {
                                 personaCompleta: persona,
                                 cognome: formattaCognome(persona.cognome),
                                 nome: pulisciTesto(persona.nome),
                                 citta: pulisciTesto(persona.citta),
                                 telefono: pulisciTesto(persona.telefono),
-                                dettaglio: `Corvo d'oro (${massimoConsecutivi} anni consec.)`
+                                dettaglio: `Corvo d'oro (${massimoConsecutivi} anni consec.)`,
+                                iscrittoAnnoCorrente: giaIscrittoCorrente ? "Si" : "-"
                             });
                         }
                     }
@@ -2483,13 +2492,18 @@
                         }
 
                         if (massimoConsecutivi === 9) {
+                            let giaIscrittoCorrente = iscrittiAnnoCorrenteSet.has(idPers);
+                            // Se l'utente era già stato inserito da Corvi d'oro, manteniamo o aggiorniamo il dettaglio in modo coerente
+                            let dettaglioEsistente = risultatiMap.has(idPers) ? risultatiMap.get(idPers).dettaglio + " / 9 anni" : `9 anni (Preventivo)`;
+                            
                             risultatiMap.set(idPers, {
                                 personaCompleta: persona,
                                 cognome: formattaCognome(persona.cognome),
                                 nome: pulisciTesto(persona.nome),
                                 citta: pulisciTesto(persona.citta),
                                 telefono: pulisciTesto(persona.telefono),
-                                dettaglio: `9 anni (Preventivo)`
+                                dettaglio: dettaglioEsistente,
+                                iscrittoAnnoCorrente: giaIscrittoCorrente ? "Si" : "-"
                             });
                         }
                     }
@@ -2500,7 +2514,7 @@
 
                 tbody.innerHTML = '';
                 if (risultati.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; font-style:italic;">Nessun iscritto corrisponde ai filtri selezionati.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; font-style:italic;">Nessun iscritto corrisponde ai filtri selezionati.</td></tr>`;
                 } else {
                     risultati.forEach(r => {
                         const tr = document.createElement('tr');
@@ -2511,6 +2525,7 @@
                             <td>${r.citta}</td>
                             <td>${r.telefono}</td>
                             <td><strong>${r.dettaglio}</strong></td>
+                            <td style="text-align: center; font-weight: bold; color: ${r.iscrittoAnnoCorrente === 'Si' ? '#28a745' : '#6c757d'};">${r.iscrittoAnnoCorrente}</td>
                         `;
                         tr.addEventListener('click', () => apriModaleEsistente(r.personaCompleta));
                         tbody.appendChild(tr);
