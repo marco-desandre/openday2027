@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.91</div>
+			<div class="versione-app">Ver. 01.92</div>
             <div class="top-bar-header">
                 <div id="boxModalita" class="box-modalita" style="display: none;">
                     <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
@@ -1793,6 +1793,45 @@
 		}
 
 		caricaDizionarioComuni();
+		
+		async function inizializzaCacheGlobale() {
+			if (cacheTuttiIscritti.length > 0) return;
+			try {
+				const snapAnag = await getDocs(collection(db, "anagrafica"));
+				const snapStorico = await getDocs(collection(db, "storico"));
+				let mappaStorico = {};
+				
+				snapStorico.forEach(d => {
+					let st = d.data();
+					let idPers = st.id_persona;
+					if (!idPers) return;
+					if (!mappaStorico[idPers]) mappaStorico[idPers] = [];
+					let tipoTrovato = st.tipo_iscrizione || st.tipologia || st.tipo || st.descrizione || "";
+					mappaStorico[idPers].push({ 
+						anno: String(st.anno || ""), 
+						tipo_iscrizione: String(tipoTrovato), 
+						numero_identificativo: String(st.numero_identificativo || ""),
+						inserito_da: String(st.creato_da || st.inserito_da || ""),
+						inserito_il: String(st.creato_il || st.inserito_il || "")
+					});
+				});
+				
+				let mappaUnici = new Map();
+				snapAnag.forEach(d => {
+					if (!mappaUnici.has(d.id)) {
+						mappaUnici.set(d.id, { 
+							id: d.id, 
+							...d.data(), 
+							iscrizioni: mappaStorico[d.id] || [] 
+						});
+					}
+				});
+				
+				cacheTuttiIscritti = Array.from(mappaUnici.values());
+			} catch (e) {
+				console.error("Errore inizializzazione cache:", e);
+			}
+		}
 
         function calcolaCodiceFiscaleGenerico(cognome, nome, luogo, dataNascita, sesso = 'M') {
             if (!cognome || !nome || !luogo || !dataNascita) return null;
@@ -2825,7 +2864,7 @@
 			}
 			
 			try {
-				// Se la cache è vuota, la scarica una sola volta all'avvio della prima ricerca
+				// Scarica la cache una sola volta all'avvio se è vuota
 				if (cacheTuttiIscritti.length === 0) {
 					mostraCaricamento("Caricamento iniziale database in corso...");
 					const snapAnag = await getDocs(collection(db, "anagrafica"));
@@ -2862,10 +2901,10 @@
 					nascondiCaricamento();
 				}
 
+				// Pulisce rigorosamente il corpo tabella a ogni ricerca per evitare sovrapposizioni
 				tbody.innerHTML = '';
 				let res = [];
 				
-				// Filtra direttamente la cache in memoria senza rieseguire query di rete
 				cacheTuttiIscritti.forEach(dt => {
 					let cognomeDb = String(dt.cognome || "").trim().toUpperCase();
 					if (cognomeDb.includes(testo)) {
@@ -2880,13 +2919,18 @@
 					return; 
 				}
 				
-				res.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || ''));
+				res.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || '', 'it'));
+				
+				// Uso del DocumentFragment per velocizzare il rendering ed evitare blocchi della pagina
+				const fragment = document.createDocumentFragment();
 				res.forEach(p => {
 					const tr = document.createElement('tr');
 					tr.innerHTML = `<td>${formattaCognome(p.cognome)}</td><td>${pulisciTesto(p.nome)}</td><td>${pulisciTesto(p.codice_fiscale || p.codiceFiscale).toUpperCase()}</td><td>${formattaDataPerVisualizzazioneTabella(p.data_nascita)}</td><td>${pulisciTesto(p.citta)}</td><td>${pulisciTesto(p.telefono)}</td>`;
-					tr.onclick = () => apriModaleEsistente(p);
-					tbody.appendChild(tr);
+					tr.addEventListener('click', () => apriModaleEsistente(p));
+					fragment.appendChild(tr);
 				});
+				
+				tbody.appendChild(fragment);
 				
 				document.getElementById('totaleIscritti').textContent = res.length;
 				box.style.display = 'block'; 
@@ -3629,7 +3673,7 @@
 
 				modal.style.display = 'none';
 				
-				// Aggiorna la cache in memoria preservando le iscrizioni esistenti
+				// Aggiorna puntualmente l'elemento nella cache senza azzerarla
 				const indexCache = cacheTuttiIscritti.findIndex(p => p.id === id);
 				if (indexCache !== -1) {
 					cacheTuttiIscritti[indexCache] = { 
@@ -3637,8 +3681,6 @@
 						...dati, 
 						iscrizioni: cacheTuttiIscritti[indexCache].iscrizioni || [] 
 					};
-				} else {
-					cacheTuttiIscritti.push({ id: id, ...dati, iscrizioni: [] });
 				}
 				
 				const filtroCognomeVal = document.getElementById('filtroCognome').value;
@@ -3649,7 +3691,6 @@
 				alert("Errore durante il salvataggio: " + error.message);
 			}
 		}
-		
 		window.eseguiAggiornamentoMassivoOnorificenze = async function() {
 			if (!confirm("Vuoi ricalcolare e aggiornare lo stato dell'onorificenza per TUTTI gli iscritti nel database?")) return;
 			
