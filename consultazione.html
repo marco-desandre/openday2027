@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.92</div>
+			<div class="versione-app">Ver. 01.93</div>
             <div class="top-bar-header">
                 <div id="boxModalita" class="box-modalita" style="display: none;">
                     <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
@@ -3223,7 +3223,7 @@
                     nascondiCaricamento();
                     alert("Anagrafica, storico e documenti eliminati con successo!");
                     modal.style.display = 'none';
-                    cacheTuttiIscritti = [];
+                    //cacheTuttiIscritti = [];
                     if (document.getElementById('filtroCognome').value) cercaIscritti(document.getElementById('filtroCognome').value);
                 } catch (error) {
                     nascondiCaricamento();
@@ -3673,7 +3673,7 @@
 
 				modal.style.display = 'none';
 				
-				// Aggiorna puntualmente l'elemento nella cache senza azzerarla
+				// Aggiorna puntualmente l'elemento nella cache senza azzerarla[cite: 10]
 				const indexCache = cacheTuttiIscritti.findIndex(p => p.id === id);
 				if (indexCache !== -1) {
 					cacheTuttiIscritti[indexCache] = { 
@@ -3691,6 +3691,7 @@
 				alert("Errore durante il salvataggio: " + error.message);
 			}
 		}
+
 		window.eseguiAggiornamentoMassivoOnorificenze = async function() {
 			if (!confirm("Vuoi ricalcolare e aggiornare lo stato dell'onorificenza per TUTTI gli iscritti nel database?")) return;
 			
