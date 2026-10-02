@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.70</div>
+			<div class="versione-app">Ver. 01.80</div>
             <div class="top-bar-header">
                 <div id="boxModalita" class="box-modalita" style="display: none;">
                     <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
@@ -3100,36 +3100,36 @@
         });
 		
 		async function gestisciCreazioneNuovaAnagrafica() {
-            const dati = raccogliDatiAnagrafica();
-            if (!dati.cognome || !dati.nome) return alert("Inserisci Cognome e Nome.");
-            
-            try {
-                mostraCaricamento("Creazione anagrafica in corso...");
-                const docRef = await addDoc(collection(db, "anagrafica"), dati);
-                document.getElementById('editIdPersona').value = docRef.id;
+			const dati = raccogliDatiAnagrafica();
+			if (!dati.cognome || !dati.nome) return alert("Inserisci Cognome e Nome.");
+			
+			try {
+				mostraCaricamento("Creazione anagrafica in corso...");
+				const docRef = await addDoc(collection(db, "anagrafica"), dati);
+				document.getElementById('editIdPersona').value = docRef.id;
 
-                await registraLog("Modifica Anagrafica", `Nuova: ${dati.cognome} ${dati.nome}`);
-                
-                alert("Anagrafica creata con successo! Ora puoi inserire l'iscrizione nello storico sottostante.");
-                
-                document.getElementById('sezioneStoricoContainer').style.display = 'block';
-                document.getElementById('btnAggiungiIscrizione').style.display = 'block';
-                document.getElementById('btnAggiungiIscrizione').onclick = attivaInserimentoNuovaIscrizioneEsistente;
-                
-                await caricaStoricoPersona(docRef.id);
+				await registraLog("Modifica Anagrafica", `Nuova: ${dati.cognome} ${dati.nome}`);
+				
+				// Aggiunge la nuova anagrafica direttamente in cache senza invalidarla
+				cacheTuttiIscritti.push({ id: docRef.id, ...dati, iscrizioni: [] });
 
-                const btnSalva = document.getElementById('btnSalva');
-                btnSalva.textContent = "Salva Modifiche Anagrafica";
-                btnSalva.onclick = gestisciSalvataggioEsistente;
-                
-                cacheTuttiIscritti = [];
-            } catch (error) {
-                alert("Errore durante la creazione: " + error.message);
-            } finally {
-                nascondiCaricamento();
-            }
-        }
-		
+				alert("Anagrafica creata con successo! Ora puoi inserire l'iscrizione nello storico sottostante.");
+				
+				document.getElementById('sezioneStoricoContainer').style.display = 'block';
+				document.getElementById('btnAggiungiIscrizione').style.display = 'block';
+				document.getElementById('btnAggiungiIscrizione').onclick = attivaInserimentoNuovaIscrizioneEsistente;
+				
+				await caricaStoricoPersona(docRef.id);
+
+				const btnSalva = document.getElementById('btnSalva');
+				btnSalva.textContent = "Salva Modifiche Anagrafica";
+				btnSalva.onclick = gestisciSalvataggioEsistente;
+			} catch (error) {
+				alert("Errore durante la creazione: " + error.message);
+			} finally {
+				nascondiCaricamento();
+			}
+		}
         async function eliminaAnagraficaCompleta(id) {
             if (confirm("Eliminare definitivamente l'anagrafica, lo storico e i documenti associati?")) {
                 try {
@@ -3624,7 +3624,14 @@
 				registraLog("Modifica Anagrafica", `${dati.cognome} ${dati.nome}`);
 
 				modal.style.display = 'none';
-				cacheTuttiIscritti = []; // Invalida la cache per riflettere le modifiche
+				
+				// AGGIORNA LA CACHE IN MEMORIA SENZA SVUOTARla (evita il ricaricamento da zero)
+				const indexCache = cacheTuttiIscritti.findIndex(p => p.id === id);
+				if (indexCache !== -1) {
+					cacheTuttiIscritti[indexCache] = { id: id, ...dati, iscrizioni: cacheTuttiIscritti[indexCache].iscrizioni || [] };
+				} else {
+					cacheTuttiIscritti.push({ id: id, ...dati, iscrizioni: [] });
+				}
 				
 				const filtroCognomeVal = document.getElementById('filtroCognome').value;
 				if (filtroCognomeVal) {
@@ -3634,11 +3641,6 @@
 				alert("Errore durante il salvataggio: " + error.message);
 			}
 		}
-        document.getElementById('filtroCognome').addEventListener('input', (e) => {
-            clearTimeout(timeoutRicerca);
-            timeoutRicerca = setTimeout(() => cercaIscritti(e.target.value), 300);
-        });
-		
 		window.eseguiAggiornamentoMassivoOnorificenze = async function() {
 			if (!confirm("Vuoi ricalcolare e aggiornare lo stato dell'onorificenza per TUTTI gli iscritti nel database?")) return;
 			
