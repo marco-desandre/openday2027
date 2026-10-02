@@ -122,7 +122,7 @@
 </head>
 <body>
 
-    <div class="versione-app">Ver. 01.20</div>
+    <div class="versione-app">Ver. 01.30</div>
 
     <div>
         <h3 id="titoloSoggetto">Acquisizione Documento</h3>
@@ -210,10 +210,6 @@
             });
         }
 
-        function attesa(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
         window.scattaEInviaRemota = async function() {
             if (inAcquisizione) return;
             if (!idPersona || !soggetto) {
@@ -235,7 +231,6 @@
             const testoLato = document.getElementById('testoLato');
             const loader = document.getElementById('loadingRemoto');
 
-            // 1. Feedback visivo immediato: bordo verde e testo di conferma
             container.style.borderColor = "#28a745";
             testoLato.textContent = slotCorrente === 1 ? "FRONTE ACQUISITO" : "RETRO ACQUISITO";
             loader.style.display = 'block';
@@ -249,19 +244,16 @@
 
                 loader.style.display = 'none';
 
-                // 2. Mantiene il feedback verde per esattamente 1 secondo
-                await attesa(1000);
+                // L'attesa di 1 secondo è stata rimossa completamente (tempo di attesa azzerato)
 
                 if (slotCorrente === 1) {
                     slotCorrente = 2;
-                    // Passaggio al Retro: ripristina il bordo originale del retro (#17a2b8) e imposta evidenziatore retro
                     container.style.borderColor = "#17a2b8";
                     testoLato.className = "evidenziatore-retro";
                     testoLato.textContent = "RETRO";
                     inAcquisizione = false;
                 } else {
                     document.getElementById('istruzioniStep').textContent = "✅ Fatto!";
-                    //alert("✅ Entrambe le foto (Fronte e Retro) sono state inviate correttamente! Puoi chiudere questa finestra.");
                     window.close();
                 }
             } catch (error) {
