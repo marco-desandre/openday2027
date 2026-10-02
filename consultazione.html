@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.90</div>
+			<div class="versione-app">Ver. 01.91</div>
             <div class="top-bar-header">
                 <div id="boxModalita" class="box-modalita" style="display: none;">
                     <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
@@ -2810,86 +2810,93 @@
         function pulisciTesto(v) { return (v === null || v === undefined || String(v).toUpperCase() === 'NULL') ? '' : String(v).trim(); }
 
         async function cercaIscritti(testo) {
-            const msg = document.getElementById('messaggioGuida'), tab = document.getElementById('tabellaIscritti'), tbody = document.getElementById('corpoTabella'), box = document.getElementById('boxContatore');
-            testo = testo.trim().toUpperCase();
-            if (testo.length < 2) { tab.style.display = 'none'; box.style.display = 'none'; msg.style.display = 'block'; msg.textContent = "Digita almeno 2 lettere del cognome."; return; }
-            msg.textContent = "Ricerca in corso...";
-            
-            try {
-                // Se la cache è vuota, la scarica e la indicizza senza duplicati
-                if (cacheTuttiIscritti.length === 0) {
-                    mostraCaricamento("Caricamento iniziale database in corso...");
-                    const snapAnag = await getDocs(collection(db, "anagrafica"));
-                    const snapStorico = await getDocs(collection(db, "storico"));
-                    let mappaStorico = {};
-                    
-                    snapStorico.forEach(d => {
-                        let st = d.data();
-                        let idPers = st.id_persona;
-                        if (!idPers) return;
-                        if (!mappaStorico[idPers]) mappaStorico[idPers] = [];
-                        let tipoTrovato = st.tipo_iscrizione || st.tipologia || st.tipo || st.descrizione || "";
-                        mappaStorico[idPers].push({ 
-                            anno: String(st.anno || ""), 
-                            tipo_iscrizione: String(tipoTrovato), 
-                            numero_identificativo: String(st.numero_identificativo || ""),
-                            inserito_da: String(st.creato_da || st.inserito_da || ""),
-                            inserito_il: String(st.creato_il || st.inserito_il || "")
-                        });
-                    });
-                    
-                    // Utilizziamo una Map temporanea basata sull'ID Firestore per garantire l'univocità assoluta
-                    let mappaUnici = new Map();
-                    snapAnag.forEach(d => {
-                        if (!mappaUnici.has(d.id)) {
-                            mappaUnici.set(d.id, { 
-                                id: d.id, 
-                                ...d.data(), 
-                                iscrizioni: mappaStorico[d.id] || [] 
-                            });
-                        }
-                    });
-                    
-                    cacheTuttiIscritti = Array.from(mappaUnici.values());
-                    nascondiCaricamento();
-                }
+			const msg = document.getElementById('messaggioGuida');
+			const tab = document.getElementById('tabellaIscritti');
+			const tbody = document.getElementById('corpoTabella');
+			const box = document.getElementById('boxContatore');
+			
+			testo = testo.trim().toUpperCase();
+			if (testo.length < 2) { 
+				tab.style.display = 'none'; 
+				box.style.display = 'none'; 
+				msg.style.display = 'block'; 
+				msg.textContent = "Digita almeno 2 lettere del cognome."; 
+				return; 
+			}
+			
+			try {
+				// Se la cache è vuota, la scarica una sola volta all'avvio della prima ricerca
+				if (cacheTuttiIscritti.length === 0) {
+					mostraCaricamento("Caricamento iniziale database in corso...");
+					const snapAnag = await getDocs(collection(db, "anagrafica"));
+					const snapStorico = await getDocs(collection(db, "storico"));
+					let mappaStorico = {};
+					
+					snapStorico.forEach(d => {
+						let st = d.data();
+						let idPers = st.id_persona;
+						if (!idPers) return;
+						if (!mappaStorico[idPers]) mappaStorico[idPers] = [];
+						let tipoTrovato = st.tipo_iscrizione || st.tipologia || st.tipo || st.descrizione || "";
+						mappaStorico[idPers].push({ 
+							anno: String(st.anno || ""), 
+							tipo_iscrizione: String(tipoTrovato), 
+							numero_identificativo: String(st.numero_identificativo || ""),
+							inserito_da: String(st.creato_da || st.inserito_da || ""),
+							inserito_il: String(st.creato_il || st.inserito_il || "")
+						});
+					});
+					
+					let mappaUnici = new Map();
+					snapAnag.forEach(d => {
+						if (!mappaUnici.has(d.id)) {
+							mappaUnici.set(d.id, { 
+								id: d.id, 
+								...d.data(), 
+								iscrizioni: mappaStorico[d.id] || [] 
+							});
+						}
+					});
+					
+					cacheTuttiIscritti = Array.from(mappaUnici.values());
+					nascondiCaricamento();
+				}
 
-                tbody.innerHTML = '';
-                let res = [];
-                
-                // Ricerca istantanea direttamente sulla cache pulita in memoria
-                cacheTuttiIscritti.forEach(dt => {
-                    let cognomeDb = String(dt.cognome || "").trim().toUpperCase();
-                    if (cognomeDb.includes(testo)) {
-                        res.push(dt);
-                    }
-                });
+				tbody.innerHTML = '';
+				let res = [];
+				
+				// Filtra direttamente la cache in memoria senza rieseguire query di rete
+				cacheTuttiIscritti.forEach(dt => {
+					let cognomeDb = String(dt.cognome || "").trim().toUpperCase();
+					if (cognomeDb.includes(testo)) {
+						res.push(dt);
+					}
+				});
 
-                if (res.length === 0) { 
-                    msg.textContent = "Nessun iscritto trovato."; 
-                    tab.style.display = 'none'; 
-                    box.style.display = 'none'; 
-                    return; 
-                }
-                
-                res.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || ''));
-                res.forEach(p => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${formattaCognome(p.cognome)}</td><td>${pulisciTesto(p.nome)}</td><td>${pulisciTesto(p.codice_fiscale || p.codiceFiscale).toUpperCase()}</td><td>${formattaDataPerVisualizzazioneTabella(p.data_nascita)}</td><td>${pulisciTesto(p.citta)}</td><td>${pulisciTesto(p.telefono)}</td>`;
-                    tr.onclick = () => apriModaleEsistente(p);
-                    tbody.appendChild(tr);
-                });
-                
-                document.getElementById('totaleIscritti').textContent = res.length;
-                box.style.display = 'block'; 
-                msg.style.display = 'none'; 
-                tab.style.display = 'table';
-            } catch (e) { 
-                nascondiCaricamento();
-                msg.textContent = "Errore: " + e.message; 
-            }
-        }
-		
+				if (res.length === 0) { 
+					msg.textContent = "Nessun iscritto trovato."; 
+					tab.style.display = 'none'; 
+					box.style.display = 'none'; 
+					return; 
+				}
+				
+				res.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || ''));
+				res.forEach(p => {
+					const tr = document.createElement('tr');
+					tr.innerHTML = `<td>${formattaCognome(p.cognome)}</td><td>${pulisciTesto(p.nome)}</td><td>${pulisciTesto(p.codice_fiscale || p.codiceFiscale).toUpperCase()}</td><td>${formattaDataPerVisualizzazioneTabella(p.data_nascita)}</td><td>${pulisciTesto(p.citta)}</td><td>${pulisciTesto(p.telefono)}</td>`;
+					tr.onclick = () => apriModaleEsistente(p);
+					tbody.appendChild(tr);
+				});
+				
+				document.getElementById('totaleIscritti').textContent = res.length;
+				box.style.display = 'block'; 
+				msg.style.display = 'none'; 
+				tab.style.display = 'table';
+			} catch (e) { 
+				nascondiCaricamento();
+				msg.textContent = "Errore: " + e.message; 
+			}
+		}
         const modal = document.getElementById('editModal');
 
         async function apriModaleEsistente(p) {
