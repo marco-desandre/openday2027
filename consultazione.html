@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.50</div>
+			<div class="versione-app">Ver. 01.60</div>
             <div class="top-bar-header">
                 <div id="boxModalita" class="box-modalita" style="display: none;">
                     <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
@@ -2813,7 +2813,7 @@
             msg.textContent = "Ricerca in corso...";
             
             try {
-                // Se la cache è vuota, la scarica una sola volta da Firestore
+                // Se la cache è vuota, la scarica e la indicizza senza duplicati
                 if (cacheTuttiIscritti.length === 0) {
                     mostraCaricamento("Caricamento iniziale database in corso...");
                     const snapAnag = await getDocs(collection(db, "anagrafica"));
@@ -2822,9 +2822,11 @@
                     
                     snapStorico.forEach(d => {
                         let st = d.data();
-                        if (!mappaStorico[st.id_persona]) mappaStorico[st.id_persona] = [];
+                        let idPers = st.id_persona;
+                        if (!idPers) return;
+                        if (!mappaStorico[idPers]) mappaStorico[idPers] = [];
                         let tipoTrovato = st.tipo_iscrizione || st.tipologia || st.tipo || st.descrizione || "";
-                        mappaStorico[st.id_persona].push({ 
+                        mappaStorico[idPers].push({ 
                             anno: String(st.anno || ""), 
                             tipo_iscrizione: String(tipoTrovato), 
                             numero_identificativo: String(st.numero_identificativo || ""),
@@ -2833,16 +2835,29 @@
                         });
                     });
                     
-                    snapAnag.forEach(d => cacheTuttiIscritti.push({ id: d.id, ...d.data(), iscrizioni: mappaStorico[d.id] || [] }));
+                    // Utilizziamo una Map temporanea basata sull'ID Firestore per garantire l'univocità assoluta
+                    let mappaUnici = new Map();
+                    snapAnag.forEach(d => {
+                        if (!mappaUnici.has(d.id)) {
+                            mappaUnici.set(d.id, { 
+                                id: d.id, 
+                                ...d.data(), 
+                                iscrizioni: mappaStorico[d.id] || [] 
+                            });
+                        }
+                    });
+                    
+                    cacheTuttiIscritti = Array.from(mappaUnici.values());
                     nascondiCaricamento();
                 }
 
                 tbody.innerHTML = '';
                 let res = [];
                 
-                // Ricerca istantanea direttamente sulla cache in memoria
+                // Ricerca istantanea direttamente sulla cache pulita in memoria
                 cacheTuttiIscritti.forEach(dt => {
-                    if (String(dt.cognome || "").trim().toUpperCase().includes(testo)) {
+                    let cognomeDb = String(dt.cognome || "").trim().toUpperCase();
+                    if (cognomeDb.includes(testo)) {
                         res.push(dt);
                     }
                 });
