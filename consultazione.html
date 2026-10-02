@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.60</div>
+			<div class="versione-app">Ver. 01.70</div>
             <div class="top-bar-header">
                 <div id="boxModalita" class="box-modalita" style="display: none;">
                     <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
@@ -2734,57 +2734,60 @@
         document.querySelectorAll('.campo-controllo').forEach(c => { c.addEventListener('input', controllaCampiVuoti); });
 
         async function eseguiVerificaRuntime() {
-            const cog = document.getElementById('editCognome').value.trim();
-            const nom = document.getElementById('editNome').value.trim();
-            const dat = document.getElementById('editDataNascita').value.trim();
-            const idC = document.getElementById('editIdPersona').value.trim();
-            const msg = document.getElementById('messaggioRuntimeDuplicato');
-            const btnSalva = document.getElementById('btnSalva');
-            
-            msg.textContent = "";
-            if (btnSalva) {
-                btnSalva.disabled = false;
-                btnSalva.style.opacity = "1";
-                btnSalva.style.cursor = "pointer";
-            }
+			const cog = document.getElementById('editCognome').value.trim();
+			const nom = document.getElementById('editNome').value.trim();
+			const dat = document.getElementById('editDataNascita').value.trim();
+			const idC = document.getElementById('editIdPersona').value.trim();
+			const msg = document.getElementById('messaggioRuntimeDuplicato');
+			const btnSalva = document.getElementById('btnSalva');
+			
+			msg.textContent = "";
+			if (btnSalva) {
+				btnSalva.disabled = false;
+				btnSalva.style.opacity = "1";
+				btnSalva.style.cursor = "pointer";
+			}
 
-            if (cog.length < 2 || nom.length < 2) return;
+			if (cog.length < 2 || nom.length < 2) return;
 
-            const snap = await getDocs(collection(db, "anagrafica"));
-            let omonimoTrovato = false;
-            let duplicatoEsattoTrovato = false;
+			// Se la cache è vuota la popola una volta sola, altrimenti usa quella in memoria ed evita chiamate di rete lente
+			if (cacheTuttiIscritti.length === 0) {
+				const snapAnag = await getDocs(collection(db, "anagrafica"));
+				cacheTuttiIscritti = [];
+				snapAnag.forEach(d => cacheTuttiIscritti.push({ id: d.id, ...d.data() }));
+			}
 
-            snap.forEach(d => {
-                if (idC && d.id === idC) return;
+			let omonimoTrovato = false;
+			let duplicatoEsattoTrovato = false;
 
-                let dt = d.data();
-                let dbCognome = String(dt.cognome || "").trim().toUpperCase();
-                let dbNome = String(dt.nome || "").trim().toUpperCase();
-                let dbData = String(dt.data_nascita || "").trim();
+			cacheTuttiIscritti.forEach(dt => {
+				if (idC && dt.id === idC) return;
 
-                if (dbCognome === cog.toUpperCase() && dbNome === nom.toUpperCase()) {
-                    omonimoTrovato = true;
-                    if (dat && dbData === dat) {
-                        duplicatoEsattoTrovato = true;
-                    }
-                }
-            });
+				let dbCognome = String(dt.cognome || "").trim().toUpperCase();
+				let dbNome = String(dt.nome || "").trim().toUpperCase();
+				let dbData = String(dt.data_nascita || "").trim();
 
-            if (duplicatoEsattoTrovato) {
-                msg.style.color = "#dc3545";
-                msg.textContent = "⚠️ Attenzione: Esiste già un iscritto con lo stesso Cognome, Nome e Data di Nascita!";
-                
-                if (btnSalva) {
-                    btnSalva.disabled = true;
-                    btnSalva.style.opacity = "0.6";
-                    btnSalva.style.cursor = "not-allowed";
-                }
-            } else if (omonimoTrovato) {
-                msg.style.color = "#ff851b";
-                msg.textContent = "ℹ️ Attenzione: Esiste già un iscritto con lo stesso Cognome e Nome (Omonimia).";
-            }
-        }
-		
+				if (dbCognome === cog.toUpperCase() && dbNome === nom.toUpperCase()) {
+					omonimoTrovato = true;
+					if (dat && dbData === dat) {
+						duplicatoEsattoTrovato = true;
+					}
+				}
+			});
+
+			if (duplicatoEsattoTrovato) {
+				msg.style.color = "#dc3545";
+				msg.textContent = "⚠️ Attenzione: Esiste già un iscritto con lo stesso Cognome, Nome e Data di Nascita!";
+				if (btnSalva) {
+					btnSalva.disabled = true;
+					btnSalva.style.opacity = "0.6";
+					btnSalva.style.cursor = "not-allowed";
+				}
+			} else if (omonimoTrovato) {
+				msg.style.color = "#ff851b";
+				msg.textContent = "ℹ️ Attenzione: Esiste già un iscritto con lo stesso Cognome e Nome (Omonimia).";
+			}
+		}
         document.querySelectorAll('.campo-verifica-runtime').forEach(e => {
             e.addEventListener('input', () => {
                 clearTimeout(timeoutRuntime);
@@ -3605,17 +3608,32 @@
         }
         
         async function gestisciSalvataggioEsistente() {
-            const id = document.getElementById('editIdPersona').value, dati = raccogliDatiAnagrafica();
-            if (!dati.cognome || !dati.nome) return alert("Inserisci Cognome e Nome.");
-            await setDoc(doc(db, "anagrafica", id), dati, { merge: true });
-            
-            await registraLog("Modifica Anagrafica", `${dati.cognome} ${dati.nome}`);
+			const id = document.getElementById('editIdPersona').value;
+			const dati = raccogliDatiAnagrafica();
+			
+			if (!dati.cognome || !dati.nome) {
+				alert("Inserisci Cognome e Nome.");
+				return;
+			}
 
-            modal.style.display = 'none';
-            cacheTuttiIscritti = [];
-            if (document.getElementById('filtroCognome').value) cercaIscritti(document.getElementById('filtroCognome').value);
-        }
+			try {
+				// Esegue il salvataggio immediato in un unico colpo
+				await setDoc(doc(db, "anagrafica", id), dati, { merge: true });
+				
+				// Registra il log in background senza bloccare l'interfaccia utente
+				registraLog("Modifica Anagrafica", `${dati.cognome} ${dati.nome}`);
 
+				modal.style.display = 'none';
+				cacheTuttiIscritti = []; // Invalida la cache per riflettere le modifiche
+				
+				const filtroCognomeVal = document.getElementById('filtroCognome').value;
+				if (filtroCognomeVal) {
+					cercaIscritti(filtroCognomeVal);
+				}
+			} catch (error) {
+				alert("Errore durante il salvataggio: " + error.message);
+			}
+		}
         document.getElementById('filtroCognome').addEventListener('input', (e) => {
             clearTimeout(timeoutRicerca);
             timeoutRicerca = setTimeout(() => cercaIscritti(e.target.value), 300);
