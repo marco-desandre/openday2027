@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.40</div>
+			<div class="versione-app">Ver. 01.50</div>
             <div class="top-bar-header">
                 <div id="boxModalita" class="box-modalita" style="display: none;">
                     <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
@@ -2811,16 +2811,49 @@
             testo = testo.trim().toUpperCase();
             if (testo.length < 2) { tab.style.display = 'none'; box.style.display = 'none'; msg.style.display = 'block'; msg.textContent = "Digita almeno 2 lettere del cognome."; return; }
             msg.textContent = "Ricerca in corso...";
-            mostraCaricamento("Ricerca iscritti in corso...");
+            
             try {
-                const snap = await getDocs(collection(db, "anagrafica"));
+                // Se la cache è vuota, la scarica una sola volta da Firestore
+                if (cacheTuttiIscritti.length === 0) {
+                    mostraCaricamento("Caricamento iniziale database in corso...");
+                    const snapAnag = await getDocs(collection(db, "anagrafica"));
+                    const snapStorico = await getDocs(collection(db, "storico"));
+                    let mappaStorico = {};
+                    
+                    snapStorico.forEach(d => {
+                        let st = d.data();
+                        if (!mappaStorico[st.id_persona]) mappaStorico[st.id_persona] = [];
+                        let tipoTrovato = st.tipo_iscrizione || st.tipologia || st.tipo || st.descrizione || "";
+                        mappaStorico[st.id_persona].push({ 
+                            anno: String(st.anno || ""), 
+                            tipo_iscrizione: String(tipoTrovato), 
+                            numero_identificativo: String(st.numero_identificativo || ""),
+                            inserito_da: String(st.creato_da || st.inserito_da || ""),
+                            inserito_il: String(st.creato_il || st.inserito_il || "")
+                        });
+                    });
+                    
+                    snapAnag.forEach(d => cacheTuttiIscritti.push({ id: d.id, ...d.data(), iscrizioni: mappaStorico[d.id] || [] }));
+                    nascondiCaricamento();
+                }
+
                 tbody.innerHTML = '';
                 let res = [];
-                snap.forEach(d => {
-                    let dt = d.data();
-                    if (String(dt.cognome || "").trim().toUpperCase().includes(testo)) res.push({ id: d.id, ...dt });
+                
+                // Ricerca istantanea direttamente sulla cache in memoria
+                cacheTuttiIscritti.forEach(dt => {
+                    if (String(dt.cognome || "").trim().toUpperCase().includes(testo)) {
+                        res.push(dt);
+                    }
                 });
-                if (res.length === 0) { msg.textContent = "Nessun iscritto trovato."; tab.style.display = 'none'; box.style.display = 'none'; return; }
+
+                if (res.length === 0) { 
+                    msg.textContent = "Nessun iscritto trovato."; 
+                    tab.style.display = 'none'; 
+                    box.style.display = 'none'; 
+                    return; 
+                }
+                
                 res.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || ''));
                 res.forEach(p => {
                     const tr = document.createElement('tr');
@@ -2828,12 +2861,17 @@
                     tr.onclick = () => apriModaleEsistente(p);
                     tbody.appendChild(tr);
                 });
+                
                 document.getElementById('totaleIscritti').textContent = res.length;
-                box.style.display = 'block'; msg.style.display = 'none'; tab.style.display = 'table';
-            } catch (e) { msg.textContent = "Errore: " + e.message; }
-            finally { nascondiCaricamento(); }
+                box.style.display = 'block'; 
+                msg.style.display = 'none'; 
+                tab.style.display = 'table';
+            } catch (e) { 
+                nascondiCaricamento();
+                msg.textContent = "Errore: " + e.message; 
+            }
         }
-
+		
         const modal = document.getElementById('editModal');
 
         async function apriModaleEsistente(p) {
