@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.80</div>
+			<div class="versione-app">Ver. 01.90</div>
             <div class="top-bar-header">
                 <div id="boxModalita" class="box-modalita" style="display: none;">
                     <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
@@ -3617,18 +3617,19 @@
 			}
 
 			try {
-				// Esegue il salvataggio immediato in un unico colpo
 				await setDoc(doc(db, "anagrafica", id), dati, { merge: true });
-				
-				// Registra il log in background senza bloccare l'interfaccia utente
 				registraLog("Modifica Anagrafica", `${dati.cognome} ${dati.nome}`);
 
 				modal.style.display = 'none';
 				
-				// AGGIORNA LA CACHE IN MEMORIA SENZA SVUOTARla (evita il ricaricamento da zero)
+				// Aggiorna la cache in memoria preservando le iscrizioni esistenti
 				const indexCache = cacheTuttiIscritti.findIndex(p => p.id === id);
 				if (indexCache !== -1) {
-					cacheTuttiIscritti[indexCache] = { id: id, ...dati, iscrizioni: cacheTuttiIscritti[indexCache].iscrizioni || [] };
+					cacheTuttiIscritti[indexCache] = { 
+						id: id, 
+						...dati, 
+						iscrizioni: cacheTuttiIscritti[indexCache].iscrizioni || [] 
+					};
 				} else {
 					cacheTuttiIscritti.push({ id: id, ...dati, iscrizioni: [] });
 				}
@@ -3641,6 +3642,7 @@
 				alert("Errore durante il salvataggio: " + error.message);
 			}
 		}
+		
 		window.eseguiAggiornamentoMassivoOnorificenze = async function() {
 			if (!confirm("Vuoi ricalcolare e aggiornare lo stato dell'onorificenza per TUTTI gli iscritti nel database?")) return;
 			
@@ -3946,6 +3948,11 @@
 
 			renderizzaRighePrelazioni(ultimiRisultatiPrelazioniCache);
 		};
+		
+		document.getElementById('filtroCognome').addEventListener('input', (e) => {
+			clearTimeout(timeoutRicerca);
+			timeoutRicerca = setTimeout(() => cercaIscritti(e.target.value), 300);
+		});
 		
     </script>
 </body>
