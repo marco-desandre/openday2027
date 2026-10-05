@@ -3979,37 +3979,6 @@
             renderizzaRighePrelazioni(ultimiRisultatiPrelazioniCache);
         };
 
-		// Funzione richiamata al click sulle intestazioni
-		window.ordinaTabellaPrelazioniCustom = function(colIndex, colId) {
-			if (statoOrdinamentoPrelazioni.indice === colIndex) {
-				statoOrdinamentoPrelazioni.crescente = !statoOrdinamentoPrelazioni.crescente;
-			} else {
-				statoOrdinamentoPrelazioni.indice = colIndex;
-				statoOrdinamentoPrelazioni.crescente = true;
-			}
-
-			ultimiRisultatiPrelazioniCache.sort((a, b) => {
-				let valA = a[colId] || "";
-				let valB = b[colId] || "";
-
-				let comp = String(valA).localeCompare(String(valB), 'it', { numeric: true });
-				return statoOrdinamentoPrelazioni.crescente ? comp : -comp;
-			});
-
-			let theadTr = document.querySelector('#tabellaPrelazioni thead tr');
-			if (theadTr) {
-				Array.from(theadTr.children).forEach((th, idx) => {
-					let baseText = th.textContent.replace(/[▲▼]/g, "").trim();
-					if (idx === statoOrdinamentoPrelazioni.indice) {
-						th.textContent = baseText + (statoOrdinamentoPrelazioni.crescente ? " ▲" : " ▼");
-					} else {
-						th.textContent = baseText;
-					}
-				});
-			}
-
-			renderizzaRighePrelazioni(ultimiRisultatiPrelazioniCache);
-		};
 		
 		document.getElementById('filtroCognome').addEventListener('input', (e) => {
 			clearTimeout(timeoutRicerca);
