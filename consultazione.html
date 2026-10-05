@@ -4040,13 +4040,13 @@
 				// Prepara le informazioni su nome e deleghe
 				const nomeUtente = prossimoDato.nome || "Nome non specificato";
 				const haDelega = prossimoDato.delega ? "Sì" : "No";
-				const delegatoInfo = prossimoDato.delegato ? `\nDelegato: ${prossimoDato.delegato}` : "";
+				const delegatoInfo = Delegato: ${prossimoDato.delegato}` : "";
 
 				// Mostra il popup di notifica con il nome e le deleghe
 				alert(
 					`📢 UTENTE CHIAMATO IN CODA:\n\n` +
 					`👤 Nome: ${nomeUtente}\n` +
-					`📝 Delega: ${delegatoInfo}`
+					`📝 ${delegatoInfo}`
 				);
 
 				if (typeof registraLog === 'function') {
