@@ -4187,16 +4187,35 @@
 				tbody.innerHTML = '';
 				let resMap = new Map();
 				
-				// Puliamo e normalizziamo le stringhe da cercare
-				let termini = [delegante, delegato].filter(t => t && t.trim().length >= 2);
+				// Raccogliamo i termini validi (escludendo stringhe vuote)
+				let termini = [delegante, delegato]
+					.map(t => t ? t.trim().toUpperCase() : "")
+					.filter(t => t.length >= 2);
+
+				if (termini.length === 0) {
+					msg.textContent = "Nessun termine di ricerca valido per delegante o delegato.";
+					tab.style.display = 'none';
+					box.style.display = 'none';
+					return;
+				}
 
 				cacheTuttiIscritti.forEach(dt => {
-					let nomeCompletoDb = `${dt.cognome || ''} ${dt.nome || ''}`.toUpperCase();
-					
+					let cognomeDb = String(dt.cognome || "").trim().toUpperCase();
+					let nomeDb = String(dt.nome || "").trim().toUpperCase();
+					let nomeCompletoDb = `${cognomeDb} ${nomeDb}`;
+					let nomeInversDb = `${nomeDb} ${cognomeDb}`; // Utile nel caso nome e cognome siano invertiti
+
 					termini.forEach(termine => {
-						let partiTermine = termine.toUpperCase().split(' ');
-						let matchTrovato = partiTermine.some(p => p.length >= 2 && nomeCompletoDb.includes(p));
-						if (matchTrovato) {
+						// Dividiamo il termine in singole parole chiave significative (almeno 2 caratteri)
+						let paroleChiave = termine.split(/\s+/).filter(p => p.length >= 2);
+						if (paroleChiave.length === 0) return;
+
+						// Verifichiamo se TUTTE le parole chiave del termine compaiono nel nome/cognome del record
+						let matchCompleto = paroleChiave.every(parola => 
+							nomeCompletoDb.includes(parola) || nomeInversDb.includes(parola)
+						);
+
+						if (matchCompleto) {
 							resMap.set(dt.id, dt);
 						}
 					});
@@ -4232,6 +4251,7 @@
 				msg.textContent = "Errore: " + e.message; 
 			}
 		}
+		
 		
     </script>
 </body>
