@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.94</div>
+			<div class="versione-app">Ver. 01.93</div>
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
 				<button type="button" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
@@ -2884,7 +2884,7 @@
 			try {
 				// Scarica la cache una sola volta all'avvio se è vuota
 				if (cacheTuttiIscritti.length === 0) {
-					mostraCaricamento("Caricamento iniziale database in corso...");
+					mostraCaricamento("Indicizzazione iniziale database in corso...");
 					const snapAnag = await getDocs(collection(db, "anagrafica"));
 					const snapStorico = await getDocs(collection(db, "storico"));
 					let mappaStorico = {};
@@ -4099,7 +4099,6 @@
 					return;
 				}
 
-				// Aggiorna lo stato nel Ticket Dispenser
 				const ticketAggiornatoRef = dbRef(dbTicket, `coda/${prossimoChiave}`);
 				await update(ticketAggiornatoRef, {
 					stato: "chiamato",
@@ -4108,21 +4107,16 @@
 
 				nascondiCaricamento();
 
-				const nomeDelegante = prossimoDato.nome || ""; // Il titolare / delegante
-				const nomeDelegato = prossimoDato.delegato || ""; // L'eventuale delegato
+				const nomeDelegante = prossimoDato.nome || ""; 
+				const nomeDelegato = prossimoDato.delegato || ""; 
 
 				// Spostati sulla sezione standard degli iscritti
 				cambiaSezioneMenu('visualizzazione_standard', document.querySelector('.sidebar-item.attivo'));
 				
 				const campoFiltro = document.getElementById('filtroCognome');
 				if (campoFiltro) {
-					// Mettiamo nel campo di ricerca il delegante (o un termine che comprenda entrambi se possibile).
-					// Per cercarli entrambi, possiamo passare il delegante come termine principale 
-					// e fare in modo che la ricerca cerchi corrispondenze multiple.
-					let termineRicerca = nomeDelegante;
-					campoFiltro.value = termineRicerca;
-					
-					// Eseguiamo la ricerca personalizzata per trovare sia delegante che delegato
+					// Mostriamo nel campo di ricerca il delegante principale o una stringa combinata chiara
+					campoFiltro.value = nomeDelegante;
 					cercaDeleganteEDelegato(nomeDelegante, nomeDelegato);
 				}
 
@@ -4150,124 +4144,125 @@
 		let ultimaRicercaDelegato = "";
 		
 		async function cercaDeleganteEDelegato(delegante, delegato) {
-            ultimaRicercaDelegante = delegante || "";
-            ultimaRicercaDelegato = delegato || "";
-            
-            const msg = document.getElementById('messaggioGuida');
-            const tab = document.getElementById('tabellaIscritti');
-            const tbody = document.getElementById('corpoTabella');
-            const box = document.getElementById('boxContatore');
-            
-            try {
-                // Suddivide eventuali stringhe multiple separate da virgola (es. "De Sandre Marco, Richeda Sara")
-                let grezzi = [delegante, delegato];
-                let terminiDaCercare = [];
+			ultimaRicercaDelegante = delegante || "";
+			ultimaRicercaDelegato = delegato || "";
+			
+			const msg = document.getElementById('messaggioGuida');
+			const tab = document.getElementById('tabellaIscritti');
+			const tbody = document.getElementById('corpoTabella');
+			const box = document.getElementById('boxContatore');
+			
+			try {
+				let terminiDaCercare = [];
+				[delegante, delegato].forEach(str => {
+					if (str) {
+						// Pulisce e divide per spazi o virgole per cercare singole parole chiave (es. cognomi o nomi)
+						str.split(/[,]+/).forEach(parte => {
+							let pTrim = parte.trim().toUpperCase();
+							if (pTrim.length >= 2) {
+								// Se ci sono più parole (es. "De Sandre Marco"), aggiungiamo sia la frase che le singole parole rilevanti
+								terminiDaCercare.push(pTrim);
+								pTrim.split(/\s+/).forEach(parola => {
+									if (parola.length >= 3 && !terminiDaCercare.includes(parola)) {
+										terminiDaCercare.push(parola);
+									}
+								});
+							}
+						});
+					}
+				});
 
-                grezzi.forEach(item => {
-                    if (item) {
-                        item.split(',').forEach(sub => {
-                            let pulito = sub.trim().toUpperCase();
-                            if (pulito.length >= 2) {
-                                terminiDaCercare.push(pulito);
-                            }
-                        });
-                    }
-                });
+				if (terminiDaCercare.length === 0) {
+					msg.textContent = "Inserisci almeno un nome valido per la ricerca.";
+					tab.style.display = 'none';
+					box.style.display = 'none';
+					return;
+				}
 
-                console.log("Termini di ricerca multipli:", terminiDaCercare);
+				if (cacheTuttiIscritti.length === 0) {
+					mostraCaricamento("Indicizzazione iniziale database in corso...");
+					const snapAnag = await getDocs(collection(db, "anagrafica"));
+					const snapStorico = await getDocs(collection(db, "storico"));
+					let mappaStorico = {};
+					
+					snapStorico.forEach(d => {
+						let st = d.data();
+						let idPers = st.id_persona;
+						if (!idPers) return;
+						if (!mappaStorico[idPers]) mappaStorico[idPers] = [];
+						let tipoTrovato = st.tipo_iscrizione || st.tipologia || st.tipo || st.descrizione || "";
+						mappaStorico[idPers].push({ 
+							anno: String(st.anno || ""), 
+							tipo_iscrizione: String(tipoTrovato), 
+							numero_identificativo: String(st.numero_identificativo || ""),
+							inserito_da: String(st.creato_da || st.inserito_da || ""),
+							inserito_il: String(st.creato_il || st.inserito_il || "")
+						});
+					});
+					
+					let mappaUnici = new Map();
+					snapAnag.forEach(d => {
+						if (!mappaUnici.has(d.id)) {
+							mappaUnici.set(d.id, { 
+								id: d.id, 
+								...d.data(), 
+								iscrizioni: mappaStorico[d.id] || [] 
+							});
+						}
+					});
+					
+					cacheTuttiIscritti = Array.from(mappaUnici.values());
+					nascondiCaricamento();
+				}
 
-                if (terminiDaCercare.length === 0) {
-                    msg.textContent = "Inserisci almeno un nome valido per la ricerca.";
-                    tab.style.display = 'none';
-                    box.style.display = 'none';
-                    return;
-                }
+				tbody.innerHTML = '';
+				let resMap = new Map();
 
-                if (cacheTuttiIscritti.length === 0) {
-                    mostraCaricamento("Caricamento iniziale database in corso...");
-                    const snapAnag = await getDocs(collection(db, "anagrafica"));
-                    const snapStorico = await getDocs(collection(db, "storico"));
-                    let mappaStorico = {};
-                    
-                    snapStorico.forEach(d => {
-                        let st = d.data();
-                        let idPers = st.id_persona;
-                        if (!idPers) return;
-                        if (!mappaStorico[idPers]) mappaStorico[idPers] = [];
-                        let tipoTrovato = st.tipo_iscrizione || st.tipologia || st.tipo || st.descrizione || "";
-                        mappaStorico[idPers].push({ 
-                            anno: String(st.anno || ""), 
-                            tipo_iscrizione: String(tipoTrovato), 
-                            numero_identificativo: String(st.numero_identificativo || ""),
-                            inserito_da: String(st.creato_da || st.inserito_da || ""),
-                            inserito_il: String(st.creato_il || st.inserito_il || "")
-                        });
-                    });
-                    
-                    let mappaUnici = new Map();
-                    snapAnag.forEach(d => {
-                        if (!mappaUnici.has(d.id)) {
-                            mappaUnici.set(d.id, { 
-                                id: d.id, 
-                                ...d.data(), 
-                                iscrizioni: mappaStorico[d.id] || [] 
-                            });
-                        }
-                    });
-                    
-                    cacheTuttiIscritti = Array.from(mappaUnici.values());
-                    nascondiCaricamento();
-                }
+				cacheTuttiIscritti.forEach(dt => {
+					let cognomeDb = String(dt.cognome || "").trim().toUpperCase();
+					let nomeDb = String(dt.nome || "").trim().toUpperCase();
+					let testoRecord = `${cognomeDb} ${nomeDb}`;
 
-                tbody.innerHTML = '';
-                let resMap = new Map();
+					// Verifica se il record contiene le parole chiave del delegante o del delegato
+					let matchTrovato = terminiDaCercare.some(termine => {
+						return testoRecord.includes(termine);
+					});
 
-                cacheTuttiIscritti.forEach(dt => {
-                    let cognomeDb = String(dt.cognome || "").trim().toUpperCase();
-                    let nomeDb = String(dt.nome || "").trim().toUpperCase();
-                    let nomeCompletoDb = `${cognomeDb} ${nomeDb}`;
-                    let nomeInversDb = `${nomeDb} ${cognomeDb}`;
+					if (matchTrovato) {
+						resMap.set(dt.id, dt);
+					}
+				});
 
-                    // Verifica se il record corrisponde ad almeno uno dei termini separati da virgola
-                    let matchTrovato = terminiDaCercare.some(termine => {
-                        return nomeCompletoDb.includes(termine) || nomeInversDb.includes(termine);
-                    });
+				let res = Array.from(resMap.values());
 
-                    if (matchTrovato) {
-                        resMap.set(dt.id, dt);
-                    }
-                });
-
-                let res = Array.from(resMap.values());
-
-                if (res.length === 0) { 
-                    msg.textContent = "Nessun iscritto trovato per i criteri inseriti."; 
-                    tab.style.display = 'none'; 
-                    box.style.display = 'none'; 
-                    return; 
-                }
-                
-                res.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || '', 'it'));
-                
-                const fragment = document.createDocumentFragment();
-                res.forEach(p => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${formattaCognome(p.cognome)}</td><td>${pulisciTesto(p.nome)}</td><td>${pulisciTesto(p.codice_fiscale || p.codiceFiscale).toUpperCase()}</td><td>${formattaDataPerVisualizzazioneTabella(p.data_nascita)}</td><td>${pulisciTesto(p.citta)}</td><td>${pulisciTesto(p.telefono)}</td>`;
-                    tr.addEventListener('click', () => apriModaleEsistente(p));
-                    fragment.appendChild(tr);
-                });
-                
-                tbody.appendChild(fragment);
-                
-                document.getElementById('totaleIscritti').textContent = res.length;
-                box.style.display = 'block'; 
-                msg.style.display = 'none'; 
-                tab.style.display = 'table';
-            } catch (e) { 
-                nascondiCaricamento();
-                msg.textContent = "Errore: " + e.message; 
-            }
-        }
+				if (res.length === 0) { 
+					msg.textContent = "Nessun iscritto trovato per i criteri inseriti."; 
+					tab.style.display = 'none'; 
+					box.style.display = 'none'; 
+					return; 
+				}
+				
+				res.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || '', 'it'));
+				
+				const fragment = document.createDocumentFragment();
+				res.forEach(p => {
+					const tr = document.createElement('tr');
+					tr.innerHTML = `<td>${formattaCognome(p.cognome)}</td><td>${pulisciTesto(p.nome)}</td><td>${pulisciTesto(p.codice_fiscale || p.codiceFiscale).toUpperCase()}</td><td>${formattaDataPerVisualizzazioneTabella(p.data_nascita)}</td><td>${pulisciTesto(p.citta)}</td><td>${pulisciTesto(p.telefono)}</td>`;
+					tr.addEventListener('click', () => apriModaleEsistente(p));
+					fragment.appendChild(tr);
+				});
+				
+				tbody.appendChild(fragment);
+				
+				document.getElementById('totaleIscritti').textContent = res.length;
+				box.style.display = 'block'; 
+				msg.style.display = 'none'; 
+				tab.style.display = 'table';
+			} catch (e) { 
+				nascondiCaricamento();
+				msg.textContent = "Errore: " + e.message; 
+			}
+		}
 		
     </script>
 </body>
