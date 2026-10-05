@@ -4149,12 +4149,39 @@
 			
 			try {
 				if (cacheTuttiIscritti.length === 0) {
+					mostraCaricamento("Caricamento iniziale database in corso...");
 					const snapAnag = await getDocs(collection(db, "anagrafica"));
 					const snapStorico = await getDocs(collection(db, "storico"));
 					let mappaStorico = {};
 					
-					snapStorico.formatta = ... // (mantiene la logica della cache esistente)[cite: 5]
-					// Nota: usa la stessa logica di popolamento cache di cercaIscritti già presente nel tuo script[cite: 5]
+					snapStorico.forEach(d => {
+						let st = d.data();
+						let idPers = st.id_persona;
+						if (!idPers) return;
+						if (!mappaStorico[idPers]) mappaStorico[idPers] = [];
+						let tipoTrovato = st.tipo_iscrizione || st.tipologia || st.tipo || st.descrizione || "";
+						mappaStorico[idPers].push({ 
+							anno: String(st.anno || ""), 
+							tipo_iscrizione: String(tipoTrovato), 
+							numero_identificativo: String(st.numero_identificativo || ""),
+							inserito_da: String(st.creato_da || st.inserito_da || ""),
+							inserito_il: String(st.creato_il || st.inserito_il || "")
+						});
+					});
+					
+					let mappaUnici = new Map();
+					snapAnag.forEach(d => {
+						if (!mappaUnici.has(d.id)) {
+							mappaUnici.set(d.id, { 
+								id: d.id, 
+								...d.data(), 
+								iscrizioni: mappaStorico[d.id] || [] 
+							});
+						}
+					});
+					
+					cacheTuttiIscritti = Array.from(mappaUnici.values());
+					nascondiCaricamento();
 				}
 
 				tbody.innerHTML = '';
@@ -4168,7 +4195,6 @@
 					
 					termini.forEach(termine => {
 						let partiTermine = termine.toUpperCase().split(' ');
-						// Se qualsiasi parte del nome del delegante o delegato matcha l'anagrafica
 						let matchTrovato = partiTermine.some(p => p.length >= 2 && nomeCompletoDb.includes(p));
 						if (matchTrovato) {
 							resMap.set(dt.id, dt);
@@ -4202,6 +4228,7 @@
 				msg.style.display = 'none'; 
 				tab.style.display = 'table';
 			} catch (e) { 
+				nascondiCaricamento();
 				msg.textContent = "Errore: " + e.message; 
 			}
 		}
