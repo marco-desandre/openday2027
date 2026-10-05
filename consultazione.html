@@ -4037,16 +4037,15 @@
 
 				nascondiCaricamento();
 
-				// Prepara le informazioni su nome e deleghe
+				// Prepara le informazioni sul nome e sull'eventuale delegato
 				const nomeUtente = prossimoDato.nome || "Nome non specificato";
-				const haDelega = prossimoDato.delega ? "Sì" : "No";
-				const delegatoInfo = Delegato: ${prossimoDato.delegato}` : "";
+				const delegatoInfo = prossimoDato.delegato ? `Delegato: ${prossimoDato.delegato}` : "";
 
-				// Mostra il popup di notifica con il nome e le deleghe
+				// Mostra il popup di notifica pulito
 				alert(
 					`📢 UTENTE CHIAMATO IN CODA:\n\n` +
-					`👤 Nome: ${nomeUtente}\n` +
-					`📝 ${delegatoInfo}`
+					`👤 Nome: ${nomeUtente}` +
+					(delegatoInfo ? `\n📝 ${delegatoInfo}` : "")
 				);
 
 				if (typeof registraLog === 'function') {
