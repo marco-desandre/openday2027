@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.94</div>
+			<div class="versione-app">Ver. 01.93</div>
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
 				<button type="button" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
@@ -1184,6 +1184,10 @@
 
         window.chiudiModaleLog = function() {
             document.getElementById('logModal').style.display = 'none';
+			
+			// Se c'era una ricerca attiva per delegante/delegato, la rieseguiamo per ripristinare la tabella
+			if (ultimoDeleganteCercato || ultimoDelegatoCercato) {
+				cercaDeleganteEDelegato(ultimoDeleganteCercato, ultimoDelegatoCercato);
         };
 
         async function caricaDatiLog() {
@@ -4141,12 +4145,18 @@
 			}
 		};
 		
+		let ultimaRicercaDelegante = "";
+		let ultimaRicercaDelegato = "";
+		
 		async function cercaDeleganteEDelegato(delegante, delegato) {
 			const msg = document.getElementById('messaggioGuida');
 			const tab = document.getElementById('tabellaIscritti');
 			const tbody = document.getElementById('corpoTabella');
 			const box = document.getElementById('boxContatore');
 			
+			ultimaRicercaDelegante = delegante || "";
+			ultimaRicercaDelegato = delegato || "";
+			const msg = document.getElementById('messaggioGuida');
 			try {
 				const strDelegante = (delegante || "").trim().toUpperCase();
 				const strDelegato = (delegato || "").trim().toUpperCase();
