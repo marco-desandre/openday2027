@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.93</div>
+			<div class="versione-app">Ver. 01.94</div>
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
 				<button type="button" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
@@ -4148,6 +4148,18 @@
 			const box = document.getElementById('boxContatore');
 			
 			try {
+				const strDelegante = (delegante || "").trim().toUpperCase();
+				const strDelegato = (delegato || "").trim().toUpperCase();
+
+				console.log("Cerca Delegante:", strDelegante, "| Delegato:", strDelegato);
+
+				if (!strDelegante && !strDelegato) {
+					msg.textContent = "Inserisci almeno un nome per il delegante o il delegato.";
+					tab.style.display = 'none';
+					box.style.display = 'none';
+					return;
+				}
+
 				if (cacheTuttiIscritti.length === 0) {
 					mostraCaricamento("Caricamento iniziale database in corso...");
 					const snapAnag = await getDocs(collection(db, "anagrafica"));
@@ -4187,44 +4199,32 @@
 				tbody.innerHTML = '';
 				let resMap = new Map();
 				
-				// Raccogliamo i termini validi (escludendo stringhe vuote)
-				let termini = [delegante, delegato]
-					.map(t => t ? t.trim().toUpperCase() : "")
-					.filter(t => t.length >= 2);
-
-				if (termini.length === 0) {
-					msg.textContent = "Nessun termine di ricerca valido per delegante o delegato.";
-					tab.style.display = 'none';
-					box.style.display = 'none';
-					return;
-				}
+				// Prepariamo i termini di ricerca interi (mantenendo eventuali spazi come in "DE SANDRE")
+				let terminiDaCercare = [];
+				if (strDelegante.length >= 2) terminiDaCercare.push(strDelegante);
+				if (strDelegato.length >= 2) terminiDaCercare.push(strDelegato);
 
 				cacheTuttiIscritti.forEach(dt => {
 					let cognomeDb = String(dt.cognome || "").trim().toUpperCase();
 					let nomeDb = String(dt.nome || "").trim().toUpperCase();
 					let nomeCompletoDb = `${cognomeDb} ${nomeDb}`;
-					let nomeInversDb = `${nomeDb} ${cognomeDb}`; // Utile nel caso nome e cognome siano invertiti
+					let nomeInversDb = `${nomeDb} ${cognomeDb}`;
 
-					termini.forEach(termine => {
-						// Dividiamo il termine in singole parole chiave significative (almeno 2 caratteri)
-						let paroleChiave = termine.split(/\s+/).filter(p => p.length >= 2);
-						if (paroleChiave.length === 0) return;
-
-						// Verifichiamo se TUTTE le parole chiave del termine compaiono nel nome/cognome del record
-						let matchCompleto = paroleChiave.every(parola => 
-							nomeCompletoDb.includes(parola) || nomeInversDb.includes(parola)
-						);
-
-						if (matchCompleto) {
-							resMap.set(dt.id, dt);
-						}
+					// Verifica se il record corrisponde ad almeno uno dei termini interi inseriti
+					let matchTrovato = terminiDaCercare.some(termine => {
+						// Controlla se l'intera stringa (es. "DE SANDRE" o "RICHEDA") è contenuta nel nome completo o inverso
+						return nomeCompletoDb.includes(termine) || nomeInversDb.includes(termine);
 					});
+
+					if (matchTrovato) {
+						resMap.set(dt.id, dt);
+					}
 				});
 
 				let res = Array.from(resMap.values());
 
 				if (res.length === 0) { 
-					msg.textContent = "Nessun iscritto trovato per delegante o delegato."; 
+					msg.textContent = "Nessun iscritto trovato per i criteri inseriti."; 
 					tab.style.display = 'none'; 
 					box.style.display = 'none'; 
 					return; 
