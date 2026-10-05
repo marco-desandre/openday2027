@@ -275,6 +275,9 @@
         <div class="container">
 			<div class="versione-app">Ver. 01.93</div>
             <div class="top-bar-header">
+				<!-- NUOVO PULSANTE GESTIONE CODA -->
+				<button type="button" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
+				
                 <div id="boxModalita" class="box-modalita" style="display: none;">
                     <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
                     <button type="button" id="btnUser" class="btn-modalita" onclick="cambiaModalita('user')">User</button>
@@ -859,7 +862,7 @@
 				</div>
 			</div>
 			
-            <div class="box-bottoni-modale">
+            <div class="box-bottoni-modale">		
                 <button type="button" id="btnAggiungiIscrizione" class="btn-aggiungi-iscrizione" style="display: none;">Aggiungi Iscrizione</button>
                 <button type="button" id="btnSalva" class="btn-salva">Salva Anagrafica</button>
             </div>
@@ -963,6 +966,7 @@
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getStorage, ref as storageRef, uploadString, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 		import { getDatabase, ref as dbRef, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+		import { getDatabase, ref as dbRef, set, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 		let dizionarioComuniCatastali = {};
 		let dizionarioNomiComuni = {};
@@ -1862,7 +1866,7 @@
             let codCatastale = dizionarioNomiComuni[luogoUp] || dizionarioNomiComuni[luogoNorm];
             
             if (!codCatastale) {
-                alert(`Città ${luogo} non trovata`);
+                alert(`Città ${luogo} non trovata, inserire Codice Fiscale manualmente`);
                 return null;
             }
 
@@ -4011,6 +4015,11 @@
 			clearTimeout(timeoutRicerca);
 			timeoutRicerca = setTimeout(() => cercaIscritti(e.target.value), 300);
 		});
+		
+		window.apriGestioneCodaBanco = function() {
+			// Opzione A: Apre il pannello banco esistente (banco_singola_fila.html) in una nuova scheda
+			window.open('banco_singola_fila.html', '_blank');
+		};
 		
     </script>
 </body>
