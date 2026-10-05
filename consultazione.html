@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.93</div>
+			<div class="versione-app">Ver. 01.94</div>
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
 				<button type="button" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
@@ -4153,26 +4153,14 @@
 			const box = document.getElementById('boxContatore');
 			
 			try {
-				let terminiDaCercare = [];
+				let personeDaCercare = [];
 				[delegante, delegato].forEach(str => {
-					if (str) {
-						// Pulisce e divide per spazi o virgole per cercare singole parole chiave (es. cognomi o nomi)
-						str.split(/[,]+/).forEach(parte => {
-							let pTrim = parte.trim().toUpperCase();
-							if (pTrim.length >= 2) {
-								// Se ci sono più parole (es. "De Sandre Marco"), aggiungiamo sia la frase che le singole parole rilevanti
-								terminiDaCercare.push(pTrim);
-								pTrim.split(/\s+/).forEach(parola => {
-									if (parola.length >= 3 && !terminiDaCercare.includes(parola)) {
-										terminiDaCercare.push(parola);
-									}
-								});
-							}
-						});
+					if (str && str.trim()) {
+						personeDaCercare.push(str.trim().toUpperCase());
 					}
 				});
 
-				if (terminiDaCercare.length === 0) {
+				if (personeDaCercare.length === 0) {
 					msg.textContent = "Inserisci almeno un nome valido per la ricerca.";
 					tab.style.display = 'none';
 					box.style.display = 'none';
@@ -4221,16 +4209,18 @@
 				cacheTuttiIscritti.forEach(dt => {
 					let cognomeDb = String(dt.cognome || "").trim().toUpperCase();
 					let nomeDb = String(dt.nome || "").trim().toUpperCase();
-					let testoRecord = `${cognomeDb} ${nomeDb}`;
+					let nomeCompletoDb = `${cognomeDb} ${nomeDb}`;
+					let nomeInversDb = `${nomeDb} ${cognomeDb}`;
 
-					// Verifica se il record contiene le parole chiave del delegante o del delegato
-					let matchTrovato = terminiDaCercare.some(termine => {
-						return testoRecord.includes(termine);
+					personeDaCercare.forEach(criterio => {
+						let paroleCriterio = criterio.split(/\s+/);
+						// Verifica che tutte le parole del criterio appartengano al record
+						let matchCompleto = paroleCriterio.every(parola => nomeCompletoDb.includes(parola));
+
+						if (matchCompleto || nomeCompletoDb.includes(criterio) || nomeInversDb.includes(criterio)) {
+							resMap.set(dt.id, dt);
+						}
 					});
-
-					if (matchTrovato) {
-						resMap.set(dt.id, dt);
-					}
 				});
 
 				let res = Array.from(resMap.values());
