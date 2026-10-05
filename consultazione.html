@@ -3990,7 +3990,7 @@
 			window.open('banco_singola_fila.html', '_blank');
 		};
 		
-		window.chiamaProssimoInCodaDiretto = async function() {
+		window.chiamaProssimoInCodaDiretto_old = async function() {
 			if (!confirm("Vuoi chiamare il prossimo utente in coda?")) {
 				return;
 			}
@@ -4039,13 +4039,93 @@
 
 				// Prepara le informazioni sul nome e sull'eventuale delegato
 				const nomeUtente = prossimoDato.nome || "Nome non specificato";
-				const delegatoInfo = prossimoDato.delegato ? `Delegato: ${prossimoDato.delegato}` : "";
+				const delegatoInfo = prossimoDato.delegato ? `Delega: ${prossimoDato.delegato}` : "";
 
 				// Mostra il popup di notifica pulito
 				alert(
 					`📢 UTENTE CHIAMATO IN CODA:\n\n` +
 					`👤 Nome: ${nomeUtente}` +
 					(delegatoInfo ? `\n📝 ${delegatoInfo}` : "")
+				);
+
+				if (typeof registraLog === 'function') {
+					await registraLog("Chiamata rapida prossimo in coda", nomeUtente);
+				}
+
+			} catch (error) {
+				nascondiCaricamento();
+				console.error("Errore durante la chiamata del prossimo:", error);
+				alert("Errore durante la chiamata: " + error.message);
+			}
+		};
+		
+		window.chiamaProssimoInCodaDiretto = async function() {
+			if (!confirm("Vuoi chiamare il prossimo utente in coda?")) {
+				return;
+			}
+
+			try {
+				mostraCaricamento("Ricerca del prossimo in coda...");
+
+				const codaRef = dbRef(dbTicket, 'coda');
+				const snapshot = await get(codaRef);
+
+				if (!snapshot.exists()) {
+					nascondiCaricamento();
+					alert("ℹ️ La coda è attualmente vuota.");
+					return;
+				}
+
+				const codaData = snapshot.val();
+				let prossimoChiave = null;
+				let prossimoDato = null;
+
+				for (const [chiave, valore] of Object.entries(codaData)) {
+					if (!valore.stato || valore.stato === "attesa" || valore.stato === "chiamato") {
+						prossimoChiave = chiave;
+						prossimoDato = valore;
+						if (valore.stato === "attesa") break;
+					}
+				}
+
+				if (!prossimoChiave || !prossimoDato) {
+					nascondiCaricamento();
+					alert("ℹ️ Nessun utente in attesa trovato nella coda.");
+					return;
+				}
+
+				// Aggiorna lo stato nel Ticket Dispenser
+				const ticketAggiornatoRef = dbRef(dbTicket, `coda/${prossimoChiave}`);
+				await update(ticketAggiornatoRef, {
+					stato: "chiamato",
+					chiamato_il: Date.now()
+				});
+
+				nascondiCaricamento();
+
+				const nomeUtente = prossimoDato.nome || "";
+				const haDelega = prossimoDato.delega ? "Sì" : "No";
+				const delegatoInfo = prossimoDato.delegato ? `\nDelegato: ${prossimoDato.delegato}` : "";
+
+				// NUOVA FUNZIONALITÀ: Riporta automaticamente il nome nella barra di ricerca iscritti
+				if (nomeUtente) {
+					// Spostati sulla sezione standard degli iscritti
+					cambiaSezioneMenu('visualizzazione_standard', document.querySelector('.sidebar-item.attivo'));
+					
+					// Inserisci il nome/cognome nel campo di ricerca rapida
+					const campoFiltro = document.getElementById('filtroCognome');
+					if (campoFiltro) {
+						campoFiltro.value = nomeUtente;
+						// Esegui la ricerca
+						cercaIscritti(nomeUtente);
+					}
+				}
+
+				alert(
+					`📢 UTENTE CHIAMATO IN CODA:\n\n` +
+					`👤 Nome: ${nomeUtente}\n` +
+					`📝 Delega: ${haDelega}${delegatoInfo}\n\n` +
+					`*(L'anagrafica è stata cercata automaticamente nel gestionale)*`
 				);
 
 				if (typeof registraLog === 'function') {
