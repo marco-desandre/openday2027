@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.93</div>
+			<div class="versione-app">Ver. 01.94</div>
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
 				<button type="button" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
@@ -4159,13 +4159,25 @@
             const box = document.getElementById('boxContatore');
             
             try {
-                const strDelegante = (delegante || "").trim().toUpperCase();
-                const strDelegato = (delegato || "").trim().toUpperCase();
+                // Suddivide eventuali stringhe multiple separate da virgola (es. "De Sandre Marco, Richeda Sara")
+                let grezzi = [delegante, delegato];
+                let terminiDaCercare = [];
 
-                console.log("Cerca Delegante:", strDelegante, "| Delegato:", strDelegato);
+                grezzi.forEach(item => {
+                    if (item) {
+                        item.split(',').forEach(sub => {
+                            let pulito = sub.trim().toUpperCase();
+                            if (pulito.length >= 2) {
+                                terminiDaCercare.push(pulito);
+                            }
+                        });
+                    }
+                });
 
-                if (!strDelegante && !strDelegato) {
-                    msg.textContent = "Inserisci almeno un nome per il delegante o il delegato.";
+                console.log("Termini di ricerca multipli:", terminiDaCercare);
+
+                if (terminiDaCercare.length === 0) {
+                    msg.textContent = "Inserisci almeno un nome valido per la ricerca.";
                     tab.style.display = 'none';
                     box.style.display = 'none';
                     return;
@@ -4209,10 +4221,6 @@
 
                 tbody.innerHTML = '';
                 let resMap = new Map();
-                
-                let terminiDaCercare = [];
-                if (strDelegante.length >= 2) terminiDaCercare.push(strDelegante);
-                if (strDelegato.length >= 2) terminiDaCercare.push(strDelegato);
 
                 cacheTuttiIscritti.forEach(dt => {
                     let cognomeDb = String(dt.cognome || "").trim().toUpperCase();
@@ -4220,6 +4228,7 @@
                     let nomeCompletoDb = `${cognomeDb} ${nomeDb}`;
                     let nomeInversDb = `${nomeDb} ${cognomeDb}`;
 
+                    // Verifica se il record corrisponde ad almeno uno dei termini separati da virgola
                     let matchTrovato = terminiDaCercare.some(termine => {
                         return nomeCompletoDb.includes(termine) || nomeInversDb.includes(termine);
                     });
@@ -4259,7 +4268,6 @@
                 msg.textContent = "Errore: " + e.message; 
             }
         }
-		
 		
     </script>
 </body>
