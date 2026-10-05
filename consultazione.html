@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.93</div>
+			<div class="versione-app">Ver. 01.94</div>
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
 				<button type="button" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
@@ -2866,13 +2866,13 @@
         }
         function pulisciTesto(v) { return (v === null || v === undefined || String(v).toUpperCase() === 'NULL') ? '' : String(v).trim(); }
 
-        async function cercaIscritti(testo) {
+		async function cercaIscritti(testo) {
 			const msg = document.getElementById('messaggioGuida');
 			const tab = document.getElementById('tabellaIscritti');
 			const tbody = document.getElementById('corpoTabella');
 			const box = document.getElementById('boxContatore');
 			
-			testo = testo.trim().toUpperCase();
+			testo = testo ? testo.trim().toUpperCase() : "";
 			if (testo.length < 2) { 
 				tab.style.display = 'none'; 
 				box.style.display = 'none'; 
@@ -2930,20 +2930,13 @@
 					let nomeCompleto = `${cognome} ${nome}`;
 					let nomeInverso = `${nome} ${cognome}`;
 
-					// Se l'utente ha inserito più parole (es. "De Sandre Marco")
-					if (parole.length > 1) {
-						if (
-							parole.every(parola => nomeCompleto.includes(parola)) || 
-							nomeCompleto.includes(testo) || 
-							nomeInverso.includes(testo)
-						) {
-							res.push(dt);
-						}
-					} else {
-						// Ricerca classica se è inserita una sola parola
-						if (cognome.includes(testo) || nome.includes(testo)) {
-							res.push(dt);
-						}
+					// Gestione flessibile: funziona sia per una singola parola che per più parole in qualsiasi ordine
+					const corrispondeTutteLeParole = parole.every(parola => 
+						nomeCompleto.includes(parola) || nomeInverso.includes(parola)
+					);
+
+					if (corrispondeTutteLeParole || nomeCompleto.includes(testo) || nomeInverso.includes(testo)) {
+						res.push(dt);
 					}
 				});
 				
@@ -2976,6 +2969,7 @@
 				msg.textContent = "Errore: " + e.message; 
 			}
 		}
+		
         const modal = document.getElementById('editModal');
 
         async function apriModaleEsistente(p) {
