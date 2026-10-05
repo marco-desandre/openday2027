@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.94</div>
+			<div class="versione-app">Ver. 01.93</div>
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
 				<button type="button" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
@@ -2884,7 +2884,7 @@
 			try {
 				// Scarica la cache una sola volta all'avvio se è vuota
 				if (cacheTuttiIscritti.length === 0) {
-					mostraCaricamento("Indicizzazione iniziale database in corso...");
+					mostraCaricamento("Prima indicizzazione database in corso...");
 					const snapAnag = await getDocs(collection(db, "anagrafica"));
 					const snapStorico = await getDocs(collection(db, "storico"));
 					let mappaStorico = {};
@@ -2922,14 +2922,31 @@
 				// Pulisce rigorosamente il corpo tabella a ogni ricerca per evitare sovrapposizioni
 				tbody.innerHTML = '';
 				let res = [];
-				
+				const parole = testo.split(/\s+/);
+
 				cacheTuttiIscritti.forEach(dt => {
-					let cognomeDb = String(dt.cognome || "").trim().toUpperCase();
-					if (cognomeDb.includes(testo)) {
-						res.push(dt);
+					let cognome = String(dt.cognome || "").toUpperCase();
+					let nome = String(dt.nome || "").toUpperCase();
+					let nomeCompleto = `${cognome} ${nome}`;
+					let nomeInverso = `${nome} ${cognome}`;
+
+					// Se l'utente ha inserito più parole (es. "De Sandre Marco")
+					if (parole.length > 1) {
+						if (
+							parole.every(parola => nomeCompleto.includes(parola)) || 
+							nomeCompleto.includes(testo) || 
+							nomeInverso.includes(testo)
+						) {
+							res.push(dt);
+						}
+					} else {
+						// Ricerca classica se è inserita una sola parola
+						if (cognome.includes(testo) || nome.includes(testo)) {
+							res.push(dt);
+						}
 					}
 				});
-
+				
 				if (res.length === 0) { 
 					msg.textContent = "Nessun iscritto trovato."; 
 					tab.style.display = 'none'; 
@@ -4168,7 +4185,7 @@
 				}
 
 				if (cacheTuttiIscritti.length === 0) {
-					mostraCaricamento("Indicizzazione iniziale database in corso...");
+					mostraCaricamento("Prima indicizzazione database in corso...");
 					const snapAnag = await getDocs(collection(db, "anagrafica"));
 					const snapStorico = await getDocs(collection(db, "storico"));
 					let mappaStorico = {};
