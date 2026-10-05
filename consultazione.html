@@ -277,6 +277,7 @@
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
 				<button type="button" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
+				<button type="button" class="btn-logout" style="background-color: #dc2626;" onclick="chiamaProssimoInCodaDiretto()">📢 Chiama Prossimo</button>
 				
                 <div id="boxModalita" class="box-modalita" style="display: none;">
                     <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
@@ -965,7 +966,7 @@
         import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc, query, where, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getStorage, ref as storageRef, uploadString, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-		import { getDatabase, ref as dbRef, set, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+		import { getDatabase, ref as dbRef, set, update, get, query, orderByChild, limitToFirst } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 		let dizionarioComuniCatastali = {};
 		let dizionarioNomiComuni = {};
@@ -4018,6 +4019,76 @@
 		window.apriGestioneCodaBanco = function() {
 			// Opzione A: Apre il pannello banco esistente (banco_singola_fila.html) in una nuova scheda
 			window.open('banco_singola_fila.html', '_blank');
+		};
+		
+		window.chiamaProssimoInCodaDiretto = async function() {
+			if (!confirm("Vuoi chiamare il prossimo utente in coda?")) {
+				return;
+			}
+
+			try {
+				mostraCaricamento("Ricerca del prossimo in coda...");
+
+				// Riferimento al nodo coda del Ticket Dispenser
+				const codaRef = dbRef(dbTicket, 'coda');
+				const snapshot = await get(codaRef);
+
+				if (!snapshot.exists()) {
+					nascondiCaricamento();
+					alert("ℹ️ La coda è attualmente vuota.");
+					return;
+				}
+
+				const codaData = snapshot.val();
+				let prossimoChiave = null;
+				let prossimoDato = null;
+
+				// Cerca il primo utente in stato "attesa" o comunque il primo disponibile
+				for (const [chiave, valore] of Object.entries(codaData)) {
+					if (!valore.stato || valore.stato === "attesa" || valore.stato === "chiamato") {
+						prossimoChiave = chiave;
+						prossimoDato = valore;
+						// Se troviamo uno in attesa netta, lo preferiamo e interrompiamo la ricerca
+						if (valore.stato === "attesa") break;
+					}
+				}
+
+				if (!prossimoChiave || !prossimoDato) {
+					nascondiCaricamento();
+					alert("ℹ️ Nessun utente in attesa trovato nella coda.");
+					return;
+				}
+
+				// Aggiorna lo stato del ticket a "chiamato" nel database condiviso
+				const ticketAggiornatoRef = dbRef(dbTicket, `coda/${prossimoChiave}`);
+				await update(ticketAggiornatoRef, {
+					stato: "chiamato",
+					chiamato_il: Date.now()
+				});
+
+				nascondiCaricamento();
+
+				// Prepara le informazioni su nome e deleghe
+				const nomeUtente = prossimoDato.nome || "Nome non specificato";
+				const haDelega = prossimoDato.delega ? "Sì" : "No";
+				const delegatoInfo = prossimoDato.delegato ? `\nDelegato: ${prossimoDato.delegato}` : "";
+
+				// Mostra il popup di notifica con il nome e le deleghe
+				alert(
+					`📢 UTENTE CHIAMATO IN CODA:\n\n` +
+					`👤 Nome: ${nomeUtente}\n` +
+					`📝 Delega: ${haDelega}${delegatoInfo}`
+				);
+
+				if (typeof registraLog === 'function') {
+					await registraLog("Chiamata rapida prossimo in coda", nomeUtente);
+				}
+
+			} catch (error) {
+				nascondiCaricamento();
+				console.error("Errore durante la chiamata del prossimo:", error);
+				alert("Errore durante la chiamata: " + error.message);
+			}
 		};
 		
     </script>
