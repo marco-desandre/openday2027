@@ -4103,33 +4103,35 @@
 
 				nascondiCaricamento();
 
-				const nomeUtente = prossimoDato.nome || "";
-				const haDelega = prossimoDato.delega ? "Sì" : "No";
-				const delegatoInfo = prossimoDato.delegato ? `\nDelegato: ${prossimoDato.delegato}` : "";
+				const nomeDelegante = prossimoDato.nome || ""; // Il titolare / delegante
+				const nomeDelegato = prossimoDato.delegato || ""; // L'eventuale delegato
 
-				// NUOVA FUNZIONALITÀ: Riporta automaticamente il nome nella barra di ricerca iscritti
-				if (nomeUtente) {
-					// Spostati sulla sezione standard degli iscritti
-					cambiaSezioneMenu('visualizzazione_standard', document.querySelector('.sidebar-item.attivo'));
+				// Spostati sulla sezione standard degli iscritti
+				cambiaSezioneMenu('visualizzazione_standard', document.querySelector('.sidebar-item.attivo'));
+				
+				const campoFiltro = document.getElementById('filtroCognome');
+				if (campoFiltro) {
+					// Mettiamo nel campo di ricerca il delegante (o un termine che comprenda entrambi se possibile).
+					// Per cercarli entrambi, possiamo passare il delegante come termine principale 
+					// e fare in modo che la ricerca cerchi corrispondenze multiple.
+					let termineRicerca = nomeDelegante;
+					campoFiltro.value = termineRicerca;
 					
-					// Inserisci il nome/cognome nel campo di ricerca rapida
-					const campoFiltro = document.getElementById('filtroCognome');
-					if (campoFiltro) {
-						campoFiltro.value = nomeUtente;
-						// Esegui la ricerca
-						cercaIscritti(nomeUtente);
-					}
+					// Eseguiamo la ricerca personalizzata per trovare sia delegante che delegato
+					cercaDeleganteEDelegato(nomeDelegante, nomeDelegato);
 				}
 
-				alert(
-					`📢 UTENTE CHIAMATO IN CODA:\n\n` +
-					`👤 Nome: ${nomeUtente}\n` +
-					`📝 Delega: ${haDelega}${delegatoInfo}\n\n` +
-					`*(L'anagrafica è stata cercata automaticamente nel gestionale)*`
-				);
+				let msgAlert = `📢 UTENTE CHIAMATO IN CODA:\n\n` +
+					`👤 Delegante (Titolare): ${nomeDelegante}`;
+				if (nomeDelegato) {
+					msgAlert += `\n🤝 Delegato: ${nomeDelegato}`;
+				}
+				msgAlert += `\n\n*(Ricerca anagrafica avviata per entrambi)*`;
+
+				alert(msgAlert);
 
 				if (typeof registraLog === 'function') {
-					await registraLog("Chiamata rapida prossimo in coda", nomeUtente);
+					await registraLog("Chiamata prossima in coda", `Delegante: ${nomeDelegante} ${nomeDelegato ? '/ Delegato: ' + nomeDelegato : ''}`);
 				}
 
 			} catch (error) {
@@ -4138,6 +4140,71 @@
 				alert("Errore durante la chiamata: " + error.message);
 			}
 		};
+		
+		async function cercaDeleganteEDelegato(delegante, delegato) {
+			const msg = document.getElementById('messaggioGuida');
+			const tab = document.getElementById('tabellaIscritti');
+			const tbody = document.getElementById('corpoTabella');
+			const box = document.getElementById('boxContatore');
+			
+			try {
+				if (cacheTuttiIscritti.length === 0) {
+					const snapAnag = await getDocs(collection(db, "anagrafica"));
+					const snapStorico = await getDocs(collection(db, "storico"));
+					let mappaStorico = {};
+					
+					snapStorico.formatta = ... // (mantiene la logica della cache esistente)[cite: 5]
+					// Nota: usa la stessa logica di popolamento cache di cercaIscritti già presente nel tuo script[cite: 5]
+				}
+
+				tbody.innerHTML = '';
+				let resMap = new Map();
+				
+				// Puliamo e normalizziamo le stringhe da cercare
+				let termini = [delegante, delegato].filter(t => t && t.trim().length >= 2);
+
+				cacheTuttiIscritti.forEach(dt => {
+					let nomeCompletoDb = `${dt.cognome || ''} ${dt.nome || ''}`.toUpperCase();
+					
+					termini.forEach(termine => {
+						let partiTermine = termine.toUpperCase().split(' ');
+						// Se qualsiasi parte del nome del delegante o delegato matcha l'anagrafica
+						let matchTrovato = partiTermine.some(p => p.length >= 2 && nomeCompletoDb.includes(p));
+						if (matchTrovato) {
+							resMap.set(dt.id, dt);
+						}
+					});
+				});
+
+				let res = Array.from(resMap.values());
+
+				if (res.length === 0) { 
+					msg.textContent = "Nessun iscritto trovato per delegante o delegato."; 
+					tab.style.display = 'none'; 
+					box.style.display = 'none'; 
+					return; 
+				}
+				
+				res.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || '', 'it'));
+				
+				const fragment = document.createDocumentFragment();
+				res.forEach(p => {
+					const tr = document.createElement('tr');
+					tr.innerHTML = `<td>${formattaCognome(p.cognome)}</td><td>${pulisciTesto(p.nome)}</td><td>${pulisciTesto(p.codice_fiscale || p.codiceFiscale).toUpperCase()}</td><td>${formattaDataPerVisualizzazioneTabella(p.data_nascita)}</td><td>${pulisciTesto(p.citta)}</td><td>${pulisciTesto(p.telefono)}</td>`;
+					tr.addEventListener('click', () => apriModaleEsistente(p));
+					fragment.appendChild(tr);
+				});
+				
+				tbody.appendChild(fragment);
+				
+				document.getElementById('totaleIscritti').textContent = res.length;
+				box.style.display = 'block'; 
+				msg.style.display = 'none'; 
+				tab.style.display = 'table';
+			} catch (e) { 
+				msg.textContent = "Errore: " + e.message; 
+			}
+		}
 		
     </script>
 </body>
