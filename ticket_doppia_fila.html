@@ -563,6 +563,16 @@
                     return;
                 }
 
+                // NUOVO: Gestione dello stato delay (saltato al turno di chiamata e rimesso in coda)
+                if (mioStato === 'delay') {
+                    document.getElementById('schermataAttesa').style.display = 'block';
+                    document.getElementById('schermataChiamata').style.display = 'none';
+                    document.getElementById('mioNumeroBiglietto').innerText = `Il tuo biglietto è il N° ${mioOggetto.numero || '-'}`;
+                    document.getElementById('personeDavanti').innerHTML = `<span style="font-size: 15px; font-weight: 600; color: #d97706; line-height: 1.4; display: block;">⚠️ Non ti sei presentato al tuo turno.<br>Sei stato rimesso in coda più indietro. Attendi la prossima chiamata!</span>`;
+                    document.getElementById('personeDavanti').style.color = "#d97706";
+                    return;
+                }
+
                 const arrayAttiva = Object.keys(data)
                     .filter(id => data[id] !== null && typeof data[id] === 'object' && (data[id].stato || 'attesa') !== 'riserva')
                     .map(id => ({ id, ...data[id] }))
@@ -581,13 +591,12 @@
                     document.getElementById('schermataAttesa').style.display = 'none';
                     document.getElementById('schermataChiamata').style.display = 'block';
                     document.getElementById('nomeChiamato').innerText = nome;
-                    document.getElementById('numeroChiamato').innerText = numeroMioBiglietto > 0 ? numeroMioBiglietto : '-';
+                    document.getElementById('numeroChiamato').innerText = mioOggetto.numero || (numeroMioBiglietto > 0 ? numeroMioBiglietto : '-');
                     
                     suonaCampanello();
                     if (navigator.vibrate) navigator.vibrate([600, 200, 600, 200, 600]);
                     return;
                 }
-
                 let personeDavanti = 0;
 				const mioTimestamp = mioOggetto.timestamp;
 
