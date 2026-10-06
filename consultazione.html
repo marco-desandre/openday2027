@@ -4083,82 +4083,90 @@
 				alert("Errore durante la chiamata: " + error.message);
 			}
 		};
-		
 		window.chiamaProssimoInCodaDiretto = async function() {
-			if (!confirm("Vuoi chiamare il prossimo utente in coda?")) {
-				return;
-			}
+            if (!confirm("Vuoi chiamare il prossimo utente in coda?")) {
+                return;
+            }
 
-			try {
-				mostraCaricamento("Ricerca del prossimo in coda...");
+            try {
+                mostraCaricamento("Ricerca del prossimo in coda...");
 
-				const codaRef = dbRef(dbTicket, 'coda');
-				const snapshot = await get(codaRef);
+                const codaRef = dbRef(dbTicket, 'coda');
+                const snapshot = await get(codaRef);
 
-				if (!snapshot.exists()) {
-					nascondiCaricamento();
-					alert("ℹ️ La coda è attualmente vuota.");
-					return;
-				}
+                if (!snapshot.exists()) {
+                    nascondiCaricamento();
+                    alert("ℹ️ La coda è attualmente vuota.");
+                    return;
+                }
 
-				const codaData = snapshot.val();
-				let prossimoChiave = null;
-				let prossimoDato = null;
+                const codaData = snapshot.val();
+                let prossimoChiave = null;
+                let prossimoDato = null;
 
-				for (const [chiave, valore] of Object.entries(codaData)) {
-					if (!valore.stato || valore.stato === "attesa" || valore.stato === "chiamato") {
-						prossimoChiave = chiave;
-						prossimoDato = valore;
-						if (valore.stato === "attesa") break;
-					}
-				}
+                for (const [chiave, valore] of Object.entries(codaData)) {
+                    if (!valore.stato || valore.stato === "attesa" || valore.stato === "chiamato") {
+                        prossimoChiave = chiave;
+                        prossimoDato = valore;
+                        if (valore.stato === "attesa") break;
+                    }
+                }
 
-				if (!prossimoChiave || !prossimoDato) {
-					nascondiCaricamento();
-					alert("ℹ️ Nessun utente in attesa trovato nella coda.");
-					return;
-				}
+                if (!prossimoChiave || !prossimoDato) {
+                    nascondiCaricamento();
+                    alert("ℹ️️ Nessun utente in attesa trovato nella coda.");
+                    return;
+                }
 
-				const ticketAggiornatoRef = dbRef(dbTicket, `coda/${prossimoChiave}`);
-				await update(ticketAggiornatoRef, {
-					stato: "chiamato",
-					chiamato_il: Date.now()
-				});
+                const ticketAggiornatoRef = dbRef(dbTicket, `coda/${prossimoChiave}`);
+                await update(ticketAggiornatoRef, {
+                    stato: "chiamato",
+                    chiamato_il: Date.now()
+                });
 
-				nascondiCaricamento();
+                nascondiCaricamento();
 
-				const nomeDelegante = prossimoDato.nome || ""; 
-				const nomeDelegato = prossimoDato.delegato || ""; 
+                const nomeDelegante = prossimoDato.nome || ""; 
+                const nomeDelegato = prossimoDato.delegato || ""; 
 
-				// Spostati sulla sezione standard degli iscritti
-				cambiaSezioneMenu('visualizzazione_standard', document.querySelector('.sidebar-item.attivo'));
-				
-				const campoFiltro = document.getElementById('filtroCognome');
-				if (campoFiltro) {
-					// Mostriamo nel campo di ricerca il delegante principale o una stringa combinata chiara
-					campoFiltro.value = nomeDelegante;
-					cercaDeleganteEDelegato(nomeDelegante, nomeDelegato);
-				}
+                // Spostati sulla sezione standard degli iscritti ed esegui la ricerca
+                cambiaSezioneMenu('visualizzazione_standard', document.querySelector('.sidebar-item.attivo'));
+                
+                const campoFiltro = document.getElementById('filtroCognome');
+                if (campoFiltro) {
+                    campoFiltro.value = nomeDelegante;
+                    cercaDeleganteEDelegato(nomeDelegante, nomeDelegato);
+                }
 
-				let msgAlert = `📢 UTENTE CHIAMATO IN CODA:\n\n` +
-					`👤 Delegante (Titolare): ${nomeDelegante}`;
-				if (nomeDelegato) {
-					msgAlert += `\n🤝 Delegato: ${nomeDelegato}`;
-				}
-				msgAlert += `\n\n*(Ricerca anagrafica avviata per entrambi)*`;
+                // Popola e mostra la nuova modale con caratteri grandi
+                document.getElementById('testoNomeChiamata').textContent = nomeDelegante || "Non specificato";
+                
+                const boxDelega = document.getElementById('boxDelegaChiamata');
+                const testoDelegato = document.getElementById('testoDelegatoChiamata');
+                
+                if (nomeDelegato && nomeDelegato.trim() !== "") {
+                    testoDelegato.textContent = nomeDelegato;
+                    boxDelega.style.display = 'block';
+                } else {
+                    boxDelega.style.display = 'none';
+                }
 
-				alert(msgAlert);
+                document.getElementById('modalChiamataCoda').style.display = 'flex';
 
-				if (typeof registraLog === 'function') {
-					await registraLog("Chiamata prossima in coda", `Delegante: ${nomeDelegante} ${nomeDelegato ? '/ Delegato: ' + nomeDelegato : ''}`);
-				}
+                if (typeof registraLog === 'function') {
+                    await registraLog("Chiamata prossima in coda", `Delegante: ${nomeDelegante} ${nomeDelegato ? '/ Delegato: ' + nomeDelegato : ''}`);
+                }
 
-			} catch (error) {
-				nascondiCaricamento();
-				console.error("Errore durante la chiamata del prossimo:", error);
-				alert("Errore durante la chiamata: " + error.message);
-			}
-		};
+            } catch (error) {
+                nascondiCaricamento();
+                console.error("Errore durante la chiamata del prossimo:", error);
+                alert("Errore durante la chiamata: " + error.message);
+            }
+        };
+
+        window.chiudiModaleChiamataCoda = function() {
+            document.getElementById('modalChiamataCoda').style.display = 'none';
+        };
 		
 		let ultimaRicercaDelegante = "";
 		let ultimaRicercaDelegato = "";
@@ -4275,5 +4283,27 @@
 		}
 		
     </script>
+	
+	<div id="modalChiamataCoda" class="modal">
+    <div class="modal-content" style="width: 600px; text-align: center; padding: 30px;">
+        <h2 style="color: #dc2626; margin-top: 0; font-size: 26px;">📢 CHIAMATA IN CORSO</h2>
+        
+        <div style="margin: 25px 0; background: #f8f9fa; padding: 20px; border-radius: 8px; border: 2px solid #e9ecef;">
+            <p style="font-size: 16px; color: #666; margin: 0 0 5px 0; text-transform: uppercase; font-weight: bold;">Prossima iscrizione:</p>
+            <p id="testoNomeChiamata" style="font-size: 28px; font-weight: bold; color: #212529; margin: 0; word-break: break-word;"></p>
+        </div>
+
+        <div id="boxDelegaChiamata" style="margin: 20px 0; background: #fff3cd; padding: 15px; border-radius: 8px; border: 2px solid #ffeeba; display: none;">
+            <p style="font-size: 14px; color: #856404; margin: 0 0 5px 0; text-transform: uppercase; font-weight: bold;">Delega:</p>
+            <p id="testoDelegatoChiamata" style="font-size: 22px; font-weight: bold; color: #856404; margin: 0; word-break: break-word;"></p>
+        </div>
+
+        <p style="font-size: 13px; color: #6c757d; font-style: italic; margin-top: 15px;">*(Ricerca anagrafica avviata automaticamente in background)*</p>
+
+        <div style="margin-top: 25px;">
+            <button type="button" class="btn-salva" style="background-color: #007BFF; font-size: 18px; padding: 12px 30px;" onclick="chiudiModaleChiamataCoda()">Ho capito / Chiudi</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
