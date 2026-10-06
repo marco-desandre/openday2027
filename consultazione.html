@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.93</div>
+			<div class="versione-app">Ver. 01.94</div>
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
 				<button type="button" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
@@ -4301,27 +4301,35 @@
 		}
 		
     </script>
+	<!-- Modale Chiamata Coda in Evidenza (Unico Pannello) -->
 	<div id="modalChiamataCoda" class="modal">
 		<div class="modal-content" style="width: 600px; text-align: center; padding: 30px;">
 			<h2 style="color: #dc2626; margin-top: 0; font-size: 24px;">📢 CHIAMATA IN CORSO</h2>
 			
-			<!-- NUOVO: Box Numero Ticket in evidenza -->
-			<div id="boxTicketChiamata" style="margin: 15px 0; background: #e7f5ff; padding: 12px; border-radius: 8px; border: 2px solid #74c0fc; display: none;">
-				<p style="font-size: 13px; color: #1864ab; margin: 0 0 3px 0; text-transform: uppercase; font-weight: bold;">Numero Ticket:</p>
-				<p id="testoNumeroTicketChiamata" style="font-size: 32px; font-weight: bold; color: #1c7ed6; margin: 0;"></p>
+			<!-- Unico pannello contenitore -->
+			<div style="margin: 20px 0; background: #f8f9fa; padding: 25px; border-radius: 12px; border: 2px solid #e9ecef; text-align: left;">
+				
+				<!-- Numero Ticket (visibile solo se presente) -->
+				<div id="boxTicketChiamata" style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px dashed #dee2e6; display: none;">
+					<span style="font-size: 13px; color: #1864ab; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 4px;">Numero Ticket:</span>
+					<span id="testoNumeroTicketChiamata" style="font-size: 36px; font-weight: 800; color: #1c7ed6;"></span>
+				</div>
+
+				<!-- Prossima Iscrizione -->
+				<div style="margin-bottom: 15px;">
+					<span style="font-size: 13px; color: #666; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 4px;">Prossima iscrizione:</span>
+					<span id="testoNomeChiamata" style="font-size: 26px; font-weight: bold; color: #212529; word-break: break-word;"></span>
+				</div>
+
+				<!-- Delega (visibile solo se presente) -->
+				<div id="boxDelegaChiamata" style="margin-top: 15px; padding-top: 15px; border-top: 2px dashed #dee2e6; display: none;">
+					<span style="font-size: 13px; color: #856404; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 4px;">Delega:</span>
+					<span id="testoDelegatoChiamata" style="font-size: 20px; font-weight: bold; color: #856404; word-break: break-word;"></span>
+				</div>
+
 			</div>
 
-			<div style="margin: 20px 0; background: #f8f9fa; padding: 20px; border-radius: 8px; border: 2px solid #e9ecef;">
-				<p style="font-size: 16px; color: #666; margin: 0 0 5px 0; text-transform: uppercase; font-weight: bold;">Prossima iscrizione:</p>
-				<p id="testoNomeChiamata" style="font-size: 28px; font-weight: bold; color: #212529; margin: 0; word-break: break-word;"></p>
-			</div>
-
-			<div id="boxDelegaChiamata" style="margin: 20px 0; background: #fff3cd; padding: 15px; border-radius: 8px; border: 2px solid #ffeeba; display: none;">
-				<p style="font-size: 14px; color: #856404; margin: 0 0 5px 0; text-transform: uppercase; font-weight: bold;">Delega:</p>
-				<p id="testoDelegatoChiamata" style="font-size: 22px; font-weight: bold; color: #856404; margin: 0; word-break: break-word;"></p>
-			</div>
-
-			<p style="font-size: 13px; color: #6c757d; font-style: italic; margin-top: 15px;">__</p>
+			<p style="font-size: 13px; color: #6c757d; font-style: italic; margin-top: 15px;">*(Ricerca anagrafica avviata automaticamente in background)*</p>
 
 			<div style="margin-top: 25px;">
 				<button type="button" class="btn-salva" style="background-color: #007BFF; font-size: 18px; padding: 12px 30px;" onclick="chiudiModaleChiamataCoda()">Ho capito / Chiudi</button>
