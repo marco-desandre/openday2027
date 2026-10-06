@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.93</div>
+			<div class="versione-app">Ver. 01.94</div>
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
 				<button type="button" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
@@ -4086,7 +4086,7 @@
 		
 		let currentProssimoChiave = null; // Traccia la chiave del ticket attualmente in chiamata
 
-        window.chiamaProssimoInCodaDiretto = async function() {
+		window.chiamaProssimoInCodaDiretto = async function() {
             if (!confirm("Vuoi chiamare il prossimo utente in coda?")) {
                 return;
             }
@@ -4104,27 +4104,33 @@
                 }
 
                 const codaData = snapshot.val();
-                let prossimoChiave = null;
-                let prossimoDato = null;
+                
+                // Mappa tutti i nodi e li ordina rigorosamente per timestamp crescente
+                let arrayCodaOrdinata = Object.keys(codaData)
+                    .filter(id => codaData[id] !== null)
+                    .map(id => ({ id, ...codaData[id] }))
+                    .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
 
-                for (const [chiave, valore] of Object.entries(codaData)) {
-                    // Considera in attesa o in delay (se rimesso in coda)
-                    if (!valore.stato || valore.stato === "attesa" || valore.stato === "delay" || valore.stato === "chiamato") {
-                        prossimoChiave = chiave;
-                        prossimoDato = valore;
-                        if (valore.stato === "attesa" || valore.stato === "delay") break;
+                let prossimoElemento = null;
+
+                // Trova il primo elemento valido in stato "attesa" o "delay"
+                for (const item of arrayCodaOrdinata) {
+                    const stato = item.stato || 'attesa';
+                    if (stato === 'attesa' || stato === 'delay') {
+                        prossimoElemento = item;
+                        break;
                     }
                 }
 
-                if (!prossimoChiave || !prossimoDato) {
+                if (!prossimoElemento) {
                     nascondiCaricamento();
                     alert("ℹ️ Nessun utente in attesa trovato nella coda.");
                     return;
                 }
 
-                currentProssimoChiave = prossimoChiave; // Salva la chiave attiva
+                currentProssimoChiave = prossimoElemento.id; // Salva la chiave attiva
 
-                const ticketAggiornatoRef = dbRef(dbTicket, `coda/${prossimoChiave}`);
+                const ticketAggiornatoRef = dbRef(dbTicket, `coda/${currentProssimoChiave}`);
                 await update(ticketAggiornatoRef, {
                     stato: "chiamato",
                     chiamato_il: Date.now()
@@ -4132,9 +4138,9 @@
 
                 nascondiCaricamento();
 
-                const numeroTicket = prossimoDato.numero; 
-                const nomeDelegante = prossimoDato.nome || ""; 
-                const nomeDelegato = prossimoDato.delegato || ""; 
+                const numeroTicket = prossimoElemento.numero; 
+                const nomeDelegante = prossimoElemento.nome || ""; 
+                const nomeDelegato = prossimoElemento.delegato || ""; 
 
                 // Spostati sulla sezione standard degli iscritti ed esegui la ricerca
                 cambiaSezioneMenu('visualizzazione_standard', document.querySelector('.sidebar-item.attivo'));
