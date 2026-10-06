@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.94</div>
+			<div class="versione-app">Ver. 01.93</div>
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
 				<button type="button" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
@@ -4084,102 +4084,104 @@
 			}
 		};
 		
+		
 		window.chiamaProssimoInCodaDiretto = async function() {
-            if (!confirm("Vuoi chiamare il prossimo utente in coda?")) {
-                return;
-            }
+			if (!confirm("Vuoi chiamare il prossimo utente in coda?")) {
+				return;
+			}
 
-            try {
-                mostraCaricamento("Ricerca del prossimo in coda...");
+			try {
+				mostraCaricamento("Ricerca del prossimo in coda...");
 
-                const codaRef = dbRef(dbTicket, 'coda');
-                const snapshot = await get(codaRef);
+				const codaRef = dbRef(dbTicket, 'coda');
+				const snapshot = await get(codaRef);
 
-                if (!snapshot.exists()) {
-                    nascondiCaricamento();
-                    alert("ℹ️ La coda è attualmente vuota.");
-                    return;
-                }
+				if (!snapshot.exists()) {
+					nascondiCaricamento();
+					alert("ℹ️ La coda è attualmente vuota.");
+					return;
+				}
 
-                const codaData = snapshot.val();
-                let prossimoChiave = null;
-                let prossimoDato = null;
+				const codaData = snapshot.val();
+				let prossimoChiave = null;
+				let prossimoDato = null;
 
-                for (const [chiave, valore] of Object.entries(codaData)) {
-                    if (!valore.stato || valore.stato === "attesa" || valore.stato === "chiamato") {
-                        prossimoChiave = chiave;
-                        prossimoDato = valore;
-                        if (valore.stato === "attesa") break;
-                    }
-                }
+				for (const [chiave, valore] of Object.entries(codaData)) {
+					if (!valore.stato || valore.stato === "attesa" || valore.stato === "chiamato") {
+						prossimoChiave = chiave;
+						prossimoDato = valore;
+						if (valore.stato === "attesa") break;
+					}
+				}
 
-                if (!prossimoChiave || !prossimoDato) {
-                    nascondiCaricamento();
-                    alert("ℹ️ Nessun utente in attesa trovato nella coda.");
-                    return;
-                }
+				if (!prossimoChiave || !prossimoDato) {
+					nascondiCaricamento();
+					alert("ℹ️ Nessun utente in attesa trovato nella coda.");
+					return;
+				}
 
-                const ticketAggiornatoRef = dbRef(dbTicket, `coda/${prossimoChiave}`);
-                await update(ticketAggiornatoRef, {
-                    stato: "chiamato",
-                    chiamato_il: Date.now()
-                });
+				const ticketAggiornatoRef = dbRef(dbTicket, `coda/${prossimoChiave}`);
+				await update(ticketAggiornatoRef, {
+					stato: "chiamato",
+					chiamato_il: Date.now()
+				});
 
-                nascondiCaricamento();
+				nascondiCaricamento();
 
-                const numeroTicket = prossimoDato.numero || prossimoDato.id || prossimoChiave; 
-                const nomeDelegante = prossimoDato.nome || ""; 
-                const nomeDelegato = prossimoDato.delegato || ""; 
+				// Legge direttamente il campo 'numero' salvato nel database
+				const numeroTicket = prossimoDato.numero; 
+				const nomeDelegante = prossimoDato.nome || ""; 
+				const nomeDelegato = prossimoDato.delegato || ""; 
 
-                // Spostati sulla sezione standard degli iscritti ed esegui la ricerca
-                cambiaSezioneMenu('visualizzazione_standard', document.querySelector('.sidebar-item.attivo'));
-                
-                const campoFiltro = document.getElementById('filtroCognome');
-                if (campoFiltro) {
-                    campoFiltro.value = nomeDelegante;
-                    cercaDeleganteEDelegato(nomeDelegante, nomeDelegato);
-                }
+				// Spostati sulla sezione standard degli iscritti ed esegui la ricerca
+				cambiaSezioneMenu('visualizzazione_standard', document.querySelector('.sidebar-item.attivo'));
+				
+				const campoFiltro = document.getElementById('filtroCognome');
+				if (campoFiltro) {
+					campoFiltro.value = nomeDelegante;
+					cercaDeleganteEDelegato(nomeDelegante, nomeDelegato);
+				}
 
-                // Popola i campi della modale con caratteri grandi
-                document.getElementById('testoNomeChiamata').textContent = nomeDelegante || "Non specificato";
-                
-                // Gestione visualizzazione numero ticket
-                const boxTicket = document.getElementById('boxTicketChiamata');
-                const testoTicket = document.getElementById('testoNumeroTicketChiamata');
-                if (numeroTicket) {
-                    testoTicket.textContent = numeroTicket;
-                    boxTicket.style.display = 'block';
-                } else {
-                    boxTicket.style.display = 'none';
-                }
+				// Popola i campi della modale con caratteri grandi
+				document.getElementById('testoNomeChiamata').textContent = nomeDelegante || "Non specificato";
+				
+				// Gestione visualizzazione numero ticket
+				const boxTicket = document.getElementById('boxTicketChiamata');
+				const testoTicket = document.getElementById('testoNumeroTicketChiamata');
+				if (numeroTicket !== undefined && numeroTicket !== null) {
+					testoTicket.textContent = numeroTicket;
+					boxTicket.style.display = 'block';
+				} else {
+					boxTicket.style.display = 'none';
+				}
 
-                // Gestione visualizzazione delegato
-                const boxDelega = document.getElementById('boxDelegaChiamata');
-                const testoDelegato = document.getElementById('testoDelegatoChiamata');
-                if (nomeDelegato && nomeDelegato.trim() !== "") {
-                    testoDelegato.textContent = nomeDelegato;
-                    boxDelega.style.display = 'block';
-                } else {
-                    boxDelega.style.display = 'none';
-                }
+				// Gestione visualizzazione delegato
+				const boxDelega = document.getElementById('boxDelegaChiamata');
+				const testoDelegato = document.getElementById('testoDelegatoChiamata');
+				if (nomeDelegato && nomeDelegato.trim() !== "") {
+					testoDelegato.textContent = nomeDelegato;
+					boxDelega.style.display = 'block';
+				} else {
+					boxDelega.style.display = 'none';
+				}
 
-                document.getElementById('modalChiamataCoda').style.display = 'flex';
+				document.getElementById('modalChiamataCoda').style.display = 'flex';
 
-                if (typeof registraLog === 'function') {
-                    await registraLog("Chiamata prossima in coda", `Ticket: ${numeroTicket} - Delegante: ${nomeDelegante}`);
-                }
+				if (typeof registraLog === 'function') {
+					await registraLog("Chiamata prossima in coda", `Ticket: ${numeroTicket} - Delegante: ${nomeDelegante}`);
+				}
 
-            } catch (error) {
-                nascondiCaricamento();
-                console.error("Errore durante la chiamata del prossimo:", error);
-                alert("Errore durante la chiamata: " + error.message);
-            }
-        };
+			} catch (error) {
+				nascondiCaricamento();
+				console.error("Errore durante la chiamata del prossimo:", error);
+				alert("Errore durante la chiamata: " + error.message);
+			}
+		};
 
-        window.chiudiModaleChiamataCoda = function() {
-            document.getElementById('modalChiamataCoda').style.display = 'none';
-        };
-
+		window.chiudiModaleChiamataCoda = function() {
+			document.getElementById('modalChiamataCoda').style.display = 'none';
+		};
+		
         window.chiudiModaleChiamataCoda = function() {
             document.getElementById('modalChiamataCoda').style.display = 'none';
         };
@@ -4319,7 +4321,7 @@
 				<p id="testoDelegatoChiamata" style="font-size: 22px; font-weight: bold; color: #856404; margin: 0; word-break: break-word;"></p>
 			</div>
 
-			<p style="font-size: 13px; color: #6c757d; font-style: italic; margin-top: 15px;">*(Ricerca anagrafica avviata automaticamente in background)*</p>
+			<p style="font-size: 13px; color: #6c757d; font-style: italic; margin-top: 15px;">__</p>
 
 			<div style="margin-top: 25px;">
 				<button type="button" class="btn-salva" style="background-color: #007BFF; font-size: 18px; padding: 12px 30px;" onclick="chiudiModaleChiamataCoda()">Ho capito / Chiudi</button>
