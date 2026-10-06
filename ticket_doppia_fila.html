@@ -609,8 +609,8 @@
 					}
 				});
 
-                document.getElementById('mioNumeroBiglietto').innerText = `Il tuo biglietto è il N° ${numeroMioBiglietto}`;
-
+                const numeroDb = mioOggetto.numero !== undefined && mioOggetto.numero !== null ? mioOggetto.numero : numeroMioBiglietto;
+				document.getElementById('mioNumeroBiglietto').innerText = `Il tuo biglietto è il N° ${numeroDb}`;
                 const boxPersone = document.getElementById('personeDavanti');
                 if (personeDavanti === 0) {
                     boxPersone.innerHTML = `<span style="color: #16a34a; font-size: 24px;">Sei il prossimo! 🎯</span>`;
