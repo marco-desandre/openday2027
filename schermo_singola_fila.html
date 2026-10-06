@@ -355,8 +355,8 @@
 			const nuoviChiamatiCorrenti = new Set();
 
 			chiamati.forEach(persona => {
-				const numeroBiglietto = arrayCoda.findIndex(p => p.id === persona.id) + 1;
-
+				const numeroBiglietto = persona.numero !== undefined && persona.numero !== null ? persona.numero : (arrayCoda.findIndex(p => p.id === persona.id) + 1);
+				
 				nuoviChiamatiCorrenti.add(numeroBiglietto);
 
 				if (!ultimiChiamatiNotificati.has(numeroBiglietto)) {
