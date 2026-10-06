@@ -446,7 +446,7 @@
             }, { onlyOnce: true });
         }
 
-        window.registraInCoda = function() {
+		window.registraInCoda = function() {
             const nome = document.getElementById('nomeUtente').value.trim();
             const conDelega = document.getElementById('checkDelega').checked;
             const nomeDelegato = document.getElementById('nomeDelegato').value.trim();
@@ -454,13 +454,39 @@
 
             if(!nome || (conDelega && !nomeDelegato)) return;
 
-            const nuovoTicket = push(codaRef, {
-                nome: nome, telefono: "", delega: conDelega, delegato: conDelega ? nomeDelegato : "", pagamento: pagamento, timestamp: Date.now(), stato: 'attesa'
-            });
+            // Legge la coda una volta per determinare il numero progressivo basato sul totale dei ticket
+            onValue(codaRef, (snapshot) => {
+                const data = snapshot.val();
+                let prossimoNumero = 1;
 
-            localStorage.setItem('coda_id_utente', nuovoTicket.key);
-            localStorage.setItem('coda_nome_utente', nome);
-            attivaModalitaAttesa(nuovoTicket.key, nome);
+                if (data) {
+                    const keys = Object.keys(data);
+                    // Trova il numero massimo già assegnato oppure conta i ticket esistenti + 1
+                    let maxNum = 0;
+                    keys.forEach(id => {
+                        const item = data[id];
+                        if (item && item.numero && typeof item.numero === 'number') {
+                            if (item.numero > maxNum) maxNum = item.numero;
+                        }
+                    });
+                    prossimoNumero = maxNum > 0 ? maxNum + 1 : keys.length + 1;
+                }
+
+                const nuovoTicket = push(codaRef, {
+                    numero: prossimoNumero, // <--- Salviamo il numero progressivo calcolato
+                    nome: nome, 
+                    telefono: "", 
+                    delega: conDelega, 
+                    delegato: conDelega ? nomeDelegato : "", 
+                    pagamento: pagamento, 
+                    timestamp: Date.now(), 
+                    stato: 'attesa'
+                });
+
+                localStorage.setItem('coda_id_utente', nuovoTicket.key);
+                localStorage.setItem('coda_nome_utente', nome);
+                attivaModalitaAttesa(nuovoTicket.key, nome);
+            }, { onlyOnce: true });
         }
 
         window.registraInRiserva = function() {
@@ -471,13 +497,37 @@
 
             if(!nome || (conDelega && !nomeDelegato)) return;
 
-            const nuovoTicket = push(codaRef, {
-                nome: nome, telefono: "", delega: conDelega, delegato: conDelega ? nomeDelegato : "", pagamento: pagamento, timestamp: Date.now(), stato: 'riserva'
-            });
+            onValue(codaRef, (snapshot) => {
+                const data = snapshot.val();
+                let prossimoNumero = 1;
 
-            localStorage.setItem('coda_id_utente', nuovoTicket.key);
-            localStorage.setItem('coda_nome_utente', nome);
-            attivaModalitaAttesa(nuovoTicket.key, nome);
+                if (data) {
+                    const keys = Object.keys(data);
+                    let maxNum = 0;
+                    keys.forEach(id => {
+                        const item = data[id];
+                        if (item && item.numero && typeof item.numero === 'number') {
+                            if (item.numero > maxNum) maxNum = item.numero;
+                        }
+                    });
+                    prossimoNumero = maxNum > 0 ? maxNum + 1 : keys.length + 1;
+                }
+
+                const nuovoTicket = push(codaRef, {
+                    numero: prossimoNumero, // <--- Salviamo il numero progressivo anche per la riserva
+                    nome: nome, 
+                    telefono: "", 
+                    delega: conDelega, 
+                    delegato: conDelega ? nomeDelegato : "", 
+                    pagamento: pagamento, 
+                    timestamp: Date.now(), 
+                    stato: 'riserva'
+                });
+
+                localStorage.setItem('coda_id_utente', nuovoTicket.key);
+                localStorage.setItem('coda_nome_utente', nome);
+                attivaModalitaAttesa(nuovoTicket.key, nome);
+            }, { onlyOnce: true });
         }
 
         function attivaModalitaAttesa(idMioTicket, nome) {
