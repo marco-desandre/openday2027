@@ -273,11 +273,10 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.93</div>
+			<div class="versione-app">Ver. 02.00</div>
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
-				<button type="button" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
-				<button type="button" class="btn-logout" style="background-color: #dc2626;" onclick="chiamaProssimoInCodaDiretto()">📢 Chiama Prossimo</button>
+				<button type="button" id="btnGestioneCoda" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button> type="button" class="btn-logout" style="background-color: #dc2626;" onclick="chiamaProssimoInCodaDiretto()">📢 Chiama Prossimo</button>
 				
                 <div id="boxModalita" class="box-modalita" style="display: none;">
                     <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
@@ -2598,13 +2597,21 @@
             }
         };
 		
-        window.cambiaModalita = function(modalita) {
+		window.cambiaModalita = function(modalita) {
             modalitaCorrente = modalita;
-            const isUser = (modalita === 'user');
-            document.getElementById('btnAdmin').classList.toggle('attivo', !isUser);
-            document.getElementById('btnUser').classList.toggle('attivo', isUser);
-            document.getElementById('sidebarMenu').classList.toggle('nascosta', isUser);
-            if (isUser) cambiaSezioneMenu('visualizzazione_standard');
+            const isAdmin = (modalita === 'admin');
+            
+            document.getElementById('btnAdmin').classList.toggle('attivo', isAdmin);
+            document.getElementById('btnUser').classList.toggle('attivo', !isAdmin);
+            document.getElementById('sidebarMenu').classList.toggle('nascosta', !isAdmin);
+            
+            // Mostra o nascondi il pulsante Gestione Coda in base alla modalità
+            const btnGestioneCoda = document.getElementById('btnGestioneCoda');
+            if (btnGestioneCoda) {
+                btnGestioneCoda.style.display = isAdmin ? 'inline-block' : 'none';
+            }
+
+            if (!isAdmin) cambiaSezioneMenu('visualizzazione_standard');
             
             const idPersonaCorrente = document.getElementById('editIdPersona').value;
             if (idPersonaCorrente && document.getElementById('editModal').style.display === 'flex') {
