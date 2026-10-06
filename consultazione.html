@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.94</div>
+			<div class="versione-app">Ver. 01.93</div>
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
 				<button type="button" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
@@ -4179,7 +4179,7 @@
             }
         };
 
-        window.gestisciEsitoChiamata = async function(azione) {
+		window.gestisciEsitoChiamata = async function(azione) {
             if (!currentProssimoChiave) {
                 document.getElementById('modalChiamataCoda').style.display = 'none';
                 return;
@@ -4199,30 +4199,35 @@
                         await registraLog("Coda - Utente Arrivato/Iscritto", `Ticket ID: ${currentProssimoChiave}`);
                     }
                 } else if (azione === 'delay') {
-                    // Rimetti in coda spostandolo indietro di 10 posizioni modificando il timestamp
-                    // Assegniamo un timestamp calcolato in modo che finisca dopo gli altri (es. timestamp attuale + 10 minuti o shift dei timestamp)
+                    // Legge l'intera coda per ordinare gli elementi attivi per timestamp
                     const snapshot = await get(dbRef(dbTicket, 'coda'));
                     if (snapshot.exists()) {
                         const data = snapshot.val();
+                        
+                        // Filtra i ticket attivi (escludendo riserve, iscritti e lo stesso ticket chiamato)
                         let arrayAttiva = Object.keys(data)
-                            .filter(id => data[id] !== null && (data[id].stato || 'attesa') !== 'riserva' && (data[id].stato || 'attesa') !== 'iscritto')
+                            .filter(id => id !== currentProssimoChiave && data[id] !== null && (data[id].stato || 'attesa') !== 'riserva' && (data[id].stato || 'attesa') !== 'iscritto')
                             .map(id => ({ id, ...data[id] }))
                             .sort((a, b) => a.timestamp - b.timestamp);
 
-                        // Trova il timestamp del ticket che si trova circa 10 posizioni più avanti
-                        let targetIndex = Math.min(10, arrayAttiva.length - 1);
+                        // Prende i primi 10 elementi in coda ordinati per timestamp
+                        let primiDieci = arrayAttiva.slice(0, 10);
                         let nuovoTimestamp = Date.now();
-                        if (arrayAttiva.length > 0 && arrayAttiva[targetIndex]) {
-                            nuovoTimestamp = arrayAttiva[targetIndex].timestamp + 1000; // Subito dopo il decimo
+
+                        if (primiDieci.length > 0) {
+                            // Prende il timestamp dell'ultimo elemento tra i primi 10 (o del decimo disponibile)
+                            let elementoTarget = primiDieci[primiDieci.length - 1];
+                            nuovoTimestamp = elementoTarget.timestamp + 1000; // Imposta un timestamp leggermente successivo per collocarlo dopo
                         }
 
+                        // Aggiorna lo stato a "delay" e assegna il nuovo timestamp ricalcolato
                         await update(ticketRef, {
                             stato: "delay",
                             timestamp: nuovoTimestamp
                         });
 
                         if (typeof registraLog === 'function') {
-                            await registraLog("Coda - Utente non arrivato (Delay +10 posizioni)", `Ticket ID: ${currentProssimoChiave}`);
+                            await registraLog("Coda - Utente non arrivato (Delay dopo i primi 10)", `Ticket ID: ${currentProssimoChiave}`);
                         }
                     }
                 }
