@@ -1684,13 +1684,22 @@
         };
 
         window.eseguiLogout = async function() {
-            try {
-                await signOut(auth);
-                document.getElementById('loginOverlay').style.display = 'flex';
-            } catch (error) {
-                console.error("Errore logout:", error);
-            }
-        };
+			try {
+				// Tenta la disconnessione ufficiale da Firebase
+				await signOut(auth);
+			} catch (error) {
+				console.warn("Errore durante il signOut di Firebase (procedo comunque con la forzatura):", error);
+			} finally {
+				// 1. Mostra forzatamente la schermata di login
+				const loginOverlay = document.getElementById('loginOverlay');
+				if (loginOverlay) {
+					loginOverlay.style.display = 'flex';
+				}
+				
+				// 2. Ricarica la pagina per azzerare completamente la sessione e la cache in memoria
+				window.location.reload();
+			}
+		};
 
         async function verificaAutorizzazioneUtente(user) {
             const errBox = document.getElementById('loginError');
