@@ -273,7 +273,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 01.94</div>
+			<div class="versione-app">Ver. 01.93</div>
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
 				<button type="button" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
@@ -1730,6 +1730,12 @@
                 document.getElementById('userEmailDisplayHeader').textContent = aliasUtenteLoggato;
 
                 await registraLog("Login");
+				
+				// --- INDICIZZAZIONE AUTOMATICA AL LOGIN ---
+                mostraCaricamento("Indicizzazione database in corso...");
+                await inizializzaCacheGlobale();
+                nascondiCaricamento();
+                // ------------------------------------------
 
                 const boxModalita = document.getElementById('boxModalita');
                 if (ruoloUtenteLoggato === 'admin') {
