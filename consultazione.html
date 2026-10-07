@@ -1870,7 +1870,7 @@
                 
                 // 1. Download Anagrafica (es. 40%)
                 const snapAnag = await getDocs(collection(db, "anagrafica"));
-                mostraCaricamento("Scaricamento dati anagrafici...", 40);
+                mostraCaricamento("Aggiornamento dati anagrafici...", 40);
                 
                 // 2. Download Storico (es. 70%)
                 const snapStorico = await getDocs(collection(db, "storico"));
