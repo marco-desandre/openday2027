@@ -132,12 +132,17 @@
 			background-color: white; 
 			padding: 20px 25px;
 			border-radius: 8px; 
-			width: 950px; 
+			width: 1350px; /* Ampliato per ospitare le due colonne */
+            max-width: 95vw;
 			max-height: 92vh;
 			overflow-y: auto; 
 			box-shadow: 0px 4px 15px rgba(0,0,0,0.2); 
 			position: relative; 
 		}
+
+        @media (max-width: 1024px) {
+            .modal-layout-flex { flex-direction: column !important; }
+        }
 		.modal-content h3 { margin-top: 0; color: #007BFF; }
         .modal-content h4 { margin-top: 25px; color: #333; border-bottom: 2px solid #007BFF; padding-bottom: 5px; }
         
@@ -534,373 +539,378 @@
             
             <div id="messaggioRuntimeDuplicato"></div>
 
-            <div class="form-row">
-                <div class="form-group col-medium">
-                    <label>Cognome:</label>
-                    <input type="text" id="editCognome" class="campo-controllo campo-verifica-runtime">
-                </div>
-                <div class="form-group col-medium">
-                    <label>Nome:</label>
-                    <input type="text" id="editNome" class="campo-controllo campo-verifica-runtime">
-                </div>
-            </div>
-			
-			
-			<div class="form-row" id="gruppoCampoCodiceFiscale">
-				<div class="form-group col-large">
-					<label>Codice Fiscale e Genere:</label>
-					<div style="display: flex; gap: 15px; align-items: center; margin: 1px 0 3px 0;">
-						<div style="display: flex; gap: 15px; align-items: center;">
-							<label style="font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; margin: 0;">
-								<input type="radio" name="editSesso" value="M" style="cursor: pointer; width: 16px; height: 16px;" onchange="gestisciSelezioneSesso()"> Maschio
-							</label>
-							<label style="font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; margin: 0;">
-								<input type="radio" name="editSesso" value="F" style="cursor: pointer; width: 16px; height: 16px;" onchange="gestisciSelezioneSesso()"> Femmina
-							</label>
-						</div>
-						<input type="text" id="editCodiceFiscale" class="campo-controllo" maxlength="16" placeholder="es. RSSMRA..." style="text-transform: uppercase; margin: 0; padding: 3px 6px; height: 31px; box-sizing: border-box;">
-						<button type="button" id="btnCalcolaCF" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 13px; font-weight: bold; height: 31px; line-height: normal; opacity: 0.6; cursor: not-allowed; box-sizing: border-box;" disabled onclick="calcolaCFIsCRITTO()">Calcola</button>
-					</div>
-				</div>
-			</div>
-			
-            <div class="form-row">
-				<div class="form-group col-medium">
-					<label>Luogo di Nascita:</label>
-					<!-- Aggiunto list="listaComuniNascita" -->
-					<input type="text" id="editLuogoNascita" class="campo-controllo" placeholder="es. Ivrea" list="listaComuniNascita">
-					<!-- Datalist che conterrà i suggerimenti dinamici -->
-					<datalist id="listaComuniNascita"></datalist>
-				</div>
-				<div class="form-group col-medium">
-					<div class="label-con-eta">
-						<label>Data di Nascita:</label>
-						<span style="font-size: 11px; color: #666; font-weight: bold;">Anni attuali:</span>
-					</div>
-					<div style="display: flex; gap: 8px;">
-						<input type="date" id="editDataNascita" class="campo-controllo campo-verifica-runtime" style="flex: 2;">
-						<input type="text" id="editEtaDisplay" class="input-eta-display" style="flex: 1;" readonly placeholder="-">
-					</div>
-				</div>
-			</div>
-
-            <div class="form-row">
-                <div class="form-group col-large">
-                    <label>Indirizzo:</label>
-                    <input type="text" id="editIndirizzo" class="campo-controllo" placeholder="es. Via Roma 10">
-                </div>
-                <div class="form-group col-medium">
-                    <label>Città:</label>
-                    <input type="text" id="editCitta" class="campo-controllo">
-                </div>
-                <div class="form-group col-small">
-                    <label>CAP:</label>
-                    <input type="text" id="editCap" class="campo-controllo" placeholder="es. 10010" maxlength="5">
-                </div>
-                <div class="form-group col-small">
-                    <label>Provincia:</label>
-                    <input type="text" id="editProvincia" class="campo-controllo" placeholder="es. TO" maxlength="2">
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group col-medium">
-                    <label>Telefono:</label>
-                    <input type="text" id="editTelefono" class="campo-controllo" placeholder="es. 3331234567">
-                </div>
-                <div class="form-group col-medium">
-                    <label>Mail:</label>
-                    <input type="email" id="editMail" class="campo-controllo" placeholder="es. nome@email.it">
-                </div>
-            </div>
-
-            <!-- DOCUMENTO ISCRITTO -->
-			<div id="gruppoSezioneDocumento" style="display: none; margin-top: 10px;">
-				<div class="collapsible-header" onclick="toggleCollapsible('corpoDocIscritto', this); apriQRCapture('iscritto');">
-					<span>🪪 Documento d'Identità (Iscritto)</span>
-					<span>▼</span>
-				</div>
-				<div id="corpoDocIscritto" class="collapsible-content">
-					<div class="form-row" style="margin-bottom: 10px;">
-						<div class="form-group col-medium">
-							<label style="font-size: 11px;">Tipo Documento:</label>
-							<select id="editTipoDocumento" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
-								<option value="">-- Seleziona --</option>
-								<option value="Passaporto">Passaporto</option>
-								<option value="Patente">Patente</option>
-								<option value="Carta di identità">Carta di identità</option>
-							</select>
-						</div>
-						<div class="form-group col-medium">
-							<label style="font-size: 11px;">Numero:</label>
-							<input type="text" id="editNumeroDocumento" placeholder="es. AB12345CD" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
-						</div>
-						<div class="form-group col-medium">
-							<label style="font-size: 11px;">Data di Scadenza:</label>
-							<input type="date" id="editScadenzaDocumento" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
-						</div>
-					</div>
-
-					<!-- QR CODE COMPATTO (Senza pulsanti) -->
-					<div style="margin: 5px 0; background: #e7f5ff; padding: 6px; border-radius: 6px; border: 1px solid #74c0fc; text-align: center;">
-						<div id="boxContainerQR_iscritto" style="display: none; margin: 0 auto; background: #fff; padding: 6px; border: 1px solid #74c0fc; border-radius: 6px; text-align: center; max-width: 140px;"></div>
-					</div>
-
-					<!-- SEZIONE UNICA IMMAGINI -->
-					<div style="margin-top: 10px; border-top: 1px dashed #74c0fc; padding-top: 10px;">
-						<label style="font-size: 12px; font-weight: bold; color: #1864ab;">Immagini Documento:</label>
-						<div style="margin-top: 8px;" id="boxContainerImmagini_iscritto">
-							<div id="linkAnteprima_iscritto_1_wrap" style="display: none; margin-bottom: 4px;">
-								<a id="linkAnteprima_iscritto_1" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline;">Visualizza Immagine (Fronte)</a>
-							</div>
-							<div id="linkAnteprima_iscritto_2_wrap" style="display: none; margin-bottom: 8px;">
-								<a id="linkAnteprima_iscritto_2" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline;">Visualizza Immagine (Retro)</a>
-							</div>
-							<div id="msgNessunaImmagine_iscritto" style="font-size: 12px; color: #666; font-style: italic; margin-bottom: 6px;">Nessun documento caricato.</div>
-							
-							<button type="button" id="btnRimuoviEntrambi_iscritto" class="btn-azione btn-elimina-storico" style="display: none;" onclick="rimuoviEntrambiFileDocumento('iscritto')">🗑️ Rimuovi Documenti</button>
-						</div>
-						<input type="hidden" id="editUrl_iscritto_1">
-						<input type="hidden" id="editUrl_iscritto_2">
-					</div>
-				</div>
-			</div>
-			
-            <!-- DATI GENITORI -->
-            <div id="sezioneDatiGenitori" style="display: none; background: #fff3cd; padding: 12px; border-radius: 6px; border: 1px solid #ffeeba; margin-top: 10px; margin-bottom: 10px;">
-                <h4 style="margin-top: 0; margin-bottom: 10px; color: #856404; font-size: 14px; border-bottom: 1px solid #ffeeba; padding-bottom: 4px;">Dati Genitori / Tutori (Obbligatori per minorenni < 18 anni)</h4>
+            <!-- CONTENITORE AFFIANCATO A DUE COLONNE -->
+            <div class="modal-layout-flex" style="display: flex; gap: 25px; align-items: flex-start; margin-top: 15px;">
                 
-                <p style="font-size: 13px; font-weight: bold; color: #856404; margin: 5px 0;">Genitore 1</p>
-                <div class="form-row">
-                    <div class="form-group col-medium"><label style="font-size: 11px;">Cognome:</label><input type="text" id="editGenitore1Cognome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
-                    <div class="form-group col-medium"><label style="font-size: 11px;">Nome:</label><input type="text" id="editGenitore1Nome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
-                    <div class="form-group col-medium"><label style="font-size: 11px;">Luogo Nascita:</label><input type="text" id="editGenitore1LuogoNascita" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
-                    <div class="form-group col-medium"><label style="font-size: 11px;">Data Nascita:</label><input type="date" id="editGenitore1DataNascita" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
-                </div>
-                <div class="form-row" id="gruppoGen1CF" style="margin-bottom: 5px;">
-                    <div class="form-group col-large">
-                        <label style="font-size: 11px;">Codice Fiscale:</label>
-                        <div style="display: flex; gap: 6px;">
-                            <input type="text" id="editGenitore1CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 5px; font-size: 12px; text-transform: uppercase; margin: 0;">
-                            <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 11px; font-weight: bold; height: 30px;" onclick="calcolaCFGenitore(1)">Calcola</button>
+                <!-- COLONNA SINISTRA: Anagrafica, Documenti, Genitori e Bottoni -->
+                <div style="flex: 1.3; min-width: 0;">
+                    
+                    <div class="form-row">
+                        <div class="form-group col-medium">
+                            <label>Cognome:</label>
+                            <input type="text" id="editCognome" class="campo-controllo campo-verifica-runtime">
+                        </div>
+                        <div class="form-group col-medium">
+                            <label>Nome:</label>
+                            <input type="text" id="editNome" class="campo-controllo campo-verifica-runtime">
                         </div>
                     </div>
-                </div>
-
-                <div id="gruppoGen1Doc" style="display: none; margin-bottom: 10px;">
-                    <div class="collapsible-header" style="background: #fff9db; border-color: #f59f00; color: #b7791f;" onclick="toggleCollapsible('corpoDocGen1', this)">
-                        <span>🪪 Documento d'Identità (Genitore 1)</span>
-                        <span>▼</span>
-                    </div>
-                    <div id="corpoDocGen1" class="collapsible-content" style="background: #fffdf5;">
-                        <div class="form-row" style="margin-bottom: 10px;">
-                            <div class="form-group col-medium">
-                                <label style="font-size: 11px;">Tipo Documento:</label>
-                                <select id="editGenitore1TipoDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
-                                    <option value="">-- Seleziona --</option>
-                                    <option value="Passaporto">Passaporto</option>
-                                    <option value="Patente">Patente</option>
-                                    <option value="Carta di identità">Carta di identità</option>
-                                </select>
-                            </div>
-                            <div class="form-group col-medium">
-                                <label style="font-size: 11px;">N. Documento:</label>
-                                <input type="text" id="editGenitore1NumDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
-                            </div>
-                            <div class="form-group col-medium">
-                                <label style="font-size: 11px;">Scadenza:</label>
-                                <input type="date" id="editGenitore1ScadenzaDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
-                            </div>
-                        </div>
-
-                        <div style="margin-top: 10px; border-top: 1px dashed #f59f00; padding-top: 10px;">
-                            <label style="font-size: 12px; font-weight: bold; color: #b7791f;">Immagine 1 (Fronte):</label>
-                            <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
-                                <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('gen1', 1)">📷 Webcam</button>
-                                <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
-                                    📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen1', 1, this)">
-                                </label>
-                            </div>
-                            <div style="margin-top: 8px;">
-                                <div id="boxAnteprima_gen1_1" style="display: none;">
-                                    <a id="linkAnteprima_gen1_1" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 1</a>
-                                    <button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('gen1', 1)">Rimuovi</button>
+                    
+                    <div class="form-row" id="gruppoCampoCodiceFiscale">
+                        <div class="form-group col-large">
+                            <label>Codice Fiscale e Genere:</label>
+                            <div style="display: flex; gap: 15px; align-items: center; margin: 1px 0 3px 0;">
+                                <div style="display: flex; gap: 15px; align-items: center;">
+                                    <label style="font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; margin: 0;">
+                                        <input type="radio" name="editSesso" value="M" style="cursor: pointer; width: 16px; height: 16px;" onchange="gestisciSelezioneSesso()"> Maschio
+                                    </label>
+                                    <label style="font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; margin: 0;">
+                                        <input type="radio" name="editSesso" value="F" style="cursor: pointer; width: 16px; height: 16px;" onchange="gestisciSelezioneSesso()"> Femmina
+                                    </label>
                                 </div>
-                                <input type="hidden" id="editUrl_gen1_1">
+                                <input type="text" id="editCodiceFiscale" class="campo-controllo" maxlength="16" placeholder="es. RSSMRA..." style="text-transform: uppercase; margin: 0; padding: 3px 6px; height: 31px; box-sizing: border-box;">
+                                <button type="button" id="btnCalcolaCF" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 13px; font-weight: bold; height: 31px; line-height: normal; opacity: 0.6; cursor: not-allowed; box-sizing: border-box;" disabled onclick="calcolaCFIsCRITTO()">Calcola</button>
                             </div>
                         </div>
-
-                        <div style="margin-top: 10px; border-top: 1px dashed #f59f00; padding-top: 10px;">
-                            <label style="font-size: 12px; font-weight: bold; color: #b7791f;">Immagine 2 (Retro):</label>
-                            <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
-                                <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('gen1', 2)">📷 Webcam</button>
-                                <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
-                                    📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen1', 2, this)">
-                                </label>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-medium">
+                            <label>Luogo di Nascita:</label>
+                            <input type="text" id="editLuogoNascita" class="campo-controllo" placeholder="es. Ivrea" list="listaComuniNascita">
+                            <datalist id="listaComuniNascita"></datalist>
+                        </div>
+                        <div class="form-group col-medium">
+                            <div class="label-con-eta">
+                                <label>Data di Nascita:</label>
+                                <span style="font-size: 11px; color: #666; font-weight: bold;">Anni attuali:</span>
                             </div>
-                            <div style="margin-top: 8px;">
-                                <div id="boxAnteprima_gen1_2" style="display: none;">
-                                    <a id="linkAnteprima_gen1_2" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 2</a>
-                                    <button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('gen1', 2)">Rimuovi</button>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="date" id="editDataNascita" class="campo-controllo campo-verifica-runtime" style="flex: 2;">
+                                <input type="text" id="editEtaDisplay" class="input-eta-display" style="flex: 1;" readonly placeholder="-">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-large">
+                            <label>Indirizzo:</label>
+                            <input type="text" id="editIndirizzo" class="campo-controllo" placeholder="es. Via Roma 10">
+                        </div>
+                        <div class="form-group col-medium">
+                            <label>Città:</label>
+                            <input type="text" id="editCitta" class="campo-controllo">
+                        </div>
+                        <div class="form-group col-small">
+                            <label>CAP:</label>
+                            <input type="text" id="editCap" class="campo-controllo" placeholder="es. 10010" maxlength="5">
+                        </div>
+                        <div class="form-group col-small">
+                            <label>Provincia:</label>
+                            <input type="text" id="editProvincia" class="campo-controllo" placeholder="es. TO" maxlength="2">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-medium">
+                            <label>Telefono:</label>
+                            <input type="text" id="editTelefono" class="campo-controllo" placeholder="es. 3331234567">
+                        </div>
+                        <div class="form-group col-medium">
+                            <label>Mail:</label>
+                            <input type="email" id="editMail" class="campo-controllo" placeholder="es. nome@email.it">
+                        </div>
+                    </div>
+
+                    <!-- DOCUMENTO ISCRITTO -->
+                    <div id="gruppoSezioneDocumento" style="display: none; margin-top: 10px;">
+                        <div class="collapsible-header" onclick="toggleCollapsible('corpoDocIscritto', this); apriQRCapture('iscritto');">
+                            <span>🪪 Documento d'Identità (Iscritto)</span>
+                            <span>▼</span>
+                        </div>
+                        <div id="corpoDocIscritto" class="collapsible-content">
+                            <div class="form-row" style="margin-bottom: 10px;">
+                                <div class="form-group col-medium">
+                                    <label style="font-size: 11px;">Tipo Documento:</label>
+                                    <select id="editTipoDocumento" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
+                                        <option value="">-- Seleziona --</option>
+                                        <option value="Passaporto">Passaporto</option>
+                                        <option value="Patente">Patente</option>
+                                        <option value="Carta di identità">Carta di identità</option>
+                                    </select>
                                 </div>
-                                <input type="hidden" id="editUrl_gen1_2">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <p style="font-size: 13px; font-weight: bold; color: #856404; margin: 15px 0 5px 0;">Genitore 2</p>
-                <div class="form-row">
-                    <div class="form-group col-medium"><label style="font-size: 11px;">Cognome:</label><input type="text" id="editGenitore2Cognome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
-                    <div class="form-group col-medium"><label style="font-size: 11px;">Nome:</label><input type="text" id="editGenitore2Nome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
-                    <div class="form-group col-medium"><label style="font-size: 11px;">Luogo Nascita:</label><input type="text" id="editGenitore2LuogoNascita" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
-                    <div class="form-group col-medium"><label style="font-size: 11px;">Data Nascita:</label><input type="date" id="editGenitore2DataNascita" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
-                </div>
-                <div class="form-row" id="gruppoGen2CF" style="margin-bottom: 0;">
-                    <div class="form-group col-large">
-                        <label style="font-size: 11px;">Codice Fiscale:</label>
-                        <div style="display: flex; gap: 6px;">
-                            <input type="text" id="editGenitore2CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 5px; font-size: 12px; text-transform: uppercase; margin: 0;">
-                            <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 11px; font-weight: bold; height: 30px;" onclick="calcolaCFGenitore(2)">Calcola</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="gruppoGen2Doc" style="display: none; margin-top: 5px; margin-bottom: 0;">
-                    <div class="collapsible-header" style="background: #fff9db; border-color: #f59f00; color: #b7791f;" onclick="toggleCollapsible('corpoDocGen2', this)">
-                        <span>🪪 Documento d'Identità (Genitore 2)</span>
-                        <span>▼</span>
-                    </div>
-                    <div id="corpoDocGen2" class="collapsible-content" style="background: #fffdf5;">
-                        <div class="form-row" style="margin-bottom: 10px;">
-                            <div class="form-group col-medium">
-                                <label style="font-size: 11px;">Tipo Documento:</label>
-                                <select id="editGenitore2TipoDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
-                                    <option value="">-- Seleziona --</option>
-                                    <option value="Passaporto">Passaporto</option>
-                                    <option value="Patente">Patente</option>
-                                    <option value="Carta di identità">Carta di identità</option>
-                                </select>
-                            </div>
-                            <div class="form-group col-medium">
-                                <label style="font-size: 11px;">N. Documento:</label>
-                                <input type="text" id="editGenitore2NumDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
-                            </div>
-                            <div class="form-group col-medium">
-                                <label style="font-size: 11px;">Scadenza:</label>
-                                <input type="date" id="editGenitore2ScadenzaDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
-                            </div>
-                        </div>
-
-                        <div style="margin-top: 10px; border-top: 1px dashed #f59f00; padding-top: 10px;">
-                            <label style="font-size: 12px; font-weight: bold; color: #b7791f;">Immagine 1 (Fronte):</label>
-                            <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
-                                <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('gen2', 1)">📷 Webcam</button>
-                                <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
-                                    📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen2', 1, this)">
-                                </label>
-                            </div>
-                            <div style="margin-top: 8px;">
-                                <div id="boxAnteprima_gen2_1" style="display: none;">
-                                    <a id="linkAnteprima_gen2_1" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 1</a>
-                                    <button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('gen2', 1)">Rimuovi</button>
+                                <div class="form-group col-medium">
+                                    <label style="font-size: 11px;">Numero:</label>
+                                    <input type="text" id="editNumeroDocumento" placeholder="es. AB12345CD" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
                                 </div>
-                                <input type="hidden" id="editUrl_gen2_1">
-                            </div>
-                        </div>
-
-                        <div style="margin-top: 10px; border-top: 1px dashed #f59f00; padding-top: 10px;">
-                            <label style="font-size: 12px; font-weight: bold; color: #b7791f;">Immagine 2 (Retro):</label>
-                            <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
-                                <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('gen2', 2)">📷 Webcam</button>
-                                <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
-                                    📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen2', 2, this)">
-                                </label>
-                            </div>
-                            <div style="margin-top: 8px;">
-                                <div id="boxAnteprima_gen2_2" style="display: none;">
-                                    <a id="linkAnteprima_gen2_2" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 2</a>
-                                    <button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('gen2', 2)">Rimuovi</button>
+                                <div class="form-group col-medium">
+                                    <label style="font-size: 11px;">Data di Scadenza:</label>
+                                    <input type="date" id="editScadenzaDocumento" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
                                 </div>
-                                <input type="hidden" id="editUrl_gen2_2">
+                            </div>
+
+                            <div style="margin: 5px 0; background: #e7f5ff; padding: 6px; border-radius: 6px; border: 1px solid #74c0fc; text-align: center;">
+                                <div id="boxContainerQR_iscritto" style="display: none; margin: 0 auto; background: #fff; padding: 6px; border: 1px solid #74c0fc; border-radius: 6px; text-align: center; max-width: 140px;"></div>
+                            </div>
+
+                            <div style="margin-top: 10px; border-top: 1px dashed #74c0fc; padding-top: 10px;">
+                                <label style="font-size: 12px; font-weight: bold; color: #1864ab;">Immagini Documento:</label>
+                                <div style="margin-top: 8px;" id="boxContainerImmagini_iscritto">
+                                    <div id="linkAnteprima_iscritto_1_wrap" style="display: none; margin-bottom: 4px;">
+                                        <a id="linkAnteprima_iscritto_1" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline;">Visualizza Immagine (Fronte)</a>
+                                    </div>
+                                    <div id="linkAnteprima_iscritto_2_wrap" style="display: none; margin-bottom: 8px;">
+                                        <a id="linkAnteprima_iscritto_2" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline;">Visualizza Immagine (Retro)</a>
+                                    </div>
+                                    <div id="msgNessunaImmagine_iscritto" style="font-size: 12px; color: #666; font-style: italic; margin-bottom: 6px;">Nessun documento caricato.</div>
+                                    
+                                    <button type="button" id="btnRimuoviEntrambi_iscritto" class="btn-azione btn-elimina-storico" style="display: none;" onclick="rimuoviEntrambiFileDocumento('iscritto')">🗑️ Rimuovi Documenti</button>
+                                </div>
+                                <input type="hidden" id="editUrl_iscritto_1">
+                                <input type="hidden" id="editUrl_iscritto_2">
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Box Webcam Condiviso -->
-            <div id="boxContainerWebcamGenerale" style="display: none; margin-top: 15px; background: #fff; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                <p style="margin: 0 0 5px 0; font-size: 12px; font-weight: bold;" id="titoloWebcamAttiva">Acquisizione Webcam</p>
-                <video id="webcamVideo" autoplay playsinline style="width: 100%; max-width: 320px; display: block; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 5px;"></video>
-                <canvas id="webcamCanvas" style="display: none;"></canvas>
-                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                    <button type="button" class="btn-azione" style="background-color: #6c757d; padding: 6px 12px; font-size: 12px;" onclick="invertiCamera()">🔄 Cambia Fotocamera</button>
-                </div>
-                <div style="display: flex; gap: 8px;">
-                    <button type="button" class="btn-azione" style="background-color: #28a745; padding: 6px 12px; font-size: 12px;" onclick="scattaFotoWebcam()">📸 Scatta e Salva</button>
-                    <button type="button" class="btn-azione" style="background-color: #dc3545; padding: 6px 12px; font-size: 12px;" onclick="fermaWebcam()">❌ Annulla</button>
-                </div>
-            </div>
+                    <!-- DATI GENITORI (Ripristinati integralmente) -->
+                    <div id="sezioneDatiGenitori" style="display: none; background: #fff3cd; padding: 12px; border-radius: 6px; border: 1px solid #ffeeba; margin-top: 10px; margin-bottom: 10px;">
+                        <h4 style="margin-top: 0; margin-bottom: 10px; color: #856404; font-size: 14px; border-bottom: 1px solid #ffeeba; padding-bottom: 4px;">Dati Genitori / Tutori (Obbligatori per minorenni < 18 anni)</h4>
+                        
+                        <p style="font-size: 13px; font-weight: bold; color: #856404; margin: 5px 0;">Genitore 1</p>
+                        <div class="form-row">
+                            <div class="form-group col-medium"><label style="font-size: 11px;">Cognome:</label><input type="text" id="editGenitore1Cognome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                            <div class="form-group col-medium"><label style="font-size: 11px;">Nome:</label><input type="text" id="editGenitore1Nome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                            <div class="form-group col-medium"><label style="font-size: 11px;">Luogo Nascita:</label><input type="text" id="editGenitore1LuogoNascita" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                            <div class="form-group col-medium"><label style="font-size: 11px;">Data Nascita:</label><input type="date" id="editGenitore1DataNascita" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                        </div>
+                        <div class="form-row" id="gruppoGen1CF" style="margin-bottom: 5px;">
+                            <div class="form-group col-large">
+                                <label style="font-size: 11px;">Codice Fiscale:</label>
+                                <div style="display: flex; gap: 6px;">
+                                    <input type="text" id="editGenitore1CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 5px; font-size: 12px; text-transform: uppercase; margin: 0;">
+                                    <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 11px; font-weight: bold; height: 30px;" onclick="calcolaCFGenitore(1)">Calcola</button>
+                                </div>
+                            </div>
+                        </div>
 
-			<div class="form-row-opzioni">
-				<div class="checkboxes-container">
-					<div id="boxContainerOnorificenza" style="display: flex; align-items: center; gap: 8px; background: #e7f5ff; padding: 6px 12px; border-radius: 6px; border: 1px solid #74c0fc;">
-					<label style="font-size: 13px; font-weight: bold; color: #1864ab; margin: 0;">🏆 Onorificenza:</label>
-					<span id="badgeStatoOnorificenza" style="background: #1971c2; color: white; padding: 2px 10px; border-radius: 12px; font-weight: bold; font-size: 13px;"> -</span>
-				</div>
-					<div class="checkbox-group">
-						<input type="checkbox" id="editTigre">
-						<label for="editTigre">Tigre</label>
-					</div>
-					<div class="checkbox-group">
-						<input type="checkbox" id="editCapitanoPiazza">
-						<label for="editCapitanoPiazza">Capitano di Piazza</label>
-					</div>
-					<div class="checkbox-group" id="gruppoFlagNonIscrivibile" style="display: none;">
-						<input type="checkbox" id="editNonIscrivibile">
-						<label for="editNonIscrivibile" style="color: #dc3545;">Non iscrivibile</label>
-					</div>
-				</div>
-				<div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-					<div class="totale-iscrizioni-inline">
-						<span>Tot. Complete:</span>
-						<span id="conteggioIscrizioniScheda" class="badge-conteggio">0</span>
-					</div>
-					<div class="totale-iscrizioni-inline">
-						<span>Consecutive:</span>
-						<span id="conteggioConsecutiveScheda" class="badge-conteggio" style="background-color: #17a2b8;">0</span>
-					</div>
-				</div>
-			</div>
-			
-            <div class="box-bottoni-modale">		
-                <button type="button" id="btnAggiungiIscrizione" class="btn-aggiungi-iscrizione" style="display: none;">Aggiungi Iscrizione</button>
-                <button type="button" id="btnSalva" class="btn-salva">Salva Anagrafica</button>
-            </div>
+                        <div id="gruppoGen1Doc" style="display: none; margin-bottom: 10px;">
+                            <div class="collapsible-header" style="background: #fff9db; border-color: #f59f00; color: #b7791f;" onclick="toggleCollapsible('corpoDocGen1', this)">
+                                <span>🪪 Documento d'Identità (Genitore 1)</span>
+                                <span>▼</span>
+                            </div>
+                            <div id="corpoDocGen1" class="collapsible-content" style="background: #fffdf5;">
+                                <div class="form-row" style="margin-bottom: 10px;">
+                                    <div class="form-group col-medium">
+                                        <label style="font-size: 11px;">Tipo Documento:</label>
+                                        <select id="editGenitore1TipoDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                                            <option value="">-- Seleziona --</option>
+                                            <option value="Passaporto">Passaporto</option>
+                                            <option value="Patente">Patente</option>
+                                            <option value="Carta di identità">Carta di identità</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-medium">
+                                        <label style="font-size: 11px;">N. Documento:</label>
+                                        <input type="text" id="editGenitore1NumDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                                    </div>
+                                    <div class="form-group col-medium">
+                                        <label style="font-size: 11px;">Scadenza:</label>
+                                        <input type="date" id="editGenitore1ScadenzaDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                                    </div>
+                                </div>
 
-            <div id="sezioneStoricoContainer" style="display: none;">
-                <h4>Storico Iscrizioni Anni Passati</h4>
-                <div id="storicoCaricamento">Seleziona un iscritto...</div>
-                
-                <div class="table-responsive">
-                    <table id="tabellaStorico" style="display: none;">
-                        <thead>
-                            <tr>
-                                <th>Anno</th>
-                                <th>Tipo Iscrizione</th>
-                                <th>N. Identificativo</th>
-                                <th>Azioni</th>
-                            </tr>
-                        </thead>
-                        <tbody id="corpoTabellaStorico"></tbody>
-                    </table>
-                </div>
-            </div>
+                                <div style="margin-top: 10px; border-top: 1px dashed #f59f00; padding-top: 10px;">
+                                    <label style="font-size: 12px; font-weight: bold; color: #b7791f;">Immagine 1 (Fronte):</label>
+                                    <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
+                                        <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('gen1', 1)">📷 Webcam</button>
+                                        <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
+                                            📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen1', 1, this)">
+                                        </label>
+                                    </div>
+                                    <div style="margin-top: 8px;">
+                                        <div id="boxAnteprima_gen1_1" style="display: none;">
+                                            <a id="linkAnteprima_gen1_1" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 1</a>
+                                            <button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('gen1', 1)">Rimuovi</button>
+                                        </div>
+                                        <input type="hidden" id="editUrl_gen1_1">
+                                    </div>
+                                </div>
+
+                                <div style="margin-top: 10px; border-top: 1px dashed #f59f00; padding-top: 10px;">
+                                    <label style="font-size: 12px; font-weight: bold; color: #b7791f;">Immagine 2 (Retro):</label>
+                                    <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
+                                        <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('gen1', 2)">📷 Webcam</button>
+                                        <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
+                                            📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen1', 2, this)">
+                                        </label>
+                                    </div>
+                                    <div style="margin-top: 8px;">
+                                        <div id="boxAnteprima_gen1_2" style="display: none;">
+                                            <a id="linkAnteprima_gen1_2" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 2</a>
+                                            <button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('gen1', 2)">Rimuovi</button>
+                                        </div>
+                                        <input type="hidden" id="editUrl_gen1_2">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p style="font-size: 13px; font-weight: bold; color: #856404; margin: 15px 0 5px 0;">Genitore 2</p>
+                        <div class="form-row">
+                            <div class="form-group col-medium"><label style="font-size: 11px;">Cognome:</label><input type="text" id="editGenitore2Cognome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                            <div class="form-group col-medium"><label style="font-size: 11px;">Nome:</label><input type="text" id="editGenitore2Nome" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                            <div class="form-group col-medium"><label style="font-size: 11px;">Luogo Nascita:</label><input type="text" id="editGenitore2LuogoNascita" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                            <div class="form-group col-medium"><label style="font-size: 11px;">Data Nascita:</label><input type="date" id="editGenitore2DataNascita" class="campo-controllo-genitore" style="padding: 5px; font-size: 12px;"></div>
+                        </div>
+                        <div class="form-row" id="gruppoGen2CF" style="margin-bottom: 0;">
+                            <div class="form-group col-large">
+                                <label style="font-size: 11px;">Codice Fiscale:</label>
+                                <div style="display: flex; gap: 6px;">
+                                    <input type="text" id="editGenitore2CodiceFiscale" class="campo-controllo-genitore" maxlength="16" style="padding: 5px; font-size: 12px; text-transform: uppercase; margin: 0;">
+                                    <button type="button" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 11px; font-weight: bold; height: 30px;" onclick="calcolaCFGenitore(2)">Calcola</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="gruppoGen2Doc" style="display: none; margin-top: 5px; margin-bottom: 0;">
+                            <div class="collapsible-header" style="background: #fff9db; border-color: #f59f00; color: #b7791f;" onclick="toggleCollapsible('corpoDocGen2', this)">
+                                <span>🪪 Documento d'Identità (Genitore 2)</span>
+                                <span>▼</span>
+                            </div>
+                            <div id="corpoDocGen2" class="collapsible-content" style="background: #fffdf5;">
+                                <div class="form-row" style="margin-bottom: 10px;">
+                                    <div class="form-group col-medium">
+                                        <label style="font-size: 11px;">Tipo Documento:</label>
+                                        <select id="editGenitore2TipoDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                                            <option value="">-- Seleziona --</option>
+                                            <option value="Passaporto">Passaporto</option>
+                                            <option value="Patente">Patente</option>
+                                            <option value="Carta di identità">Carta di identità</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-medium">
+                                        <label style="font-size: 11px;">N. Documento:</label>
+                                        <input type="text" id="editGenitore2NumDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                                    </div>
+                                    <div class="form-group col-medium">
+                                        <label style="font-size: 11px;">Scadenza:</label>
+                                        <input type="date" id="editGenitore2ScadenzaDoc" style="padding: 4px; font-size: 11px; margin: 2px 0 0 0;">
+                                    </div>
+                                </div>
+
+                                <div style="margin-top: 10px; border-top: 1px dashed #f59f00; padding-top: 10px;">
+                                    <label style="font-size: 12px; font-weight: bold; color: #b7791f;">Immagine 1 (Fronte):</label>
+                                    <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
+                                        <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('gen2', 1)">📷 Webcam</button>
+                                        <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
+                                            📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen2', 1, this)">
+                                        </label>
+                                    </div>
+                                    <div style="margin-top: 8px;">
+                                        <div id="boxAnteprima_gen2_1" style="display: none;">
+                                            <a id="linkAnteprima_gen2_1" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 1</a>
+                                            <button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('gen2', 1)">Rimuovi</button>
+                                        </div>
+                                        <input type="hidden" id="editUrl_gen2_1">
+                                    </div>
+                                </div>
+
+                                <div style="margin-top: 10px; border-top: 1px dashed #f59f00; padding-top: 10px;">
+                                    <label style="font-size: 12px; font-weight: bold; color: #b7791f;">Immagine 2 (Retro):</label>
+                                    <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap;">
+                                        <button type="button" class="btn-azione" style="background-color: #007bff; padding: 6px 10px; font-size: 11px;" onclick="avviaWebcam('gen2', 2)">📷 Webcam</button>
+                                        <label class="btn-azione" style="background-color: #17a2b8; padding: 6px 10px; font-size: 11px; cursor: pointer; margin: 0; display: inline-block;">
+                                            📂 Carica File <input type="file" accept="image/*,application/pdf" style="display: none;" onchange="caricaFileLocale('gen2', 2, this)">
+                                        </label>
+                                    </div>
+                                    <div style="margin-top: 8px;">
+                                        <div id="boxAnteprima_gen2_2" style="display: none;">
+                                            <a id="linkAnteprima_gen2_2" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline; display: block; margin-bottom: 4px;">Visualizza Immagine 2</a>
+                                            <button type="button" class="btn-azione btn-elimina-storico" onclick="rimuoviFileDocumento('gen2', 2)">Rimuovi</button>
+                                        </div>
+                                        <input type="hidden" id="editUrl_gen2_2">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Box Webcam Condiviso -->
+                    <div id="boxContainerWebcamGenerale" style="display: none; margin-top: 15px; background: #fff; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                        <p style="margin: 0 0 5px 0; font-size: 12px; font-weight: bold;" id="titoloWebcamAttiva">Acquisizione Webcam</p>
+                        <video id="webcamVideo" autoplay playsinline style="width: 100%; max-width: 320px; display: block; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 5px;"></video>
+                        <canvas id="webcamCanvas" style="display: none;"></canvas>
+                        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                            <button type="button" class="btn-azione" style="background-color: #6c757d; padding: 6px 12px; font-size: 12px;" onclick="invertiCamera()">🔄 Cambia Fotocamera</button>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" class="btn-azione" style="background-color: #28a745; padding: 6px 12px; font-size: 12px;" onclick="scattaFotoWebcam()">📸 Scatta e Salva</button>
+                            <button type="button" class="btn-azione" style="background-color: #dc3545; padding: 6px 12px; font-size: 12px;" onclick="fermaWebcam()">❌ Annulla</button>
+                        </div>
+                    </div>
+
+                    <div class="form-row-opzioni">
+                        <div class="checkboxes-container">
+                            <div id="boxContainerOnorificenza" style="display: flex; align-items: center; gap: 8px; background: #e7f5ff; padding: 6px 12px; border-radius: 6px; border: 1px solid #74c0fc;">
+                                <label style="font-size: 13px; font-weight: bold; color: #1864ab; margin: 0;">🏆 Onorificenza:</label>
+                                <span id="badgeStatoOnorificenza" style="background: #1971c2; color: white; padding: 2px 10px; border-radius: 12px; font-weight: bold; font-size: 13px;"> -</span>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="editTigre">
+                                <label for="editTigre">Tigre</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="editCapitanoPiazza">
+                                <label for="editCapitanoPiazza">Capitano di Piazza</label>
+                            </div>
+                            <div class="checkbox-group" id="gruppoFlagNonIscrivibile" style="display: none;">
+                                <input type="checkbox" id="editNonIscrivibile">
+                                <label for="editNonIscrivibile" style="color: #dc3545;">Non iscrivibile</label>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                            <div class="totale-iscrizioni-inline">
+                                <span>Tot. Complete:</span>
+                                <span id="conteggioIscrizioniScheda" class="badge-conteggio">0</span>
+                            </div>
+                            <div class="totale-iscrizioni-inline">
+                                <span>Consecutive:</span>
+                                <span id="conteggioConsecutiveScheda" class="badge-conteggio" style="background-color: #17a2b8;">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="box-bottoni-modale">		
+                        <button type="button" id="btnAggiungiIscrizione" class="btn-aggiungi-iscrizione" style="display: none;">Aggiungi Iscrizione</button>
+                        <button type="button" id="btnSalva" class="btn-salva">Salva Anagrafica</button>
+                    </div>
+
+                </div><!-- Fine Colonna Sinistra -->
+
+                <!-- COLONNA DESTRA: Storico Iscrizioni Anni Passati -->
+                <div style="flex: 1; min-width: 0;" id="sezioneStoricoContainer" style="display: none;">
+                    <h4 style="margin-top: 0; color: #007BFF; border-bottom: 2px solid #007BFF; padding-bottom: 5px;">Storico Iscrizioni Anni Passati</h4>
+                    <div id="storicoCaricamento">Seleziona un iscritto...</div>
+                    
+                    <div class="table-responsive">
+                        <table id="tabellaStorico" style="display: none;">
+                            <thead>
+                                <tr>
+                                    <th>Anno</th>
+                                    <th>Tipo Iscrizione</th>
+                                    <th>N. Identificativo</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="corpoTabellaStorico"></tbody>
+                        </table>
+                    </div>
+                </div><!-- Fine Colonna Destra -->
+
+            </div><!-- Fine Contenitore Flex -->
         </div>
-    </div>
-
-    <!-- Modale Gestione Utenti -->
+    </div>    <!-- Modale Gestione Utenti -->
+	
     <div id="userModal" class="modal">
         <div class="modal-content" style="width: 500px;">
             <div class="header-modale-actions">
@@ -3009,7 +3019,7 @@
         async function apriModaleEsistente(p) {
 			await registraLog("Apertura Anagrafica", `${p.cognome} ${p.nome}`);
 
-			document.getElementById('modalTitle').textContent = "Scheda Iscritto e Storico";
+			document.getElementById('modalTitle').textContent = "Scheda Iscritto e Storico iscrizioni";
 			document.getElementById('editIdPersona').value = p.id;
 			document.getElementById('editCognome').value = pulisciTesto(p.cognome);
 			document.getElementById('editNome').value = pulisciTesto(p.nome);
