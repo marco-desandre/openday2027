@@ -238,12 +238,18 @@
 
     <!-- OVERLAY DI CARICAMENTO -->
     <div id="loadingOverlay">
-        <div class="loader-box">
-            <div class="spinner-cerchio"></div>
-            <div id="loaderText" class="loader-text">Elaborazione in corso...</div>
-            <div class="loader-subtext">Attendere prego</div>
-        </div>
-    </div>
+		<div class="loader-box">
+			<div class="spinner-cerchio"></div>
+			<div id="loaderText" class="loader-text">Elaborazione in corso...</div>
+			
+			<!-- NUOVA BARRA DI PROGRESSO -->
+			<div style="width: 100%; background-color: #e9ecef; border-radius: 4px; margin: 12px 0 8px 0; overflow: hidden; height: 10px;">
+				<div id="progressBarFill" style="width: 0%; height: 100%; background-color: #007BFF; transition: width 0.3s ease;"></div>
+			</div>
+			
+			<div id="loaderSubtext" class="loader-subtext">Attendere prego</div>
+		</div>
+	</div>
 
     <!-- MENU LATERALE SINISTRO -->
     <nav id="sidebarMenu" class="sidebar">
@@ -1310,15 +1316,22 @@
             }
         };
 
-        window.mostraCaricamento = function(messaggio = "Elaborazione in corso...") {
+        window.mostraCaricamento = function(messaggio = "Elaborazione in corso...", percentuale = null) {
             document.getElementById('loaderText').textContent = messaggio;
+            if (percentuale !== null) {
+                const fill = document.getElementById('progressBarFill');
+                if (fill) fill.style.width = Math.max(0, Math.min(100, percentuale)) + '%';
+            }
             document.getElementById('loadingOverlay').style.display = 'flex';
         };
-
+		
         window.nascondiCaricamento = function() {
+            // Riporta la barra a 0 alla chiusura (opzionale)
+            const fill = document.getElementById('progressBarFill');
+            if (fill) fill.style.width = '0%';
             document.getElementById('loadingOverlay').style.display = 'none';
         };
-
+		
         window.avviaWebcam = async function(soggetto, slot) {
 			targetWebcamSoggetto = soggetto;
 			targetWebcamSlot = slot;
@@ -1851,44 +1864,57 @@
 		caricaDizionarioComuni();
 		
 		async function inizializzaCacheGlobale() {
-			if (cacheTuttiIscritti.length > 0) return;
-			try {
-				const snapAnag = await getDocs(collection(db, "anagrafica"));
-				const snapStorico = await getDocs(collection(db, "storico"));
-				let mappaStorico = {};
-				
-				snapStorico.forEach(d => {
-					let st = d.data();
-					let idPers = st.id_persona;
-					if (!idPers) return;
-					if (!mappaStorico[idPers]) mappaStorico[idPers] = [];
-					let tipoTrovato = st.tipo_iscrizione || st.tipologia || st.tipo || st.descrizione || "";
-					mappaStorico[idPers].push({ 
-						anno: String(st.anno || ""), 
-						tipo_iscrizione: String(tipoTrovato), 
-						numero_identificativo: String(st.numero_identificativo || ""),
-						inserito_da: String(st.creato_da || st.inserito_da || ""),
-						inserito_il: String(st.creato_il || st.inserito_il || "")
-					});
-				});
-				
-				let mappaUnici = new Map();
-				snapAnag.forEach(d => {
-					if (!mappaUnici.has(d.id)) {
-						mappaUnici.set(d.id, { 
-							id: d.id, 
-							...d.data(), 
-							iscrizioni: mappaStorico[d.id] || [] 
-						});
-					}
-				});
-				
-				cacheTuttiIscritti = Array.from(mappaUnici.values());
-			} catch (e) {
-				console.error("Errore inizializzazione cache:", e);
-			}
-		}
-
+            if (cacheTuttiIscritti.length > 0) return;
+            try {
+                mostraCaricamento("Connessione al database...", 10);
+                
+                // 1. Download Anagrafica (es. 40%)
+                const snapAnag = await getDocs(collection(db, "anagrafica"));
+                mostraCaricamento("Scaricamento dati anagrafici...", 40);
+                
+                // 2. Download Storico (es. 70%)
+                const snapStorico = await getDocs(collection(db, "storico"));
+                mostraCaricamento("Elaborazione storico iscrizioni...", 70);
+                
+                let mappaStorico = {};
+                snapStorico.forEach(d => {
+                    let st = d.data();
+                    let idPers = st.id_persona;
+                    if (!idPers) return;
+                    if (!mappaStorico[idPers]) mappaStorico[idPers] = [];
+                    let tipoTrovato = st.tipo_iscrizione || st.tipologia || st.tipo || st.descrizione || "";
+                    mappaStorico[idPers].push({ 
+                        anno: String(st.anno || ""), 
+                        tipo_iscrizione: String(tipoTrovato), 
+                        numero_identificativo: String(st.numero_identificativo || ""),
+                        inserito_da: String(st.creato_da || st.inserito_da || ""),
+                        inserito_il: String(st.creato_il || st.inserito_il || "")
+                    });
+                });
+                
+                // 3. Unione e indicizzazione finale (100%)
+                mostraCaricamento("Finalizzazione cache in memoria...", 90);
+                let mappaUnici = new Map();
+                snapAnag.forEach(d => {
+                    if (!mappaUnici.has(d.id)) {
+                        mappaUnici.set(d.id, { 
+                            id: d.id, 
+                            ...d.data(), 
+                            iscrizioni: mappaStorico[d.id] || [] 
+                        });
+                    }
+                });
+                
+                cacheTuttiIscritti = Array.from(mappaUnici.values());
+                mostraCaricamento("Indicizzazione completata!", 100);
+                
+                // Breve pausa per mostrare il 100% prima di chiudere
+                await new Promise(r => setTimeout(r, 300));
+            } catch (e) {
+                console.error("Errore inizializzazione cache:", e);
+            }
+        }
+		
         function calcolaCodiceFiscaleGenerico(cognome, nome, luogo, dataNascita, sesso = 'M') {
             if (!cognome || !nome || !luogo || !dataNascita) return null;
             function estraiCv(str) {
