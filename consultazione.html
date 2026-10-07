@@ -3237,10 +3237,24 @@
             document.getElementById('editUrl_iscritto_2').value = "";
             aggiornaStatoUIImmagini('iscritto');
             
-            // Mantiene lo spazio della colonna destra per conservare la larghezza complessiva (1350px)
+            // --- GESTIONE ELEGANTE DELLA COLONNA DESTRA (INSERIMENTO PLACEHOLDER) ---
             const storicoContainer = document.getElementById('sezioneStoricoContainer');
             storicoContainer.style.display = 'block';
-            storicoContainer.style.visibility = 'hidden';
+            storicoContainer.style.visibility = 'visible'; // Manteniamo visibile la colonna per non scompaginare i 1350px
+            
+            // Nascondiamo i blocchi operativi dello storico finché non c'è un'anagrafica salvata
+            document.getElementById('btnAggiungiIscrizione').style.display = 'none';
+            document.getElementById('tabellaStorico').style.display = 'none';
+            
+            const divCaricamento = document.getElementById('storicoCaricamento');
+            divCaricamento.style.display = 'block';
+            divCaricamento.innerHTML = `
+                <div style="padding: 40px 20px; text-align: center; background: #f8f9fa; border: 2px dashed #ced4da; border-radius: 6px; color: #6c757d; margin-top: 10px;">
+                    <p style="font-size: 15px; font-weight: bold; margin-bottom: 5px;">📝 Creazione Nuova Anagrafica</p>
+                    <p style="font-size: 13px; margin: 0;">Compila i dati a sinistra e clicca su <strong>"Crea Anagrafica"</strong> per sbloccare lo storico e poter inserire le iscrizioni.</p>
+                </div>
+            `;
+            // -----------------------------------------------------------------------
             
             ['gen1', 'gen2'].forEach(sogg => {
                 for (let i = 1; i <= 2; i++) {
@@ -3250,9 +3264,7 @@
                 }
             });
             
-            document.getElementById('btnAggiungiIscrizione').style.display = 'none';
             document.getElementById('btnEliminaAnagrafica').style.display = 'none';
-            // NOTA: La riga che impostava display = 'none' su sezioneStoricoContainer è stata rimossa qui sotto!
             
             document.getElementById('conteggioIscrizioniScheda').textContent = "0";
             document.getElementById('conteggioConsecutiveScheda').textContent = "0";
@@ -3264,7 +3276,7 @@
             modal.style.display = 'flex';
             controllaCampiVuoti();
         });
-				
+		
 		async function gestisciCreazioneNuovaAnagrafica() {
 			const dati = raccogliDatiAnagrafica();
 			if (!dati.cognome || !dati.nome) return alert("Inserisci Cognome e Nome.");
