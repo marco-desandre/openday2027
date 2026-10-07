@@ -540,7 +540,6 @@
                 <button type="button" class="btn-chiudi-x" id="btnChiudiX" aria-label="Chiudi">&times;</button>
             </div>
 
-            <h3 id="modalTitle">Scheda Iscritto e Storico</h3>
             <input type="hidden" id="editIdPersona">
             
             <div id="messaggioRuntimeDuplicato"></div>
@@ -3056,7 +3055,6 @@
         async function apriModaleEsistente(p) {
 			await registraLog("Apertura Anagrafica", `${p.cognome} ${p.nome}`);
 
-			document.getElementById('modalTitle').textContent = "Scheda Iscritto e Storico iscrizioni";
 			document.getElementById('editIdPersona').value = p.id;
 			document.getElementById('editCognome').value = pulisciTesto(p.cognome);
 			document.getElementById('editNome').value = pulisciTesto(p.nome);
@@ -3203,7 +3201,6 @@
         document.getElementById('btnNuovoUtente').addEventListener('click', async () => {
             await registraLog("Apertura Anagrafica", "Nuova Anagrafica");
 
-            document.getElementById('modalTitle').textContent = "Crea Nuovo Utente in Anagrafica";
             document.getElementById('editIdPersona').value = "";
             document.querySelectorAll('.campo-controllo, .campo-controllo-genitore').forEach(c => c.value = "");
             
