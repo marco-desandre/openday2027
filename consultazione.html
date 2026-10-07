@@ -544,8 +544,8 @@
                     <input type="text" id="editNome" class="campo-controllo campo-verifica-runtime">
                 </div>
             </div>
-
-            <div class="form-row" id="gruppoCampoCodiceFiscale">
+			
+			<div class="form-row" id="gruppoCampoCodiceFiscale">
 				<div class="form-group col-large">
 					<label>Codice Fiscale e Genere:</label>
 					<div style="display: flex; gap: 15px; align-items: center; margin: 4px 0 10px 0;">
@@ -557,12 +557,14 @@
 								<input type="radio" name="editSesso" value="F" style="cursor: pointer; width: 16px; height: 16px;" onchange="gestisciSelezioneSesso()"> Femmina
 							</label>
 						</div>
-						<input type="text" id="editCodiceFiscale" class="campo-controllo" maxlength="16" placeholder="es. RSSMRA..." style="text-transform: uppercase; margin: 0;">
-						<button type="button" id="btnCalcolaCF" class="btn-azione" style="background-color: #007BFF; padding: 0 14px; font-size: 13px; font-weight: bold; height: 42px; opacity: 0.6; cursor: not-allowed;" disabled onclick="calcolaCFIsCRITTO()">Calcola</button>
+						<!-- Modificato il margin verticale -->
+						<input type="text" id="editCodiceFiscale" class="campo-controllo" maxlength="16" placeholder="es. RSSMRA..." style="text-transform: uppercase; margin: 1px 0 3px 0; padding: 3px 6px; height: 31px;">
+						<!-- Rimosso l'attributo height fisso precedente e allineato il padding -->
+						<button type="button" id="btnCalcolaCF" class="btn-azione" style="background-color: #007BFF; padding: 3px 10px; font-size: 13px; font-weight: bold; height: 31px; opacity: 0.6; cursor: not-allowed;" disabled onclick="calcolaCFIsCRITTO()">Calcola</button>
 					</div>
 				</div>
 			</div>
-
+			
             <div class="form-row">
 				<div class="form-group col-medium">
 					<label>Luogo di Nascita:</label>
