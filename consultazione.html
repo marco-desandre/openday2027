@@ -1220,12 +1220,7 @@
         };
 
         window.chiudiModaleLog = function() {
-            document.getElementById('logModal').style.display = 'none';
-			
-            // Se c'era una ricerca attiva per delegante/delegato, la rieseguiamo per ripristinare la tabella
-            if (ultimaRicercaDelegante || ultimaRicercaDelegato) {
-                cercaDeleganteEDelegato(ultimaRicercaDelegante, ultimaRicercaDelegato);
-            }
+            document.getElementById('logModal').style.display = 'none';		
         };
 
         async function caricaDatiLog() {
@@ -4233,7 +4228,6 @@
                 const campoFiltro = document.getElementById('filtroCognome');
                 if (campoFiltro) {
                     campoFiltro.value = nomeDelegante;
-                    cercaDeleganteEDelegato(nomeDelegante, nomeDelegato);
                 }
 
                 // Popola i campi della modale
@@ -4345,121 +4339,7 @@
         window.chiudiModaleChiamataCoda = function() {
             document.getElementById('modalChiamataCoda').style.display = 'none';
         };
-		
-		let ultimaRicercaDelegante = "";
-		let ultimaRicercaDelegato = "";
-		
-		async function cercaDeleganteEDelegato(delegante, delegato) {
-			ultimaRicercaDelegante = delegante || "";
-			ultimaRicercaDelegato = delegato || "";
-			
-			const msg = document.getElementById('messaggioGuida');
-			const tab = document.getElementById('tabellaIscritti');
-			const tbody = document.getElementById('corpoTabella');
-			const box = document.getElementById('boxContatore');
-			
-			try {
-				let personeDaCercare = [];
-				[delegante, delegato].forEach(str => {
-					if (str && str.trim()) {
-						personeDaCercare.push(str.trim().toUpperCase());
-					}
-				});
-
-				if (personeDaCercare.length === 0) {
-					msg.textContent = "Inserisci almeno un nome valido per la ricerca.";
-					tab.style.display = 'none';
-					box.style.display = 'none';
-					return;
-				}
-
-				if (cacheTuttiIscritti.length === 0) {
-					mostraCaricamento("Prima indicizzazione database in corso...");
-					const snapAnag = await getDocs(collection(db, "anagrafica"));
-					const snapStorico = await getDocs(collection(db, "storico"));
-					let mappaStorico = {};
-					
-					snapStorico.forEach(d => {
-						let st = d.data();
-						let idPers = st.id_persona;
-						if (!idPers) return;
-						if (!mappaStorico[idPers]) mappaStorico[idPers] = [];
-						let tipoTrovato = st.tipo_iscrizione || st.tipologia || st.tipo || st.descrizione || "";
-						mappaStorico[idPers].push({ 
-							anno: String(st.anno || ""), 
-							tipo_iscrizione: String(tipoTrovato), 
-							numero_identificativo: String(st.numero_identificativo || ""),
-							inserito_da: String(st.creato_da || st.inserito_da || ""),
-							inserito_il: String(st.creato_il || st.inserito_il || "")
-						});
-					});
-					
-					let mappaUnici = new Map();
-					snapAnag.forEach(d => {
-						if (!mappaUnici.has(d.id)) {
-							mappaUnici.set(d.id, { 
-								id: d.id, 
-								...d.data(), 
-								iscrizioni: mappaStorico[d.id] || [] 
-							});
-						}
-					});
-					
-					cacheTuttiIscritti = Array.from(mappaUnici.values());
-					nascondiCaricamento();
-				}
-
-				tbody.innerHTML = '';
-				let resMap = new Map();
-
-				cacheTuttiIscritti.forEach(dt => {
-					let cognomeDb = String(dt.cognome || "").trim().toUpperCase();
-					let nomeDb = String(dt.nome || "").trim().toUpperCase();
-					let nomeCompletoDb = `${cognomeDb} ${nomeDb}`;
-					let nomeInversDb = `${nomeDb} ${cognomeDb}`;
-
-					personeDaCercare.forEach(criterio => {
-						let paroleCriterio = criterio.split(/\s+/);
-						// Verifica che tutte le parole del criterio appartengano al record
-						let matchCompleto = paroleCriterio.every(parola => nomeCompletoDb.includes(parola));
-
-						if (matchCompleto || nomeCompletoDb.includes(criterio) || nomeInversDb.includes(criterio)) {
-							resMap.set(dt.id, dt);
-						}
-					});
-				});
-
-				let res = Array.from(resMap.values());
-
-				if (res.length === 0) { 
-					msg.textContent = "Nessun iscritto trovato per i criteri inseriti."; 
-					tab.style.display = 'none'; 
-					box.style.display = 'none'; 
-					return; 
-				}
-				
-				res.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || '', 'it'));
-				
-				const fragment = document.createDocumentFragment();
-				res.forEach(p => {
-					const tr = document.createElement('tr');
-					tr.innerHTML = `<td>${formattaCognome(p.cognome)}</td><td>${pulisciTesto(p.nome)}</td><td>${pulisciTesto(p.codice_fiscale || p.codiceFiscale).toUpperCase()}</td><td>${formattaDataPerVisualizzazioneTabella(p.data_nascita)}</td><td>${pulisciTesto(p.citta)}</td><td>${pulisciTesto(p.telefono)}</td>`;
-					tr.addEventListener('click', () => apriModaleEsistente(p));
-					fragment.appendChild(tr);
-				});
-				
-				tbody.appendChild(fragment);
-				
-				document.getElementById('totaleIscritti').textContent = res.length;
-				box.style.display = 'block'; 
-				msg.style.display = 'none'; 
-				tab.style.display = 'table';
-			} catch (e) { 
-				nascondiCaricamento();
-				msg.textContent = "Errore: " + e.message; 
-			}
-		}
-		
+						
 		function impostaStatoOnorificenzaUI(valore) {
             const testo = String(valore || " -").trim();
             const badgeSpan = document.getElementById('badgeStatoOnorificenza');
