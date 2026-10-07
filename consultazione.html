@@ -615,53 +615,54 @@
             </div>
 
             <!-- DOCUMENTO ISCRITTO -->
-            <div id="gruppoSezioneDocumento" style="display: none; margin-top: 10px;">
-			<div class="collapsible-header" onclick="toggleCollapsible('corpoDocIscritto', this)">
-				<span>🪪 Documento d'Identità (Iscritto)</span>
-				<span>▼</span>
-			</div>
-			<div id="corpoDocIscritto" class="collapsible-content">
-				<div class="form-row" style="margin-bottom: 10px;">
-					<div class="form-group col-medium">
-						<label style="font-size: 11px;">Tipo Documento:</label>
-						<select id="editTipoDocumento" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
-							<option value="">-- Seleziona --</option>
-							<option value="Passaporto">Passaporto</option>
-							<option value="Patente">Patente</option>
-							<option value="Carta di identità">Carta di identità</option>
-						</select>
-					</div>
-					<div class="form-group col-medium">
-						<label style="font-size: 11px;">Numero:</label>
-						<input type="text" id="editNumeroDocumento" placeholder="es. AB12345CD" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
-					</div>
-					<div class="form-group col-medium">
-						<label style="font-size: 11px;">Data di Scadenza:</label>
-						<input type="date" id="editScadenzaDocumento" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
-					</div>
+			<div id="gruppoSezioneDocumento" style="display: none; margin-top: 10px;">
+				<div class="collapsible-header" onclick="toggleCollapsible('corpoDocIscritto', this); apriQRCapture('iscritto');">
+					<span>🪪 Documento d'Identità (Iscritto)</span>
+					<span>▼</span>
 				</div>
-
-				<!-- QR CODE -->
-				<div style="margin: 5px 0; background: #e7f5ff; padding: 6px; border-radius: 6px; border: 1px solid #74c0fc; text-align: center;">
-					<div id="boxContainerQR_iscritto" style="display: none; margin: 0 auto; background: #fff; padding: 6px; border: 1px solid #74c0fc; border-radius: 6px; text-align: center; max-width: 140px;"></div>
-				</div>
-
-				<!-- SEZIONE UNICA IMMAGINI -->
-				<div style="margin-top: 10px; border-top: 1px dashed #74c0fc; padding-top: 10px;">
-					<label style="font-size: 12px; font-weight: bold; color: #1864ab;">Immagini Documento:</label>
-					<div style="margin-top: 8px;" id="boxContainerImmagini_iscritto">
-						<div id="linkAnteprima_iscritto_1_wrap" style="display: none; margin-bottom: 4px;">
-							<a id="linkAnteprima_iscritto_1" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline;">Visualizza Immagine (Fronte)</a>
+				<div id="corpoDocIscritto" class="collapsible-content">
+					<div class="form-row" style="margin-bottom: 10px;">
+						<div class="form-group col-medium">
+							<label style="font-size: 11px;">Tipo Documento:</label>
+							<select id="editTipoDocumento" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
+								<option value="">-- Seleziona --</option>
+								<option value="Passaporto">Passaporto</option>
+								<option value="Patente">Patente</option>
+								<option value="Carta di identità">Carta di identità</option>
+							</select>
 						</div>
-						<div id="linkAnteprima_iscritto_2_wrap" style="display: none; margin-bottom: 8px;">
-							<a id="linkAnteprima_iscritto_2" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline;">Visualizza Immagine (Retro)</a>
+						<div class="form-group col-medium">
+							<label style="font-size: 11px;">Numero:</label>
+							<input type="text" id="editNumeroDocumento" placeholder="es. AB12345CD" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
 						</div>
-						<div id="msgNessunaImmagine_iscritto" style="font-size: 12px; color: #666; font-style: italic; margin-bottom: 6px;">Nessun documento caricato.</div>
-						
-						<button type="button" id="btnRimuoviEntrambi_iscritto" class="btn-azione btn-elimina-storico" style="display: none;" onclick="rimuoviEntrambiFileDocumento('iscritto')">🗑️ Rimuovi Documenti</button>
+						<div class="form-group col-medium">
+							<label style="font-size: 11px;">Data di Scadenza:</label>
+							<input type="date" id="editScadenzaDocumento" style="padding: 5px; font-size: 12px; margin: 4px 0 0 0;">
+						</div>
 					</div>
-					<input type="hidden" id="editUrl_iscritto_1">
-					<input type="hidden" id="editUrl_iscritto_2">
+
+					<!-- QR CODE COMPATTO (Senza pulsanti) -->
+					<div style="margin: 5px 0; background: #e7f5ff; padding: 6px; border-radius: 6px; border: 1px solid #74c0fc; text-align: center;">
+						<div id="boxContainerQR_iscritto" style="display: none; margin: 0 auto; background: #fff; padding: 6px; border: 1px solid #74c0fc; border-radius: 6px; text-align: center; max-width: 140px;"></div>
+					</div>
+
+					<!-- SEZIONE UNICA IMMAGINI -->
+					<div style="margin-top: 10px; border-top: 1px dashed #74c0fc; padding-top: 10px;">
+						<label style="font-size: 12px; font-weight: bold; color: #1864ab;">Immagini Documento:</label>
+						<div style="margin-top: 8px;" id="boxContainerImmagini_iscritto">
+							<div id="linkAnteprima_iscritto_1_wrap" style="display: none; margin-bottom: 4px;">
+								<a id="linkAnteprima_iscritto_1" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline;">Visualizza Immagine (Fronte)</a>
+							</div>
+							<div id="linkAnteprima_iscritto_2_wrap" style="display: none; margin-bottom: 8px;">
+								<a id="linkAnteprima_iscritto_2" href="#" target="_blank" style="font-size: 12px; color: #007bff; text-decoration: underline;">Visualizza Immagine (Retro)</a>
+							</div>
+							<div id="msgNessunaImmagine_iscritto" style="font-size: 12px; color: #666; font-style: italic; margin-bottom: 6px;">Nessun documento caricato.</div>
+							
+							<button type="button" id="btnRimuoviEntrambi_iscritto" class="btn-azione btn-elimina-storico" style="display: none;" onclick="rimuoviEntrambiFileDocumento('iscritto')">🗑️ Rimuovi Documenti</button>
+						</div>
+						<input type="hidden" id="editUrl_iscritto_1">
+						<input type="hidden" id="editUrl_iscritto_2">
+					</div>
 				</div>
 			</div>
 		</div>
