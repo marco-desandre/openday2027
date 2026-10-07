@@ -3187,6 +3187,7 @@
 			document.getElementById('btnEliminaAnagrafica').style.display = (modalitaCorrente === 'admin') ? 'block' : 'none';
 			document.getElementById('btnEliminaAnagrafica').onclick = () => eliminaAnagraficaCompleta(p.id);
 			document.getElementById('sezioneStoricoContainer').style.display = 'block';
+			document.getElementById('sezioneStoricoContainer').style.visibility = 'visible';
 			
 			const btnSalva = document.getElementById('btnSalva');
 			btnSalva.textContent = "Salva Modifiche Anagrafica";
@@ -3198,22 +3199,23 @@
 			
 			ricalcolaOnorificenzaCorrente();
 		}
-        document.getElementById('btnNuovoUtente').addEventListener('click', async () => {
+		
+		document.getElementById('btnNuovoUtente').addEventListener('click', async () => {
             await registraLog("Apertura Anagrafica", "Nuova Anagrafica");
 
             document.getElementById('editIdPersona').value = "";
             document.querySelectorAll('.campo-controllo, .campo-controllo-genitore').forEach(c => c.value = "");
             
             // Deseleziona entrambi i radio button del sesso
-			document.querySelectorAll('input[name="editSesso"]').forEach(r => r.checked = false);
+            document.querySelectorAll('input[name="editSesso"]').forEach(r => r.checked = false);
 
-			// Disabilita il pulsante Calcola all'apertura del nuovo utente
-			const btnCalcola = document.getElementById('btnCalcolaCF');
-			if (btnCalcola) {
-				btnCalcola.disabled = true;
-				btnCalcola.style.opacity = "0.6";
-				btnCalcola.style.cursor = "not-allowed";
-			}
+            // Disabilita il pulsante Calcola all'apertura del nuovo utente
+            const btnCalcola = document.getElementById('btnCalcolaCF');
+            if (btnCalcola) {
+                btnCalcola.disabled = true;
+                btnCalcola.style.opacity = "0.6";
+                btnCalcola.style.cursor = "not-allowed";
+            }
 
             document.getElementById('editTipoDocumento').value = "";
             document.getElementById('editNumeroDocumento').value = "";
@@ -3234,7 +3236,12 @@
             document.getElementById('editUrl_iscritto_1').value = "";
             document.getElementById('editUrl_iscritto_2').value = "";
             aggiornaStatoUIImmagini('iscritto');
-
+            
+            // Mantiene lo spazio della colonna destra per conservare la larghezza complessiva (1350px)
+            const storicoContainer = document.getElementById('sezioneStoricoContainer');
+            storicoContainer.style.display = 'block';
+            storicoContainer.style.visibility = 'hidden';
+            
             ['gen1', 'gen2'].forEach(sogg => {
                 for (let i = 1; i <= 2; i++) {
                     document.getElementById(`editUrl_${sogg}_${i}`).value = "";
@@ -3242,10 +3249,11 @@
                     if (box) box.style.display = 'none';
                 }
             });
-			
+            
             document.getElementById('btnAggiungiIscrizione').style.display = 'none';
             document.getElementById('btnEliminaAnagrafica').style.display = 'none';
-            document.getElementById('sezioneStoricoContainer').style.display = 'none';
+            // NOTA: La riga che impostava display = 'none' su sezioneStoricoContainer è stata rimossa qui sotto!
+            
             document.getElementById('conteggioIscrizioniScheda').textContent = "0";
             document.getElementById('conteggioConsecutiveScheda').textContent = "0";
             
@@ -3256,7 +3264,7 @@
             modal.style.display = 'flex';
             controllaCampiVuoti();
         });
-		
+				
 		async function gestisciCreazioneNuovaAnagrafica() {
 			const dati = raccogliDatiAnagrafica();
 			if (!dati.cognome || !dati.nome) return alert("Inserisci Cognome e Nome.");
