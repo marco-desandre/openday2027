@@ -372,7 +372,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 02.01</div>
+			<div class="versione-app">Ver. 02.00</div>
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
 				<button type="button" id="btnGestioneCoda" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
@@ -1081,6 +1081,9 @@
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getStorage, ref as storageRef, uploadString, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
         import { getDatabase, ref as dbRef, set, update, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+		
+		let datiAnagraficaOriginali = null;
+        let isNuovaAnagrafica = false;
 		
 		let dizionarioComuniCatastali = {};
 		let dizionarioNomiComuni = {};
@@ -3138,6 +3141,9 @@
 			const isAdmin = (modalitaCorrente === 'admin');
 			document.getElementById('gruppoFlagNonIscrivibile').style.display = isAdmin ? 'flex' : 'none';
 			document.getElementById('editNonIscrivibile').disabled = !isAdmin;
+			isNuovaAnagrafica = false;
+			datiAnagraficaOriginali = raccogliDatiAnagrafica();
+			aggiornaStatoPulsanteSalva();
 
 			const btnAggiungi = document.getElementById('btnAggiungiIscrizione');
 			if (modalitaCorrente === 'user' && p.non_iscrivibile) {
@@ -3271,6 +3277,10 @@
                 btnCalcola.style.opacity = "0.6";
                 btnCalcola.style.cursor = "not-allowed";
             }
+			
+			isNuovaAnagrafica = true;
+			datiAnagraficaOriginali = null;
+			aggiornaStatoPulsanteSalva();
 
             document.getElementById('editTipoDocumento').value = "";
             document.getElementById('editNumeroDocumento').value = "";
@@ -4369,7 +4379,56 @@
             } else {
                 container.classList.remove('lampeggia-onorificenza');
             }
-        }
+        };
+		
+		window.aggiornaStatoPulsanteSalva = function() {
+            const btnSalva = document.getElementById('btnSalva');
+            if (!btnSalva) return;
+
+            // Evita di sbloccare il salvataggio se è attivo un blocco per duplicato anagrafico esatto
+            const msgDuplicato = document.getElementById('messaggioRuntimeDuplicato').textContent;
+            const haErroreDuplicato = msgDuplicato.includes("Esiste già");
+
+            if (haErroreDuplicato) {
+                btnSalva.disabled = true;
+                btnSalva.style.opacity = "0.6";
+                btnSalva.style.cursor = "not-allowed";
+                return;
+            }
+
+            if (isNuovaAnagrafica) {
+                const cog = document.getElementById('editCognome').value.trim();
+                const nom = document.getElementById('editNome').value.trim();
+                const abilitato = (cog.length > 0 && nom.length > 0);
+                
+                btnSalva.disabled = !abilitato;
+                btnSalva.style.opacity = abilitato ? "1" : "0.6";
+                btnSalva.style.cursor = abilitato ? "pointer" : "not-allowed";
+            } else {
+                if (!datiAnagraficaOriginali) return;
+                const datiCorrenti = raccogliDatiAnagrafica();
+                
+                let modificato = false;
+                for (let key in datiCorrenti) {
+                    // Ignora lo stato onorificenza calcolato automaticamente nel confronto dei campi editabili
+                    if (key === 'stato_onorificenza') continue;
+                    
+                    if (String(datiCorrenti[key] ?? "") !== String(datiAnagraficaOriginali[key] ?? "")) {
+                        modificato = true;
+                        break;
+                    }
+                }
+
+                btnSalva.disabled = !modificato;
+                btnSalva.style.opacity = modificato ? "1" : "0.6";
+                btnSalva.style.cursor = modificato ? "pointer" : "not-allowed";
+            }
+        };
+		
+		document.querySelectorAll('#editModal input, #editModal select').forEach(el => {
+            el.addEventListener('input', aggiornaStatoPulsanteSalva);
+            el.addEventListener('change', aggiornaStatoPulsanteSalva);
+        });
 		
     </script>
 	
