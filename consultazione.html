@@ -3349,7 +3349,9 @@
 
                 document.getElementById('sezioneStoricoContainer').style.display = 'block';
                 document.getElementById('btnAggiungiIscrizione').style.display = 'block';
-                document.getElementById('btnAggiungiIscrizione'].onclick = attivaInserimentoNuovaIscrizioneEsistente;
+                
+                // --- CORRETTO QUI (parentesi quadra sostituita correttamente) ---
+                document.getElementById('btnAggiungiIscrizione').onclick = attivaInserimentoNuovaIscrizioneEsistente;
                 
                 await caricaStoricoPersona(docRef.id);
 
@@ -3357,11 +3359,9 @@
                 btnSalva.textContent = "Salva Modifiche Anagrafica";
                 btnSalva.onclick = gestisciSalvataggioEsistente;
 
-                // --- AGGIUNTA PER GESTIRE LO STATO DEL PULSANTE DOPO LA CREAZIONE ---
-                isNuovaAnagrafica = false;                  // Non è più una nuova anagrafica (ora esiste sul DB)
-                datiAnagraficaOriginali = raccogliDatiAnagrafica(); // Cattura i dati appena salvati come base
-                aggiornaStatoPulsanteSalva();               // Disattiva il pulsante finché non ci sono nuove modifiche
-                // ------------------------------------------------------------------
+                isNuovaAnagrafica = false;                  
+                datiAnagraficaOriginali = raccogliDatiAnagrafica(); 
+                aggiornaStatoPulsanteSalva();               
 
             } catch (error) {
                 alert("Errore durante la creazione: " + error.message);
