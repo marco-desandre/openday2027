@@ -372,7 +372,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 02.00</div>
+			<div class="versione-app">Ver. 02.01</div>
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
 				<button type="button" id="btnGestioneCoda" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
@@ -2768,28 +2768,11 @@
             }
             
             msg.textContent = "Caricamento in corso...";
-            mostraCaricamento("Caricamento dati ricerca...");
             
             try {
+                // Se la cache è vuota la inizializza una sola volta, altrimenti usa quella in memoria
                 if (cacheTuttiIscritti.length === 0) {
-                    const snapAnag = await getDocs(collection(db, "anagrafica"));
-                    const snapStorico = await getDocs(collection(db, "storico"));
-                    let mappa = {};
-                    
-                    snapStorico.forEach(d => {
-                        let st = d.data();
-                        if (!mappa[st.id_persona]) mappa[st.id_persona] = [];
-                        let tipoTrovato = st.tipo_iscrizione || st.tipologia || st.tipo || st.descrizione || "";
-                        mappa[st.id_persona].push({ 
-                            anno: String(st.anno || ""), 
-                            tipo_iscrizione: String(tipoTrovato), 
-                            numero_identificativo: String(st.numero_identificativo || ""),
-                            inserito_da: String(st.creato_da || st.inserito_da || ""),
-                            inserito_il: String(st.creato_il || st.inserito_il || "")
-                        });
-                    });
-                    
-                    snapAnag.forEach(d => cacheTuttiIscritti.push({ id: d.id, ...d.data(), iscrizioni: mappa[d.id] || [] }));
+                    await inizializzaCacheGlobale();
                 }
                 
                 let risultati = [];
@@ -2808,7 +2791,9 @@
                         }
                     }
 
-                    p.iscrizioni.forEach(i => {
+                    // Utilizza l'array delle iscrizioni associato in memoria
+                    let iscrizioniPersona = p.iscrizioni || [];
+                    iscrizioniPersona.forEach(i => {
                         if (annoSelezionato === "tutti" || i.anno === annoSelezionato) {
                             if (timestampDa || timestampA) {
                                 if (!i.inserito_il) return;
@@ -2861,11 +2846,9 @@
                 tab.style.display = 'table';
             } catch (e) { 
                 msg.textContent = "Errore: " + e.message; 
-            } finally { 
-                nascondiCaricamento(); 
             }
         };
-
+		
         function renderizzaRigheTabellaFiltrata(risultati, cols) {
             ultimiRisultatiFiltratiCache = [];
             ultimiRisultatiFiltratiCache = risultati;
@@ -3367,7 +3350,7 @@
                     iscrizioni: [] 
                 });
 
-                alert("Anagrafica creata con successo! Ora puoi inserire l'iscrizione nello storico sottostante.");
+                //alert("Anagrafica creata con successo! Ora puoi inserire l'iscrizione nello storico sottostante.");
                 
                 document.getElementById('sezioneStoricoContainer').style.display = 'block';
                 document.getElementById('btnAggiungiIscrizione').style.display = 'block';
@@ -3402,16 +3385,14 @@
                         }
                     }
 
-                    // Elimina tutti i documenti associati da Firebase Storage (Iscritto, Genitore 1, Genitore 2)
+                    // Elimina tutti i documenti associati da Firebase Storage
                     for (let sogg of ['iscritto', 'gen1', 'gen2']) {
                         for (let i = 1; i <= 2; i++) {
                             for (let ext of ['jpg', 'jpeg', 'png', 'pdf']) {
                                 try {
                                     const fileRef = storageRef(storage, `documenti_iscritti/${id}_${sogg}_img${i}.${ext}`);
                                     await deleteObject(fileRef);
-                                } catch (err) {
-                                    // Ignora se il file specifico non esiste sullo storage
-                                }
+                                } catch (err) {}
                             }
                         }
                     }
@@ -3424,15 +3405,17 @@
                     await deleteDoc(docRefPersona);
                     await registraLog("Elimina anagrafica", nomeCompletoLog);
 
-                    // ➔ RIMUOVI L'ELEMENTO ANCHE DALLA CACHE IN MEMORIA
+                    // ➔ RIMUOVI PUNTUALMENTE DALLA CACHE IN MEMORIA (Evita ricaricamenti)
                     cacheTuttiIscritti = cacheTuttiIscritti.filter(p => p.id !== id);
 
                     nascondiCaricamento();
                     alert("Anagrafica, storico e documenti eliminati con successo!");
                     modal.style.display = 'none';
                     
-                    if (document.getElementById('filtroCognome').value) {
-                        cercaIscritti(document.getElementById('filtroCognome').value);
+                    // Aggiorna la vista corrente filtrando la cache locale anziché rileggere tutto il DB
+                    const campoFiltro = document.getElementById('filtroCognome');
+                    if (campoFiltro && campoFiltro.value) {
+                        cercaIscritti(campoFiltro.value);
                     }
                 } catch (error) {
                     nascondiCaricamento();
@@ -4181,7 +4164,38 @@
 			// Opzione A: Apre il pannello banco esistente (banco_singola_fila.html) in una nuova scheda
 			window.open('banco_singola_fila.html', '_blank');
 		};
+				
+		window.annullaChiamataInCorso = async function() {
+            if (!currentProssimoChiave) {
+                document.getElementById('modalChiamataCoda').style.display = 'none';
+                return;
+            }
+
+            try {
+                mostraCaricamento("Annullamento chiamata in corso...");
+                
+                const ticketRef = dbRef(dbTicket, `coda/${currentProssimoChiave}`);
+                await update(ticketRef, {
+                    stato: "attesa",
+                    chiamato_il: null
+                });
+
+                if (typeof registraLog === 'function') {
+                    await registraLog("Coda - Chiamata annullata (riportato in attesa)", `Ticket ID: ${currentProssimoChiave}`);
+                }
+
+                nascondiCaricamento();
+                document.getElementById('modalChiamataCoda').style.display = 'none';
+                currentProssimoChiave = null;
+            } catch (error) {
+                nascondiCaricamento();
+                console.error("Errore durante l'annullamento della chiamata:", error);
+                alert("Errore: " + error.message);
+            }
+        };
 		
+		let currentProssimoChiave = null; // Traccia la chiave del ticket attualmente in chiamata
+
 		window.chiamaProssimoInCodaDiretto = async function() {
             try {
                 mostraCaricamento("Ricerca del prossimo in coda...");
@@ -4272,135 +4286,6 @@
             }
         };
 		
-		window.annullaChiamataInCorso = async function() {
-            if (!currentProssimoChiave) {
-                document.getElementById('modalChiamataCoda').style.display = 'none';
-                return;
-            }
-
-            try {
-                mostraCaricamento("Annullamento chiamata in corso...");
-                
-                const ticketRef = dbRef(dbTicket, `coda/${currentProssimoChiave}`);
-                await update(ticketRef, {
-                    stato: "attesa",
-                    chiamato_il: null
-                });
-
-                if (typeof registraLog === 'function') {
-                    await registraLog("Coda - Chiamata annullata (riportato in attesa)", `Ticket ID: ${currentProssimoChiave}`);
-                }
-
-                nascondiCaricamento();
-                document.getElementById('modalChiamataCoda').style.display = 'none';
-                currentProssimoChiave = null;
-            } catch (error) {
-                nascondiCaricamento();
-                console.error("Errore durante l'annullamento della chiamata:", error);
-                alert("Errore: " + error.message);
-            }
-        };
-		
-		let currentProssimoChiave = null; // Traccia la chiave del ticket attualmente in chiamata
-
-		window.chiamaProssimoInCodaDiretto = async function() {
-            if (!confirm("Vuoi chiamare il prossimo utente in coda?")) {
-                return;
-            }
-
-            try {
-                mostraCaricamento("Ricerca del prossimo in coda...");
-
-                const codaRef = dbRef(dbTicket, 'coda');
-                const snapshot = await get(codaRef);
-
-                if (!snapshot.exists()) {
-                    nascondiCaricamento();
-                    alert("ℹ️ La coda è attualmente vuota.");
-                    return;
-                }
-
-                const codaData = snapshot.val();
-                
-                // Mappa tutti i nodi e li ordina rigorosamente per timestamp crescente
-                let arrayCodaOrdinata = Object.keys(codaData)
-                    .filter(id => codaData[id] !== null)
-                    .map(id => ({ id, ...codaData[id] }))
-                    .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-
-                let prossimoElemento = null;
-
-                // Trova il primo elemento valido in stato "attesa" o "delay"
-                for (const item of arrayCodaOrdinata) {
-                    const stato = item.stato || 'attesa';
-                    if (stato === 'attesa' || stato === 'delay') {
-                        prossimoElemento = item;
-                        break;
-                    }
-                }
-
-                if (!prossimoElemento) {
-                    nascondiCaricamento();
-                    alert("ℹ️ Nessun utente in attesa trovato nella coda.");
-                    return;
-                }
-
-                currentProssimoChiave = prossimoElemento.id; // Salva la chiave attiva
-
-                const ticketAggiornatoRef = dbRef(dbTicket, `coda/${currentProssimoChiave}`);
-                await update(ticketAggiornatoRef, {
-                    stato: "chiamato",
-                    chiamato_il: Date.now()
-                });
-
-                nascondiCaricamento();
-
-                const numeroTicket = prossimoElemento.numero; 
-                const nomeDelegante = prossimoElemento.nome || ""; 
-                const nomeDelegato = prossimoElemento.delegato || ""; 
-
-                // Spostati sulla sezione standard degli iscritti ed esegui la ricerca
-                cambiaSezioneMenu('visualizzazione_standard', document.querySelector('.sidebar-item.attivo'));
-                
-                const campoFiltro = document.getElementById('filtroCognome');
-                if (campoFiltro) {
-                    campoFiltro.value = nomeDelegante;
-                }
-
-                // Popola i campi della modale
-                document.getElementById('testoNomeChiamata').textContent = nomeDelegante || "Non specificato";
-                
-                const boxTicket = document.getElementById('boxTicketChiamata');
-                const testoTicket = document.getElementById('testoNumeroTicketChiamata');
-                if (numeroTicket !== undefined && numeroTicket !== null) {
-                    testoTicket.textContent = numeroTicket;
-                    boxTicket.style.display = 'block';
-                } else {
-                    boxTicket.style.display = 'none';
-                }
-
-                const boxDelega = document.getElementById('boxDelegaChiamata');
-                const testoDelegato = document.getElementById('testoDelegatoChiamata');
-                if (nomeDelegato && nomeDelegato.trim() !== "") {
-                    testoDelegato.textContent = nomeDelegato;
-                    boxDelega.style.display = 'block';
-                } else {
-                    boxDelega.style.display = 'none';
-                }
-
-                document.getElementById('modalChiamataCoda').style.display = 'flex';
-
-                if (typeof registraLog === 'function') {
-                    await registraLog("Chiamata prossima in coda", `Ticket: ${numeroTicket} - Delegante: ${nomeDelegante}`);
-                }
-
-            } catch (error) {
-                nascondiCaricamento();
-                console.error("Errore durante la chiamata del prossimo:", error);
-                alert("Errore durante la chiamata: " + error.message);
-            }
-        };
-
 		window.gestisciEsitoChiamata = async function(azione) {
             if (!currentProssimoChiave) {
                 document.getElementById('modalChiamataCoda').style.display = 'none';
@@ -4465,18 +4350,10 @@
             }
         };
 
-        window.chiudiModaleChiamataCoda = function() {
-            document.getElementById('modalChiamataCoda').style.display = 'none';
-        };
-
 		window.chiudiModaleChiamataCoda = function() {
-			document.getElementById('modalChiamataCoda').style.display = 'none';
-		};
-		
-        window.chiudiModaleChiamataCoda = function() {
             document.getElementById('modalChiamataCoda').style.display = 'none';
         };
-						
+		
 		function impostaStatoOnorificenzaUI(valore) {
             const testo = String(valore || " -").trim();
             const badgeSpan = document.getElementById('badgeStatoOnorificenza');
