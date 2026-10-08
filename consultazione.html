@@ -372,7 +372,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 02.00</div>
+			<div class="versione-app">Ver. 02.01</div>
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
 				<button type="button" id="btnGestioneCoda" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
@@ -2945,13 +2945,6 @@
 
 			if (cog.length < 2 || nom.length < 2) return;
 
-			// Se la cache è vuota la popola una volta sola, altrimenti usa quella in memoria ed evita chiamate di rete lente
-			if (cacheTuttiIscritti.length === 0) {
-				const snapAnag = await getDocs(collection(db, "anagrafica"));
-				cacheTuttiIscritti = [];
-				snapAnag.forEach(d => cacheTuttiIscritti.push({ id: d.id, ...d.data() }));
-			}
-
 			let omonimoTrovato = false;
 			let duplicatoEsattoTrovato = false;
 
@@ -2983,12 +2976,6 @@
 				msg.textContent = "ℹ️ Attenzione: Esiste già un iscritto con lo stesso Cognome e Nome (Omonimia).";
 			}
 		}
-        document.querySelectorAll('.campo-verifica-runtime').forEach(e => {
-            e.addEventListener('input', () => {
-                clearTimeout(timeoutRuntime);
-                timeoutRuntime = setTimeout(eseguiVerificaRuntime, 400);
-            });
-        });
 
         function formattaDataPerVisualizzazioneTabella(s) {
             if (!s) return '';
@@ -3360,17 +3347,22 @@
                     iscrizioni: [] 
                 });
 
-                //alert("Anagrafica creata con successo! Ora puoi inserire l'iscrizione nello storico sottostante.");
-                
                 document.getElementById('sezioneStoricoContainer').style.display = 'block';
                 document.getElementById('btnAggiungiIscrizione').style.display = 'block';
-                document.getElementById('btnAggiungiIscrizione').onclick = attivaInserimentoNuovaIscrizioneEsistente;
+                document.getElementById('btnAggiungiIscrizione'].onclick = attivaInserimentoNuovaIscrizioneEsistente;
                 
                 await caricaStoricoPersona(docRef.id);
 
                 const btnSalva = document.getElementById('btnSalva');
                 btnSalva.textContent = "Salva Modifiche Anagrafica";
                 btnSalva.onclick = gestisciSalvataggioEsistente;
+
+                // --- AGGIUNTA PER GESTIRE LO STATO DEL PULSANTE DOPO LA CREAZIONE ---
+                isNuovaAnagrafica = false;                  // Non è più una nuova anagrafica (ora esiste sul DB)
+                datiAnagraficaOriginali = raccogliDatiAnagrafica(); // Cattura i dati appena salvati come base
+                aggiornaStatoPulsanteSalva();               // Disattiva il pulsante finché non ci sono nuove modifiche
+                // ------------------------------------------------------------------
+
             } catch (error) {
                 alert("Errore durante la creazione: " + error.message);
             } finally {
@@ -3607,7 +3599,7 @@
                 
                 await registraLog("Modifica iscrizione", `Anno ${nuovoAnno} - ${nuovoTipo}`);
 
-                cacheTuttiIscritti = [];
+                await aggiornaIscrizioniPersonaInCache(idPersona);
                 await caricaStoricoPersona(idPersona);
 				
 				ricalcolaOnorificenzaCorrente();
@@ -3633,7 +3625,7 @@
                 await deleteDoc(doc(db, "storico", storicoId));
                 await registraLog("Eliminata iscrizione", `${nomeCompleto} - Anno: ${annoIscrizione} ID: ${numIdentificativo}`);
 
-                cacheTuttiIscritti = [];
+                await aggiornaIscrizioniPersonaInCache(idPersona);
                 await caricaStoricoPersona(idPersona);
 				
 				ricalcolaOnorificenzaCorrente();
@@ -3721,7 +3713,7 @@
 
                 await registraLog("Inserita iscrizione", `${nomeCompleto} - Anno: ${annoScelto} ID: ${numIdentificativoFinale}`);
 
-                cacheTuttiIscritti = [];
+                await aggiornaIscrizioniPersonaInCache(idPersona);;
                 document.getElementById('btnAggiungiIscrizione').style.display = 'block';
                 await caricaStoricoPersona(idPersona);
 				
@@ -4429,6 +4421,26 @@
             el.addEventListener('input', aggiornaStatoPulsanteSalva);
             el.addEventListener('change', aggiornaStatoPulsanteSalva);
         });
+		
+		async function aggiornaIscrizioniPersonaInCache(idPersona) {
+            const personaCache = cacheTuttiIscritti.find(p => p.id === idPersona);
+            if (personaCache) {
+                const snap = await getDocs(query(collection(db, "storico"), where("id_persona", "==", idPersona)));
+                let nuovoStorico = [];
+                snap.forEach(d => {
+                    let st = d.data();
+                    let tipoTrovato = st.tipo_iscrizione || st.tipologia || st.tipo || st.descrizione || "";
+                    nuovoStorico.push({ 
+                        anno: String(st.anno || ""), 
+                        tipo_iscrizione: String(tipoTrovato), 
+                        numero_identificativo: String(st.numero_identificativo || ""),
+                        inserito_da: String(st.creato_da || st.inserito_da || ""),
+                        inserito_il: String(st.creato_il || st.inserito_il || "")
+                    });
+                });
+                personaCache.iscrizioni = nuovoStorico;
+            }
+        }
 		
     </script>
 	
