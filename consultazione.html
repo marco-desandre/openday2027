@@ -4182,74 +4182,124 @@
 			window.open('banco_singola_fila.html', '_blank');
 		};
 		
-		window.chiamaProssimoInCodaDiretto_old = async function() {
-			if (!confirm("Vuoi chiamare il prossimo utente in coda?")) {
-				return;
-			}
+		window.chiamaProssimoInCodaDiretto = async function() {
+            try {
+                mostraCaricamento("Ricerca del prossimo in coda...");
 
-			try {
-				mostraCaricamento("Ricerca del prossimo in coda...");
+                const codaRef = dbRef(dbTicket, 'coda');
+                const snapshot = await get(codaRef);
 
-				// Riferimento al nodo coda del Ticket Dispenser
-				const codaRef = dbRef(dbTicket, 'coda');
-				const snapshot = await get(codaRef);
+                if (!snapshot.exists()) {
+                    nascondiCaricamento();
+                    alert("ℹ️ La coda è attualmente vuota.");
+                    return;
+                }
 
-				if (!snapshot.exists()) {
-					nascondiCaricamento();
-					alert("ℹ️ La coda è attualmente vuota.");
-					return;
-				}
+                const codaData = snapshot.val();
+                
+                let arrayCodaOrdinata = Object.keys(codaData)
+                    .filter(id => codaData[id] !== null)
+                    .map(id => ({ id, ...codaData[id] }))
+                    .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
 
-				const codaData = snapshot.val();
-				let prossimoChiave = null;
-				let prossimoDato = null;
+                let prossimoElemento = null;
 
-				// Cerca il primo utente in stato "attesa" o comunque il primo disponibile
-				for (const [chiave, valore] of Object.entries(codaData)) {
-					if (!valore.stato || valore.stato === "attesa" || valore.stato === "chiamato") {
-						prossimoChiave = chiave;
-						prossimoDato = valore;
-						// Se troviamo uno in attesa netta, lo preferiamo e interrompiamo la ricerca
-						if (valore.stato === "attesa") break;
-					}
-				}
+                for (const item of arrayCodaOrdinata) {
+                    const stato = item.stato || 'attesa';
+                    if (stato === 'attesa' || stato === 'delay') {
+                        prossimoElemento = item;
+                        break;
+                    }
+                }
 
-				if (!prossimoChiave || !prossimoDato) {
-					nascondiCaricamento();
-					alert("ℹ️ Nessun utente in attesa trovato nella coda.");
-					return;
-				}
+                if (!prossimoElemento) {
+                    nascondiCaricamento();
+                    alert("ℹ️ Nessun utente in attesa trovato nella coda.");
+                    return;
+                }
 
-				// Aggiorna lo stato del ticket a "chiamato" nel database condiviso
-				const ticketAggiornatoRef = dbRef(dbTicket, `coda/${prossimoChiave}`);
-				await update(ticketAggiornatoRef, {
-					stato: "chiamato",
-					chiamato_il: Date.now()
-				});
+                currentProssimoChiave = prossimoElemento.id;
 
-				nascondiCaricamento();
+                const ticketAggiornatoRef = dbRef(dbTicket, `coda/${currentProssimoChiave}`);
+                await update(ticketAggiornatoRef, {
+                    stato: "chiamato",
+                    chiamato_il: Date.now()
+                });
 
-				// Prepara le informazioni sul nome e sull'eventuale delegato
-				const nomeUtente = prossimoDato.nome || "Nome non specificato";
-				const delegatoInfo = prossimoDato.delegato ? `Delega: ${prossimoDato.delegato}` : "";
+                nascondiCaricamento();
 
-				// Mostra il popup di notifica pulito
-				alert(
-					`📢 UTENTE CHIAMATO IN CODA:\n\n` +
-					`👤 Nome: ${nomeUtente}` +
-					(delegatoInfo ? `\n📝 ${delegatoInfo}` : "")
-				);
+                const numeroTicket = prossimoElemento.numero; 
+                const nomeDelegante = prossimoElemento.nome || ""; 
+                const nomeDelegato = prossimoElemento.delegato || ""; 
 
-				if (typeof registraLog === 'function') {
-					await registraLog("Chiamata rapida prossimo in coda", nomeUtente);
-				}
+                cambiaSezioneMenu('visualizzazione_standard', document.querySelector('.sidebar-item.attivo'));
+                
+                const campoFiltro = document.getElementById('filtroCognome');
+                if (campoFiltro) {
+                    campoFiltro.value = nomeDelegante;
+                }
 
-			} catch (error) {
-				nascondiCaricamento();
-				console.error("Errore durante la chiamata del prossimo:", error);
-				alert("Errore durante la chiamata: " + error.message);
-			}
-		};
+                document.getElementById('testoNomeChiamata').textContent = nomeDelegante || "Non specificato";
+                
+                const boxTicket = document.getElementById('boxTicketChiamata');
+                const testoTicket = document.getElementById('testoNumeroTicketChiamata');
+                if (numeroTicket !== undefined && numeroTicket !== null) {
+                    testoTicket.textContent = numeroTicket;
+                    boxTicket.style.display = 'block';
+                } else {
+                    boxTicket.style.display = 'none';
+                }
+
+                const boxDelega = document.getElementById('boxDelegaChiamata');
+                const testoDelegato = document.getElementById('testoDelegatoChiamata');
+                if (nomeDelegato && nomeDelegato.trim() !== "") {
+                    testoDelegato.textContent = nomeDelegato;
+                    boxDelega.style.display = 'block';
+                } else {
+                    boxDelega.style.display = 'none';
+                }
+
+                document.getElementById('modalChiamataCoda').style.display = 'flex';
+
+                if (typeof registraLog === 'function') {
+                    await registraLog("Chiamata prossima in coda", `Ticket: ${numeroTicket} - Delegante: ${nomeDelegante}`);
+                }
+
+            } catch (error) {
+                nascondiCaricamento();
+                console.error("Errore durante la chiamata del prossimo:", error);
+                alert("Errore durante la chiamata: " + error.message);
+            }
+        };
+		
+		window.annullaChiamataInCorso = async function() {
+            if (!currentProssimoChiave) {
+                document.getElementById('modalChiamataCoda').style.display = 'none';
+                return;
+            }
+
+            try {
+                mostraCaricamento("Annullamento chiamata in corso...");
+                
+                const ticketRef = dbRef(dbTicket, `coda/${currentProssimoChiave}`);
+                await update(ticketRef, {
+                    stato: "attesa",
+                    chiamato_il: null
+                });
+
+                if (typeof registraLog === 'function') {
+                    await registraLog("Coda - Chiamata annullata (riportato in attesa)", `Ticket ID: ${currentProssimoChiave}`);
+                }
+
+                nascondiCaricamento();
+                document.getElementById('modalChiamataCoda').style.display = 'none';
+                currentProssimoChiave = null;
+            } catch (error) {
+                nascondiCaricamento();
+                console.error("Errore durante l'annullamento della chiamata:", error);
+                alert("Errore: " + error.message);
+            }
+        };
 		
 		let currentProssimoChiave = null; // Traccia la chiave del ticket attualmente in chiamata
 
@@ -4445,27 +4495,30 @@
         }
 		
     </script>
-	<!-- Modale Chiamata Coda in Evidenza (Unico Pannello con Azioni) -->
+	
+	<!-- Modale Chiamata Coda in Evidenza (Con X per annullare e riportare in attesa) -->
 	<div id="modalChiamataCoda" class="modal">
-		<div class="modal-content" style="width: 600px; text-align: center; padding: 30px;">
+		<div class="modal-content" style="width: 600px; text-align: center; padding: 30px; position: relative;">
+			
+			<!-- Pulsante X in alto a destra per annullare -->
+			<div style="position: absolute; top: 15px; right: 20px;">
+				<button type="button" class="btn-chiudi-x" onclick="annullaChiamataInCorso()" aria-label="Annulla Chiamata">&times;</button>
+			</div>
+
 			<h2 style="color: #dc2626; margin-top: 0; font-size: 24px;">📢 CHIAMATA IN CORSO</h2>
 			
-			<!-- Unico pannello contenitore -->
 			<div style="margin: 20px 0; background: #f8f9fa; padding: 25px; border-radius: 12px; border: 2px solid #e9ecef; text-align: left;">
 				
-				<!-- Numero Ticket -->
 				<div id="boxTicketChiamata" style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px dashed #dee2e6; display: none;">
 					<span style="font-size: 13px; color: #1864ab; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 4px;">Numero Ticket:</span>
 					<span id="testoNumeroTicketChiamata" style="font-size: 36px; font-weight: 800; color: #1c7ed6;"></span>
 				</div>
 
-				<!-- Prossima Iscrizione -->
 				<div style="margin-bottom: 15px;">
 					<span style="font-size: 13px; color: #666; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 4px;">Prossima iscrizione:</span>
 					<span id="testoNomeChiamata" style="font-size: 26px; font-weight: bold; color: #212529; word-break: break-word;"></span>
 				</div>
 
-				<!-- Delega -->
 				<div id="boxDelegaChiamata" style="margin-top: 15px; padding-top: 15px; border-top: 2px dashed #dee2e6; display: none;">
 					<span style="font-size: 13px; color: #856404; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 4px;">Delega:</span>
 					<span id="testoDelegatoChiamata" style="font-size: 20px; font-weight: bold; color: #856404; word-break: break-word;"></span>
@@ -4475,7 +4528,6 @@
 
 			<p style="font-size: 13px; color: #6c757d; font-style: italic; margin-top: 10px; margin-bottom: 20px;">*(Ricerca anagrafica avviata automaticamente in background)*</p>
 
-			<!-- Due Pulsanti di Gestione Esito -->
 			<div style="display: flex; gap: 12px; justify-content: center;">
 				<button type="button" class="btn-salva" style="background-color: #28a745; font-size: 15px; padding: 12px 18px; flex: 1;" onclick="gestisciEsitoChiamata('iscritto')">✅ Arrivato, passa all'iscrizione</button>
 				<button type="button" class="btn-salva" style="background-color: #dc3545; font-size: 15px; padding: 12px 18px; flex: 1;" onclick="gestisciEsitoChiamata('delay')">🔄 Non è arrivato (+10 posizioni)</button>
