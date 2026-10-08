@@ -3424,11 +3424,16 @@
                     await deleteDoc(docRefPersona);
                     await registraLog("Elimina anagrafica", nomeCompletoLog);
 
+                    // ➔ RIMUOVI L'ELEMENTO ANCHE DALLA CACHE IN MEMORIA
+                    cacheTuttiIscritti = cacheTuttiIscritti.filter(p => p.id !== id);
+
                     nascondiCaricamento();
                     alert("Anagrafica, storico e documenti eliminati con successo!");
                     modal.style.display = 'none';
-                    //cacheTuttiIscritti = [];
-                    if (document.getElementById('filtroCognome').value) cercaIscritti(document.getElementById('filtroCognome').value);
+                    
+                    if (document.getElementById('filtroCognome').value) {
+                        cercaIscritti(document.getElementById('filtroCognome').value);
+                    }
                 } catch (error) {
                     nascondiCaricamento();
                     alert("Errore durante l'eliminazione: " + error.message);
