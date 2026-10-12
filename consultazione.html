@@ -347,8 +347,8 @@
                 <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_30', this); caricaElenco30Anni();">30 anni</li>
                 <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_40', this); caricaElenco40Anni();">40 anni</li>
                 <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_50', this); caricaElenco50Anni();">50 anni</li>
-                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_capitani', this)">Capitani</li>
-                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_tigre', this)">Tigre</li>
+                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_capitani', this); caricaElencoCapitani();">Capitani</li>
+                <li class="sidebar-subitem" onclick="cambiaSezioneMenu('onorificenze_tigre', this); caricaElencoTigre();">Tigre</li>
             </div>
 
             <!-- GRUPPO PREVENTIVI ISCRIZIONI -->
@@ -501,8 +501,7 @@
                         </div>
                     </div>
                     <div>
-                        <button type="button" class="btn-export-csv" onclick="esportaPrelazioniCSV()">📥 Esporta CSV</button>
-						<button type="button" class="btn-export-csv" style="background-color: #28a745;" onclick="esportaSuTicketDispenser()">🚀 Esporta su Ticket Dispenser</button>
+                        <button type="button" class="btn-export-csv" onclick="esportaPrelazioniCSV()">📥 Esporta CSV</button>					
                     </div>
                 </div>
 
@@ -597,8 +596,8 @@
             <div id="sezione_onorificenze_30" class="sezione-app"><h2>30 Anni di tiro</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
             <div id="sezione_onorificenze_40" class="sezione-app"><h2>40 Anni di tiro</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
             <div id="sezione_onorificenze_50" class="sezione-app"><h2>50 Anni di tiro</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
-            <div id="sezione_onorificenze_capitani" class="sezione-app"><h2>Capitani di Piazza</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
-            <div id="sezione_onorificenze_tigre" class="sezione-app"><h2>Tigre</h2><div class="placeholder-sezione">Sezione in fase di configurazione...</div></div>
+            <div id="sezione_onorificenze_capitani" class="sezione-app"><h2>Capitani di Piazza</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
+            <div id="sezione_onorificenze_tigre" class="sezione-app"><h2>Tigre</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
 
             <div id="sezione_preventivo_10" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 10</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
             <div id="sezione_preventivo_20" class="sezione-app"><h2>Preventivo Iscrizioni: Preventivo 20</h2><div class="placeholder-sezione">Seleziona la voce nel menu per calcolare i dati...</div></div>
@@ -1128,68 +1127,7 @@
         document.getElementById('inputAnnoCarnevale').value = annoCarnevaleCorrente;
         document.getElementById('configFlagCodiceFiscale').checked = configCodiceFiscale;
         document.getElementById('configFlagDocumento').checked = configDocumento;
-
-        const ticketDispenserConfig = {
-            databaseURL: "https://ticketdispensertuchini-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "ticketdispensertuchini"
-        };
-        
-        let secondaryApp = getApps().find(app => app.name === "ticketDispenserInstance");
-        if (!secondaryApp) {
-            secondaryApp = initializeSecondaryApp(ticketDispenserConfig, "ticketDispenserInstance");
-        }
-        const dbTicket = getDatabase(secondaryApp);
-
-        window.esportaSuTicketDispenser = async function() {
-            const tbody = document.getElementById('corpoTabellaPrelazioni');
-            const righe = Array.from(tbody.getElementsByTagName('tr'));
-            
-            if (righe.length === 0 || (righe.length === 1 && righe[0].querySelector('td').getAttribute('colspan'))) {
-                alert("Nessun dato da esportare. Seleziona prima almeno un filtro (es. Corvi d'oro) per visualizzare l'elenco.");
-                return;
-            }
-
-            if (!confirm("Vuoi davvero esportare e aggiornare l'elenco visibile sul sistema Ticket Dispenser?")) {
-                return;
-            }
-
-            mostraCaricamento("Esportazione su Ticket Dispenser in corso...");
-
-            try {
-                let mappaAbilitati = {};
-                
-                righe.forEach(riga => {
-                    if (riga.style.display !== "none") {
-                        let celle = riga.getElementsByTagName('td');
-                        if (celle.length >= 5) {
-                            let cognome = celle[0].textContent.trim();
-                            let nome = celle[1].textContent.trim();
-                            let dettaglio = celle[4].textContent.trim();
-
-                            let chiavePulita = `${cognome} ${nome}`.toLowerCase().trim().replace(/\s+/g, ' ');
-                            let chiaveB64 = btoa(unescape(encodeURIComponent(chiavePulita)));
-
-                            mappaAbilitati[chiaveB64] = {
-                                cognome: cognome,
-                                nome: nome,
-                                dettaglio: dettaglio,
-                                aggiornato_il: new Date().toISOString()
-                            };
-                        }
-                    }
-                });
-
-                await set(dbRef(dbTicket, 'prelazioni_corvidoro'), mappaAbilitati);
-
-                nascondiCaricamento();
-                alert("✅ Esportazione completata con successo! L'elenco è ora sincronizzato sul Ticket Dispenser.");
-            } catch (error) {
-                nascondiCaricamento();
-                console.error("Errore esportazione Ticket Dispenser:", error);
-                alert("Errore durante l'esportazione: " + error.message);
-            }
-        };
-	
+               	
 		window.esportaPrelazioniCSV = function() {
             const tbody = document.getElementById('corpoTabellaPrelazioni');
             const righe = Array.from(tbody.getElementsByTagName('tr'));
@@ -4440,8 +4378,151 @@
                 });
                 personaCache.iscrizioni = nuovoStorico;
             }
-        }
+        };
 		
+		window.caricaElencoCapitani = async function() {
+			const container = document.getElementById('sezione_onorificenze_capitani');
+			container.innerHTML = `<h2>🏆 Capitani di Piazza</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Caricamento Capitani di Piazza in corso...</div>`;
+			mostraCaricamento("Caricamento Capitani di Piazza...");
+			
+			try {
+				// Query mirata sul campo booleano capitano_piazza
+				const q = query(collection(db, "anagrafica"), where("capitano_piazza", "==", true));
+				const snapAnagrafica = await getDocs(q);
+
+				let risultati = [];
+				snapAnagrafica.forEach(docSnap => {
+					let persona = { id: docSnap.id, ...docSnap.data() };
+					risultati.push({
+						personaCompleta: persona,
+						cognome: formattaCognome(persona.cognome),
+						nome: pulisciTesto(persona.nome),
+						citta: pulisciTesto(persona.citta),
+						telefono: pulisciTesto(persona.telefono)
+					});
+				});
+
+				// Ordinamento alfabetico per cognome
+				risultati.sort((a, b) => a.cognome.localeCompare(b.cognome, 'it'));
+
+				let html = `
+					<h2>🏆 Capitani di Piazza</h2>
+					<p style="color: #666; font-size: 14px;">Elenco filtrato istantaneamente in base allo stato salvato in anagrafica. Clicca su una riga per aprire la scheda.</p>
+					<div class="box-contatore" style="display: block;">Iscritti trovati: ${risultati.length}</div>
+					<div class="table-responsive"><table>
+						<thead>
+							<tr>
+								<th>Cognome</th>
+								<th>Nome</th>
+								<th>Città</th>
+								<th>Telefono</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table></div>
+				`;
+
+				container.innerHTML = html;
+				const tbodyElement = container.querySelector('tbody');
+
+				if (risultati.length === 0) {
+					tbodyElement.innerHTML = `<tr><td colspan="4" style="text-align:center; font-style:italic;">Nessun iscritto contrassegnato come Capitano di Piazza.</td></tr>`;
+				} else {
+					risultati.forEach(r => {
+						const tr = document.createElement('tr');
+						tr.style.cursor = 'pointer';
+						tr.innerHTML = `
+							<td>${r.cognome}</td>
+							<td>${r.nome}</td>
+							<td>${r.citta}</td>
+							<td>${r.telefono}</td>
+						`;
+						tr.addEventListener('click', () => apriModaleEsistente(r.personaCompleta));
+						tbodyElement.appendChild(tr);
+					});
+				}
+
+			} catch (error) {
+				console.error("Errore nel caricamento dei Capitani di Piazza:", error);
+				container.innerHTML = `<h2>🏆 Capitani di Piazza</h2><p style="color:red;">Errore durante il recupero dei dati: ${error.message}</p>`;
+			} finally {
+				nascondiCaricamento();
+			}
+		};
+		
+		window.caricaElencoTigre = async function() {
+			const container = document.getElementById('sezione_onorificenze_tigre');
+			container.innerHTML = `<h2>🐅 Tigre</h2><div style="text-align:center; color:#666; padding:20px; font-style:italic;">Caricamento elenco Tigre in corso...</div>`;
+			mostraCaricamento("Caricamento elenco Tigre...");
+			
+			try {
+				// Query mirata sul campo booleano tigre
+				const q = query(collection(db, "anagrafica"), where("tigre", "==", true));
+				const snapAnagrafica = await getDocs(q);
+
+				let risultati = [];
+				snapAnagrafica.forEach(docSnap => {
+					let persona = { id: docSnap.id, ...docSnap.data() };
+					risultati.push({
+						personaCompleta: persona,
+						cognome: formattaCognome(persona.cognome),
+						nome: pulisciTesto(persona.nome),
+						citta: pulisciTesto(persona.citta),
+						telefono: pulisciTesto(persona.telefono)
+					});
+				});
+
+				// Ordinamento alfabetico per cognome
+				risultati.sort((a, b) => a.cognome.localeCompare(b.cognome, 'it'));
+
+				let html = `
+					<h2>🐅 Tigre</h2>
+					<p style="color: #666; font-size: 14px;">Elenco filtrato istantaneamente in base allo stato salvato in anagrafica. Clicca su una riga per aprire la scheda.</p>
+					<div class="box-contatore" style="display: block;">Iscritti trovati: ${risultati.length}</div>
+					<div class="table-responsive"><table>
+						<thead>
+							<tr>
+								<th>Cognome</th>
+								<th>Nome</th>
+								<th>Città</th>
+								<th>Telefono</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table></div>
+				`;
+
+				container.innerHTML = html;
+				const tbodyElement = container.querySelector('tbody');
+
+				if (risultati.length === 0) {
+					tbodyElement.innerHTML = `<tr><td colspan="4" style="text-align:center; font-style:italic;">Nessun iscritto contrassegnato come Tigre.</td></tr>`;
+				} else {
+					risultati.forEach(r => {
+						const tr = document.createElement('tr');
+						tr.style.cursor = 'pointer';
+						tr.innerHTML = `
+							<td>${r.cognome}</td>
+							<td>${r.nome}</td>
+							<td>${r.citta}</td>
+							<td>${r.telefono}</td>
+						`;
+						tr.addEventListener('click', () => apriModaleEsistente(r.personaCompleta));
+						tbodyElement.appendChild(tr);
+					});
+				}
+
+			} catch (error) {
+				console.error("Errore nel caricamento dell'elenco Tigre:", error);
+				container.innerHTML = `<h2>🐅 Tigre</h2><p style="color:red;">Errore durante il recupero dei dati: ${error.message}</p>`;
+			} finally {
+				nascondiCaricamento();
+			}
+		};
+		
+				
     </script>
 	
 	<!-- Modale Chiamata Coda in Evidenza (Con X per annullare e riportare in attesa) -->
