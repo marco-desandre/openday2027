@@ -32,10 +32,10 @@
         }
 
         /* Nasconde la normale sezione iscritti standard quando si è in mobile admin dashboard */
-        body.is-mobile.is-admin-mode #sezione_visualizzazione_standard.attiva .search-row,
-        body.is-mobile.is-admin-mode #sezione_visualizzazione_standard.attiva #messaggioGuida,
-        body.is-mobile.is-admin-mode #sezione_visualizzazione_standard.attiva .table-responsive,
-        body.is-mobile.is-admin-mode #sezione_visualizzazione_standard.attiva .box-contatore {
+        body.is-mobile.is-admin-mode:not(.vista-ricerca-attiva) #sezione_visualizzazione_standard.attiva .search-row,
+        body.is-mobile.is-admin-mode:not(.vista-ricerca-attiva) #sezione_visualizzazione_standard.attiva #messaggioGuida,
+        body.is-mobile.is-admin-mode:not(.vista-ricerca-attiva) #sezione_visualizzazione_standard.attiva .table-responsive,
+        body.is-mobile.is-admin-mode:not(.vista-ricerca-attiva) #sezione_visualizzazione_standard.attiva .box-contatore {
             display: none !important;
         }
 		
