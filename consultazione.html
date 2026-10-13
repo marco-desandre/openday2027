@@ -9,7 +9,7 @@
 		/* --- REGOLE DEDICATE PER LA MODALITÀ MOBILE --- */
         body.is-mobile .sezione-app h1, 
         body.is-mobile .sezione-app h2 {
-            padding-top: 55px !important; /* Spinge il titolo più in basso per non farlo coprire dai pulsanti */
+            padding-top: 55px !important;
         }
 
         body.is-mobile .top-bar-header {
@@ -22,21 +22,20 @@
             gap: 6px !important;
         }
 		
-		/* Mostra M / F al posto di Maschio / Femmina solo in modalità mobile */
-		body.is-mobile .label-sesso-maschio::after {
-			content: "M";
-			visibility: visible;
-		}
-		body.is-mobile .label-sesso-maschio {
-			visibility: hidden; /* Nasconde il testo esteso */
+		/* Nasconde il testo esteso "Maschio / Femmina" su mobile */
+		body.is-mobile .label-sesso-maschio,
+		body.is-mobile .label-sesso-femmina {
+			display: none !important;
 		}
 
-		body.is-mobile .label-sesso-femmina::after {
-			content: "F";
-			visibility: visible;
+		/* Di default su desktop la M/F fissa è nascosta, appare solo su mobile */
+		.visibile-mobile { 
+			display: none; 
 		}
-		body.is-mobile .label-sesso-femmina {
-			visibility: hidden; /* Nasconde il testo esteso */
+		
+		body.is-mobile .visibile-mobile { 
+			display: inline; 
+			font-weight: bold;
 		}
 	
         body { 
@@ -704,21 +703,30 @@
                     <div class="form-row" id="gruppoCampoCodiceFiscale">
                         <div class="form-group col-large">
                             <label>Codice Fiscale e Genere:</label>
-                            <div style="display: flex; gap: 15px; align-items: center; margin: 1px 0 3px 0;">
-                                <div style="display: flex; gap: 15px; align-items: center;">
-                                    <label style="font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; margin: 0;">
-                                        <input type="radio" name="editSesso" value="M" style="cursor: pointer; width: 16px; height: 16px;" onchange="gestisciSelezioneSesso()"> <span class="label-sesso-maschio">Maschio</span>
+                            <div style="display: flex; gap: 10px; align-items: center; margin: 2px 0 4px 0; flex-wrap: wrap;">
+                                
+                                <!-- Selezione Sesso Compatta (M / F) -->
+                                <div style="display: flex; gap: 12px; align-items: center; background: #f8f9fa; padding: 4px 10px; border: 1px solid #ced4da; border-radius: 4px; height: 32px; box-sizing: border-box;">
+                                    <label style="font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; margin: 0;">
+                                        <input type="radio" name="editSesso" value="M" style="cursor: pointer; width: 15px; height: 15px;" onchange="gestisciSelezioneSesso()"> 
+                                        <span class="label-sesso-maschio">Maschio</span><span class="visibile-mobile" style="font-weight: bold;">M</span>
                                     </label>
-                                    <label style="font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; margin: 0;">
-                                        <input type="radio" name="editSesso" value="F" style="cursor: pointer; width: 16px; height: 16px;" onchange="gestisciSelezioneSesso()"> <span class="label-sesso-femmina">Femmina</span>
+                                    <label style="font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; margin: 0;">
+                                        <input type="radio" name="editSesso" value="F" style="cursor: pointer; width: 15px; height: 15px;" onchange="gestisciSelezioneSesso()"> 
+                                        <span class="label-sesso-femmina">Femmina</span><span class="visibile-mobile" style="font-weight: bold;">F</span>
                                     </label>
                                 </div>
-                                <input type="text" id="editCodiceFiscale" class="campo-controllo" maxlength="16" placeholder="es. RSSMRA..." style="text-transform: uppercase; margin: 0; padding: 3px 6px; height: 31px; box-sizing: border-box;">
-                                <button type="button" id="btnCalcolaCF" class="btn-azione" style="background-color: #007BFF; padding: 0 10px; font-size: 13px; font-weight: bold; height: 31px; line-height: normal; opacity: 0.6; cursor: not-allowed; box-sizing: border-box;" disabled onclick="calcolaCFIsCRITTO()">Calcola</button>
+
+                                <!-- Input Codice Fiscale e Pulsante Calcola -->
+                                <div style="display: flex; gap: 6px; flex: 1; min-width: 180px; align-items: center;">
+                                    <input type="text" id="editCodiceFiscale" class="campo-controllo" maxlength="16" placeholder="Codice Fiscale..." style="text-transform: uppercase; margin: 0; padding: 5px 8px; height: 32px; box-sizing: border-box; flex: 1;">
+                                    <button type="button" id="btnCalcolaCF" class="btn-azione" style="background-color: #007BFF; padding: 0 12px; font-size: 13px; font-weight: bold; height: 32px; line-height: normal; opacity: 0.6; cursor: not-allowed; box-sizing: border-box; white-space: nowrap;" disabled onclick="calcolaCFIsCRITTO()">Calcola</button>
+                                </div>
+
                             </div>
                         </div>
                     </div>
-                    
+					
                     <div class="form-row">
                         <div class="form-group col-medium">
                             <label>Luogo di Nascita:</label>
