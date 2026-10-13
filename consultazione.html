@@ -2,6 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gestionale Iscritti</title>
     <style>
         body { 
@@ -291,6 +292,34 @@
 		.lampeggia-onorificenza {
 			animation: lampoBadge 1.2s infinite ease-in-out;
 		}
+		
+		/* --- REGOLE DEDICATE PER DISPOSITIVI MOBILI (Classe .is-mobile) --- */
+        body.is-mobile {
+            overflow: auto !important;
+        }
+        body.is-mobile .main-content {
+            padding: 10px !important;
+        }
+        body.is-mobile .container {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 12px !important;
+            margin: 0 !important;
+            box-sizing: border-box;
+        }
+        body.is-mobile .search-row {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 10px !important;
+        }
+        body.is-mobile .search-group {
+            width: 100% !important;
+            min-width: 0 !important;
+        }
+        body.is-mobile .btn-nuovo-utente {
+            width: 100% !important;
+            height: 44px !important;
+        }
     </style>
 </head>
 <body>
@@ -1128,33 +1157,10 @@
         document.getElementById('configFlagCodiceFiscale').checked = configCodiceFiscale;
         document.getElementById('configFlagDocumento').checked = configDocumento;
         
-		// Funzione per rilevare se siamo su un dispositivo mobile
-		function isMobileDevice() {
-			return (window.innerWidth <= 768) || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-		}
-
-		// Applica una classe di servizio al body all'avvio e al ridimensionamento
-		function gestisciResponsiveDevice() {
-			if (isMobileDevice()) {
-				document.body.classList.add('is-mobile');
-				document.body.classList.remove('is-desktop');
-				alert("Riconosciuto: DISPOSITIVO MOBILE (Smartphone/Tablet)");
-			} else {
-				document.body.classList.add('is-desktop');
-				document.body.classList.remove('is-mobile');
-				alert("Riconosciuto: PC / DESKTOP");
-			}
-		}
-
 		// Esegui al caricamento e quando la finestra viene ridimensionata/ruotata
 		window.addEventListener('load', gestisciResponsiveDevice);
 		window.addEventListener('resize', gestisciResponsiveDevice);
-		
-		// Eseguiamo il test non appena la pagina viene caricata
-		window.addEventListener('load', () => {
-			verificaEDimostraDispositivo();
-		});
-       	
+      	
 		window.esportaPrelazioniCSV = function() {
             const tbody = document.getElementById('corpoTabellaPrelazioni');
             const righe = Array.from(tbody.getElementsByTagName('tr'));
@@ -4549,7 +4555,25 @@
 			}
 		};
 		
-				
+		// Funzione per rilevare se siamo su un dispositivo mobile o touch
+        function rilevaDispositivoMobile() {
+            const isMobileUA = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            
+            // Attiva la classe '.is-mobile' se è un dispositivo mobile reale o touch con schermo ridotto
+            if (isMobileUA || (isTouch && window.innerWidth <= 1024)) {
+                document.body.classList.add('is-mobile');
+                document.body.classList.remove('is-desktop');
+            } else {
+                document.body.classList.add('is-desktop');
+                document.body.classList.remove('is-mobile');
+            }
+        }
+
+        // Esegue il controllo al caricamento e al ridimensionamento/rotazione dello schermo
+        window.addEventListener('load', rilevaDispositivoMobile);
+        window.addEventListener('resize', rilevaDispositivoMobile);
+						
     </script>
 	
 	<!-- Modale Chiamata Coda in Evidenza (Con X per annullare e riportare in attesa) -->
