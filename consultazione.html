@@ -441,9 +441,9 @@
 				<button type="button" id="btnGestioneCoda" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
 				<button type="button" class="btn-logout" style="background-color: #dc2626;" onclick="chiamaProssimoInCodaDiretto()">📢 Chiama Prossimo</button>
                 <div id="boxModalita" class="box-modalita" style="display: none;">
-                    <button type="button" id="btnAdmin" class="btn-modalita attivo" onclick="cambiaModalita('admin')">Admin</button>
-                    <button type="button" id="btnUser" class="btn-modalita" onclick="cambiaModalita('user')">User</button>
-                </div>
+					<button type="button" id="btnAdmin" class="btn-modalita" onclick="cambiaModalita('admin')">Admin</button>
+					<button type="button" id="btnUser" class="btn-modalita attivo" onclick="cambiaModalita('user')">User</button>
+				</div>
                 <div class="user-info-box">
                     <span id="userEmailDisplayHeader" class="user-email-text"></span>
                     <button type="button" class="btn-logout" onclick="eseguiLogout()">Esci</button>
@@ -1850,6 +1850,16 @@
                 document.getElementById('userEmailDisplayHeader').textContent = aliasUtenteLoggato;
 
                 await registraLog("Login");
+
+                // Configura subito la modalità corretta prima di caricare qualsiasi dato
+                const boxModalita = document.getElementById('boxModalita');
+                if (ruoloUtenteLoggato === 'admin') {
+                    boxModalita.style.display = 'flex';
+                    cambiaModalita('user'); 
+                } else {
+                    boxModalita.style.display = 'none';
+                    cambiaModalita('user');
+                }
 				
 				// --- INDICIZZAZIONE AUTOMATICA AL LOGIN ---
                 mostraCaricamento("Indicizzazione database in corso...");
@@ -1858,13 +1868,13 @@
                 // ------------------------------------------
 
                 const boxModalita = document.getElementById('boxModalita');
-				if (ruoloUtenteLoggato === 'admin') {
-					boxModalita.style.display = 'flex';
-					cambiaModalita('user'); // <--- Adesso si avvia in User, ma mostra comunque il selettore in alto
-				} else {
-					boxModalita.style.display = 'none';
-					cambiaModalita('user');
-				}
+					if (ruoloUtenteLoggato === 'admin') {
+						boxModalita.style.display = 'flex';
+						cambiaModalita('user'); // <--- Adesso si avvia in User, ma mostra comunque il selettore in alto
+					} else {
+						boxModalita.style.display = 'none';
+						cambiaModalita('user');
+					}
             } catch (error) {
                 errBox.textContent = "Errore verifica permessi.";
                 await signOut(auth);
