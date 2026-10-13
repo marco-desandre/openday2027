@@ -548,7 +548,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 02.00</div>
+			<div class="versione-app">Ver. 02.10</div>
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
 				<button type="button" id="btnGestioneCoda" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
@@ -864,6 +864,13 @@
                             <input type="text" id="editNome" class="campo-controllo campo-verifica-runtime">
                         </div>
                     </div>
+					
+					<div id="gruppoFlagNonIscrivibile" class="form-row" style="display: none; margin: 10px 0; background: #fff3cd; padding: 8px 12px; border-radius: 6px; border: 1px solid #ffeeba;">
+						<div class="checkbox-group" style="width: 100%;">
+							<input type="checkbox" id="editNonIscrivibile" style="width: 18px; height: 18px; cursor: pointer;">
+							<label for="editNonIscrivibile" style="font-size: 13px; font-weight: bold; color: #856404; cursor: pointer;">Contrassegna come "Non iscrivibile" (Blocca nuove iscrizioni)</label>
+						</div>
+					</div>
                     
                     <div class="form-row" id="gruppoCampoCodiceFiscale">
                         <div class="form-group col-large">
