@@ -74,8 +74,8 @@
         .loader-subtext { font-size: 12px; color: #6c757d; }
 
         /* SIDEBAR LATERALE SINISTRA */
-        .sidebar { width: 260px; background-color: #343a40; color: white; display: flex; flex-direction: column; box-shadow: 2px 0 5px rgba(0,0,0,0.1); z-index: 100; overflow-y: auto; transition: all 0.3s; }
-        .sidebar.nascosta { display: none; }
+        .sidebar { width: 260px; background-color: #343a40; color: white; display: none; flex-direction: column; box-shadow: 2px 0 5px rgba(0,0,0,0.1); z-index: 100; overflow-y: auto; transition: all 0.3s; }
+		.sidebar.attiva-admin { display: flex !important; }
         .sidebar-header { padding: 20px; font-size: 16px; font-weight: bold; background-color: #212529; border-bottom: 1px solid #454d55; }
         .sidebar-menu { list-style: none; padding: 0; margin: 0; flex: 1; }
         .sidebar-item { padding: 12px 20px; cursor: pointer; font-size: 14px; transition: background 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -1852,14 +1852,14 @@
                 await registraLog("Login");
 
                 // Configura la modalità e mostra il selettore se admin
-                const boxModalita = document.getElementById('boxModalita');
-                if (ruoloUtenteLoggato === 'admin') {
-                    boxModalita.style.display = 'flex';
-                    cambiaModalita('user'); 
-                } else {
-                    boxModalita.style.display = 'none';
-                    cambiaModalita('user');
-                }
+               const boxModalita = document.getElementById('boxModalita');
+				if (ruoloUtenteLoggato === 'admin') {
+					boxModalita.style.display = 'flex';
+					cambiaModalita('admin'); // <-- Imposta subito 'admin' se autorizzato
+				} else {
+					boxModalita.style.display = 'none';
+					cambiaModalita('user');
+				}
                 
                 // Indicizzazione automatica al login
                 mostraCaricamento("Indicizzazione database in corso...");
@@ -2733,26 +2733,32 @@
         };
 		
 		window.cambiaModalita = function(modalita) {
-            modalitaCorrente = modalita;
-            const isAdmin = (modalita === 'admin');
-            
-            document.getElementById('btnAdmin').classList.toggle('attivo', isAdmin);
-            document.getElementById('btnUser').classList.toggle('attivo', !isAdmin);
-            document.getElementById('sidebarMenu').classList.toggle('nascosta', !isAdmin);
-            
-            // Mostra o nascondi il pulsante Gestione Coda in base alla modalità
-            const btnGestioneCoda = document.getElementById('btnGestioneCoda');
-            if (btnGestioneCoda) {
-                btnGestioneCoda.style.display = isAdmin ? 'inline-block' : 'none';
-            }
+			modalitaCorrente = modalita;
+			const isAdmin = (modalita === 'admin');
+			
+			document.getElementById('btnAdmin').classList.toggle('attivo', isAdmin);
+			document.getElementById('btnUser').classList.toggle('attivo', !isAdmin);
+			
+			// Gestione pulita e immediata della visibilità della sidebar
+			const sidebar = document.getElementById('sidebarMenu');
+			if (isAdmin) {
+				sidebar.classList.add('attiva-admin');
+			} else {
+				sidebar.classList.remove('attiva-admin');
+			}
+			
+			const btnGestioneCoda = document.getElementById('btnGestioneCoda');
+			if (btnGestioneCoda) {
+				btnGestioneCoda.style.display = isAdmin ? 'inline-block' : 'none';
+			}
 
-            if (!isAdmin) cambiaSezioneMenu('visualizzazione_standard');
-            
-            const idPersonaCorrente = document.getElementById('editIdPersona').value;
-            if (idPersonaCorrente && document.getElementById('editModal').style.display === 'flex') {
-                caricaStoricoPersona(idPersonaCorrente);
-            }
-        };
+			if (!isAdmin) cambiaSezioneMenu('visualizzazione_standard');
+			
+			const idPersonaCorrente = document.getElementById('editIdPersona').value;
+			if (idPersonaCorrente && document.getElementById('editModal').style.display === 'flex') {
+				caricaStoricoPersona(idPersonaCorrente);
+			}
+		};
 
 		let statoOrdinamentoColonna = { indice: -1, crescente: true };
 		let ultimiRisultatiFiltratiCache = [];
