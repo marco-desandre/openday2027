@@ -25,6 +25,19 @@
         body.is-mobile.is-admin-mode #sezione_visualizzazione_standard.attiva .box-contatore {
             display: none !important;
         }
+		
+		body.is-mobile.is-admin-mode .sidebar,
+        body.is-mobile.is-admin-mode #sidebar,
+        body.is-mobile.is-admin-mode .app-sidebar {
+            transform: translateX(-100%);
+            display: none !important;
+        }
+
+        body.is-mobile.is-admin-mode .main-content,
+        body.is-mobile.is-admin-mode .content-wrapper {
+            margin-left: 0 !important;
+            width: 100% !important;
+        }
 
         .admin-grid-section {
             background: #fff;
@@ -1128,7 +1141,7 @@
                 </div><!-- Fine Colonna Sinistra -->
 
                 <!-- COLONNA DESTRA: Opzioni/Azioni Storico e Tabella Storico Iscrizioni -->
-                <div style="flex: 1; min-width: 0;" id="sezioneStoricoContainer" style="display: none;">
+                <div style="flex: 1; min-width: 0; display: none;" id="sezioneStoricoContainer">
                     <h4 style="margin-top: 0; color: #007BFF; border-bottom: 2px solid #007BFF; padding-bottom: 5px;">Storico Iscrizioni</h4>
                     					
                     <!-- Blocco opzioni e pulsanti compatto e allineato come da richiesta -->
