@@ -40,6 +40,33 @@
             height: 15px !important;
         }
 		
+		body.is-mobile #boxContainerOnorificenza label {
+            font-size: 0 !important;
+        }
+        body.is-mobile #boxContainerOnorificenza label::before {
+            content: "Onor.";
+            font-size: 10px !important;
+            font-weight: bold;
+        }
+
+        /* 2. Capitano di piazza: mostra "Cap." solo su mobile */
+        body.is-mobile label[for="editCapitanoPiazza"] {
+            font-size: 0 !important;
+        }
+        body.is-mobile label[for="editCapitanoPiazza"]::before {
+            content: "Cap.";
+            font-size: 11px !important;
+            font-weight: bold;
+        }
+
+        /* 3. Riduzione colonna N. Identificativo in "N. Id" su mobile */
+        @media (max-width: 768px) {
+            #tabellaStorico th:nth-child(3) .visibile-desktop,
+            #tabellaStorico td:nth-child(3) .visibile-desktop {
+                display: none;
+            }
+        }
+		
 		/* --- DASHBOARD MOBILE ADMIN A PULSANTI --- */
         .admin-mobile-dashboard {
             display: none; /* Di default nascosta (appare solo in mobile + admin) */
@@ -548,7 +575,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 02.10</div>
+			<div class="versione-app">Ver. 02.00</div>
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
 				<button type="button" id="btnGestioneCoda" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
