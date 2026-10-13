@@ -5,6 +5,14 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gestionale Iscritti</title>
     <style>
+	
+		/* Nasconde completamente i pulsanti di Gestione Coda in modalità mobile su qualsiasi pagina */
+		body.is-mobile #btnGestioneCoda,
+		body.is-mobile.is-admin-mode #btnGestioneCoda,
+		body.is-mobile button[onclick*="chiamaProssimoInCodaDiretto"],
+		body.is-mobile button[onclick*="apriGestioneCodaBanco"] {
+			display: none !important;
+		}
 		
 		/* --- DASHBOARD MOBILE ADMIN A PULSANTI --- */
         .admin-mobile-dashboard {
@@ -541,7 +549,7 @@
                     <div class="admin-grid-section">
                         <div class="admin-grid-title">⚡ Gestione Rapida</div>
                         <div class="admin-buttons-grid">
-                            <button type="button" class="btn-grid-card" onclick="document.getElementById('filtroCognome').focus()">🔍 Cerca Ioscritto</button>
+                            <button type="button" id="btnVaiACercaIscritto" class="btn-grid-card">🔍 Cerca Iscritto</button>
                             <button type="button" class="btn-grid-card" style="background-color: #28a745; color: white;" onclick="document.getElementById('btnNuovoUtente').click()">+ Nuova Anagrafica</button>
                             <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('ricerca', document.querySelector('.sidebar-item'))">📊 Ricerca Filtrata</button>
                             <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('estrazione_prelazioni', document.querySelector('.sidebar-item'))">⭐ Prelazioni</button>
@@ -1339,7 +1347,31 @@
         document.getElementById('inputAnnoCarnevale').value = annoCarnevaleCorrente;
         document.getElementById('configFlagCodiceFiscale').checked = configCodiceFiscale;
         document.getElementById('configFlagDocumento').checked = configDocumento;
-            	
+        
+		popolaSelectAnniFiltro();
+
+        const btnVaiACercaIscritto = document.getElementById('btnVaiACercaIscritto');
+        if (btnVaiACercaIscritto) {
+            btnVaiACercaIscritto.addEventListener('click', () => {
+                cambiaSezioneMenu('visualizzazione_standard', document.querySelector('.sidebar-item'));
+
+                const inputRicerca = document.getElementById('filtroCognome');
+                if (inputRicerca) inputRicerca.value = '';
+
+                const tabella = document.getElementById('tabellaIscritti');
+                if (tabella) tabella.style.display = 'none';
+
+                const boxContatore = document.getElementById('boxContatore');
+                if (boxContatore) boxContatore.style.display = 'none';
+
+                const messaggioGuida = document.getElementById('messaggioGuida');
+                if (messaggioGuida) {
+                    messaggioGuida.style.display = 'block';
+                    messaggioGuida.textContent = "Inizia a digitare nel campo sopra per visualizzare gli iscritti.";
+                }
+            });
+        }
+    	
 		window.esportaPrelazioniCSV = function() {
             const tbody = document.getElementById('corpoTabellaPrelazioni');
             const righe = Array.from(tbody.getElementsByTagName('tr'));
@@ -2892,14 +2924,12 @@
 			document.getElementById('btnAdmin').classList.toggle('attivo', isAdmin);
 			document.getElementById('btnUser').classList.toggle('attivo', !isAdmin);
 			
-			// Gestisce la classe globale admin sul body per i CSS condizionali mobile
 			if (isAdmin) {
 				document.body.classList.add('is-admin-mode');
 			} else {
 				document.body.classList.remove('is-admin-mode');
 			}
 			
-			// Gestione pulita e immediata della visibilità della sidebar
 			const sidebar = document.getElementById('sidebarMenu');
 			if (isAdmin) {
 				sidebar.classList.add('attiva-admin');
@@ -2907,9 +2937,11 @@
 				sidebar.classList.remove('attiva-admin');
 			}
 			
+			// Mostra il pulsante Gestione Coda SOLO se siamo Admin E NON siamo su un dispositivo mobile
 			const btnGestioneCoda = document.getElementById('btnGestioneCoda');
+			const isMobileDevice = document.body.classList.contains('is-mobile');
 			if (btnGestioneCoda) {
-				btnGestioneCoda.style.display = isAdmin ? 'inline-block' : 'none';
+				btnGestioneCoda.style.display = (isAdmin && !isMobileDevice) ? 'inline-block' : 'none';
 			}
 
 			if (!isAdmin) cambiaSezioneMenu('visualizzazione_standard');
@@ -2918,8 +2950,8 @@
 			if (idPersonaCorrente && document.getElementById('editModal').style.display === 'flex') {
 				caricaStoricoPersona(idPersonaCorrente);
 			}
-		};		
-
+		};
+		
 		let statoOrdinamentoColonna = { indice: -1, crescente: true };
 		let ultimiRisultatiFiltratiCache = [];
         let ultimeColsCache = [];
@@ -4751,8 +4783,7 @@
 			}
 		};
 		
-		// Funzione per rilevare se siamo su un dispositivo mobile o touch
-        function rilevaDispositivoMobile() {
+		function rilevaDispositivoMobile() {
 			const isMobileUA = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 			const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 			
@@ -4763,16 +4794,17 @@
 				document.body.classList.add('is-mobile');
 				document.body.classList.remove('is-desktop');
 				
-				// Nasconde i pulsanti coda su mobile
+				// Forza la chiusura/nascondimento dei pulsanti coda su mobile
 				if (btnCoda) btnCoda.style.display = 'none';
 				if (btnChiama) btnChiama.style.display = 'none';
 			} else {
 				document.body.classList.add('is-desktop');
 				document.body.classList.remove('is-mobile');
 				
-				// Ripristina la visualizzazione corretta su desktop (se admin)
-				if (btnCoda && modalitaCorrente === 'admin') btnCoda.style.display = 'inline-block';
-				if (btnChiama && modalitaCorrente === 'admin') btnChiama.style.display = 'inline-block';
+				// Ripristina la visualizzazione solo se siamo in modalità admin da desktop
+				const isAdmin = modalitaCorrente === 'admin';
+				if (btnCoda) btnCoda.style.display = isAdmin ? 'inline-block' : 'none';
+				if (btnChiama) btnChiama.style.display = isAdmin ? 'inline-block' : 'none';
 			}
 		}
 
