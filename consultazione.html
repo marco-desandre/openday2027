@@ -1355,9 +1355,13 @@
         
 		popolaSelectAnniFiltro();
 
-        const btnVaiACercaIscritto = document.getElementById('btnVaiACercaIscritto');
+        
+		const btnVaiACercaIscritto = document.getElementById('btnVaiACercaIscritto');
 		if (btnVaiACercaIscritto) {
 			btnVaiACercaIscritto.addEventListener('click', () => {
+				// Torna in modalità user per sbloccare la vista standard e la ricerca
+				cambiaModalita('user');
+
 				// 1. Attiva la classe per nascondere la pulsantiera rapida e mostrare la ricerca
 				document.body.classList.add('vista-ricerca-attiva');
 
@@ -1385,6 +1389,7 @@
 				}
 			});
 		}
+		
 		window.esportaPrelazioniCSV = function() {
             const tbody = document.getElementById('corpoTabellaPrelazioni');
             const righe = Array.from(tbody.getElementsByTagName('tr'));
