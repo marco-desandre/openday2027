@@ -1851,7 +1851,7 @@
 
                 await registraLog("Login");
 
-                // Configura subito la modalità corretta prima di caricare qualsiasi dato
+                // Configura la modalità e mostra il selettore se admin
                 const boxModalita = document.getElementById('boxModalita');
                 if (ruoloUtenteLoggato === 'admin') {
                     boxModalita.style.display = 'flex';
@@ -1860,27 +1860,18 @@
                     boxModalita.style.display = 'none';
                     cambiaModalita('user');
                 }
-				
-				// --- INDICIZZAZIONE AUTOMATICA AL LOGIN ---
+                
+                // Indicizzazione automatica al login
                 mostraCaricamento("Indicizzazione database in corso...");
                 await inizializzaCacheGlobale();
                 nascondiCaricamento();
-                // ------------------------------------------
 
-                const boxModalita = document.getElementById('boxModalita');
-					if (ruoloUtenteLoggato === 'admin') {
-						boxModalita.style.display = 'flex';
-						cambiaModalita('user'); // <--- Adesso si avvia in User, ma mostra comunque il selettore in alto
-					} else {
-						boxModalita.style.display = 'none';
-						cambiaModalita('user');
-					}
             } catch (error) {
                 errBox.textContent = "Errore verifica permessi.";
                 await signOut(auth);
             }
         }
-
+		
         onAuthStateChanged(auth, async (user) => {
             if (user) await verificaAutorizzazioneUtente(user);
             else document.getElementById('loginOverlay').style.display = 'flex';
