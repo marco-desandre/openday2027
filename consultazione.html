@@ -5,6 +5,23 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gestionale Iscritti</title>
     <style>
+		
+		/* --- REGOLE DEDICATE PER LA MODALITÀ MOBILE --- */
+        body.is-mobile .sezione-app h1, 
+        body.is-mobile .sezione-app h2 {
+            padding-top: 55px !important; /* Spinge il titolo più in basso per non farlo coprire dai pulsanti */
+        }
+
+        body.is-mobile .top-bar-header {
+            position: absolute !important;
+            top: 12px !important;
+            right: 12px !important;
+            left: 12px !important;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 6px !important;
+        }
+	
         body { 
 			font-family: Arial, sans-serif; 
 			margin: 0; 
@@ -4553,18 +4570,28 @@
 		
 		// Funzione per rilevare se siamo su un dispositivo mobile o touch
         function rilevaDispositivoMobile() {
-            const isMobileUA = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-            
-            // Attiva la classe '.is-mobile' se è un dispositivo mobile reale o touch con schermo ridotto
-            if (isMobileUA || (isTouch && window.innerWidth <= 1024)) {
-                document.body.classList.add('is-mobile');
-                document.body.classList.remove('is-desktop');
-            } else {
-                document.body.classList.add('is-desktop');
-                document.body.classList.remove('is-mobile');
-            }
-        }
+			const isMobileUA = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+			const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+			
+			const btnCoda = document.getElementById('btnGestioneCoda');
+			const btnChiama = document.querySelector('button[onclick="chiamaProssimoInCodaDiretto()"]');
+
+			if (isMobileUA || (isTouch && window.innerWidth <= 1024)) {
+				document.body.classList.add('is-mobile');
+				document.body.classList.remove('is-desktop');
+				
+				// Nasconde i pulsanti coda su mobile
+				if (btnCoda) btnCoda.style.display = 'none';
+				if (btnChiama) btnChiama.style.display = 'none';
+			} else {
+				document.body.classList.add('is-desktop');
+				document.body.classList.remove('is-mobile');
+				
+				// Ripristina la visualizzazione corretta su desktop (se admin)
+				if (btnCoda && modalitaCorrente === 'admin') btnCoda.style.display = 'inline-block';
+				if (btnChiama && modalitaCorrente === 'admin') btnChiama.style.display = 'inline-block';
+			}
+		}
 
         // Esegue il controllo al caricamento e al ridimensionamento/rotazione dello schermo
         window.addEventListener('load', rilevaDispositivoMobile);
