@@ -2941,6 +2941,9 @@
 			modalitaCorrente = modalita;
 			const isAdmin = (modalita === 'admin');
 			
+			// Rimuove lo stato di ricerca attiva ogni volta che si cambia modalità
+			document.body.classList.remove('vista-ricerca-attiva');
+			
 			document.getElementById('btnAdmin').classList.toggle('attivo', isAdmin);
 			document.getElementById('btnUser').classList.toggle('attivo', !isAdmin);
 			
