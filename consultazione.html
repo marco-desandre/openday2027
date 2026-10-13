@@ -1149,6 +1149,11 @@
 		// Esegui al caricamento e quando la finestra viene ridimensionata/ruotata
 		window.addEventListener('load', gestisciResponsiveDevice);
 		window.addEventListener('resize', gestisciResponsiveDevice);
+		
+		// Eseguiamo il test non appena la pagina viene caricata
+		window.addEventListener('load', () => {
+			verificaEDimostraDispositivo();
+		});
        	
 		window.esportaPrelazioniCSV = function() {
             const tbody = document.getElementById('corpoTabellaPrelazioni');
