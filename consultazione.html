@@ -5,7 +5,12 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gestionale Iscritti</title>
     <style>
-	
+		
+		/* Nasconde la dashboard a pulsanti quando si attiva la ricerca */
+		body.is-mobile.is-admin-mode.vista-ricerca-attiva .admin-mobile-dashboard {
+			display: none !important;
+		}
+		
 		/* Nasconde completamente i pulsanti di Gestione Coda in modalità mobile su qualsiasi pagina */
 		body.is-mobile #btnGestioneCoda,
 		body.is-mobile.is-admin-mode #btnGestioneCoda,
@@ -1351,27 +1356,35 @@
 		popolaSelectAnniFiltro();
 
         const btnVaiACercaIscritto = document.getElementById('btnVaiACercaIscritto');
-        if (btnVaiACercaIscritto) {
-            btnVaiACercaIscritto.addEventListener('click', () => {
-                cambiaSezioneMenu('visualizzazione_standard', document.querySelector('.sidebar-item'));
+		if (btnVaiACercaIscritto) {
+			btnVaiACercaIscritto.addEventListener('click', () => {
+				// 1. Attiva la classe per nascondere la pulsantiera rapida e mostrare la ricerca
+				document.body.classList.add('vista-ricerca-attiva');
 
-                const inputRicerca = document.getElementById('filtroCognome');
-                if (inputRicerca) inputRicerca.value = '';
+				// 2. Sposta sulla sezione standard
+				cambiaSezioneMenu('visualizzazione_standard', document.querySelector('.sidebar-item'));
 
-                const tabella = document.getElementById('tabellaIscritti');
-                if (tabella) tabella.style.display = 'none';
+				// 3. Pulisce e mette a fuoco l'input di ricerca
+				const inputRicerca = document.getElementById('filtroCognome');
+				if (inputRicerca) {
+					inputRicerca.value = '';
+					inputRicerca.focus();
+				}
 
-                const boxContatore = document.getElementById('boxContatore');
-                if (boxContatore) boxContatore.style.display = 'none';
+				// 4. Gestisce la visibilità di tabella, contatore e guida
+				const tabella = document.getElementById('tabellaIscritti');
+				if (tabella) tabella.style.display = 'none';
 
-                const messaggioGuida = document.getElementById('messaggioGuida');
-                if (messaggioGuida) {
-                    messaggioGuida.style.display = 'block';
-                    messaggioGuida.textContent = "Inizia a digitare nel campo sopra per visualizzare gli iscritti.";
-                }
-            });
-        }
-    	
+				const boxContatore = document.getElementById('boxContatore');
+				if (boxContatore) boxContatore.style.display = 'none';
+
+				const messaggioGuida = document.getElementById('messaggioGuida');
+				if (messaggioGuida) {
+					messaggioGuida.style.display = 'block';
+					messaggioGuida.textContent = "Inizia a digitare nel campo sopra per visualizzare gli iscritti.";
+				}
+			});
+		}
 		window.esportaPrelazioniCSV = function() {
             const tbody = document.getElementById('corpoTabellaPrelazioni');
             const righe = Array.from(tbody.getElementsByTagName('tr'));
@@ -2754,15 +2767,22 @@
         };
 		
         window.cambiaSezioneMenu = function(valore, elem) {
-            document.querySelectorAll('.sezione-app').forEach(s => s.classList.remove('attiva'));
-            document.querySelectorAll('.sidebar-item, .sidebar-subitem').forEach(v => v.classList.remove('attivo'));
-            const target = document.getElementById(`sezione_${valore}`);
-            if (target) target.classList.add('attiva');
-            if (elem) elem.classList.add('attivo');
-            if (valore === 'ricerca') caricaDatiRicercaFiltrata();
-            else if (valore === 'estrazione_prelazioni') caricaDatiPrelazioni();
-            else if (valore === 'configurazione') caricaTabellaUtenti();
-        };
+			// Se ci spostiamo in una sezione diversa dalla standard, rimuoviamo il blocco della vista ricerca
+			if (valore !== 'visualizzazione_standard') {
+				document.body.classList.remove('vista-ricerca-attiva');
+			}
+
+			document.querySelectorAll('.sezione-app').forEach(s => s.classList.remove('attiva'));
+			document.querySelectorAll('.sidebar-item, .sidebar-subitem').forEach(v => v.classList.remove('attivo'));
+			
+			const target = document.getElementById(`sezione_${valore}`);
+			if (target) target.classList.add('attiva');
+			if (elem) elem.classList.add('attivo');
+			
+			if (valore === 'ricerca') caricaDatiRicercaFiltrata();
+			else if (valore === 'estrazione_prelazioni') caricaDatiPrelazioni();
+			else if (valore === 'configurazione') caricaTabellaUtenti();
+		};
 		
 		let ultimiRisultatiPrelazioniCache = [];
 		window.caricaDatiPrelazioni = async function() {
