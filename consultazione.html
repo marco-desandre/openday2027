@@ -45,13 +45,22 @@
         }
         body.is-mobile #boxContainerOnorificenza label::before {
             content: "Onor.";
-            font-size: 10px !important;
+            font-size: 11px !important;
             font-weight: bold;
         }
 
         /* 2. Capitano di piazza: mostra "Cap." solo su mobile */
         body.is-mobile label[for="editCapitanoPiazza"] {
             font-size: 0 !important;
+        }
+        body.is-mobile label[for="editCapitanoPiazza"]::before {
+            content: "Cap.";
+            font-size: 11px !important;
+            font-weight: bold;
+        }
+		
+		body.is-mobile label[for="editCapitanoPiazza"] {
+            font-size: 0 !important; /* Rende invisibile il testo "Capitano di Piazza" */
         }
         body.is-mobile label[for="editCapitanoPiazza"]::before {
             content: "Cap.";
@@ -575,7 +584,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 02.00</div>
+			<div class="versione-app">Ver. 02.10</div>
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
 				<button type="button" id="btnGestioneCoda" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
