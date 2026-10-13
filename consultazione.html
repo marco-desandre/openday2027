@@ -19,6 +19,27 @@
 			display: none !important;
 		}
 		
+		/* Ottimizzazione badge e campi capitani/tigre */
+		body.is-mobile #boxContainerOnorificenza {
+            padding: 3px 8px !important;
+            font-size: 12px !important;
+        }
+        body.is-mobile #boxContainerOnorificenza label {
+            font-size: 12px !important;
+        }
+        body.is-mobile #badgeStatoOnorificenza {
+            font-size: 11px !important;
+            padding: 1px 6px !important;
+        }
+        /* Riducono il font e compattano Tigre e Capitano di Piazza solo su mobile */
+        body.is-mobile #sezioneStoricoContainer .checkbox-group label {
+            font-size: 12px !important;
+        }
+        body.is-mobile #sezioneStoricoContainer input[type="checkbox"] {
+            width: 15px !important;
+            height: 15px !important;
+        }
+		
 		/* --- DASHBOARD MOBILE ADMIN A PULSANTI --- */
         .admin-mobile-dashboard {
             display: none; /* Di default nascosta (appare solo in mobile + admin) */
