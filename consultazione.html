@@ -1851,16 +1851,19 @@
 
                 await registraLog("Login");
 
-                // Configura la modalità e mostra il selettore se admin
-               const boxModalita = document.getElementById('boxModalita');
-				if (ruoloUtenteLoggato === 'admin') {
-					boxModalita.style.display = 'flex';
-					cambiaModalita('admin'); // <-- Imposta subito 'admin' se autorizzato
-				} else {
-					boxModalita.style.display = 'none';
-					cambiaModalita('user');
-				}
-                
+                // Gestione del selettore e della modalità base
+                const boxModalita = document.getElementById('boxModalita');
+                if (ruoloUtenteLoggato === 'admin') {
+                    // Se l'utente è admin, mostriamo il selettore per permettergli di cambiare modalità
+                    boxModalita.style.display = 'flex';
+                } else {
+                    // Se è un utente normale, nascondiamo completamente il selettore
+                    boxModalita.style.display = 'none';
+                }
+
+                // A prescindere dal ruolo o dal tipo di login, partiamo SEMPRE in modalità user
+                cambiaModalita('user');
+				
                 // Indicizzazione automatica al login
                 mostraCaricamento("Indicizzazione database in corso...");
                 await inizializzaCacheGlobale();
