@@ -7,52 +7,52 @@
     <style>
 		
 		/* Nasconde la dashboard a pulsanti quando si attiva la ricerca */
-		body.is-mobile.is-admin-mode.vista-ricerca-attiva .admin-mobile-dashboard {
+		body.is-mobile.is-avanzato-mode.vista-ricerca-attiva .avanzato-mobile-dashboard {
 			display: none !important;
 		}
 		
 		/* Nasconde completamente i pulsanti di Gestione Coda in modalità mobile su qualsiasi pagina */
 		body.is-mobile #btnGestioneCoda,
-		body.is-mobile.is-admin-mode #btnGestioneCoda,
+		body.is-mobile.is-avanzato-mode #btnGestioneCoda,
 		body.is-mobile button[onclick*="chiamaProssimoInCodaDiretto"],
 		body.is-mobile button[onclick*="apriGestioneCodaBanco"] {
 			display: none !important;
 		}
 		
 		/* --- DASHBOARD MOBILE ADMIN A PULSANTI --- */
-        .admin-mobile-dashboard {
-            display: none; /* Di default nascosta (appare solo in mobile + admin) */
+        .avanzato-mobile-dashboard {
+            display: none; /* Di default nascosta (appare solo in mobile + avanzato) */
             flex-direction: column;
             gap: 15px;
             padding: 5px 0;
         }
 
-        body.is-mobile.is-admin-mode .admin-mobile-dashboard {
+        body.is-mobile.is-avanzato-mode .avanzato-mobile-dashboard {
             display: flex !important;
         }
 
-        /* Nasconde la normale sezione iscritti standard quando si è in mobile admin dashboard */
-        body.is-mobile.is-admin-mode:not(.vista-ricerca-attiva) #sezione_visualizzazione_standard.attiva .search-row,
-        body.is-mobile.is-admin-mode:not(.vista-ricerca-attiva) #sezione_visualizzazione_standard.attiva #messaggioGuida,
-        body.is-mobile.is-admin-mode:not(.vista-ricerca-attiva) #sezione_visualizzazione_standard.attiva .table-responsive,
-        body.is-mobile.is-admin-mode:not(.vista-ricerca-attiva) #sezione_visualizzazione_standard.attiva .box-contatore {
+        /* Nasconde la normale sezione iscritti standard quando si è in mobile avanzato dashboard */
+        body.is-mobile.is-avanzato-mode:not(.vista-ricerca-attiva) #sezione_visualizzazione_standard.attiva .search-row,
+        body.is-mobile.is-avanzato-mode:not(.vista-ricerca-attiva) #sezione_visualizzazione_standard.attiva #messaggioGuida,
+        body.is-mobile.is-avanzato-mode:not(.vista-ricerca-attiva) #sezione_visualizzazione_standard.attiva .table-responsive,
+        body.is-mobile.is-avanzato-mode:not(.vista-ricerca-attiva) #sezione_visualizzazione_standard.attiva .box-contatore {
             display: none !important;
         }
 		
-		body.is-mobile.is-admin-mode .sidebar,
-        body.is-mobile.is-admin-mode #sidebar,
-        body.is-mobile.is-admin-mode .app-sidebar {
+		body.is-mobile.is-avanzato-mode .sidebar,
+        body.is-mobile.is-avanzato-mode #sidebar,
+        body.is-mobile.is-avanzato-mode .app-sidebar {
             transform: translateX(-100%);
             display: none !important;
         }
 
-        body.is-mobile.is-admin-mode .main-content,
-        body.is-mobile.is-admin-mode .content-wrapper {
+        body.is-mobile.is-avanzato-mode .main-content,
+        body.is-mobile.is-avanzato-mode .content-wrapper {
             margin-left: 0 !important;
             width: 100% !important;
         }
 
-        .admin-grid-section {
+        .avanzato-grid-section {
             background: #fff;
             padding: 12px;
             border-radius: 8px;
@@ -60,7 +60,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
 
-        .admin-grid-title {
+        .avanzato-grid-title {
             font-size: 13px;
             font-weight: bold;
             color: #007BFF;
@@ -70,7 +70,7 @@
             padding-bottom: 4px;
         }
 
-        .admin-buttons-grid {
+        .avanzato-buttons-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 8px;
@@ -167,7 +167,7 @@
 
         /* SIDEBAR LATERALE SINISTRA */
         .sidebar { width: 260px; background-color: #343a40; color: white; display: none; flex-direction: column; box-shadow: 2px 0 5px rgba(0,0,0,0.1); z-index: 100; overflow-y: auto; transition: all 0.3s; }
-		.sidebar.attiva-admin { display: flex !important; }
+		.sidebar.attiva-avanzato { display: flex !important; }
         .sidebar-header { padding: 20px; font-size: 16px; font-weight: bold; background-color: #212529; border-bottom: 1px solid #454d55; }
         .sidebar-menu { list-style: none; padding: 0; margin: 0; flex: 1; }
         .sidebar-item { padding: 12px 20px; cursor: pointer; font-size: 14px; transition: background 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -533,7 +533,7 @@
 				<button type="button" id="btnGestioneCoda" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
 				<button type="button" class="btn-logout" style="background-color: #dc2626;" onclick="chiamaProssimoInCodaDiretto()">📢 Chiama Prossimo</button>
                 <div id="boxModalita" class="box-modalita" style="display: none;">
-					<button type="button" id="btnAdmin" class="btn-modalita" onclick="cambiaModalita('admin')">Admin</button>
+					<button type="button" id="btnAavanzato" class="btn-modalita" onclick="cambiaModalita('avanzato')">Aavanzato</button>
 					<button type="button" id="btnUser" class="btn-modalita attivo" onclick="cambiaModalita('user')">User</button>
 				</div>
                 <div class="user-info-box">
@@ -548,12 +548,12 @@
                 <p style="color: #666; font-size: 14px;">Digita almeno 2 lettere del cognome per cercare nel database.</p>
                 
                 <!-- DASHBOARD MOBILE PER ADMIN -->
-                <div class="admin-mobile-dashboard">
+                <div class="avanzato-mobile-dashboard">
                     
                     <!-- Accesso Rapido / Operazioni Principali -->
-                    <div class="admin-grid-section">
-                        <div class="admin-grid-title">⚡ Gestione Rapida</div>
-                        <div class="admin-buttons-grid">
+                    <div class="avanzato-grid-section">
+                        <div class="avanzato-grid-title">⚡ Gestione Rapida</div>
+                        <div class="avanzato-buttons-grid">
                             <button type="button" id="btnVaiACercaIscritto" class="btn-grid-card">🔍 Cerca Iscritto</button>
                             <button type="button" class="btn-grid-card" style="background-color: #28a745; color: white;" onclick="document.getElementById('btnNuovoUtente').click()">+ Nuova Anagrafica</button>
                             <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('ricerca', document.querySelector('.sidebar-item'))">📊 Ricerca Filtrata</button>
@@ -562,9 +562,9 @@
                     </div>
 
                     <!-- Griglia Premi / Onorificenze -->
-                    <div class="admin-grid-section">
-                        <div class="admin-grid-title">🏆 Premi & Onorificenze</div>
-                        <div class="admin-buttons-grid">
+                    <div class="avanzato-grid-section">
+                        <div class="avanzato-grid-title">🏆 Premi & Onorificenze</div>
+                        <div class="avanzato-buttons-grid">
                             <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('onorificenze_10', this); caricaElenco10Anni();">10 Anni</button>
                             <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('onorificenze_20', this); caricaElenco20Anni();">20 Anni</button>
                             <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('onorificenze_30', this); caricaElenco30Anni();">30 Anni</button>
@@ -576,9 +576,9 @@
                     </div>
 
                     <!-- Griglia Preventivi Iscrizioni -->
-                    <div class="admin-grid-section">
-                        <div class="admin-grid-title">📈 Preventivi Iscrizioni</div>
-                        <div class="admin-buttons-grid">
+                    <div class="avanzato-grid-section">
+                        <div class="avanzato-grid-title">📈 Preventivi Iscrizioni</div>
+                        <div class="avanzato-buttons-grid">
                             <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('preventivo_10', this); caricaPreventivo10();">Prev. 10</button>
                             <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('preventivo_20', this); caricaPreventivo20();">Prev. 20</button>
                             <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('preventivo_30', this); caricaPreventivo30();">Prev. 30</button>
@@ -588,9 +588,9 @@
                     </div>
 
                     <!-- Sistema & Configurazione -->
-                    <div class="admin-grid-section">
-                        <div class="admin-grid-title">⚙️ Sistema</div>
-                        <div class="admin-buttons-grid">
+                    <div class="avanzato-grid-section">
+                        <div class="avanzato-grid-title">⚙️ Sistema</div>
+                        <div class="avanzato-buttons-grid">
                             <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('configurazione', this)" style="grid-column: span 2; background-color: #343a40; color: white;">🔧 Configurazione & Utenti</button>
                         </div>
                     </div>
@@ -1250,7 +1250,7 @@
             <div class="form-group" style="margin-top: 10px;">
                 <label>Ruolo:</label>
                 <select id="selectUserRole">
-                    <option value="Admin">Admin</option>
+                    <option value="Aavanzato">Aavanzato</option>
                     <option value="User" selected>User</option>
                 </select>
             </div>
@@ -1437,7 +1437,7 @@
             let annoHtml = '';
             const annoMax = parseInt(annoCarnevaleCorrente, 10) || 2027;
 
-            if (modalitaCorrente === 'admin') {
+            if (modalitaCorrente === 'avanzato') {
                 annoHtml = `<select class="input-storico select-anno-mod">`;
                 for (let a = annoMax; a >= 1964; a--) {
                     annoHtml += `<option value="${a}" ${a === annoMax ? 'selected' : ''}>${a}</option>`;
@@ -2047,8 +2047,8 @@
 
                 // Gestione del selettore e della modalità base
                 const boxModalita = document.getElementById('boxModalita');
-                if (ruoloUtenteLoggato === 'admin') {
-                    // Se l'utente è admin, mostriamo il selettore per permettergli di cambiare modalità
+                if (ruoloUtenteLoggato === 'avanzato') {
+                    // Se l'utente è avanzato, mostriamo il selettore per permettergli di cambiare modalità
                     boxModalita.style.display = 'flex';
                 } else {
                     // Se è un utente normale, nascondiamo completamente il selettore
@@ -2674,7 +2674,7 @@
         }
 		
 		window.disabilitaTuttiUser = async function() {
-            const conferma = confirm("⚠️ Sei sicuro di voler disabilitare TUTTI gli utenti con ruolo 'User' in un colpo solo? Gli account Admin rimarranno attivi.");
+            const conferma = confirm("⚠️ Sei sicuro di voler disabilitare TUTTI gli utenti con ruolo 'User' in un colpo solo? Gli account Aavanzato rimarranno attivi.");
             if (!conferma) return;
 
             try {
@@ -2939,35 +2939,35 @@
 		
 		window.cambiaModalita = function(modalita) {
 			modalitaCorrente = modalita;
-			const isAdmin = (modalita === 'admin');
+			const isAavanzato = (modalita === 'avanzato');
 			
 			// Rimuove lo stato di ricerca attiva ogni volta che si cambia modalità
 			document.body.classList.remove('vista-ricerca-attiva');
 			
-			document.getElementById('btnAdmin').classList.toggle('attivo', isAdmin);
-			document.getElementById('btnUser').classList.toggle('attivo', !isAdmin);
+			document.getElementById('btnAavanzato').classList.toggle('attivo', isAavanzato);
+			document.getElementById('btnUser').classList.toggle('attivo', !isAavanzato);
 			
-			if (isAdmin) {
-				document.body.classList.add('is-admin-mode');
+			if (isAavanzato) {
+				document.body.classList.add('is-avanzato-mode');
 			} else {
-				document.body.classList.remove('is-admin-mode');
+				document.body.classList.remove('is-avanzato-mode');
 			}
 			
 			const sidebar = document.getElementById('sidebarMenu');
-			if (isAdmin) {
-				sidebar.classList.add('attiva-admin');
+			if (isAavanzato) {
+				sidebar.classList.add('attiva-avanzato');
 			} else {
-				sidebar.classList.remove('attiva-admin');
+				sidebar.classList.remove('attiva-avanzato');
 			}
 			
-			// Mostra il pulsante Gestione Coda SOLO se siamo Admin E NON siamo su un dispositivo mobile
+			// Mostra il pulsante Gestione Coda SOLO se siamo Aavanzato E NON siamo su un dispositivo mobile
 			const btnGestioneCoda = document.getElementById('btnGestioneCoda');
 			const isMobileDevice = document.body.classList.contains('is-mobile');
 			if (btnGestioneCoda) {
-				btnGestioneCoda.style.display = (isAdmin && !isMobileDevice) ? 'inline-block' : 'none';
+				btnGestioneCoda.style.display = (isAavanzato && !isMobileDevice) ? 'inline-block' : 'none';
 			}
 
-			if (!isAdmin) cambiaSezioneMenu('visualizzazione_standard');
+			if (!isAavanzato) cambiaSezioneMenu('visualizzazione_standard');
 			
 			const idPersonaCorrente = document.getElementById('editIdPersona').value;
 			if (idPersonaCorrente && document.getElementById('editModal').style.display === 'flex') {
@@ -3348,9 +3348,9 @@
 				}
 			}
 
-			const isAdmin = (modalitaCorrente === 'admin');
-			document.getElementById('gruppoFlagNonIscrivibile').style.display = isAdmin ? 'flex' : 'none';
-			document.getElementById('editNonIscrivibile').disabled = !isAdmin;
+			const isAavanzato = (modalitaCorrente === 'avanzato');
+			document.getElementById('gruppoFlagNonIscrivibile').style.display = isAavanzato ? 'flex' : 'none';
+			document.getElementById('editNonIscrivibile').disabled = !isAavanzato;
 			isNuovaAnagrafica = false;
 			datiAnagraficaOriginali = raccogliDatiAnagrafica();
 			aggiornaStatoPulsanteSalva();
@@ -3455,7 +3455,7 @@
 
 			document.getElementById('btnAggiungiIscrizione').style.display = 'block';
 			document.getElementById('btnAggiungiIscrizione').onclick = attivaInserimentoNuovaIscrizioneEsistente;
-			document.getElementById('btnEliminaAnagrafica').style.display = (modalitaCorrente === 'admin') ? 'block' : 'none';
+			document.getElementById('btnEliminaAnagrafica').style.display = (modalitaCorrente === 'avanzato') ? 'block' : 'none';
 			document.getElementById('btnEliminaAnagrafica').onclick = () => eliminaAnagraficaCompleta(p.id);
 			document.getElementById('sezioneStoricoContainer').style.display = 'block';
 			document.getElementById('sezioneStoricoContainer').style.visibility = 'visible';
@@ -3688,7 +3688,7 @@
                     }
 
                     let azioniHtml = '-';
-                    if (modalitaCorrente === 'admin') {
+                    if (modalitaCorrente === 'avanzato') {
                         azioniHtml = `
                             <button type="button" class="btn-azione btn-modifica-storico" onclick="abilitaModificaStorico(this, '${st.id}', '${st.anno}')">Modifica</button>
                             <button type="button" class="btn-azione btn-elimina-storico" onclick="eliminaRigaStorico('${st.id}', '${id}', '${st.anno}', '${st.numero_identificativo}')">Elimina</button>
@@ -3739,7 +3739,7 @@
             const annoMax = parseInt(annoCarnevaleCorrente, 10) || 2027;
 
             let annoHtml = '';
-            if (modalitaCorrente === 'admin') {
+            if (modalitaCorrente === 'avanzato') {
                 annoHtml = `<select class="input-storico select-anno-mod">`;
                 for (let a = annoMax; a >= 1964; a--) {
                     annoHtml += `<option value="${a}" ${String(a) === String(annoStorico) ? 'selected' : ''}>${a}</option>`;
@@ -4824,10 +4824,10 @@
 				document.body.classList.add('is-desktop');
 				document.body.classList.remove('is-mobile');
 				
-				// Ripristina la visualizzazione solo se siamo in modalità admin da desktop
-				const isAdmin = modalitaCorrente === 'admin';
-				if (btnCoda) btnCoda.style.display = isAdmin ? 'inline-block' : 'none';
-				if (btnChiama) btnChiama.style.display = isAdmin ? 'inline-block' : 'none';
+				// Ripristina la visualizzazione solo se siamo in modalità avanzato da desktop
+				const isAavanzato = modalitaCorrente === 'avanzato';
+				if (btnCoda) btnCoda.style.display = isAavanzato ? 'inline-block' : 'none';
+				if (btnChiama) btnChiama.style.display = isAavanzato ? 'inline-block' : 'none';
 			}
 		}
 
