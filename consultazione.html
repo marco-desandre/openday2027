@@ -1127,7 +1127,29 @@
         document.getElementById('inputAnnoCarnevale').value = annoCarnevaleCorrente;
         document.getElementById('configFlagCodiceFiscale').checked = configCodiceFiscale;
         document.getElementById('configFlagDocumento').checked = configDocumento;
-               	
+        
+		// Funzione per rilevare se siamo su un dispositivo mobile
+		function isMobileDevice() {
+			return (window.innerWidth <= 768) || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+		}
+
+		// Applica una classe di servizio al body all'avvio e al ridimensionamento
+		function gestisciResponsiveDevice() {
+			if (isMobileDevice()) {
+				document.body.classList.add('is-mobile');
+				document.body.classList.remove('is-desktop');
+				alert("Riconosciuto: DISPOSITIVO MOBILE (Smartphone/Tablet)");
+			} else {
+				document.body.classList.add('is-desktop');
+				document.body.classList.remove('is-mobile');
+				alert("Riconosciuto: PC / DESKTOP");
+			}
+		}
+
+		// Esegui al caricamento e quando la finestra viene ridimensionata/ruotata
+		window.addEventListener('load', gestisciResponsiveDevice);
+		window.addEventListener('resize', gestisciResponsiveDevice);
+       	
 		window.esportaPrelazioniCSV = function() {
             const tbody = document.getElementById('corpoTabellaPrelazioni');
             const righe = Array.from(tbody.getElementsByTagName('tr'));
