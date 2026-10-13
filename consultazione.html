@@ -1156,11 +1156,7 @@
         document.getElementById('inputAnnoCarnevale').value = annoCarnevaleCorrente;
         document.getElementById('configFlagCodiceFiscale').checked = configCodiceFiscale;
         document.getElementById('configFlagDocumento').checked = configDocumento;
-        
-		// Esegui al caricamento e quando la finestra viene ridimensionata/ruotata
-		window.addEventListener('load', gestisciResponsiveDevice);
-		window.addEventListener('resize', gestisciResponsiveDevice);
-      	
+            	
 		window.esportaPrelazioniCSV = function() {
             const tbody = document.getElementById('corpoTabellaPrelazioni');
             const righe = Array.from(tbody.getElementsByTagName('tr'));
