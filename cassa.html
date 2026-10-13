@@ -10,19 +10,18 @@
             font-family: Arial, sans-serif; 
             margin: 0; 
             background-color: #f4f4f9; 
-            padding: 0; /* Azzerato il padding del body per sfruttare tutti i bordi su mobile */
+            padding: 0; 
         }
         .container { 
             width: 100%; 
             min-height: 100vh;
             background: white; 
-            padding: 16px 12px; /* Padding interno ridotto e ottimizzato per schermi piccoli */
+            padding: 16px 12px; 
             border-radius: 0; 
             box-shadow: none; 
             margin: 0; 
         }
         
-        /* Su schermi larghi (PC/Tablet), restituiamo una bella card centrata */
         @media (min-width: 768px) {
             .container {
                 max-width: 700px;
@@ -162,6 +161,44 @@
         let vociSelezionate = [];
         let transazioni = JSON.parse(localStorage.getItem('cassa_transazioni')) || [];
 
+        // Funzione per emettere un suono in stile "tintinnio monete / cassa"
+        function suonaConferma() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Primo tono metallico acuto (moneta)
+                const osc1 = ctx.createOscillator();
+                const gain1 = ctx.createGain();
+                osc1.type = 'triangle';
+                osc1.frequency.setValueAtTime(987.77, ctx.currentTime); // B5
+                osc1.frequency.exponentialRampToValueAtTime(1318.51, ctx.currentTime + 0.08); // E6
+                
+                gain1.gain.setValueAtTime(0.12, ctx.currentTime);
+                gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+                
+                osc1.connect(gain1);
+                gain1.connect(ctx.destination);
+                osc1.start();
+                osc1.stop(ctx.currentTime + 0.15);
+
+                // Secondo tono di conferma (più corposo, tipo cassa)
+                const osc2 = ctx.createOscillator();
+                const gain2 = ctx.createGain();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(523.25, ctx.currentTime + 0.1); // C5
+                osc2.frequency.setValueAtTime(659.25, ctx.currentTime + 0.18); // E5
+                
+                gain2.gain.setValueAtTime(0.15, ctx.currentTime + 0.1);
+                gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+                
+                osc2.connect(gain2);
+                gain2.connect(ctx.destination);
+                osc2.start(ctx.currentTime + 0.1);
+                osc2.stop(ctx.currentTime + 0.35);
+
+            } catch(e) {}
+        }
+
         function aggiungiImporto(nomeVoce, valore) {
             importoSelezionato += valore;
             vociSelezionate.push({ nome: nomeVoce, prezzo: valore });
@@ -192,6 +229,9 @@
                 alert("Seleziona prima un importo cliccando sui pulsanti dei tagli!");
                 return;
             }
+
+            // Emette il suono di avvenuto incasso
+            suonaConferma();
 
             const oraCorrente = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             
