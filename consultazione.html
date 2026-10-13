@@ -6,6 +6,73 @@
     <title>Gestionale Iscritti</title>
     <style>
 		
+		/* --- DASHBOARD MOBILE ADMIN A PULSANTI --- */
+        .admin-mobile-dashboard {
+            display: none; /* Di default nascosta (appare solo in mobile + admin) */
+            flex-direction: column;
+            gap: 15px;
+            padding: 5px 0;
+        }
+
+        body.is-mobile.is-admin-mode .admin-mobile-dashboard {
+            display: flex !important;
+        }
+
+        /* Nasconde la normale sezione iscritti standard quando si è in mobile admin dashboard */
+        body.is-mobile.is-admin-mode #sezione_visualizzazione_standard.attiva .search-row,
+        body.is-mobile.is-admin-mode #sezione_visualizzazione_standard.attiva #messaggioGuida,
+        body.is-mobile.is-admin-mode #sezione_visualizzazione_standard.attiva .table-responsive,
+        body.is-mobile.is-admin-mode #sezione_visualizzazione_standard.attiva .box-contatore {
+            display: none !important;
+        }
+
+        .admin-grid-section {
+            background: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .admin-grid-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #007BFF;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 4px;
+        }
+
+        .admin-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .btn-grid-card {
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            color: #333;
+            padding: 10px 8px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-grid-card:active {
+            background-color: #007BFF;
+            color: white;
+            border-color: #007BFF;
+        }
+		
 		/* --- REGOLE DEDICATE PER LA MODALITÀ MOBILE --- */
         body.is-mobile .sezione-app h1, 
         body.is-mobile .sezione-app h2 {
@@ -454,6 +521,57 @@
                 <h2>Elenco Iscritti</h2>
                 <p style="color: #666; font-size: 14px;">Digita almeno 2 lettere del cognome per cercare nel database.</p>
                 
+                <!-- DASHBOARD MOBILE PER ADMIN -->
+                <div class="admin-mobile-dashboard">
+                    
+                    <!-- Accesso Rapido / Operazioni Principali -->
+                    <div class="admin-grid-section">
+                        <div class="admin-grid-title">⚡ Gestione Rapida</div>
+                        <div class="admin-buttons-grid">
+                            <button type="button" class="btn-grid-card" onclick="document.getElementById('filtroCognome').focus()">🔍 Cerca Ioscritto</button>
+                            <button type="button" class="btn-grid-card" style="background-color: #28a745; color: white;" onclick="document.getElementById('btnNuovoUtente').click()">+ Nuova Anagrafica</button>
+                            <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('ricerca', document.querySelector('.sidebar-item'))">📊 Ricerca Filtrata</button>
+                            <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('estrazione_prelazioni', document.querySelector('.sidebar-item'))">⭐ Prelazioni</button>
+                        </div>
+                    </div>
+
+                    <!-- Griglia Premi / Onorificenze -->
+                    <div class="admin-grid-section">
+                        <div class="admin-grid-title">🏆 Premi & Onorificenze</div>
+                        <div class="admin-buttons-grid">
+                            <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('onorificenze_10', this); caricaElenco10Anni();">10 Anni</button>
+                            <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('onorificenze_20', this); caricaElenco20Anni();">20 Anni</button>
+                            <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('onorificenze_30', this); caricaElenco30Anni();">30 Anni</button>
+                            <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('onorificenze_40', this); caricaElenco40Anni();">40 Anni</button>
+                            <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('onorificenze_50', this); caricaElenco50Anni();">50 Anni</button>
+                            <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('onorificenze_capitani', this); caricaElencoCapitani();">Capitani</button>
+                            <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('onorificenze_tigre', this); caricaElencoTigre();" style="grid-column: span 2;">🐅 Tigre</button>
+                        </div>
+                    </div>
+
+                    <!-- Griglia Preventivi Iscrizioni -->
+                    <div class="admin-grid-section">
+                        <div class="admin-grid-title">📈 Preventivi Iscrizioni</div>
+                        <div class="admin-buttons-grid">
+                            <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('preventivo_10', this); caricaPreventivo10();">Prev. 10</button>
+                            <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('preventivo_20', this); caricaPreventivo20();">Prev. 20</button>
+                            <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('preventivo_30', this); caricaPreventivo30();">Prev. 30</button>
+                            <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('preventivo_40', this); caricaPreventivo40();">Prev. 40</button>
+                            <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('preventivo_50', this); caricaPreventivo50();" style="grid-column: span 2;">Prev. 50</button>
+                        </div>
+                    </div>
+
+                    <!-- Sistema & Configurazione -->
+                    <div class="admin-grid-section">
+                        <div class="admin-grid-title">⚙️ Sistema</div>
+                        <div class="admin-buttons-grid">
+                            <button type="button" class="btn-grid-card" onclick="cambiaSezioneMenu('configurazione', this)" style="grid-column: span 2; background-color: #343a40; color: white;">🔧 Configurazione & Utenti</button>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- FINE DASHBOARD MOBILE ADMIN -->
+				
                 <div class="search-row">
                     <div class="search-group">
                         <label for="filtroCognome"><strong>Cerca per Cognome:</strong></label>
@@ -2601,6 +2719,7 @@
             else if (valore === 'configurazione') caricaTabellaUtenti();
         };
 		
+		let ultimiRisultatiPrelazioniCache = [];
 		window.caricaDatiPrelazioni = async function() {
             const flagCorvi = document.getElementById('flagCorviDoro').checked;
             const flag9 = document.getElementById('flag9Anni').checked;
@@ -2760,6 +2879,13 @@
 			document.getElementById('btnAdmin').classList.toggle('attivo', isAdmin);
 			document.getElementById('btnUser').classList.toggle('attivo', !isAdmin);
 			
+			// Gestisce la classe globale admin sul body per i CSS condizionali mobile
+			if (isAdmin) {
+				document.body.classList.add('is-admin-mode');
+			} else {
+				document.body.classList.remove('is-admin-mode');
+			}
+			
 			// Gestione pulita e immediata della visibilità della sidebar
 			const sidebar = document.getElementById('sidebarMenu');
 			if (isAdmin) {
@@ -2779,7 +2905,7 @@
 			if (idPersonaCorrente && document.getElementById('editModal').style.display === 'flex') {
 				caricaStoricoPersona(idPersonaCorrente);
 			}
-		};
+		};		
 
 		let statoOrdinamentoColonna = { indice: -1, crescente: true };
 		let ultimiRisultatiFiltratiCache = [];
@@ -4231,7 +4357,6 @@
             try {
                 mostraCaricamento("Ricerca del prossimo in coda...");
 
-                const codaRef = dbRef(dbTicket, 'coda');
                 const snapshot = await get(codaRef);
 
                 if (!snapshot.exists()) {
