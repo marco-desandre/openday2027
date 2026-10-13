@@ -21,6 +21,23 @@
             flex-wrap: wrap;
             gap: 6px !important;
         }
+		
+		/* Mostra M / F al posto di Maschio / Femmina solo in modalità mobile */
+		body.is-mobile .label-sesso-maschio::after {
+			content: "M";
+			visibility: visible;
+		}
+		body.is-mobile .label-sesso-maschio {
+			visibility: hidden; /* Nasconde il testo esteso */
+		}
+
+		body.is-mobile .label-sesso-femmina::after {
+			content: "F";
+			visibility: visible;
+		}
+		body.is-mobile .label-sesso-femmina {
+			visibility: hidden; /* Nasconde il testo esteso */
+		}
 	
         body { 
 			font-family: Arial, sans-serif; 
@@ -690,10 +707,10 @@
                             <div style="display: flex; gap: 15px; align-items: center; margin: 1px 0 3px 0;">
                                 <div style="display: flex; gap: 15px; align-items: center;">
                                     <label style="font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; margin: 0;">
-                                        <input type="radio" name="editSesso" value="M" style="cursor: pointer; width: 16px; height: 16px;" onchange="gestisciSelezioneSesso()"> Maschio
+                                        <input type="radio" name="editSesso" value="M" style="cursor: pointer; width: 16px; height: 16px;" onchange="gestisciSelezioneSesso()"> <span class="label-sesso-maschio">Maschio</span>
                                     </label>
                                     <label style="font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; margin: 0;">
-                                        <input type="radio" name="editSesso" value="F" style="cursor: pointer; width: 16px; height: 16px;" onchange="gestisciSelezioneSesso()"> Femmina
+                                        <input type="radio" name="editSesso" value="F" style="cursor: pointer; width: 16px; height: 16px;" onchange="gestisciSelezioneSesso()"> <span class="label-sesso-femmina">Femmina</span>
                                     </label>
                                 </div>
                                 <input type="text" id="editCodiceFiscale" class="campo-controllo" maxlength="16" placeholder="es. RSSMRA..." style="text-transform: uppercase; margin: 0; padding: 3px 6px; height: 31px; box-sizing: border-box;">
