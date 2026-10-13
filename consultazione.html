@@ -548,7 +548,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 02.00</div>
+			<div class="versione-app">Ver. 02.10</div>
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
 				<button type="button" id="btnGestioneCoda" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
@@ -1178,14 +1178,14 @@
                 <div style="flex: 1; min-width: 0; display: none;" id="sezioneStoricoContainer">
                     <h4 style="margin-top: 0; color: #007BFF; border-bottom: 2px solid #007BFF; padding-bottom: 5px;">Storico Iscrizioni</h4>
                     					
-                    <!-- Blocco opzioni e pulsanti compatto e allineato come da richiesta -->
+                    <!-- Blocco opzioni e pulsanti compatto e allineato -->                   
                     <div style="margin-top: 10px; margin-bottom: 15px; background: #f8f9fa; padding: 12px; border-radius: 6px; border: 1px solid #e9ecef;">
                         
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; flex-wrap: wrap;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;">
                             
-                            <!-- Colonna Sinistra: Onorificenza e opzionale Non iscrivibile -->
-                            <div style="display: flex; flex-direction: column; gap: 10px;">
-                                <div id="boxContainerOnorificenza" style="display: flex; align-items: center; gap: 8px; background: #e7f5ff; padding: 5px 10px; border-radius: 6px; border: 1px solid #74c0fc; width: fit-content;">
+                            <!-- Riga / Gruppo Sinistra: Badge Onorificenza + Tigre + Capitano di Piazza affiancati -->
+                            <div style="display: flex; align-items: center; gap: 18px; flex-wrap: wrap;">
+                                <div id="boxContainerOnorificenza" style="display: flex; align-items: center; gap: 8px; background: #e7f5ff; padding: 5px 10px; border-radius: 6px; border: 1px solid #74c0fc; width: fit-content; margin: 0;">
                                     <label style="font-size: 13px; font-weight: bold; color: #1864ab; margin: 0;">🏆 Onorificenza:</label>
                                     <span id="badgeStatoOnorificenza" style="background: #1971c2; color: white; padding: 2px 8px; border-radius: 12px; font-weight: bold; font-size: 13px;"> -</span>
                                 </div>
@@ -1193,23 +1193,17 @@
                                     <input type="checkbox" id="editNonIscrivibile">
                                     <label for="editNonIscrivibile" style="color: #dc3545;">Non iscrivibile</label>
                                 </div>
-                            </div>
-
-                            <!-- Colonna Centrale: Checkbox Tigre e Capitano di Piazza affiancati -->
-                            <div style="display: flex; flex-direction: column; gap: 8px; justify-content: center;">
-                                <div style="display: flex; gap: 25px; align-items: center; flex-wrap: wrap;">
-                                    <div class="checkbox-group" style="margin: 0;">
-                                        <input type="checkbox" id="editTigre">
-                                        <label for="editTigre">Tigre</label>
-                                    </div>
-                                    <div class="checkbox-group" style="margin: 0;">
-                                        <input type="checkbox" id="editCapitanoPiazza">
-                                        <label for="editCapitanoPiazza">Capitano di Piazza</label>
-                                    </div>
+                                <div class="checkbox-group" style="margin: 0;">
+                                    <input type="checkbox" id="editTigre">
+                                    <label for="editTigre" style="font-size: 13px; font-weight: bold;">Tigre</label>
+                                </div>
+                                <div class="checkbox-group" style="margin: 0;">
+                                    <input type="checkbox" id="editCapitanoPiazza">
+                                    <label for="editCapitanoPiazza" style="font-size: 13px; font-weight: bold;">Capitano di Piazza</label>
                                 </div>
                             </div>
 
-                            <!-- Colonna Destra: Contatori in evidenza -->
+                            <!-- Contatori in evidenza a destra -->
                             <div style="display: flex; flex-direction: column; gap: 4px; min-width: 140px; background: #fff; padding: 8px 12px; border-radius: 6px; border: 1px solid #dee2e6;">
                                 <div class="totale-iscrizioni-inline" style="justify-content: space-between;">
                                     <span style="font-size: 12px;">Tot. Complete:</span>
@@ -1228,7 +1222,6 @@
                             <button type="button" id="btnAggiungiIscrizione" class="btn-aggiungi-iscrizione" style="display: none; padding: 8px 16px; font-size: 14px; width: auto;">Aggiungi Iscrizione</button>
                         </div>
                     </div>
-					
                     <div id="storicoCaricamento">Seleziona un iscritto...</div>
                     
                     <div class="table-responsive">
