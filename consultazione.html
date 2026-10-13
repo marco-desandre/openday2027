@@ -548,7 +548,7 @@
     <!-- AREA PRINCIPALE -->
     <main class="main-content">
         <div class="container">
-			<div class="versione-app">Ver. 02.10</div>
+			<div class="versione-app">Ver. 02.00</div>
             <div class="top-bar-header">
 				<!-- NUOVO PULSANTE GESTIONE CODA -->
 				<button type="button" id="btnGestioneCoda" class="btn-logout" style="background-color: #dc2626;" onclick="apriGestioneCodaBanco()">📢 Gestione Coda</button>
@@ -1178,50 +1178,46 @@
                 <div style="flex: 1; min-width: 0; display: none;" id="sezioneStoricoContainer">
                     <h4 style="margin-top: 0; color: #007BFF; border-bottom: 2px solid #007BFF; padding-bottom: 5px;">Storico Iscrizioni</h4>
                     					
-                    <!-- Blocco opzioni e pulsanti compatto e allineato -->                   
-                    <div style="margin-top: 10px; margin-bottom: 15px; background: #f8f9fa; padding: 12px; border-radius: 6px; border: 1px solid #e9ecef;">
+                    <!-- Blocco opzioni e pulsanti con font ridotto per stare tutti sulla stessa riga -->
+                    <div style="margin-top: 6px; margin-bottom: 12px; background: #f8f9fa; padding: 8px; border-radius: 6px; border: 1px solid #e9ecef;">
                         
-                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: nowrap;">
                             
-                            <!-- Riga / Gruppo Sinistra: Badge Onorificenza + Tigre + Capitano di Piazza affiancati -->
-                            <div style="display: flex; align-items: center; gap: 18px; flex-wrap: wrap;">
-                                <div id="boxContainerOnorificenza" style="display: flex; align-items: center; gap: 8px; background: #e7f5ff; padding: 5px 10px; border-radius: 6px; border: 1px solid #74c0fc; width: fit-content; margin: 0;">
-                                    <label style="font-size: 13px; font-weight: bold; color: #1864ab; margin: 0;">🏆 Onorificenza:</label>
-                                    <span id="badgeStatoOnorificenza" style="background: #1971c2; color: white; padding: 2px 8px; border-radius: 12px; font-weight: bold; font-size: 13px;"> -</span>
+                            <!-- Gruppo Sinistra: Badge Onorificenza + Tigre + Capitano di Piazza ridotti -->
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden;">
+                                <div id="boxContainerOnorificenza" style="display: flex; align-items: center; gap: 4px; background: #e7f5ff; padding: 3px 6px; border-radius: 4px; border: 1px solid #74c0fc; white-space: nowrap; margin: 0;">
+                                    <label style="font-size: 10px; font-weight: bold; color: #1864ab; margin: 0;">🏆 Onor:</label>
+                                    <span id="badgeStatoOnorificenza" style="background: #1971c2; color: white; padding: 1px 5px; border-radius: 8px; font-weight: bold; font-size: 10px;"> -</span>
                                 </div>
-                                <div class="checkbox-group" id="gruppoFlagNonIscrivibile" style="display: none; margin: 0;">
-                                    <input type="checkbox" id="editNonIscrivibile">
-                                    <label for="editNonIscrivibile" style="color: #dc3545;">Non iscrivibile</label>
+                                <div class="checkbox-group" style="margin: 0; white-space: nowrap;">
+                                    <input type="checkbox" id="editTigre" style="width: 13px; height: 13px; margin: 0 2px 0 0;">
+                                    <label for="editTigre" style="font-size: 11px; font-weight: bold; cursor: pointer;">Tigre</label>
                                 </div>
-                                <div class="checkbox-group" style="margin: 0;">
-                                    <input type="checkbox" id="editTigre">
-                                    <label for="editTigre" style="font-size: 13px; font-weight: bold;">Tigre</label>
-                                </div>
-                                <div class="checkbox-group" style="margin: 0;">
-                                    <input type="checkbox" id="editCapitanoPiazza">
-                                    <label for="editCapitanoPiazza" style="font-size: 13px; font-weight: bold;">Capitano di Piazza</label>
+                                <div class="checkbox-group" style="margin: 0; white-space: nowrap;">
+                                    <input type="checkbox" id="editCapitanoPiazza" style="width: 13px; height: 13px; margin: 0 2px 0 0;">
+                                    <label for="editCapitanoPiazza" style="font-size: 11px; font-weight: bold; cursor: pointer;">Capitano di Piazza</label>
                                 </div>
                             </div>
 
-                            <!-- Contatori in evidenza a destra -->
-                            <div style="display: flex; flex-direction: column; gap: 4px; min-width: 140px; background: #fff; padding: 8px 12px; border-radius: 6px; border: 1px solid #dee2e6;">
+                            <!-- Contatori in evidenza a destra con font ridotto -->
+                            <div style="display: flex; flex-direction: column; gap: 2px; min-width: 95px; background: #fff; padding: 4px 6px; border-radius: 4px; border: 1px solid #dee2e6; flex-shrink: 0;">
                                 <div class="totale-iscrizioni-inline" style="justify-content: space-between;">
-                                    <span style="font-size: 12px;">Tot. Complete:</span>
-                                    <span id="conteggioIscrizioniScheda" class="badge-conteggio" style="font-size: 12px; padding: 2px 8px;">0</span>
+                                    <span style="font-size: 10px;">Tot:</span>
+                                    <span id="conteggioIscrizioniScheda" class="badge-conteggio" style="font-size: 10px; padding: 1px 4px;">0</span>
                                 </div>
                                 <div class="totale-iscrizioni-inline" style="justify-content: space-between;">
-                                    <span style="font-size: 12px;">Consecutive:</span>
-                                    <span id="conteggioConsecutiveScheda" class="badge-conteggio" style="background-color: #17a2b8; font-size: 12px; padding: 2px 8px;">0</span>
+                                    <span style="font-size: 10px;">Consec:</span>
+                                    <span id="conteggioConsecutiveScheda" class="badge-conteggio" style="background-color: #17a2b8; font-size: 10px; padding: 1px 4px;">0</span>
                                 </div>
                             </div>
-
                         </div>
 
                         <!-- Riga inferiore: Pulsante Aggiungi Iscrizione -->
-                        <div style="margin-top: 12px; display: flex; justify-content: flex-start;">
-                            <button type="button" id="btnAggiungiIscrizione" class="btn-aggiungi-iscrizione" style="display: none; padding: 8px 16px; font-size: 14px; width: auto;">Aggiungi Iscrizione</button>
+                        <div style="margin-top: 8px; display: flex; justify-content: flex-start;">
+                            <button type="button" id="btnAggiungiIscrizione" class="btn-aggiungi-iscrizione" style="display: none; padding: 5px 10px; font-size: 12px; width: auto;">Aggiungi Iscrizione</button>
                         </div>
                     </div>
+					
                     <div id="storicoCaricamento">Seleziona un iscritto...</div>
                     
                     <div class="table-responsive">
